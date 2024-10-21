@@ -20,7 +20,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 
 ## Available Libraries
 
-* BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
+* \underline{Text to Underline}BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
 * AppendBuff: High-speed and high-volume append buffers and prefix sums, with many use cases.
 
 ## More to come:
