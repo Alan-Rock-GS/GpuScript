@@ -31,6 +31,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * Project: Project manager.
 * Puppeteer: Automate Chrome for numerous web applications, such as web scraping and bypassing APIs (not responsible for illegal usage).
 * Rand: Fastest random number generator in existence.
+* Sort: Fastest sort in existence.
 * Report: Generate reports and documentation with tables, figures, and animations. Full automation of all program features from an instruction file.
 * Cloud: Multi-user/multi-process support for distributed GPU computing. Provides >5X acceleration using a single laptop with a single GPU. Even faster for local area networks and over the internet.
 * VGrid: Fastest 3D volumetric rendering in existence, with axes grids.
