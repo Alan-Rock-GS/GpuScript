@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: gsBDraw_Tutorial
-  m_Shader: {fileID: 4800000, guid: 8f2d92561a670e34ab4f12969c586488, type: 3}
+  m_Shader: {fileID: 4800000, guid: f820d7e226e6f5740abdcccd73f27a18, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
