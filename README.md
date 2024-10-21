@@ -20,6 +20,14 @@ There will be a growing list of demos and tutorials that you can clone and run t
 
 <ins>**New tutorials will be added frequently!**<ins>
 
+```diff
+- text in red
++ text in green
+! text in orange
+# text in gray
+@@ text in purple (and bold)@@
+```
+
 ## Available Libraries
 
 * BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
