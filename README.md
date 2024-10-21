@@ -18,15 +18,10 @@ The framework is cross-platform. We will be targeting the latest version of Unit
 
 There will be a growing list of demos and tutorials that you can clone and run to get a feel for how GpuScript works. Start with the Instant_Gratification [Tutorial](https://www.youtube.com/@GpuScript/playlists). Go to the channel's "GpuScript Tutorial" Playlist to find all tutorials available.
 
+
 <ins>**New tutorials will be added frequently!**<ins>
 
-```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
-```
+
 
 ## Available Libraries
 
