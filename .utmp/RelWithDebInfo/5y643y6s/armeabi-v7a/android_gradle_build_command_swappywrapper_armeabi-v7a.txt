@@ -1,0 +1,7 @@
+Executable : C:\Program Files\Unity\Hub\Editor\2023.1.0a25\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\cmake\3.22.1\bin\ninja.exe
+arguments : 
+-C
+D:\Unity 2023\GS9\.utmp\RelWithDebInfo\5y643y6s\armeabi-v7a
+swappywrapper
+jvmArgs : 
+

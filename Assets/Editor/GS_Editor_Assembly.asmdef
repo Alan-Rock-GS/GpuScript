@@ -1,0 +1,18 @@
+{
+    "name": "GS_Editor_Assembly",
+    "rootNamespace": "",
+    "references": [
+        "GUID:102fad67c20a4a44287f54728ec7c8f5"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

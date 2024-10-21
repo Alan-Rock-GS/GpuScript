@@ -1,0 +1,12 @@
+* { font-size: 12px; padding: 0; border: 0; }
+.ui_font { -unity-font: resource("Arial Font/arial Unicode"); -unity-text-align: middle-center; }
+.unity-base-field, .unity-base-field--no-label, .unity-button, .unity-label, .unity-toggle > .unity-label
+, unity-base-field__input, unity-base-popup-field__input, unity-base-popup-field__text
+{ -unity-text-align: middle-center; height: 20px; margin: 0; padding: 0 }
+.unity-base-text-field__input, .unity-integer-field, .unity-integer-field > .unity-text-input, .unity-text-input, .unity-float-field, .unity-enum-field, 
+.unity-enum-field__input, .unity-base-field, .unity-base-popup-field, .unity-popup-field, .unity-popup-field__input
+{ -unity-text-align: middle-right; height: 20px; margin: 0; }
+.unity-base-slider, .unity-progress-bar, .unity-progress-bar__title { -unity-text-align: left-center; height: 24px; margin: 0; }
+.unity-tree-view, .unity-scroll-view, .unity-collection-view__scroll-view, unity-scroll-view, .unity-collection-view__scroll-view, .unity-content-viewport,
+.unity-content-and-vertical-scroll-container { flex-grow: 0; height: 140px; margin: 0; }
+.unity-progress-bar__title-container { justify_content: left; }

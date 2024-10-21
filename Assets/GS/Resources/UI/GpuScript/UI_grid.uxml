@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS" />
+</ui:UXML>

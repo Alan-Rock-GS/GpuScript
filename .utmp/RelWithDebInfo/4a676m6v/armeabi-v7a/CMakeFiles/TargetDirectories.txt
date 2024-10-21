@@ -1,0 +1,5 @@
+D:/Unity 2023/GS9/.utmp/RelWithDebInfo/4a676m6v/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/Unity 2023/GS9/.utmp/RelWithDebInfo/4a676m6v/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+D:/Unity 2023/GS9/.utmp/RelWithDebInfo/4a676m6v/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir
+D:/Unity 2023/GS9/.utmp/RelWithDebInfo/4a676m6v/armeabi-v7a/FramePacing/CMakeFiles/edit_cache.dir
+D:/Unity 2023/GS9/.utmp/RelWithDebInfo/4a676m6v/armeabi-v7a/FramePacing/CMakeFiles/rebuild_cache.dir

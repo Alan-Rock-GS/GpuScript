@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 0
+    path: Assets/GS_Projects/gsFractal/Fractal.unity
+    guid: b92b7b5032737e14fb24f479761c6e54
+  - enabled: 0
+    path: Assets/GS_Development/gsGDM/GDM.unity
+    guid: 22bf451418eb13145b2d2327ac7caa9f
+  m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

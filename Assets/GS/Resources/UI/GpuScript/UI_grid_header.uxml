@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS" />
+    <ui:VisualElement name="UI_grid_header" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement name="container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; width: auto; display: flex; height: 20px;">
+            <ui:Button text="A" display-tooltip-when-elided="true" name="headerButton" style="flex-shrink: 1; flex-grow: 1; display: flex;" />
+            <ui:Label text="m" name="unitLabel" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; display: none;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

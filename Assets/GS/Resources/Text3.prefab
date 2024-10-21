@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1422649659201330
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4431169981465944}
+  - component: {fileID: 5789406838447686526}
+  m_Layer: 0
+  m_Name: Text3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4431169981465944
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422649659201330}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5789406838447686526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422649659201330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3553ea8f87f1d241ba6fecdb2dd5802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  computeShader: {fileID: 0}
+  renderTextures: []
+  sync: 0
+  render: 0
+  touch2Dist0: 0
+  maxTouch2Dist: 0
+  mousePosition0:
+    x: 0
+    y: 0
+  leftButton: 0
+  rightButton: 0
+  middleButton: 0
+  MouseLeftButton: 0
+  MouseRightButton: 0
+  MouseMiddleButton: 0
+  MouseLeftButtonDown: 0
+  MouseRightButtonDown: 0
+  MouseMiddleButtonDown: 0
+  MouseLeftButtonUp: 0
+  MouseRightButtonUp: 0
+  MouseMiddleButtonUp: 0
+  MousePosition:
+    x: 0
+    y: 0
+  MousePositionDelta:
+    x: 0
+    y: 0
+  ScrollWheel: 0
+  canSave: 0
+  isSelected: 0
+  _tabButton: {fileID: 0}
+  _tabPanel: {fileID: 0}
+  Quad: {fileID: 0}
+  textLabel: Text^3
+  textColor: {r: 0, g: 0, b: 0, a: 0}
+  backColor: {r: 0, g: 0, b: 0, a: 0}
+  textAnchor: 0
+  textMaterials:
+  - {fileID: 2100000, guid: 3960c7f5f73881f449962db6a464b52d, type: 2}
+  - {fileID: 2100000, guid: a71ebfc62226bdd4b9e7c3efa69efd4e, type: 2}
+  - {fileID: 2100000, guid: 6e5a58ff87dc1224286f805325539da6, type: 2}
+  - {fileID: 2100000, guid: f7b92230beaadec43a5153c405f779c8, type: 2}
+  - {fileID: 2100000, guid: 281614227b3eedb4cbf0738ab1303d57, type: 2}
+  - {fileID: 2100000, guid: 50d5615558a8a6744a664a8e503f0540, type: 2}
+  - {fileID: 2100000, guid: c93752798c626394da1a211d045b9654, type: 2}
+  - {fileID: 2100000, guid: c099e913d78d2cc41b3ed5ba4b8e4ffc, type: 2}
+  generateTextColors: 0

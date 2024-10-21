@@ -1,0 +1,38 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+     <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS" />
+    <ui:VisualElement name="VisualElement" style="flex-grow: 1;">
+        <ui:VisualElement name="Data_Container" class="ui_font" style="width: 306; flex-grow: 1; flex-wrap: wrap;">
+            <GpuScript.UI_bool name="uiTab_displayEnglish" UI_bool_label="English" UI_bool_Val="true" class="ui_font" />
+            <GpuScript.UI_bool name="uiTab_displayChinese" UI_bool_label="Chinese 中文" UI_bool_Val="true" class="ui_font" />
+            <GpuScript.UI_enum name="uiTab_units" UI_enum_label="Units" UI_enum_value="0" UI_enum_type="gsQuandl_+Unit_Types" />
+            <GpuScript.UI_float name="uiTab_uiOpacity" UI_float_label="UI Opacity" UI_float_value="29" UI_float_min="-80" UI_float_max="100" />
+            <GpuScript.UI_string name="quandlKey" UI_string_label="Key" UI_string_value="abc" />
+            <GpuScript.UI_uint name="historyStartDate" UI_uint_label="Start Year" UI_uint_value="0" UI_uint_min="2000" UI_uint_max="2020" />
+            <GpuScript.UI_uint name="historyEndDate" UI_uint_label="End Year" UI_uint_value="0" UI_uint_min="2000" UI_uint_max="2020" />
+            <GpuScript.UI_method name="LoadQuandlData" UI_method_label="Load" />
+            <GpuScript.UI_method name="CompressQuandlData" UI_method_label="Compress" />
+            <GpuScript.UI_method name="BuildYearFiles" UI_method_label="Year Files" />
+            <GpuScript.UI_bool name="useOpen" UI_bool_label="Open" UI_bool_Val="true" class="ui_font" />
+            <GpuScript.UI_bool name="useHighLow" UI_bool_label="High" UI_bool_Val="true" class="ui_font" />
+            <GpuScript.UI_bool name="useVolume" UI_bool_label="Volume" UI_bool_Val="true" class="ui_font" />
+            <GpuScript.UI_uint name="testYear" UI_uint_label="Test Year" UI_uint_value="0" UI_uint_min="2000" UI_uint_max="2020" />
+            <GpuScript.UI_uint name="trainDayN" UI_uint_label="Train Day N" UI_uint_value="0" UI_uint_min="1" UI_uint_max="1000" />
+            <GpuScript.UI_uint name="corrDayN" UI_uint_label="Corr Day N" UI_uint_value="0" UI_uint_min="1" UI_uint_max="20" />
+            <GpuScript.UI_float name="minBasisWidth" UI_float_label="Basis Width" UI_float_value="0" UI_float_min="1E-05" UI_float_max="0.5" />
+            <GpuScript.UI_float name="minPriceChange" UI_float_label="Min Price Change" UI_float_value="0" UI_float_min="0" UI_float_max="0.1" />
+            <GpuScript.UI_float name="minConfidence" UI_float_label="Min Confidence" UI_float_value="0" UI_float_min="0" UI_float_max="0.1" />
+            <GpuScript.UI_float name="profitPercent" UI_float_label="% Profit" UI_float_value="0" />
+            <GpuScript.UI_method name="RunBasisTest" UI_method_label="Basis Test" />
+            <GpuScript.UI_method name="RunSingleTickerAI" UI_method_label="Single" />
+            <GpuScript.UI_method name="RunTest" UI_method_label="Run Full" />
+            <GpuScript.UI_uint name="monteCarloN" UI_uint_label="TestN" UI_uint_value="10" UI_uint_min="1" UI_uint_max="10" />
+            <UI_Array name="gsQuandl_GS+RainPercents" UI_Array_label="Rain Percents" UI_bool_value="true" />
+            <GpuScript.UI_method name="RainTest" UI_method_label="Rain Test" />
+            <GpuScript.UI_method name="Test_Regex" UI_method_label="Regex Test" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Status" style="height: 24px; flex-grow: 0; flex-direction: row;">
+            <ui:Label name="Status" label="Status" display-tooltip-when-elided="true" style="width: 90%; height: 24px; flex-grow: 0; background-color: rgba(194, 194, 194, 0.5);" />
+            <ui:ProgressBar picking-mode="Ignore" name="Progress" label="Progress" value="0" low-value="0" high-value="100" style="flex-grow: 1;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,25 @@
+                    Executable : C:\Program Files\Unity\Hub\Editor\2023.1.0a25\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\cmake\3.22.1\bin\cmake.exe
+arguments : 
+-HD:\Unity 2023\GS9\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary\src\main\cpp
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_SYSTEM_VERSION=31
+-DANDROID_PLATFORM=android-31
+-DANDROID_ABI=armeabi-v7a
+-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a
+-DANDROID_NDK=C:\Program Files\Unity\Hub\Editor\2023.1.0a25\Editor\Data\PlaybackEngines\AndroidPlayer\NDK
+-DCMAKE_ANDROID_NDK=C:\Program Files\Unity\Hub\Editor\2023.1.0a25\Editor\Data\PlaybackEngines\AndroidPlayer\NDK
+-DCMAKE_TOOLCHAIN_FILE=C:\Program Files\Unity\Hub\Editor\2023.1.0a25\Editor\Data\PlaybackEngines\AndroidPlayer\NDK\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=C:\Program Files\Unity\Hub\Editor\2023.1.0a25\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\cmake\3.22.1\bin\ninja.exe
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\Unity 2023\GS9\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\5y643y6s\obj\armeabi-v7a
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=D:\Unity 2023\GS9\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary\build\intermediates\cxx\RelWithDebInfo\5y643y6s\obj\armeabi-v7a
+-DCMAKE_BUILD_TYPE=RelWithDebInfo
+-DCMAKE_FIND_ROOT_PATH=D:\Unity 2023\GS9\.utmp\RelWithDebInfo\5y643y6s\prefab\armeabi-v7a\prefab
+-BD:\Unity 2023\GS9\.utmp\RelWithDebInfo\5y643y6s\armeabi-v7a
+-GNinja
+-DBUILD_GRADLE_DIRECTORY=D:\Unity 2023\GS9\Library\Bee\Android\Prj\Mono2x\Gradle\unityLibrary
+jvmArgs : 
+
+
+                    Build command args: []
+                    Version: 2

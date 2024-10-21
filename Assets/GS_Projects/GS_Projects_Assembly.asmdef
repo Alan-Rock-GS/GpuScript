@@ -1,0 +1,23 @@
+{
+    "name": "GS_Projects_Assembly",
+    "rootNamespace": "",
+    "references": [
+        "GUID:102fad67c20a4a44287f54728ec7c8f5",
+        "GUID:597a4eaafa9b8fb4884c2ed583147882",
+        "GUID:1491147abca9d7d4bb7105af628b223e",
+        "GUID:f2d49d9fa7e7eb3418e39723a7d3b92f",
+        "GUID:e0cd26848372d4e5c891c569017e11f1"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

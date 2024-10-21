@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS" />
+    <ui:VisualElement name="UI_TreeGroup" style="flex-direction: row; display: flex; max-height: 20px; flex-shrink: 1; width: 100px;">
+        <ui:Label name="Label_Indent" style="background-color: rgb(255, 252, 153); width: 0; height: 20px; -unity-font: resource(&apos;Arial Font/arial Unicode&apos;); -unity-font-style: bold; -unity-text-outline-width: 0; flex-shrink: 0; max-width: 50px; flex-grow: 0; display: flex;" />
+        <ui:VisualElement name="toggle_container" style="background-color: rgba(0, 0, 0, 0); flex-direction: row; width: 20px; height: 20px; flex-shrink: 0;">
+            <ui:Toggle value="true" style="flex-shrink: 0;" />
+        </ui:VisualElement>
+        <ui:Label text="UI" name="Label_Title" style="background-color: rgb(255, 252, 153); -unity-font: resource(&apos;Arial Font/arial Unicode&apos;); -unity-font-style: bold; -unity-text-outline-width: 0; flex-grow: 0; flex-shrink: 0; padding-left: 2px; padding-right: 2px; width: auto; max-width: 100px;" />
+    </ui:VisualElement>
+</ui:UXML>

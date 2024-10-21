@@ -1,0 +1,7 @@
+[
+{
+  "directory": "D:/Unity 2023/GS9/.utmp/RelWithDebInfo/4a676m6v/armeabi-v7a",
+  "command": "C:\\PROGRA~1\\Unity\\Hub\\Editor\\20231~3.0A2\\Editor\\Data\\PLAYBA~1\\ANDROI~1\\NDK\\TOOLCH~1\\llvm\\prebuilt\\WINDOW~1\\bin\\CLANG_~1.EXE --target=armv7-none-linux-androideabi31 --sysroot=\"C:/Program Files/Unity/Hub/Editor/2023.1.0a26/Editor/Data/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/windows-x86_64/sysroot\" -DEXTERNAL_FRAME_PACING_CODE -Dswappywrapper_EXPORTS -isystem C:/Users/alan_/.gradle/caches/transforms-3/467c3579f266553acb3501b86c7ede7f/transformed/games-frame-pacing-1.10.0/prefab/modules/swappy_static/include -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security -fexceptions -frtti -stdlib=libc++ -Wall -Wextra -pedantic -Werror -O2 -g -DNDEBUG -fPIC -o FramePacing\\CMakeFiles\\swappywrapper.dir\\UnitySwappyWrapper.cpp.o -c \"D:\\Unity 2023\\GS9\\Library\\Bee\\Android\\Prj\\Mono2x\\Gradle\\unityLibrary\\src\\main\\cpp\\FramePacing\\UnitySwappyWrapper.cpp\"",
+  "file": "D:\\Unity 2023\\GS9\\Library\\Bee\\Android\\Prj\\Mono2x\\Gradle\\unityLibrary\\src\\main\\cpp\\FramePacing\\UnitySwappyWrapper.cpp"
+}
+]
