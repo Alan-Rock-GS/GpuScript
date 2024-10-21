@@ -23,7 +23,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
 * AppendBuff: High-speed and high-volume append buffers and prefix sums, with many use cases.
 
-## More to come:
+## More Libraries to Come:
 
 * Backup: Backup files to local and/or external locations
 * FFT: Fastest Fourier Transform in existence
