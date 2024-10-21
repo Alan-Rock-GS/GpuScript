@@ -28,7 +28,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * Backup: Backup files to local and/or external locations
 * FFT: Fastest Fourier Transform in existence
 * OCam: Orbit camera with legends.
-* Project: Project manager
+* Project: Project manager.
 * Puppeteer: Automate Chrome for numerous web applications, such as web scraping and bypassing APIs (not responsible for illegal usage).
 * Rand: Fastest random number generator in existence.
 * Report: Generate reports and documentation with tables, figures, and animations. Full automation of all program features from an instruction file.
