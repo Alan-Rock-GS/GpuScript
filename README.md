@@ -40,7 +40,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 
 ## Contact Info
 
-Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community:seeding:. Here are a few places you can find Alan or more information about GpuScript:
+Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
 
 * [Alan on X](https://x.com/Alan_Rock_GS)
 * [Alan on LinkedIn](https://www.linkedin.com/in/alan-rock-8062921/)
