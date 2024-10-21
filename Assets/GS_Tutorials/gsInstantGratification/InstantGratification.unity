@@ -685,7 +685,6 @@ MonoBehaviour:
     w: -0
   data:
     siUnits: 0
-    group_UI: 0
   ValuesChanged: 0
   gChanged: 0
   already_quited: 0

@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{592F831E-F0C4-896A-6CEE-492688E5F6A8}</ProjectGuid>
+    <ProjectGuid>{AA09E132-8F24-A607-E343-B10A67466888}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Tutorials_Assembly</AssemblyName>
@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
-    <Analyzer Include="D:\Unity6\GpuScript-test\Library\PackageCache\com.unity.transport\Analyzers\Unity.Transport.Analyzers.dll" />
+    <Analyzer Include="C:\Users\alan_\Documents\GitHub\GpuScript-2\Library\PackageCache\com.unity.transport\Analyzers\Unity.Transport.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
@@ -71,10 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\GS_Tutorials\GS_Tutorials_Assembly.asmdef" />
-    <None Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial.compute" />
     <None Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial_UXML.uxml" />
     <None Include="Assets\GS_Tutorials\gsInstantGratification\gsInstantGratification_UXML.uxml" />
-    <None Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -1144,11 +1142,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="GS_Assembly.csproj">
-      <Project>{425265D3-41DD-159A-917C-8E82AF0B56B6}</Project>
+      <Project>{FDD86038-FE7A-AAC5-28D1-D80215161E83}</Project>
       <Name>GS_Assembly</Name>
     </ProjectReference>
     <ProjectReference Include="GS_Libs_Assembly.csproj">
-      <Project>{12BF8FF7-3E04-F07A-9243-89BB93A823CC}</Project>
+      <Project>{09460890-013E-3555-E419-BB0006D360E0}</Project>
       <Name>GS_Libs_Assembly</Name>
     </ProjectReference>
   </ItemGroup>
