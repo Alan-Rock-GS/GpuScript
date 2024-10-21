@@ -1,6 +1,6 @@
 # GS - GpuScript :rocket:
 
-##### GpuScript turns a laptop into a supercomputer, bringing C# Object-Orientated Programming and full debugging support to the GPU. Basically, any programmer can quickly write and easily debug large complex programs on the GPU, including both computation and graphics, and obtain supercomputer speeds.
+GpuScript turns a laptop into a supercomputer, bringing C# Object-Orientated Programming and full debugging support to the GPU. Basically, any programmer can quickly write and easily debug large complex programs on the GPU, including both computation and graphics, and obtain supercomputer speeds.
 
 <img src="images/GpuScript.jpg" width=50% height=50%>
 
