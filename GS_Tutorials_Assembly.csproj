@@ -67,24 +67,36 @@
     <Compile Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial.cs" />
     <Compile Include="Assets\GS_Tutorials\gsDrawSpheres_Tutorial\gsDrawSpheres_Tutorial_.cs" />
     <Compile Include="Assets\GS_Tutorials\gsDrawSpheres_Tutorial\gsDrawSpheres_Tutorial.cs" />
+    <Compile Include="Assets\GS_Tutorials\gsUInt_Tutorial\gsUInt_Tutorial.cs" />
     <Compile Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial_GS.cs" />
+    <Compile Include="Assets\GS_Tutorials\gsUInt_Tutorial\gsUInt_Tutorial_GS.cs" />
     <Compile Include="Assets\GS_Tutorials\gsButton_Tutorial\gsButton_Tutorial_.cs" />
     <Compile Include="Assets\GS_Tutorials\gsCheckBox_Tutorial\gsCheckBox_Tutorial.cs" />
+    <Compile Include="Assets\GS_Tutorials\gsFloat_Tutorial\gsFloat_Tutorial_.cs" />
+    <Compile Include="Assets\GS_Tutorials\gsFloat_Tutorial\gsFloat_Tutorial_GS.cs" />
     <Compile Include="Assets\GS_Tutorials\gsCheckBox_Tutorial\gsCheckBox_Tutorial_GS.cs" />
     <Compile Include="Assets\GS_Tutorials\gsInstantGratification\gsInstantGratification_.cs" />
     <Compile Include="Assets\GS_Tutorials\gsDrawSpheres_Tutorial\gsDrawSpheres_Tutorial_GS.cs" />
     <Compile Include="Assets\GS_Tutorials\gsCheckBox_Tutorial\gsCheckBox_Tutorial_.cs" />
     <Compile Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial_.cs" />
+    <Compile Include="Assets\GS_Tutorials\gsFloat_Tutorial\gsFloat_Tutorial.cs" />
     <Compile Include="Assets\GS_Tutorials\gsButton_Tutorial\gsButton_Tutorial_GS.cs" />
+    <Compile Include="Assets\GS_Tutorials\gsUInt_Tutorial\gsUInt_Tutorial_.cs" />
     <Compile Include="Assets\GS_Tutorials\gsInstantGratification\gsInstantGratification.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\GS_Tutorials\GS_Tutorials_Assembly.asmdef" />
+    <None Include="Assets\GS_Tutorials\gsUInt_Tutorial\gsUInt_Tutorial.compute" />
+    <None Include="Assets\GS_Tutorials\gsFloat_Tutorial\gsFloat_Tutorial_UXML.uxml" />
     <None Include="Assets\GS_Tutorials\gsButton_Tutorial\gsButton_Tutorial_UXML.uxml" />
+    <None Include="Assets\GS_Tutorials\gsUInt_Tutorial\gsUInt_Tutorial.shader" />
+    <None Include="Assets\GS_Tutorials\gsFloat_Tutorial\gsFloat_Tutorial.compute" />
+    <None Include="Assets\GS_Tutorials\gsUInt_Tutorial\gsUInt_Tutorial_UXML.uxml" />
     <None Include="Assets\GS_Tutorials\gsDrawSpheres_Tutorial\gsDrawSpheres_Tutorial.shader" />
     <None Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial_UXML.uxml" />
     <None Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial.shader" />
     <None Include="Assets\GS_Tutorials\gsInstantGratification\gsInstantGratification_UXML.uxml" />
+    <None Include="Assets\GS_Tutorials\gsFloat_Tutorial\gsFloat_Tutorial.shader" />
     <None Include="Assets\GS_Tutorials\gsDrawSpheres_Tutorial\gsDrawSpheres_Tutorial.compute" />
     <None Include="Assets\GS_Tutorials\gsCheckBox_Tutorial\gsCheckBox_Tutorial_UXML.uxml" />
     <None Include="Assets\GS_Tutorials\gsBDraw_Tutorial\gsBDraw_Tutorial.compute" />

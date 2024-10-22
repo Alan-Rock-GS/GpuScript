@@ -56,19 +56,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
-    <Analyzer Include="D:\Unity6\GpuScript\Library\PackageCache\com.unity.transport\Analyzers\Unity.Transport.Analyzers.dll" />
+    <Analyzer Include="C:\Users\alan_\Documents\GitHub\GpuScript\Library\PackageCache\com.unity.transport\Analyzers\Unity.Transport.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.23f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\GS_Projects\gsInstantGratification\gsInstantGratification_GS.cs" />
-    <Compile Include="Assets\GS_Projects\gsInstantGratification\gsInstantGratification.cs" />
-    <Compile Include="Assets\GS_Projects\gsInstantGratification\gsInstantGratification_.cs" />
+    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_GS.cs" />
+    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_.cs" />
+    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\GS_Projects\gsFractal\gsFractal.shader" />
     <None Include="Assets\GS_Projects\GS_Projects_Assembly.asmdef" />
-    <None Include="Assets\GS_Projects\gsInstantGratification\gsInstantGratification_UXML.uxml" />
+    <None Include="Assets\GS_Projects\gsFractal\gsFractal_UXML.uxml" />
+    <None Include="Assets\GS_Projects\gsFractal\gsFractal.compute" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
