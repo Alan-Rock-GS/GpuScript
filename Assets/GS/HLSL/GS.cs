@@ -3678,7 +3678,7 @@ namespace GpuScript
       MouseMiddleButtonUp = _MouseMiddleButtonUp;
     }
 
-    public virtual void onLoaded() { siUnits = true; }
+    public virtual void onLoaded() { siUnits = true; OnValueChanged(); }
     public void SkipLoad(string[][] lines, ref int lineI, int tabLevel)
     {
       tabLevel++;
