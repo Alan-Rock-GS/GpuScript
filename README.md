@@ -28,6 +28,18 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
 * AppendBuff: High-speed and high-volume append buffers and prefix sums, with many use cases.
 
+With GPU Script, you can write a program with lightening fast graphics on GPU with ease!!
+
+
+
+https://github.com/user-attachments/assets/c1470f84-23f7-412d-a546-b321a67fe034
+
+
+
+https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
+
+
+
 ## More Libraries to Come:
 
 * Backup: Backup files to local and/or external locations
@@ -44,7 +56,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more.
 * Matrix: Fastest matrix multiplication in existence for a GPU (23 PFLOPS on a common GPU released in 2020). Combined with GEM, results in the fastest matrix inversion in existence. Yes, GEM can perform accurate matrix operations.
 
-Below is an illustration of GEM AI Neural Network
+Below is an illustration of GEM AI Neural Network:
 
 https://github.com/user-attachments/assets/eda04df0-a76b-4587-9951-9203f0e5ac57
 
