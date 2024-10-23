@@ -55,7 +55,11 @@ https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 
 <ins>Here is the simplest GEM AI neural network ever: 1 input, 1 output, and 2 training examples (0=>0), (1=>1). It has 918 concurrent hidden layers, 1838 nodes, and 3676 links. It is built with GpuScript on a single laptop with a GPU rated at 20 TFLOPS.<ins>
 
-https://github.com/user-attachments/assets/6d5dd496-7930-4036-aba6-3d0c684e3cf4
+
+
+
+https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
+
 
 
 
