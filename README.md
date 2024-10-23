@@ -44,6 +44,11 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more.
 * Matrix: Fastest matrix multiplication in existence for a GPU (23 PFLOPS on a common GPU released in 2020). Combined with GEM, results in the fastest matrix inversion in existence. Yes, GEM can perform accurate matrix operations.
 
+Below is an illustration of GEM AI Neural Network
+
+https://github.com/user-attachments/assets/eda04df0-a76b-4587-9951-9203f0e5ac57
+
+
 ## Contact Info
 
 Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
