@@ -67,7 +67,7 @@ https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
 
-* [Alan on X](https://x.com/Alan_Rock_GS)
+* [Alan on X](https://x.com/arock_gs)
 * [Alan on LinkedIn](https://www.linkedin.com/in/alan-rock-8062921/)
 * [GpuScript on X](https://x.com/GpuScript)
 * [GpuScript website](https://GpuScript.com/)
