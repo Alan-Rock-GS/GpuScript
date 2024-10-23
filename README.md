@@ -32,9 +32,6 @@ With GPU Script, you can write a program with lightening fast graphics on GPU wi
 
 
 
-https://github.com/user-attachments/assets/c1470f84-23f7-412d-a546-b321a67fe034
-
-
 
 https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 
