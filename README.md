@@ -6,7 +6,7 @@ Any C# programmer can now program any GPU on a laptop or desktop without learnin
 
 GpuScript is integrated with Unity. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS, with practically no code changes required from platform to platform. Unity supports multi-user applications, enabling custom GPU Cloud distributed computing. Unity also supports high-quality 3D graphics and simulations. Unity is free, has a wide user-base, and many training videos are available. In my experience, if you don't use Unity, you end up having to rewrite it yourself, feature by feature.
 
-<img src="images/GpuScript.jpg" width=100% height=100%>
+<img src="images/GpuScript.jpg" width=75% height=75%>
 
 ## Project Status:
 
