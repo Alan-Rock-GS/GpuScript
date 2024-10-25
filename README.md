@@ -6,7 +6,7 @@ Any C# programmer can now program any GPU on a laptop or desktop without learnin
 
 GpuScript is integrated with Unity. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS, with practically no code changes required from platform to platform. Unity supports multi-user applications, enabling custom GPU Cloud distributed computing. Unity also supports high-quality 3D graphics and simulations. Unity is free, has a wide user-base, and many training videos are available. In my experience, if you don't use Unity, you end up having to rewrite it yourself, feature by feature.
 
-<img src="images/GpuScript.jpg" width=50% height=50%>
+<img src="images/GpuScript.jpg" width=75% height=75%>
 
 ## Project Status:
 
@@ -28,6 +28,15 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
 * AppendBuff: High-speed and high-volume append buffers and prefix sums, with many use cases.
 
+### With GpuScript, you can write programs with lightening fast graphics and computations on GPU with ease!! :boom:
+
+
+
+
+https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
+
+
+
 ## More Libraries to Come:
 
 * Backup: Backup files to local and/or external locations
@@ -44,13 +53,21 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more.
 * Matrix: Fastest matrix multiplication in existence for a GPU (23 PFLOPS on a common GPU released in 2020). Combined with GEM, results in the fastest matrix inversion in existence. Yes, GEM can perform accurate matrix operations.
 
+<ins>Here is the simplest GEM AI neural network ever: 1 input, 1 output, and 2 training examples (0=>0), (1=>1). It has 918 concurrent hidden layers, 1838 nodes, and 3676 links. It is built with GpuScript on a single laptop with a GPU rated at 20 TFLOPS.<ins>
+
+
+
+
+https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
+
+
+
+
 ## Contact Info
 
 Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
 
-* [Alan on X](https://x.com/Alan_Rock_GS)
+* [Alan on X](https://x.com/arock_gs)
 * [Alan on LinkedIn](https://www.linkedin.com/in/alan-rock-8062921/)
 * [GpuScript on X](https://x.com/GpuScript)
 * [GpuScript website](https://GpuScript.com/)
-"# GpuScript" 
-"# GpuScript" 
