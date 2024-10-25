@@ -1391,6 +1391,7 @@ namespace GpuScript
         case Unit.deg: return "°";//NumLk-Alt-248 
         case Unit.ohm: return "Ω";
         case Unit.us: return "μs";
+        case Unit.ns: return "ηs";
       }
       return u.ToString();
     }

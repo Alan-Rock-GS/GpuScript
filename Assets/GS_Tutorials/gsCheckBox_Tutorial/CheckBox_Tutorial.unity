@@ -309,7 +309,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!1 &548969524
+--- !u!1 &243455327
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -317,24 +317,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 548969528}
-  - component: {fileID: 548969527}
-  - component: {fileID: 548969526}
-  - component: {fileID: 548969525}
+  - component: {fileID: 243455331}
+  - component: {fileID: 243455330}
+  - component: {fileID: 243455329}
+  - component: {fileID: 243455328}
   m_Layer: 0
-  m_Name: gsCheckBox_Tutorial
+  m_Name: gsCheckbox_Tutorial
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &548969525
+--- !u!114 &243455328
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 548969524}
+  m_GameObject: {fileID: 243455327}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
@@ -347,13 +347,13 @@ MonoBehaviour:
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
---- !u!114 &548969526
+--- !u!114 &243455329
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 548969524}
+  m_GameObject: {fileID: 243455327}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7b7e990265be9ee44b809bb201e9d624, type: 3}
@@ -589,25 +589,25 @@ MonoBehaviour:
   lateUpdateI: 0
   in_CoroutineButton: 0
   _PaletteTex: {fileID: 0}
---- !u!114 &548969527
+--- !u!114 &243455330
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 548969524}
+  m_GameObject: {fileID: 243455327}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81edd9ddf2b18cc41b0c989f83bd7c21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!4 &548969528
+--- !u!4 &243455331
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 548969524}
+  m_GameObject: {fileID: 243455327}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -717,6 +717,6 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 548969528}
+  - {fileID: 243455331}
   - {fileID: 705507995}
   - {fileID: 221817174}

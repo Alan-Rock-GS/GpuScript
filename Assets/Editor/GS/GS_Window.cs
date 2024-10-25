@@ -155,7 +155,7 @@ public class GS_Window : EditorWindow
     SaveActiveScene();
   }
 
-  string SceneName => EditorSceneManager.GetActiveScene().name;
+  public static string SceneName => EditorSceneManager.GetActiveScene().name;
   bool OpenScene(string name) { var f = $"Assets/gs{name}/{name}.unity"; return (dataPath + f).Exists() && EditorSceneManager.OpenScene(f).IsValid(); }
 
   private void ToggleChanged(Toggle toggle)
@@ -178,6 +178,7 @@ public class GS_Window : EditorWindow
   }
 
   public static string importedAssets_filename => $"{dataPath}importedAssets.txt";
+  public static string skip_import_GS_filename => $"{dataPath}skip_import_GS.txt";
 
   void SelectionChanged()
   {
@@ -270,6 +271,52 @@ public class GS_Window : EditorWindow
       (compute_filename, shader_filename, material_filename) = ($"{gsPathFile}.compute", $"{gsPathFile}.shader", $"{gsPathFile}.mat");
     }
 
+    //bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, List<string> libKernels)
+    //{
+    //  bool changed = false;
+    //  string declaration = $"{libFld.FieldType} {libFld.Name};";
+    //  if (_GS_Code0.Contains(declaration))
+    //  {
+    //    string region = $"\n  #region <{libFld.Name}>", endregion = $"\n  #endregion <{libFld.Name}>", s = _GS_Code0.After(declaration);
+    //    bool rebuild = s.DoesNotContain(region), erase = !rebuild && s.Before(region).CharN("\n") >= 1;
+    //    string libTypeName = libFld.FieldType.ToString(), libName = libTypeName.After("gs");
+
+    //    bool isExternalLib = libFld.isExternal_Lib();
+    //    string libPath = isExternalLib ? "" : $"{AssemblyPath(libTypeName)}Lib/";
+    //    string libPrefix = $"{libPath}{libTypeName}";
+
+    //    bool libPath_Exists = libPath.IsNotEmpty() && libPath.Exists();
+    //    string _GS_lib_Code = libPath_Exists ? $"{libPrefix}_GS_lib.txt".ReadAllText() : "", cs_lib_Code = libPath_Exists ? $"{libPrefix}_cs_lib.txt".ReadAllText() : "";
+
+    //    string cs_lib_kernels_str = libPath_Exists ? $"{libPrefix}_cs_lib_kernels.txt".ReadAllText() : "";
+    //    string[] cs_lib_includes = libPath_Exists ? $"{libPrefix}_cs_lib_includes.txt".ReadAllLines() : new string[] { };
+    //    if (libName != libFld.Name)
+    //    {
+    //      string pattern1 = $@"\b{libName}_", replace1 = libFld.Name + "_", pattern2 = $@"_{libName}", replace2 = "_" + libFld.Name;
+    //      _GS_lib_Code = _GS_lib_Code.RegexReplace(pattern1, replace1, pattern2, replace2);
+    //      cs_lib_Code = cs_lib_Code.RegexReplace(pattern1, replace1, pattern2, replace2);
+    //      cs_lib_kernels_str = cs_lib_kernels_str.RegexReplace(pattern1, replace1, pattern2, replace2);
+    //    }
+    //    string[] cs_lib_kernels = cs_lib_kernels_str.Split("\t");
+    //    if (cs_lib_kernels != null) foreach (var k in cs_lib_kernels) if (!libKernels.Contains(k)) libKernels.Add(k);
+    //    if (cs_lib_includes != null) foreach (var i in cs_lib_includes) if (_cs_includes.ToString().DoesNotContain(i)) _cs_includes.Add("\n" + i);
+    //    if (rebuild || erase)
+    //    {
+    //      _GS_Code0 = StrBldr(_GS_Code0.BeforeIncluding(declaration), region, "\n", _GS_lib_Code, endregion, _GS_Code0.After(rebuild ? declaration : endregion));
+    //      changed = true;
+    //    }
+    //    cs_lib_Code = cs_lib_Code.RegexReplace($@"\b{libFld.Name}_Gpu_", "Gpu_" + libFld.Name + "_",
+    //      $@"\b{libFld.Name}_Cpu_", "Cpu_" + libFld.Name + "_", $@"\b{libFld.Name}_g{libName}\b", $"g{Name0}");
+
+    //    if (libFld.isExternal_Lib())
+    //      cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
+    //    _cs_lib_regions.Add($"\n  #region <{libFld.Name}>\n", cs_lib_Code, $"\n  #endregion <{libFld.Name}>");
+    //  }
+    //  return changed;
+    //}
+
+    public static bool skip_GS_import = false;
+
     bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, List<string> libKernels)
     {
       bool changed = false;
@@ -301,18 +348,27 @@ public class GS_Window : EditorWindow
         if (cs_lib_includes != null) foreach (var i in cs_lib_includes) if (_cs_includes.ToString().DoesNotContain(i)) _cs_includes.Add("\n" + i);
         if (rebuild || erase)
         {
+          //if (erase)
+          //{
+          skip_import_GS_filename.WriteAllText(" ");
+          skip_GS_import = true;
+          //}
           _GS_Code0 = StrBldr(_GS_Code0.BeforeIncluding(declaration), region, "\n", _GS_lib_Code, endregion, _GS_Code0.After(rebuild ? declaration : endregion));
           changed = true;
         }
-        cs_lib_Code = cs_lib_Code.RegexReplace($@"\b{libFld.Name}_Gpu_", "Gpu_" + libFld.Name + "_",
-          $@"\b{libFld.Name}_Cpu_", "Cpu_" + libFld.Name + "_", $@"\b{libFld.Name}_g{libName}\b", $"g{Name0}");
+        if (!changed)
+        {
+          cs_lib_Code = cs_lib_Code.RegexReplace($@"\b{libFld.Name}_Gpu_", "Gpu_" + libFld.Name + "_",
+            $@"\b{libFld.Name}_Cpu_", "Cpu_" + libFld.Name + "_", $@"\b{libFld.Name}_g{libName}\b", $"g{Name0}");
 
-        if (libFld.isExternal_Lib())
-          cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
-        _cs_lib_regions.Add($"\n  #region <{libFld.Name}>\n", cs_lib_Code, $"\n  #endregion <{libFld.Name}>");
+          if (libFld.isExternal_Lib())
+            cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
+          _cs_lib_regions.Add($"\n  #region <{libFld.Name}>\n", cs_lib_Code, $"\n  #endregion <{libFld.Name}>");
+        }
       }
       return changed;
     }
+
 
     private IEnumerator attempt(Func<bool> f) { for (int i = 0; !f(); i++) if (i == 0) yield return null; else yield break; }
     public StrBldr StrBldr(params object[] items) => new StrBldr(items);
@@ -434,7 +490,17 @@ public class GS_Window : EditorWindow
         if (_GS_filename.WriteAllText_IfChanged(_GS_Text0))
         {
           print($"Libraries reloaded: {_GS_filename.AfterLast("/")}, Recompiling");
-          ForceRecompile();
+          //ForceRecompile();
+
+          //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+          //print($"A _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
+          //AssetDatabase.ImportAsset(_GS_filename.ToAsset(), ImportAssetOptions.ForceUpdate);
+          //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+          //print($"B _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
+
+
+
+
           changed = true;
         }
         else changed = false;
@@ -2032,7 +2098,8 @@ public class GS_Window : EditorWindow
       var class_name = This.gsClass_name.value;
       string sceneName = class_name;
       if (sceneName.StartsWith("gs")) sceneName = sceneName.After("gs");
-      if (This.SceneName != sceneName && !This.OpenScene(sceneName))
+      //if (This.SceneName != sceneName && !This.OpenScene(sceneName))
+      if (SceneName != sceneName && !This.OpenScene(sceneName))
       {
         This.SceneCopy(sceneName);
         AssetDatabase.Refresh();
@@ -2084,49 +2151,90 @@ public class GS_Window : EditorWindow
         "using Newtonsoft.Json.Converters;",
         "using GpuScript;");
       build_UI = Name == SceneManager.GetActiveScene().name;
-      if (_GS_Build_Libs()) { }
 
-      bool added_scripts = false;
-      foreach (var lib_fld in lib_flds)
+      ////if (_GS_Build_Libs()) { }
+      //yield return null;
+      //ForceRecompile();
+      //yield return null;
+
+      bool changed = _GS_Build_Libs();
+      if (changed)
       {
-        if (lib_fld.isExternal_Lib())
-        {
-          string scriptName = "gs" + lib_fld.Name;
-          GS gs_script = gameObject.GetComponent(scriptName) as GS;
-          if (gs_script == null)
-          {
-            try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
-            if (gs_script != null)
-            {
-              string f = $"{AssemblyPath(scriptName)}{scriptName}";
-              gs_script.material = $"{f}.mat".LoadAssetAtPath<Material>();
-              gs_script.computeShader = $"{f}.compute".LoadAssetAtPath<ComputeShader>();
-            }
-            added_scripts = true;
-          }
-          else if (!gs_script.enabled) gs_script.enabled = true;
-        }
+        _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+        print($"A _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
+        AssetDatabase.ImportAsset(_GS_filename.ToAsset(), ImportAssetOptions.ForceUpdate);
+        yield return null;
+        //yield return null;
+        ForceRecompile();
+        yield return null;
+
+        _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+        print($"B _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
+
       }
-      if (added_scripts) { SaveActiveScene(); AutoRefresh = true; }
+      if (!changed)
+      {
+        bool added_scripts = false;
+        foreach (var lib_fld in lib_flds)
+        {
+          if (lib_fld.isExternal_Lib())
+          {
+            string scriptName = "gs" + lib_fld.Name;
+            GS gs_script = gameObject.GetComponent(scriptName) as GS;
+            if (gs_script == null)
+            {
+              try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
+              if (gs_script != null)
+              {
+                string f = $"{AssemblyPath(scriptName)}{scriptName}";
+                gs_script.material = $"{f}.mat".LoadAssetAtPath<Material>();
+                gs_script.computeShader = $"{f}.compute".LoadAssetAtPath<ComputeShader>();
+              }
+              added_scripts = true;
+            }
+            else if (!gs_script.enabled) gs_script.enabled = true;
+          }
+        }
+        if (added_scripts) { SaveActiveScene(); AutoRefresh = true; }
 
-      compileTimeStr.Add($", _GS_Build_Libs: {ClockSec_Segment():0.##} sec");
+        compileTimeStr.Add($", _GS_Build_Libs: {ClockSec_Segment():0.##} sec");
 
-      if (gs != null) //assign library fields to library prefab gameobjects
-        foreach (var f in gs.GetType().GetFields(bindings).Where(a => a.FieldType.IsType(typeof(GS)) && a.GetValue(gs) == null))
-          f.SetValue(gs, FindGameObject(f.Name)?.GetComponent<GS>() ?? null);
+        if (gs != null) //assign library fields to library prefab gameobjects
+          foreach (var f in gs.GetType().GetFields(bindings).Where(a => a.FieldType.IsType(typeof(GS)) && a.GetValue(gs) == null))
+            f.SetValue(gs, FindGameObject(f.Name)?.GetComponent<GS>() ?? null);
 
-      yield return This.StartCoroutine(Build_UXML_Coroutine());
-      GetReadWriteBuffers();
-      compileTimeStr.Add($", GetReadWriteBuffers: {ClockSec_Segment():0.##} sec");
-      if (!_cs_Write()) yield return null;
-      compileTimeStr.Add($", _cs_Write: {ClockSec_Segment():0.##} sec");
-      compute_Write();
-      compileTimeStr.Add($", compute: {ClockSec_Segment():0.##} sec");
-      shader_Write();
-      compileTimeStr.Add($", shader: {ClockSec_Segment():0.##} sec");
-      if (GS_Window.This.gsClass_Run.value) EditorApplication.EnterPlaymode(); else Beep(0.5f, 1000);
-      compileTimeStr.Add($"\nBuilt {Name}: {ClockSec_SoFar():0.##} sec");
-      print(compileTimeStr);
+        yield return This.StartCoroutine(Build_UXML_Coroutine());
+        GetReadWriteBuffers();
+        compileTimeStr.Add($", GetReadWriteBuffers: {ClockSec_Segment():0.##} sec");
+
+        ////if (!_cs_Write()) yield return null;
+        //yield return null;
+        ////AssetDatabase.Refresh();
+        //ForceRecompile();
+        //yield return null;
+
+        //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+        //print($"A types.N = {_GS_nestedTypes.Length}");
+        ////AssetDatabase.ImportAsset()
+        ////_GS_filename.ImportAsset();
+        //AssetDatabase.ImportAsset(_GS_filename.ToAsset(),ImportAssetOptions.ForceUpdate);
+        //yield return null;
+        //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+        //print($"B types.N = {_GS_nestedTypes.Length}");
+
+        _cs_Write();
+
+        compileTimeStr.Add($", _cs_Write: {ClockSec_Segment():0.##} sec");
+        compute_Write();
+        compileTimeStr.Add($", compute: {ClockSec_Segment():0.##} sec");
+        shader_Write();
+        compileTimeStr.Add($", shader: {ClockSec_Segment():0.##} sec");
+        if (GS_Window.This.gsClass_Run.value) EditorApplication.EnterPlaymode(); else Beep(0.5f, 1000);
+        compileTimeStr.Add($"\nBuilt {Name}: {ClockSec_SoFar():0.##} sec");
+        print(compileTimeStr);
+
+      }
+
       AssetDatabase.Refresh();
     }
     public WaitForSeconds WaitForSeconds(float seconds) => new WaitForSeconds(seconds);
@@ -2658,7 +2766,12 @@ public class GS_Window : EditorWindow
 
   public void OnScriptsCompiled(string[] compiled_gsFiles)
   {
-    foreach (var f in compiled_gsFiles) if (f.EndsWithAny($"{gsName}_GS.cs", $"{gsName}.cs")) rebuild = 2;
+    foreach (var f in compiled_gsFiles)
+      if (f.EndsWithAny($"{gsName}_GS.cs", $"{gsName}.cs"))
+      {
+        print($"OnScriptsCompiled: {f}");
+        rebuild = 2;
+      }
   }
 
   public static string AssemblyPath(string name)
