@@ -2099,6 +2099,7 @@ namespace GpuScript
     }
     private void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, params T[] data)
     {
+      if (data == null) return;
       if (buffer != null && buffer.Length != data.Length) { buffer.Release(); buffer = null; }
       if (buffer == null)
       {

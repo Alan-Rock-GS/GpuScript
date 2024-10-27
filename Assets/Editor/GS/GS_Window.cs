@@ -348,11 +348,8 @@ public class GS_Window : EditorWindow
         if (cs_lib_includes != null) foreach (var i in cs_lib_includes) if (_cs_includes.ToString().DoesNotContain(i)) _cs_includes.Add("\n" + i);
         if (rebuild || erase)
         {
-          //if (erase)
-          //{
           skip_import_GS_filename.WriteAllText(" ");
           skip_GS_import = true;
-          //}
           _GS_Code0 = StrBldr(_GS_Code0.BeforeIncluding(declaration), region, "\n", _GS_lib_Code, endregion, _GS_Code0.After(rebuild ? declaration : endregion));
           changed = true;
         }
@@ -490,24 +487,12 @@ public class GS_Window : EditorWindow
         if (_GS_filename.WriteAllText_IfChanged(_GS_Text0))
         {
           print($"Libraries reloaded: {_GS_filename.AfterLast("/")}, Recompiling");
-          //ForceRecompile();
-
-          //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-          //print($"A _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
-          //AssetDatabase.ImportAsset(_GS_filename.ToAsset(), ImportAssetOptions.ForceUpdate);
-          //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-          //print($"B _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
-
-
-
-
           changed = true;
         }
         else changed = false;
       }
       return changed;
     }
-
 
     public UIDocument uiDocument;
     public VisualElement root, UI_GS;
@@ -1349,7 +1334,13 @@ public class GS_Window : EditorWindow
                 {
                   string v = "";
                   ui_to_data.Add($"\n    data.{m_name}{v} = {m_name};");
-                  if (defaultStr.IsEmpty()) data_to_ui.Add($"\n    {m_name} = data.{m_name}{v};");
+                  if (defaultStr.IsEmpty())
+                  {
+                    if (_GS_fieldType.IsArray && _GS_fieldType.GetElementType().IsStruct())
+                      data_to_ui.Add($"\n    AddComputeBufferData(ref {m_name}, nameof({m_name}), data.{m_name});");
+                    else
+                      data_to_ui.Add($"\n    {m_name} = data.{m_name}{v};");
+                  }
                   else data_to_ui.Add($"\n    {m_name} = ui_txt_str.Contains(\"\\\"{m_name}\\\"\") ? data.{m_name}{v} : {defaultStr};");
                   if (m_typeStr == "TreeGroup" && Load_UI.IsEmpty()) Load_UI.Add($"\n    UI_{m_name}?.Display_Tree();");
                 }
@@ -1357,10 +1348,18 @@ public class GS_Window : EditorWindow
                 if (_GS_fieldType.IsArray)
                 {
                   dataWrappers.Add($"\n  public UI_grid UI_grid_{m_name};");
+
+                  var elementType = _GS_fieldType.GetElementType();
+                  if (elementType.IsClass)
+                  {
+                    dataWrappers.Add($"\n  public {m_typeStr} {m_name};");
+                  }
+
                   if (_GS_fieldType.IsClass)
                   {
                     string className = m_typeStr.Before("[]");
-                    dataWrappers.Add($"\n  public {m_typeStr} {m_name};");
+                    //dataWrappers.Add($"\n  public {m_typeStr} {m_name};");
+
                     var typeStr = m_typeStr == "strings" ? "string" : m_typeStr;
                     tData.Add($"\n    public {typeStr} {m_name};",
                               $"\n    public bool[] {m_name}_DisplayCols;",
@@ -1526,12 +1525,15 @@ public class GS_Window : EditorWindow
     $"\n  public virtual void {m_name}_OnCut()",
     "\n  {",
     $"\n    {m_name}_OnCopy();",
-    $"\n    {m_name} = {m_name}.Except({m_name}_CopyPaste).ToArray();",
+    //_GS_fieldType.GetElementType().IsStruct() ? $"\n    {m_name} = {m_name}.writeBuffer.Except({m_name}_CopyPaste).ToArray();"
+    //: $"\n    {m_name} = {m_name}.Except({m_name}_CopyPaste).ToArray();",
+    $"\n    {m_name} = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".writeBuffer" : "")}.Except({m_name}_CopyPaste).ToArray();",
     $"\n    UI_grid_{m_name}.StartRow = min(UI_grid_{m_name}.StartRow, max(0, {m_name}_CopyPaste.Count - UI_grid_{m_name}.DisplayRowN));",
     $"\n    UI_grid_{m_name}.isRowSelected = new bool[{m_name}_CopyPaste.Count];",
     $"\n    UI_grid_{m_name}.DrawGrid();",
     "\n  }",
-    $"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
+    //$"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
+    $"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".writeBuffer" : "")}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
     $"\n  public virtual void {m_name}_OnPaste()",
     "\n  {",
     $"\n    var list = {m_name}.ToList();",
@@ -1648,7 +1650,8 @@ public class GS_Window : EditorWindow
                 else if (m_typeStr.StartsWith("gs")) { }
                 else StackFields(dataWrappers, $"UI_{m_typeStr}", $"UI_{m_name}", "  ");
               }
-              else dataWrappers.Add($"\n  public {m_name}[] UI_{m_name};");
+              else
+                dataWrappers.Add($"\n  public {m_name}[] UI_{m_name};");
             }
             if (_GS_fieldType == typeof(string))
               dataWrappers.Add($"\n  public string {m_name} {{ get => UI_{m_name}?.v ?? \"\"; set {{ if (UI_{m_name} != null && data != null) UI_{m_name}.v = data.{m_name} = value; }} }}");
@@ -2152,25 +2155,18 @@ public class GS_Window : EditorWindow
         "using GpuScript;");
       build_UI = Name == SceneManager.GetActiveScene().name;
 
-      ////if (_GS_Build_Libs()) { }
-      //yield return null;
-      //ForceRecompile();
-      //yield return null;
-
       bool changed = _GS_Build_Libs();
       if (changed)
       {
-        _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-        print($"A _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
+        //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+        //print($"A _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
         AssetDatabase.ImportAsset(_GS_filename.ToAsset(), ImportAssetOptions.ForceUpdate);
         yield return null;
-        //yield return null;
         ForceRecompile();
         yield return null;
 
-        _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-        print($"B _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
-
+        //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+        //print($"B _GS_Build_Libs types.N = {_GS_nestedTypes.Length}");
       }
       if (!changed)
       {
@@ -2206,21 +2202,6 @@ public class GS_Window : EditorWindow
         yield return This.StartCoroutine(Build_UXML_Coroutine());
         GetReadWriteBuffers();
         compileTimeStr.Add($", GetReadWriteBuffers: {ClockSec_Segment():0.##} sec");
-
-        ////if (!_cs_Write()) yield return null;
-        //yield return null;
-        ////AssetDatabase.Refresh();
-        //ForceRecompile();
-        //yield return null;
-
-        //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-        //print($"A types.N = {_GS_nestedTypes.Length}");
-        ////AssetDatabase.ImportAsset()
-        ////_GS_filename.ImportAsset();
-        //AssetDatabase.ImportAsset(_GS_filename.ToAsset(),ImportAssetOptions.ForceUpdate);
-        //yield return null;
-        //_GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-        //print($"B types.N = {_GS_nestedTypes.Length}");
 
         _cs_Write();
 

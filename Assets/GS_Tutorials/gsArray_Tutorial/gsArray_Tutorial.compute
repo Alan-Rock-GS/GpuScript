@@ -47,25 +47,24 @@
     float sphereRadius, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
   };
-  struct SphereItem { float3 p; float r, v; };
+  struct SphereElement { float3 p; float r, v; };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
-  struct SphereElement { float3 p; float r, v; };
   groupshared uint BDraw_AppendBuff_grp[1024];
   groupshared uint BDraw_AppendBuff_grp0[1024];
   RWStructuredBuffer<GArray_Tutorial> gArray_Tutorial;
   RWStructuredBuffer<uint> BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
-  RWStructuredBuffer<SphereItem> spheres;
+  RWStructuredBuffer<SphereElement> sphereGrid;
   [numthreads(numthreads1, 1, 1)] void BuildSpheres(uint3 id : SV_DispatchThreadID)
   {
     if (id.x < g.sphereN)
     {
       uint i = id.x;
-      SphereItem sphere = spheres[i];
+      SphereElement sphere = sphereGrid[i];
       sphere.p = i * g.sphereRadius * 2 * f010; sphere.v = i / (max(g.sphereN, 2) - 1.0f); sphere.r = g.sphereRadius;
-      spheres[i] = sphere;
+      sphereGrid[i] = sphere;
     }
   }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_IncSums(uint3 id : SV_DispatchThreadID) { if (id.x < g.BDraw_AppendBuff_BitN) { uint i = id.x; if (i >= numthreads1) BDraw_AppendBuff_Sums[i] += BDraw_AppendBuff_Fills1[i / numthreads1 - 1]; if (i == g.BDraw_AppendBuff_BitN - 1) g.BDraw_AppendBuff_IndexN = BDraw_AppendBuff_Sums[i]; } }

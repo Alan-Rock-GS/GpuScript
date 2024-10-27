@@ -94,15 +94,14 @@ Shader "gs/gsArray_Tutorial"
     float sphereRadius, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
   };
-  struct SphereItem { float3 p; float r, v; };
+  struct SphereElement { float3 p; float r, v; };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
-  struct SphereElement { float3 p; float r, v; };
   RWStructuredBuffer<GArray_Tutorial> gArray_Tutorial;
   RWStructuredBuffer<uint> BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
-  RWStructuredBuffer<SphereItem> spheres;
+  RWStructuredBuffer<SphereElement> sphereGrid;
 
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
@@ -176,7 +175,7 @@ Shader "gs/gsArray_Tutorial"
   v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
   v2f vert_Spheres(uint i, uint j, v2f o)
   {
-    SphereItem s = spheres[i];
+    SphereElement s = sphereGrid[i];
     return vert_BDraw_Sphere(s.p, s.r, palette(s.v), i, j, o);
   }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }

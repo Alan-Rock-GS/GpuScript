@@ -247,6 +247,11 @@ namespace GpuScript
     public void AllocWriteBuffer() { if (writeBuffer == null || writeBuffer.Length != N) { writeBuffer = new T[N]; reallocated = true; } }
     public bool cpuWrite, gpuWrite, reallocated = true;
     public bool isCpuWrite { get => cpuWrite; set => cpuWrite = value; }
+
+    public List<T> ToList() => new List<T>(writeBuffer);
+    public static implicit operator List<T>(RWStructuredBuffer<T> a) { return a.ToList(); }
+    public static implicit operator RWStructuredBuffer<T>(T []a) { return new RWStructuredBuffer<T>(a); }
+
     public T this[uint i]
     {
       get { AllocWriteBuffer(); if (cpuWrite) { SetData(); cpuWrite = false; } if (gpuWrite) { GetData(); gpuWrite = false; } return writeBuffer[i]; }

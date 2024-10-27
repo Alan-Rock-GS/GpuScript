@@ -125,6 +125,9 @@ namespace GpuScript
     public static PropertyInfo GetStaticProperty(this string propertyName, Type t) => t.GetProperty(propertyName, static_bindings);
     public static PropertyInfo GetProperty(this string propertyName, object o) => GetProperty(propertyName, o.GetType());
 
+    public static bool IsStruct(this Type t) => t.IsValueType && !t.IsEnum;
+    //public static bool IsClass(this Type t) => t.IsClass;
+
     public static MemberInfo[] GetOrderedMembers(this Type t)
     {
       return t.GetMembers(bindings).Select(a => new
