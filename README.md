@@ -14,7 +14,7 @@
 
 <a href="#status"> ⚙️ Project Status</a>
 
-<a href="#contact"> 📝 Contacts</a>
+<a href="#contact"> 📝 Contact info</a>
 
 
 <a id="whatis"></a>
