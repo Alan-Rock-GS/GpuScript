@@ -13,6 +13,7 @@ Debug group-shared memory kernels. Learn integer computation tricks to break flo
 GpuScript brings C# Object-Orientated Programming (OOP), limited Functional Programming (FP), and full debugging support to the GPU. 
 
 Programmers can quickly write and easily debug large complex programs on the GPU. Perform all computations on the Gpu, keep all the data on the Gpu, reduce Cpu/Gpu memory transfers, and get higher speed-ups. 
+
 <img src="images/GpuScript.jpg" width=75% height=75%>
 
 GpuScript is integrated with Unity. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS, with practically no code changes required from platform to platform. Unity supports multi-user applications, enabling custom GPU Cloud distributed computing. Unity also supports high-quality 3D graphics and simulations. Unity is free, has a wide user-base, and many training videos are available. In my experience, if you don't use Unity, you end up having to rewrite it yourself, feature by feature, or do without.
