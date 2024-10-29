@@ -6,7 +6,7 @@
 
 <a href="#install"> 📦 Installation / Getting Started</a>
 
-<a href="#tutorial"> 📂 Tutorial</a>
+<a href="#tutorial"> 📂 Tutorials</a>
 
 <a href="#available"> 💾 Available Liabriries</a>
 
