@@ -1,16 +1,7 @@
 <a id="readme-top"></a>
 # GS - GpuScript :rocket:
 
-## 🗺️ map 
-- [<code>📦 Installation</code>](#-installation)
-- [<code>🎮 Music management</code>](#-music-management)
-- [<code>🎧 Playlist management</code>](#-playlist-management)
-- [<code>🚦️ Controls</code>](#-controls)
-- [<code>⚙️ Configuration</code>](#-configuration)
-- [<code>💾 Cache</code>](#-cache)
-- [<code>🌐 Update</code>](#-project-status)
-- [<code>📝 License</code>](#-license)
-- [<code>📢 Acknowledgments</code>](#-acknowledgments)
+## What is GpuScript
 
 GpuScript is free and open source. It is written in C# and integrated with Unity, also free.
 
