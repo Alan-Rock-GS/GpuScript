@@ -56,7 +56,7 @@ Installation instruction can be found in [How to Get Started Tutorial](https://y
 
 Video Tutorials can be found [HERE](https://www.youtube.com/@GpuScript/playlists)
 
-Text version of Tutorials can be found in the Wiki Page [HERE]((https://github.com/Alan-Rock-GS/GpuScript/wiki/Tutorials)
+Text version of Tutorials can be found in the Wiki Page [HERE](https://github.com/Alan-Rock-GS/GpuScript/wiki/Tutorials)
 
 [<ins>**New tutorials will be added frequently!**<ins>](https://www.youtube.com/@GpuScript/playlists)
 
