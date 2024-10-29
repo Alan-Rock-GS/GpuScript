@@ -29,13 +29,6 @@ GpuScript is integrated with Unity. Unity supports numerous platforms, including
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Coming Soon: 
-
-GpuScript libraries. Fast billboard drawing routines, orbit camera, legends, grids, axes, world's fastest ray-marching volumetric rendering, append buffers, prefix sums, FFT, DEM, GEM AI neural networks with instant learning and thinking, world's fastest matrix operations and instant SVD, project and settings management, random number generation, web automation, documentation and report generation, full program automation and testing, interprocess cloud distributed Gpu computation and multi-user control, sorting, with tutorials, tips, and tricks.
-
-GpuScript sample projects. Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Project Status:
 
@@ -85,6 +78,7 @@ https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 * Views: Customized camera views and other program settings
 * GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more.
 * Matrix: Fastest matrix multiplication in existence for a GPU (23 PFLOPS on a common GPU released in 2020). Combined with GEM, results in the fastest matrix inversion in existence. Yes, GEM can perform accurate matrix operations.
+* GpuScript sample projects: Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
 
 <ins>Here is the simplest GEM AI neural network ever: 1 input, 1 output, and 2 training examples (0=>0), (1=>1). It has 918 concurrent hidden layers, 1838 nodes, and 3676 links. It is built with GpuScript on a single laptop with a GPU rated at 20 TFLOPS.<ins>
 
