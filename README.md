@@ -28,7 +28,9 @@ Program the Gpu in C# and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLa
 ### $${\color{blue}GpuScript \space\space\color{blue} increases\space\space\color{blue} programmer \space\space\color{blue}productivity\space\space\color{blue} significantly.}$$
 ### $${\color{blue}Instead\space\space\color{blue} of\space\space\color{blue} spending \space\space\color{blue}a \space\space\color{blue}month\space\space\color{blue} to\space\space\color{blue} write\space\space\color{blue} a \space\space\color{blue}program,\space\space\color{blue} finish\space\space\color{blue} it \space\space\color{blue}in \space\space\color{blue}two\space\space\color{blue} hours!}$$
 
-GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transfrom in 3 nano-seconds. 
+GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. 
+
+Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transfrom in 3 nano-seconds. 
 
 Debug group-shared memory kernels. Learn integer computation tricks to break floating point operation barriers by orders of magnitude. 
 
