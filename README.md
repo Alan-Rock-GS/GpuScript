@@ -56,7 +56,17 @@ Installation instruction can be found in [How to Get Started Tutorial](https://y
 
 Video Tutorials can be found [HERE](https://www.youtube.com/@GpuScript/playlists)
 
-Text version of Tutorials can be found in the Wiki Page [HERE](https://github.com/Alan-Rock-GS/GpuScript/wiki/Tutorials)
+Text Tutorials can be found on GpuScript Wiki Page [HERE](https://github.com/Alan-Rock-GS/GpuScript/wiki/Tutorials)
+
+The following is a list of all free tutorials available, and it's recommended to watch them in sequence:
+* 1. How to Get Started
+* 2. Buttons: Learn How to Create and Use Buttons
+* 3. CheckBoxes
+* 4. Build Graphic Vertex / Draw Spheres
+* 5. Create Unsigned Integer
+* 6. Add a Float
+* 7. Array
+* 8. Debug Compute and Graphics Shaders
 
 [<ins>**New tutorials will be added frequently!**<ins>](https://www.youtube.com/@GpuScript/playlists)
 
