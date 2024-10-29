@@ -2,7 +2,7 @@
 # GS - GpuScript :rocket:
 
 ## 🗺️ map 
-<a href="#whatis">What is GpuScript</a>
+<a href="#whatis"> 🌐 What is GpuScript?</a>
 
 
 <a id="whatis"></a>
