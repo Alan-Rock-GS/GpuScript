@@ -1,7 +1,7 @@
 <a id="readme-top"></a>
 # GS - GpuScript :rocket:
 
-## 🗺️ MAP 
+## 🗺️ Directory 
 <a href="#whatis"> 🌐 What is GpuScript?</a>
 
 <a href="#install"> 📦 Installation / Getting Started</a>
