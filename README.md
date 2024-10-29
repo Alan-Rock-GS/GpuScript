@@ -29,12 +29,15 @@ GpuScript libraries. Fast billboard drawing routines, orbit camera, legends, gri
 
 GpuScript sample projects. Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Project Status:
 
 GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
 
 The framework is cross-platform. We will be targeting the latest version of Unity, Unity 6. 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting Started
 
@@ -43,6 +46,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 
 [<ins>**New tutorials will be added frequently!**<ins>](https://www.youtube.com/@GpuScript/playlists)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 ## Available Libraries
@@ -58,6 +62,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## More Libraries to Come:
 
@@ -83,6 +88,7 @@ https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 ## Contact Info
@@ -93,3 +99,4 @@ Alan Rock stared the GpuScript project because of his belief in open-soure and c
 * [Alan on LinkedIn](https://www.linkedin.com/in/alan-rock-8062921/)
 * [GpuScript on X](https://x.com/GpuScript)
 * [GpuScript website](https://GpuScript.com/)
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
