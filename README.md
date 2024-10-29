@@ -30,7 +30,7 @@ GpuScript is integrated with Unity. Unity supports numerous platforms, including
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-## Getting Started
+## Installation / Getting Started
 
 There will be a growing list of demos and tutorials that you can clone and run to get a feel for how GpuScript works. Start with the Instant_Gratification [Tutorial](https://www.youtube.com/@GpuScript/playlists). Go to the channel's "GpuScript Tutorial" Playlist to find all tutorials available.
 
