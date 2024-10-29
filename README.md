@@ -55,7 +55,7 @@ There will be a growing list of demos and tutorials that you can clone and run t
 * BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
 * AppendBuff: High-speed and high-volume append buffers and prefix sums, with many use cases.
 
-### With GpuScript, you can write programs with lightening fast graphics and computations on GPU with ease!! :boom:
+####\color{#AC3097} With GpuScript, you can write programs with lightening fast graphics and computations on GPU with ease!! :boom:
 
 
 
