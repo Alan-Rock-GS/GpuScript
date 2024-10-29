@@ -121,7 +121,7 @@ https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
 
-The framework is cross-platform using Unity Engine. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS
+GpuScript is supported by Unity Engine. Unity runs on numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
