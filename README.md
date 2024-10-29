@@ -1,7 +1,7 @@
 <a id="readme-top"></a>
 # GS - GpuScript :rocket:
 
-## 🗺️ MAP 
+## 🗺️ Directory 
 <a href="#whatis"> 🌐 What is GpuScript?</a>
 
 <a href="#install"> 📦 Installation / Getting Started</a>
@@ -14,18 +14,25 @@
 
 <a href="#status"> ⚙️ Project Status</a>
 
-<a href="#contact"> 📝 Contacts</a>
+<a href="#contact"> 📝 Contact Info</a>
 
 
 <a id="whatis"></a>
 ## What is GpuScript?
 GpuScript is free and open source. It is written in C# and integrated with Unity, also free.
 
-A C# programmer can learn GpuScript in 15 minutes. Program the Gpu in C# and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate C#, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
+### $${\color{green}GpuScript \space\space\color{green} enables\space\space\color{green}programming\space\space\color{green}on \space\space\color{green} any  \space\space\color{green}  GPU. }$$
 
-GpuScript increases programmer productivity by orders of magnitude. Instead of spending a month to write a program, finish it in two hours.
+### $${\color{red}Any \space\space\color{red} CSharp\space\space\color{red}programmer\space\space\color{red}can  \space\space\color{red}  learn  \space\space\color{red}  GpuScript  \space\space\color{red}  in  \space\space\color{red}  15\space\space\color{red}  minutes!}$$
 
-GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transfrom in 3 nano-seconds. 
+Program the Gpu in C# and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate C#, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
+
+### $${\color{blue}GpuScript \space\space\color{blue} increases\space\space\color{blue} programmer \space\space\color{blue}productivity\space\space\color{blue} significantly.}$$
+### $${\color{blue}Instead\space\space\color{blue} of\space\space\color{blue} spending \space\space\color{blue}a \space\space\color{blue}month\space\space\color{blue} to\space\space\color{blue} write\space\space\color{blue} a \space\space\color{blue}program,\space\space\color{blue} finish\space\space\color{blue} it \space\space\color{blue}in \space\space\color{blue}two\space\space\color{blue} hours!}$$
+
+GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. 
+
+Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transfrom in 3 nano-seconds. 
 
 Debug group-shared memory kernels. Learn integer computation tricks to break floating point operation barriers by orders of magnitude. 
 
@@ -37,20 +44,33 @@ Programmers can quickly write and easily debug large complex programs on the GPU
 
 GpuScript is integrated with Unity. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS, with practically no code changes required from platform to platform. Unity supports multi-user applications, enabling custom GPU Cloud distributed computing. Unity also supports high-quality 3D graphics and simulations. Unity is free, has a wide user-base, and many training videos are available. In my experience, if you don't use Unity, you end up having to rewrite it yourself, feature by feature, or do without.
 
-*  GpuScript is free, easy to learn, highly productuve, and unbelievably fast. 
+Bottom line:  GpuScript is free, easy to learn, highly productive, and unbelievably fast!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <a id="install"></a>
 ## Installation / Getting Started
 
-Download Unity Engine for free [here](https://unity.com/products). 
+Download Unity Engine for free [HERE](https://unity.com/products). 
 
 Installation instruction can be found in [How to Get Started Tutorial](https://youtu.be/t5fKsGcnqIw?si=v0dH-VwSQ22qe8Rj).
 
 <a id="tutorial"></a>
 ## Tutorials
 
+Video Tutorials can be found [HERE](https://www.youtube.com/@GpuScript/playlists).
+
+Text Tutorials can be found on GpuScript Wiki Pages [HERE](https://github.com/Alan-Rock-GS/GpuScript/wiki/Tutorials).
+
+The following is a list of all free tutorials available, and it's recommended to watch them in sequence:
+* 1. How to Get Started
+* 2. Buttons: Learn How to Create and Use Buttons
+* 3. CheckBoxes
+* 4. Build Graphic Vertex / Draw Spheres
+* 5. Create Unsigned Integer
+* 6. Add a Float
+* 7. Array
+* 8. Debug Compute and Graphics Shaders
 
 [<ins>**New tutorials will be added frequently!**<ins>](https://www.youtube.com/@GpuScript/playlists)
 
@@ -86,13 +106,11 @@ https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 * Cloud: Multi-user/multi-process support for distributed GPU computing. Provides >5X acceleration using a single laptop with a single GPU. Even faster for local area networks and over the internet.
 * VGrid: Fastest 3D volumetric rendering in existence, with axes grids.
 * Views: Customized camera views and other program settings
-* GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more.
+* GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more. [Learn more about GEM AI here!](https://github.com/Alan-Rock-GS/GpuScript/wiki/GEM-AI-Neural-Network)
 * Matrix: Fastest matrix multiplication in existence for a GPU (23 PFLOPS on a common GPU released in 2020). Combined with GEM, results in the fastest matrix inversion in existence. Yes, GEM can perform accurate matrix operations.
 * GpuScript sample projects: Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
 
-<ins>Here is the simplest GEM AI neural network ever: 1 input, 1 output, and 2 training examples (0=>0), (1=>1). It has 918 concurrent hidden layers, 1838 nodes, and 3676 links. It is built with GpuScript on a single laptop with a GPU rated at 20 TFLOPS.<ins>
-
-
+<ins>Below is an illustration of the simplest GEM AI neural network ever: 1 input, 1 output, and 2 training examples (0=>0), (1=>1). It has 918 concurrent hidden layers, 1838 nodes, and 3676 links. It is built with GpuScript on a single laptop with a GPU rated at 20 TFLOPS.<ins>
 
 
 https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
@@ -105,7 +123,7 @@ https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
 
-The framework is cross-platform. We will be targeting the latest version of Unity, Unity 6. 
+GpuScript is supported by Unity Engine. Unity runs on numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
