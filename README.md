@@ -6,6 +6,8 @@
 
 <a href="#install"> 📦 Installation / Getting Started</a>
 
+<a href="#tutorial"> 📂 Tutorial</a>
+
 <a href="#available"> 💾 Available Liabriries</a>
 
 <a href="#future_library"> 📢 Future Liabriries / Coming Soon</a>
@@ -42,7 +44,10 @@ GpuScript is integrated with Unity. Unity supports numerous platforms, including
 <a id="install"></a>
 ## Installation / Getting Started
 
-There will be a growing list of demos and tutorials that you can clone and run to get a feel for how GpuScript works. Start with the Instant_Gratification [Tutorial](https://www.youtube.com/@GpuScript/playlists). Go to the channel's "GpuScript Tutorial" Playlist to find all tutorials available.
+Download Unity Engine for free [here] (https://unity.com/products). Installation instruction can be found in [How to Get Started Tutorial](https://youtu.be/t5fKsGcnqIw?si=v0dH-VwSQ22qe8Rj).
+
+<a id="tutorial"></a>
+## Tutorials
 
 
 [<ins>**New tutorials will be added frequently!**<ins>](https://www.youtube.com/@GpuScript/playlists)
