@@ -20,6 +20,8 @@ GpuScript is integrated with Unity. Unity supports numerous platforms, including
 
 <ins>Summary: GpuScript is free, easy to learn, highly productuve, and unbelievably fast. <ins>
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Coming Soon: 
 
 GpuScript libraries. Fast billboard drawing routines, orbit camera, legends, grids, axes, world's fastest ray-marching volumetric rendering, append buffers, prefix sums, FFT, DEM, GEM AI neural networks with instant learning and thinking, world's fastest matrix operations and instant SVD, project and settings management, random number generation, web automation, documentation and report generation, full program automation and testing, interprocess cloud distributed Gpu computation and multi-user control, sorting, with tutorials, tips, and tricks.
