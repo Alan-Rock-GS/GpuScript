@@ -8,7 +8,7 @@
 - [<code>🚦️ Controls</code>](#-controls)
 - [<code>⚙️ Configuration</code>](#-configuration)
 - [<code>💾 Cache</code>](#-cache)
-- [<code>🌐 Update</code>](#-update)
+- [<code>🌐 Update</code>](#-project-status)
 - [<code>📝 License</code>](#-license)
 - [<code>📢 Acknowledgments</code>](#-acknowledgments)
 
