@@ -8,6 +8,13 @@
 
 <a href="#available"> 💾 Available Liabriries</a>
 
+<a href="#future_library"> 📢 Future Liabriries / Coming Soon</a>
+
+<a href="#status"> ⚙️ Project Status</a>
+
+<a href="#contact"> 📝 Contacts</a>
+
+
 <a id="whatis"></a>
 ## What is GpuScript?
 GpuScript is free and open source. It is written in C# and integrated with Unity, also free.
@@ -58,6 +65,7 @@ https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<a id="future_library"></a>
 ## More Libraries to Come:
 
 * Backup: Backup files to local and/or external locations
@@ -85,6 +93,7 @@ https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<a id="status"></a>
 ## Project Status:
 
 GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
@@ -93,6 +102,7 @@ The framework is cross-platform. We will be targeting the latest version of Unit
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<a id="contact"></a>
 ## Contact Info
 
 Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
