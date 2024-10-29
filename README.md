@@ -1,10 +1,28 @@
 # GS - GpuScript :rocket:
 
-GpuScript turns a laptop into a supercomputer, bringing C# Object-Orientated Programming and full debugging support to the GPU. Basically, any programmer can quickly write and easily debug large complex programs on the GPU, including both computation and graphics, and obtain supercomputer speeds.
+GpuScript is free and open source. It is written in C# and integrated with Unity, also free.
 
-Any C# programmer can now program any GPU on a laptop or desktop without learning CUDA, HLSL, or other GPU computation or graphics languages.
+A C# programmer can learn GpuScript in 15 minutes. Program the Gpu in C# and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate C#, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
 
-GpuScript is integrated with Unity. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS, with practically no code changes required from platform to platform. Unity supports multi-user applications, enabling custom GPU Cloud distributed computing. Unity also supports high-quality 3D graphics and simulations. Unity is free, has a wide user-base, and many training videos are available. In my experience, if you don't use Unity, you end up having to rewrite it yourself, feature by feature.
+GpuScript increases programmer productivity by orders of magnitude. Instead of spending a month to write a program, finish it in two hours.
+
+GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transfrom in 3 nano-seconds. 
+
+Debug group-shared memory kernels. Learn integer computation tricks to break floating point operation barriers by orders of magnitude. 
+
+GpuScript brings C# Object-Orientated Programming (OOP), limited Functional Programming (FP), and full debugging support to the GPU. 
+
+Programmers can quickly write and easily debug large complex programs on the GPU. Perform all computations on the Gpu, keep all the data on the Gpu, reduce Cpu/Gpu memory transfers, and get higher speed-ups. 
+
+GpuScript is integrated with Unity. Unity supports numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS, with practically no code changes required from platform to platform. Unity supports multi-user applications, enabling custom GPU Cloud distributed computing. Unity also supports high-quality 3D graphics and simulations. Unity is free, has a wide user-base, and many training videos are available. In my experience, if you don't use Unity, you end up having to rewrite it yourself, feature by feature, or do without.
+
+Summary: GpuScript is free, easy to learn, highly productuve, and unbelievably fast. 
+
+Coming Soon: 
+
+GpuScript libraries. Fast billboard drawing routines, orbit camera, legends, grids, axes, world's fastest ray-marching volumetric rendering, append buffers, prefix sums, FFT, DEM, GEM AI neural networks with instant learning and thinking, world's fastest matrix operations and instant SVD, project and settings management, random number generation, web automation, documentation and report generation, full program automation and testing, interprocess cloud distributed Gpu computation and multi-user control, sorting, with tutorials, tips, and tricks.
+
+GpuScript sample projects. Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
 
 <img src="images/GpuScript.jpg" width=75% height=75%>
 

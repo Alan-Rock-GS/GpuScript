@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Tutorials/gsFloat_Tutorial/Float_Tutorial.unity
+- path: C:/Users/alan_/Documents/GitHub/GpuScript/Assets/GS_Tutorials/gsArray_Tutorial/Array_Tutorial.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
