@@ -3,6 +3,7 @@
 
 ## 🗺️ map 
 <a href="#whatis"> 🌐 What is GpuScript?</a>
+
 <a href="#install"> 📦 Installation / Getting Started</a>
 
 <a id="whatis"></a>
