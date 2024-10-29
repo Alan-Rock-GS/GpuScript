@@ -30,14 +30,6 @@ GpuScript is integrated with Unity. Unity supports numerous platforms, including
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-## Project Status:
-
-GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
-
-The framework is cross-platform. We will be targeting the latest version of Unity, Unity 6. 
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ## Getting Started
 
 There will be a growing list of demos and tutorials that you can clone and run to get a feel for how GpuScript works. Start with the Instant_Gratification [Tutorial](https://www.youtube.com/@GpuScript/playlists). Go to the channel's "GpuScript Tutorial" Playlist to find all tutorials available.
@@ -90,6 +82,13 @@ https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Project Status:
+
+GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
+
+The framework is cross-platform. We will be targeting the latest version of Unity, Unity 6. 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contact Info
 
