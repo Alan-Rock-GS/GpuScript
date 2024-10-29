@@ -44,7 +44,9 @@ GpuScript is integrated with Unity. Unity supports numerous platforms, including
 <a id="install"></a>
 ## Installation / Getting Started
 
-Download Unity Engine for free [here](https://unity.com/products). Installation instruction can be found in [How to Get Started Tutorial](https://youtu.be/t5fKsGcnqIw?si=v0dH-VwSQ22qe8Rj).
+Download Unity Engine for free [here](https://unity.com/products). 
+
+Installation instruction can be found in [How to Get Started Tutorial](https://youtu.be/t5fKsGcnqIw?si=v0dH-VwSQ22qe8Rj).
 
 <a id="tutorial"></a>
 ## Tutorials
