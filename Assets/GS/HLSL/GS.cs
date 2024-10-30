@@ -1651,7 +1651,11 @@ namespace GpuScript
       bool t0 = t == 0, t1 = t == 1;
       int a0 = (int)Is(t0), a1 = (int)Is(t1), a2 = 1 - a0 - a1;
       lnkID += a == 0 ? a1_ * i100 : a == 1 ? int3(z2 - a01, 0, a1_) : a == 2 ? int3(z2 - a10, 0, a1_) : a == 3 ? int3((a1 + a01 * (a0 - a1) + a2) * z2 - a2, a1_, -a1 + a01 * (a1 + a0) - a1_ * a2) : a == 4 ? int3(a10 * (a0 * z2 + a1) + a01 * (a1 * (z2 - 1) - a2), a1_, a0 - a01 * (a0 + a1)) : int3(a10 * (a0 * (z2 - 1) - a2) + a01 * (a0 + a1 * z2), a1_, a0 - a01 * (a0 + a1));
-      return IsNotOutside(lnkID, i000, _nodeN - 1) ? lnkID : uint_max * u111;
+      //return IsNotOutside(lnkID, i000, _nodeN - 1) ? lnkID : uint_max * u111;
+      if (IsNotOutside(lnkID, i000, _nodeN - u111))
+        return lnkID;
+      else
+        return uint_max * u111;
     }
     public uint TetraLinkI_FCC_13(uint3 id, uint3 _nodeN, uint I) { uint3 lnkID = TetraLinkID_FCC_13(id, _nodeN, I); return lnkID.x == uint_max ? uint_max : id_to_i(lnkID, _nodeN); }
     public uint TetraLinkI_FCC(uint3 id, uint3 _nodeN, uint I) { uint3 lnkID = TetraLinkID_FCC(id, _nodeN, I); return lnkID.x == uint_max ? uint_max : id_to_i(lnkID, _nodeN); }
@@ -1771,15 +1775,21 @@ namespace GpuScript
     public IEnumerator Status() { status = ""; progress(0); yield return null; }
     public IEnumerator Status(string s) { status = s; yield return null; }
     public IEnumerator Status(uint i, uint n, string s) { status = s; progress(i, n); yield return null; }
-    public IEnumerator Status(int i, int n, string s) { status = s; progress(i, n); yield return null; }
+    public IEnumerator Status(int i, int n, string s)
+    {
+      if (i == n - 1) yield return Status();
+      else { status = s; progress(i, n); yield return null; }
+    }
     public IEnumerator Status(float v, string s) { status = s; progress(v); yield return null; }
     public IEnumerator Progress(float v) { progress(v); yield return null; }
     public IEnumerator Progress(uint i, uint n) { progress(i, n); yield return null; }
 
     public ProgressBar _progressBar = null; public ProgressBar progressBar => _progressBar ?? (_progressBar = root?.Q<ProgressBar>("Progress") ?? null);
     public float progress(float v) => progressBar != null ? progressBar.value = v : v;
-    public float progress(uint i, uint n) => progress(i * 100f / (n - 1));
-    public float progress(int i, int n) => progress(i * 100f / (n - 1));
+    //public float progress(uint i, uint n) => progress(i * 100f / (n - 1));
+    //public float progress(int i, int n) => progress(i * 100f / (n - 1));
+    public float progress(uint i, uint n) => progress((i + 1) * 100f / n);
+    public float progress(int i, int n) => progress((uint)i, (uint)n);
     public virtual string ui_txt => $"{appPath}{GetType()}.txt";
     public VisualElement[] ui_items;
 

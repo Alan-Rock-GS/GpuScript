@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Tutorials/gsInstantGratification/InstantGratification.unity
+- path: Assets/GS_Tutorials/gsButton_Tutorial/Button_Tutorial.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
