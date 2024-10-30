@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Tutorials/gsButton_Tutorial/Button_Tutorial.unity
+- path: C:/Users/alan_/Documents/GitHub/GpuScript/Assets/GS_Tutorials/gsCheckbox_Tutorial/Checkbox_Tutorial.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
