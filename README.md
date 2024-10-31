@@ -133,7 +133,7 @@ GpuScript is supported by Unity Engine. Unity runs on numerous platforms, includ
 <a id="contact"></a>
 ## Contact Info
 
-Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
+Alan stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
 
 * [Alan on X](https://x.com/arock_gs)
 * [Alan on LinkedIn](https://www.linkedin.com/in/alan-rock-8062921/)
