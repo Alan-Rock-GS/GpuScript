@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 989
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Project
   m_RootView: {fileID: 3}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -43,8 +43,8 @@ MonoBehaviour:
     y: 201
     width: 412
     height: 175
-  m_MinSize: {x: 202, y: 76}
-  m_MaxSize: {x: 4002, y: 4026}
+  m_MinSize: {x: 200, y: 50}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
@@ -193,8 +193,8 @@ MonoBehaviour:
     y: 0
     width: 1046
     height: 621
-  m_MinSize: {x: 201, y: 226}
-  m_MaxSize: {x: 4001, y: 4026}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
@@ -224,8 +224,8 @@ MonoBehaviour:
     y: 621
     width: 1046
     height: 312
-  m_MinSize: {x: 101, y: 126}
-  m_MaxSize: {x: 4001, y: 4026}
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 21}
   m_Panes:
   - {fileID: 21}
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 150}
   m_MaxSize: {x: 8096, y: 24288}
   vertical: 1
-  controlID: 74
+  controlID: 99
   draggingID: 0
 --- !u!114 &11
 MonoBehaviour:
@@ -373,7 +373,7 @@ MonoBehaviour:
     m_ContainerData: []
     m_OverlaysVisible: 1
   visualTreeAsset: {fileID: 9197481963319205126, guid: a27a8d867ef5d5245a09e3810cff0c34, type: 3}
-  gsClass_name_val: gsCheckbox_Tutorial
+  gsClass_name_val: gsUInt_Tutorial
   package_name_val: 
   backup_description_val: 
   backup_omitFolders_val: 
@@ -1336,9 +1336,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: ccf0ffff
-      m_LastClickedID: -3892
-      m_ExpandedIDs: f4f1ffff44f2ffff8ef7ffffd6f7ffff34f8ffff82f8ffff00fbffff
+      m_SelectedIDs: 92610000
+      m_LastClickedID: 0
+      m_ExpandedIDs: fcd4ffffeed7ffff7cd8ffffaadbffff54e3ffff7ceaffff9cedffff78f2ffff10f6ffff00fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1410,7 +1410,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/GS_Tutorials/gsCheckbox_Tutorial
+    - Assets/GS_Tutorials/gsFloat_Tutorial
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1420,16 +1420,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/GS_Tutorials/gsCheckbox_Tutorial
+  - Assets/GS_Tutorials/gsFloat_Tutorial
   m_LastFoldersGridSize: 16
   m_LastProjectPath: C:\Users\alan_\Documents\GitHub\GpuScript
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 186c0000
-    m_LastClickedID: 27672
-    m_ExpandedIDs: 00000000926b0000946b0000966b0000986b00009a6b0000
+    m_SelectedIDs: da6b0000
+    m_LastClickedID: 27610
+    m_ExpandedIDs: 00000000766a0000786a00007a6a00007c6a00007e6a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1458,7 +1458,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000926b0000946b0000966b0000986b00009a6b0000
+    m_ExpandedIDs: 00000000766a0000786a00007a6a00007c6a00007e6a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1490,18 +1490,18 @@ MonoBehaviour:
     m_ExpandedInstanceIDs: c623000068610000225a000008220000b2780000000000008a8a0000ae970000cc450000de44000034d300003ad30000ae710000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
+      m_Name: gsFloat_Tutorial_GS
+      m_OriginalName: gsFloat_Tutorial_GS
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 0
+      m_UserData: 24230
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
-      m_OriginalEventType: 11
+      m_OriginalEventType: 0
       m_IsRenamingFilename: 1
       m_TrimLeadingAndTrailingWhitespace: 0
       m_ClientGUIView: {fileID: 12}
