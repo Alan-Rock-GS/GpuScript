@@ -27,7 +27,7 @@ GpuScript is free and open source. It is written in C# and integrated with Unity
 
 Program the Gpu in C# and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate C#, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
 
-### $${\color{blue}GpuScript \space\space\color{blue} increases\space\space\color{blue} programmer \space\space\color{blue}productivity\space\space\color{blue} significantly.}$$
+### $${\color{red}GpuScript \space\space\color{red} increases\space\space\color{red} programmer \space\space\color{red}productivity\space\space\color{red} significantly.}$$
 ### $${\color{blue}Instead\space\space\color{blue} of\space\space\color{blue} spending \space\space\color{blue}a \space\space\color{blue}month\space\space\color{blue} to\space\space\color{blue} write\space\space\color{blue} a \space\space\color{blue}program,\space\space\color{blue} finish\space\space\color{blue} it \space\space\color{blue}in \space\space\color{blue}two\space\space\color{blue} hours!}$$
 
 GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. 
