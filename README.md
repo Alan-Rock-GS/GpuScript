@@ -23,12 +23,14 @@ GpuScript is free and open source. It is written in C# and integrated with Unity
 
 ### $${\color{green}GpuScript \space\space\color{green} enables\space\space\color{green}programming\space\space\color{green}on \space\space\color{green} any  \space\space\color{green}  GPU. }$$
 
-### $${\color{red}Any \space\space\color{red} CSharp\space\space\color{red}programmer\space\space\color{red}can  \space\space\color{red}  learn  \space\space\color{red}  GpuScript  \space\space\color{red}  in  \space\space\color{red}  30\space\space\color{red}  minutes!}$$
+### $${\color{green}Any \space\space\color{green} CSharp\space\space\color{green}programmer\space\space\color{green}can  \space\space\color{green}  learn  \space\space\color{green}  GpuScript  \space\space\color{green}  in  \space\space\color{green}  30\space\space\color{green}  minutes!}$$
+
+( JavaScript, Python, and C++ programmers may require a few extra days, as these languages are essentially the same as C#. )
 
 Program the Gpu in C# and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate C#, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
 
-### $${\color{blue}GpuScript \space\space\color{blue} increases\space\space\color{blue} programmer \space\space\color{blue}productivity\space\space\color{blue} significantly.}$$
-### $${\color{blue}Instead\space\space\color{blue} of\space\space\color{blue} spending \space\space\color{blue}a \space\space\color{blue}month\space\space\color{blue} to\space\space\color{blue} write\space\space\color{blue} a \space\space\color{blue}program,\space\space\color{blue} finish\space\space\color{blue} it \space\space\color{blue}in \space\space\color{blue}two\space\space\color{blue} hours!}$$
+GpuScript increases programmer productivity significantly.
+### $${\color{red}Instead\space\space\color{red} of\space\space\color{red} spending \space\space\color{red}a \space\space\color{red}month\space\space\color{red} to\space\space\color{red} write\space\space\color{red} a \space\space\color{red}program,\space\space\color{red} finish\space\space\color{red} it \space\space\color{red}in \space\space\color{red}two\space\space\color{red} hours!}$$
 
 GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. 
 
@@ -54,6 +56,9 @@ Bottom line:  GpuScript is free, easy to learn, highly productive, and unbelieva
 Download Unity Engine for free [HERE](https://unity.com/products). 
 
 Installation instruction can be found in [How to Get Started Tutorial](https://youtu.be/GMwt2Md7yQM?si=M6lkdsYDEKG6T3Mz).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 <a id="tutorial"></a>
 ## Tutorials
@@ -130,7 +135,7 @@ GpuScript is supported by Unity Engine. Unity runs on numerous platforms, includ
 <a id="contact"></a>
 ## Contact Info
 
-Alan Rock stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
+Alan stared the GpuScript project because of his belief in open-soure and contributing to the community. Here are a few places you can find Alan or more information about GpuScript:
 
 * [Alan on X](https://x.com/arock_gs)
 * [Alan on LinkedIn](https://www.linkedin.com/in/alan-rock-8062921/)
