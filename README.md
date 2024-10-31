@@ -27,7 +27,7 @@ GpuScript is free and open source. It is written in C# and integrated with Unity
 
 ( JavaScript, Python, and C++ programmers can quickly catch on, as these languages are essentially the same as C# when it comes to Object-Oriented Programming. )
 
-Program the Gpu in OOP and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate OOP, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
+Program the Gpu in OOP and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction Object-Oriented Programming class, and GpuScript generates thousands of lines of boiler-plate OOP, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
 
 GpuScript increases programmer productivity significantly.
 ### $${\color{red}Instead\space\space\color{red} of\space\space\color{red} spending \space\space\color{red}a \space\space\color{red}month\space\space\color{red} to\space\space\color{red} write\space\space\color{red} a \space\space\color{red}program,\space\space\color{red} finish\space\space\color{red} it \space\space\color{red}in \space\space\color{red}two\space\space\color{red} hours!}$$
@@ -38,7 +38,7 @@ Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running 
 
 Debug group-shared memory kernels. Learn integer computation tricks to break floating point operation barriers by orders of magnitude. 
 
-GpuScript brings C# Object-Orientated Programming (OOP), limited Functional Programming (FP), and full debugging support to the GPU. 
+GpuScript brings Object-Orientated Programming (OOP), limited Functional Programming (FP), and full debugging support to the GPU. 
 
 Programmers can quickly write and easily debug large complex programs on the GPU. Perform all computations on the Gpu, keep all the data on the Gpu, reduce Cpu/Gpu memory transfers, and get higher speed-ups. 
 
