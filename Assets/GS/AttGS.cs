@@ -35,29 +35,10 @@ namespace GpuScript
     }
   }
 
-  /// <summary>
-  /// Prefab: Supports everything except compute shaders. Good for OCam, Report, and TCloud
-  /// Import_All: Imports the entire library into the _.cs file. Can slow down compilation, but allows overriding all aspects of the library
-  /// Attach_Script: Attaches the library as a script component in the gs gameobject. Only code with the [AttGS_Lib] attribute is included in the _.cs file 
-  ///   Can be faster to compile and provides a simple interface to the library
-  /// </summary>
-  //public enum Lib { Prefab, Import_All, Attach_Script };
-  //public enum Lib { Prefab, Import_To_Base_Class, Attach_Script_With_Interface, Attach_Script_Only };
-  //public enum Lib { Import_To_Base_Class, Attach_Script_With_Interface, Attach_Script_Only };
-  //public enum ImportLib { None, Interface, All };
-
-  //public enum ImportLib { None, All };
   //[AttributeUsage(AttributeTargets.All)]
-  //public class AttGS_Lib : Attribute
+  //public class External_Lib : Attribute
   //{
-  //  public ImportLib importLib;
-  //  public AttGS_Lib(params object[] vals) { for (int i = 0; i < vals.Length; i++) if (vals[i] is ImportLib) importLib = (ImportLib)vals[i]; }
   //}
-  [AttributeUsage(AttributeTargets.All)]
-  public class External_Lib : Attribute
-  {
-    //public External_Lib() { for (int i = 0; i < vals.Length; i++) if (vals[i] is ImportLib) importLib = (ImportLib)vals[i]; }
-  }
 
   [AttributeUsage(AttributeTargets.All)]
   public class AttGS : Attribute
@@ -82,6 +63,11 @@ namespace GpuScript
     public bool is_Pow2_Slider, is_Pow_10, is_Pow_2;
     public bool is_ui;
     public string Key;
+    public string libEmail;
+    public int libKey;
+    public bool libInternal = true;
+    public bool libExternal { get => !libInternal; set => libInternal = !value; }
+    public DateTime libExpires;
     public List<string> includeBuffers;
 
     public AttGS(params object[] vals)
@@ -89,14 +75,24 @@ namespace GpuScript
       Min = Max = null;
       for (int i = 0; i < vals.Length; i++)
       {
-        if (i == 0 && vals[i] is string)
+        if (i == 0 && vals[i] is string s)
         {
-          Name = Description = vals[i].ToString().Trim(); if (Name.Contains("|")) { Description = Name.After("|"); Name = Name.Before("|"); }
+          Name = Description = s.Trim(); if (Name.Contains("|")) { Description = Name.After("|"); Name = Name.Before("|"); }
         }
-        else if (vals[i] is UI)
+        else if (vals[i] is GS_Lib lib)
+        {
+          switch (lib)
+          {
+            case GS_Lib.Email: libEmail = vals[++i].ToString(); break;
+            case GS_Lib.Key: libKey = vals[++i].To_int(); break;
+            case GS_Lib.External: libExternal = true; break;
+            case GS_Lib.Expires: libExpires = vals[++i].ToString().ToDate("yyyy/MM/dd"); break;
+          }
+        }
+        else if (vals[i] is UI ui)
         {
           isGS_Field = true;
-          switch ((UI)vals[i])
+          switch (ui)
           {
             case UI.ShowIf: ShowIf = vals[++i]; break;
             case UI.Val: Val = vals[++i]; break;
@@ -129,10 +125,10 @@ namespace GpuScript
             case UI.OnClicked: OnClicked = vals[++i].ToString(); break;
           }
         }
-        else if (vals[i] is GS_Buffer)
+        else if (vals[i] is GS_Buffer b)
         {
           isGS_Buffer = true;
-          switch ((GS_Buffer)vals[i])
+          switch (b)
           {
             case GS_Buffer.Description: _Description = vals[++i].ToString(); break;
             case GS_Buffer.MaxMemory_GB: MaxMem_GB = vals[++i].To_int(); break;
@@ -142,10 +138,10 @@ namespace GpuScript
             case GS_Buffer.HalfRace: HalfRace = true; break;
           }
         }
-        else if (vals[i] is GS_Render)
+        else if (vals[i] is GS_Render r)
         {
           isGS_Render = true;
-          switch ((GS_Render)vals[i])
+          switch (r)
           {
             case GS_Render.Points: RenderPoints = true; break;
             case GS_Render.Quads: RenderQuads = true; break;
@@ -153,26 +149,23 @@ namespace GpuScript
             case GS_Render.Pass: RenderPass = vals[++i].To_int(); break;
           }
         }
-        else if (vals[i] is GS_Kernel)
+        else if (vals[i] is GS_Kernel k)
         {
           isGS_Kernel = true;
-          switch ((GS_Kernel)vals[i])
-          {
-            case GS_Kernel.Description: _Description = vals[++i].ToString(); break;
-          }
+          switch (k) { case GS_Kernel.Description: _Description = vals[++i].ToString(); break; }
         }
-        else if (vals[i] is GS_Class)
+        else if (vals[i] is GS_Class c)
         {
           isGS_Class = true;
-          switch ((GS_Class)vals[i])
+          switch (c)
           {
             case GS_Class.Name: _Name = vals[++i].ToString(); break;
             case GS_Class.Description: _Description = vals[++i].ToString(); break;
           }
         }
-        else if (vals[i] is Unit) Unit = (Unit)vals[i];
-        else if (vals[i] is usUnit) usUnit = (usUnit)vals[i];
-        else if (vals[i] is siUnit) siUnit = (siUnit)vals[i];
+        else if (vals[i] is Unit u) Unit = u;
+        else if (vals[i] is usUnit uu) usUnit = uu;
+        else if (vals[i] is siUnit su) siUnit = su;
       }
     }
 
@@ -223,15 +216,17 @@ namespace GpuScript
 
   public static class AttGS_Extensions
   {
-    public static bool hasAttGS(this FieldInfo f) => f.Att() != null; 
-    public static AttGS AttGS(this FieldInfo f) => Attribute.GetCustomAttribute(f, typeof(AttGS)) as AttGS; 
-    public static AttGS AttGS(this PropertyInfo p) => Attribute.GetCustomAttribute(p, typeof(AttGS)) as AttGS; 
-    public static AttGS AttGS(this MethodInfo m) => Attribute.GetCustomAttribute(m, typeof(AttGS)) as AttGS; 
-    public static AttGS AttGS(this MemberInfo m) => Attribute.GetCustomAttribute(m, typeof(AttGS)) as AttGS; 
-    public static AttGS AttGS(this Type t) => Attribute.GetCustomAttribute(t, typeof(AttGS)) as AttGS; 
-    public static AttGS AttGS(this object t) => t?.GetType()?.AttGS(); 
-    public static bool isExternal_Lib(this MemberInfo m) => Attribute.GetCustomAttribute(m, typeof(External_Lib)) != null; 
-    public static bool isInternal_Lib(this MemberInfo m) => !isExternal_Lib(m); 
+    public static bool hasAttGS(this FieldInfo f) => f.Att() != null;
+    public static AttGS AttGS(this FieldInfo f) => Attribute.GetCustomAttribute(f, typeof(AttGS)) as AttGS;
+    public static AttGS AttGS(this PropertyInfo p) => Attribute.GetCustomAttribute(p, typeof(AttGS)) as AttGS;
+    public static AttGS AttGS(this MethodInfo m) => Attribute.GetCustomAttribute(m, typeof(AttGS)) as AttGS;
+    public static AttGS AttGS(this MemberInfo m) => Attribute.GetCustomAttribute(m, typeof(AttGS)) as AttGS;
+    public static AttGS AttGS(this Type t) => Attribute.GetCustomAttribute(t, typeof(AttGS)) as AttGS;
+    public static AttGS AttGS(this object t) => t?.GetType()?.AttGS();
+    //public static bool isExternal_Lib(this MemberInfo m) => Attribute.GetCustomAttribute(m, typeof(External_Lib)) != null;
+    //public static bool isInternal_Lib(this MemberInfo m) => !isExternal_Lib(m);
+    public static bool isInternal_Lib(this MemberInfo m) => m.AttGS()?.libInternal ?? true;
+    public static bool isExternal_Lib(this MemberInfo m) => !m.isInternal_Lib();
   }
 
   public enum UI
@@ -249,9 +244,10 @@ namespace GpuScript
     OnValueChanged, OnClicked,
     Pow2_Slider,
     IsPow10, IsPow2, Nearest,
-    Null //does nothing
+    Null
   };
 
+  public enum GS_Lib { Internal, External, Email, Key, Expires }
   public enum GS_Class { Name, Description, };
   public enum GS_Buffer { Description, MaxMemory_GB, Render, Size, GroupShared, GroupShared_Size, FullRace, HalfRace };
   public enum GS_Render { Points, Quads, Meshes, Pass };

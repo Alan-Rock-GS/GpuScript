@@ -3907,12 +3907,7 @@ namespace GpuScript
       }
     }
 
-    public static void SendEmail(string[] To, string Subject, string Body, params string[] attachments)
-    {
-      SendGEmail("smtp.gmail.com", 587, "kc0oqf@gmail.com", "Kc0oqf#0816", "\"Summit Peak Technologies Inc\" <arock@summitpeaktechnologies.com>", To, new string[] { "arock@summitpeaktechnologies.com" }, Subject, Body, attachments);
-    }
-
-    public TAtt Get_TAtt()
+     public TAtt Get_TAtt()
     {
       return GetType().GetCustomAttributes(typeof(TAtt), true).FirstOrDefault() as TAtt;
     }

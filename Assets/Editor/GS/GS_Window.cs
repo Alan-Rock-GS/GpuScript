@@ -1081,7 +1081,8 @@ public class GS_Window : EditorWindow
             string kernel_return = sync ? "IEnumerator" : "void";
             string kernel_coroutine = sync ? "yield return StartCoroutine(" : "";
             id_less.Set($"if ({id_less}) ");
-            kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }}");
+            //kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }}");
+            kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ unchecked {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }} }}");
             if (libKernels.DoesNotContain(k.methodName + "_GS"))
               kernels_.Add($"\n  public virtual {kernel_return} {k.methodName}_GS({args}) {{{(sync ? " yield return null;" : "")} }}");
 
@@ -2249,9 +2250,13 @@ public class GS_Window : EditorWindow
         if (m.code.Trim().IsEmpty()) m.code = " { }";
         if (m.isKernel)
         {
+          //if (m.sync) { }
+          //else if (m.code.DoesNotContain("\n")) m.code = $" {{ if ({m.id_less}){m.code} }}";
+          //else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    if ({m.id_less}){m.code}\n  }}"; }
           if (m.sync) { }
-          else if (m.code.DoesNotContain("\n")) m.code = $" {{ if ({m.id_less}){m.code} }}";
-          else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    if ({m.id_less}){m.code}\n  }}"; }
+          else if (m.code.DoesNotContain("\n")) m.code = $" {{ unchecked {{ if ({m.id_less}){m.code} }} }}";
+          else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    unchecked\n    {{\n      if ({m.id_less}){m.code}\n    }}\n  }}"; }
+     
           m.code = AddG(m.code);
           if (m.sync) s.Add("\n  [numthreads(", m.numThreads, ")] void ", m.methodName, "(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)", m.code.RegexReplace(@"\byield return ", ""));
           else s.Add("\n  [numthreads(", m.numThreads, ")] void ", m.methodName, "(", m.args, " : SV_DispatchThreadID)", m.code);
