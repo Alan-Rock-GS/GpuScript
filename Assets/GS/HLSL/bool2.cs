@@ -4,7 +4,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct bool2
+  public struct bool2 // : I_bool2
   {
     public bool x, y;
     public int X { get => x ? 1 : 0; }

@@ -604,6 +604,10 @@
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="GS_Lib">
+      <HintPath>Assets\GS_Lib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Microsoft.Net.Http.Headers">
       <HintPath>Assets\Plugins\Microsoft.Net.Http.Headers.dll</HintPath>
       <Private>False</Private>

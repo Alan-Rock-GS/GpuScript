@@ -86,7 +86,8 @@ namespace GpuScript
             case GS_Lib.Email: libEmail = vals[++i].ToString(); break;
             case GS_Lib.Key: libKey = vals[++i].To_int(); break;
             case GS_Lib.External: libExternal = true; break;
-            case GS_Lib.Expires: libExpires = vals[++i].ToString().ToDate("yyyy/MM/dd"); break;
+            //case GS_Lib.Expires: libExpires = vals[++i].ToString().ToDate("yyyy/MM/dd"); break;
+            case GS_Lib.Expires: libExpires = vals[++i].ToString().ToDate("yyyy/M/d"); break;
           }
         }
         else if (vals[i] is UI ui)

@@ -1,5 +1,6 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 175
 
+
 //#pragma use_dxc
 #define _gs
 #define gs defined(_gs)

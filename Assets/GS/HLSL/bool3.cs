@@ -3,7 +3,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct bool3
+  public struct bool3 // : I_bool3
   {
     public bool x, y, z;
     public int X { get => x ? 1 : 0; }

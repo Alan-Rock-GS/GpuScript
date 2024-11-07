@@ -11,7 +11,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct uint2
+  public struct uint2 // : I_uint2
   {
     public uint x, y;
 

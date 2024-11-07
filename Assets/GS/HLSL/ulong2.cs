@@ -11,7 +11,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct ulong2
+  public struct ulong2 // : I_ulong2
   {
     public ulong x, y;
 

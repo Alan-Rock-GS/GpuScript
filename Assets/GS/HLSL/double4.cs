@@ -7,7 +7,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct double4
+  public struct double4 // : I_double4
   {
     public float x, y, z, w;
 

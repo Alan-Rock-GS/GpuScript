@@ -6,7 +6,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [Serializable]
-  public struct float2x2 
+  public struct float2x2 // : I_float2x2
   {
     public Float2 _m00_m01;
     public Float2 _m10_m11;
@@ -19,49 +19,49 @@ namespace GpuScript
     public float _21 { get => _m10_m11.x; set => _m10_m11.x = value; }
     public float _22 { get => _m10_m11.y; set => _m10_m11.y = value; }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator *(float2x2 a, float2x2 b) => float2x2(a._m00_m01 * b._m00_m01, a._m10_m11 * b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator *(float2x2 a, float b) => float2x2(a._m00_m01 * b, a._m10_m11 * b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator *(float a, float2x2 b) => float2x2(a * b._m00_m01, a * b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float2x2 a, float2x2 b) => float2x2(a._m00_m01 + b._m00_m01, a._m10_m11 + b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float2x2 a, float b) => float2x2(a._m00_m01 + b, a._m10_m11 + b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float a, float2x2 b) => float2x2(a + b._m00_m01, a + b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float2x2 a, float2x2 b) => float2x2(a._m00_m01 - b._m00_m01, a._m10_m11 - b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float2x2 a, float b) => float2x2(a._m00_m01 - b, a._m10_m11 - b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float a, float2x2 b) => float2x2(a - b._m00_m01, a - b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator /(float2x2 a, float2x2 b) => float2x2(a._m00_m01 / b._m00_m01, a._m10_m11 / b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator /(float2x2 a, float b) => float2x2(a._m00_m01 / b, a._m10_m11 / b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator /(float a, float2x2 b) => float2x2(a / b._m00_m01, a / b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator %(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 % b._m00_m01, (float2)a._m10_m11 % b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator %(float2x2 a, float b) => float2x2((float2)a._m00_m01 % b, (float2)a._m10_m11 % b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator %(float a, float2x2 b) => float2x2(a % (float2)b._m00_m01, a % (float2)b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 < b._m00_m01, (float2)a._m10_m11 < b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <(float2x2 a, float b) => float2x2((float2)a._m00_m01 < b, (float2)a._m10_m11 < b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <(float a, float2x2 b) => float2x2(a < (float2)b._m00_m01, a < (float2)b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <=(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 <= (float2)b._m00_m01, (float2)a._m10_m11 <= b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <=(float2x2 a, float b) => float2x2((float2)a._m00_m01 <= b, (float2)a._m10_m11 <= b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <=(float a, float2x2 b) => float2x2(a <= (float2)b._m00_m01, a <= (float2)b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 > b._m00_m01, (float2)a._m10_m11 > b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >(float2x2 a, float b) => float2x2((float2)a._m00_m01 > b, (float2)a._m10_m11 > b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >(float a, float2x2 b) => float2x2(a > (float2)b._m00_m01, a > (float2)b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >=(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 >= b._m00_m01, (float2)a._m10_m11 >= b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >=(float2x2 a, float b) => float2x2((float2)a._m00_m01 >= b, (float2)a._m10_m11 >= b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >=(float a, float2x2 b) => float2x2(a >= (float2)b._m00_m01, a >= (float2)b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float2x2 val) => float2x2(-val._m00_m01, -val._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float2x2 val) => float2x2(val._m00_m01, val._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator ==(float2x2 a, float2x2 b) => float2x2(a._m00_m01 == b._m00_m01, a._m10_m11 == b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator ==(float2x2 a, float b) => float2x2((float2)a._m00_m01 == b, (float2)a._m10_m11 == b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator ==(float a, float2x2 b) => float2x2(a == (float2)b._m00_m01, a == (float2)b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator !=(float2x2 a, float2x2 b) => float2x2(a._m00_m01 != b._m00_m01, a._m10_m11 != b._m10_m11); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator !=(float2x2 a, float b) => float2x2((float2)a._m00_m01 != b, (float2)a._m10_m11 != b); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator !=(float a, float2x2 b) => float2x2(a != (float2)b._m00_m01, a != (float2)b._m10_m11); 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator *(float2x2 a, float2x2 b) => float2x2(a._m00_m01 * b._m00_m01, a._m10_m11 * b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator *(float2x2 a, float b) => float2x2(a._m00_m01 * b, a._m10_m11 * b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator *(float a, float2x2 b) => float2x2(a * b._m00_m01, a * b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float2x2 a, float2x2 b) => float2x2(a._m00_m01 + b._m00_m01, a._m10_m11 + b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float2x2 a, float b) => float2x2(a._m00_m01 + b, a._m10_m11 + b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float a, float2x2 b) => float2x2(a + b._m00_m01, a + b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float2x2 a, float2x2 b) => float2x2(a._m00_m01 - b._m00_m01, a._m10_m11 - b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float2x2 a, float b) => float2x2(a._m00_m01 - b, a._m10_m11 - b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float a, float2x2 b) => float2x2(a - b._m00_m01, a - b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator /(float2x2 a, float2x2 b) => float2x2(a._m00_m01 / b._m00_m01, a._m10_m11 / b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator /(float2x2 a, float b) => float2x2(a._m00_m01 / b, a._m10_m11 / b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator /(float a, float2x2 b) => float2x2(a / b._m00_m01, a / b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator %(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 % b._m00_m01, (float2)a._m10_m11 % b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator %(float2x2 a, float b) => float2x2((float2)a._m00_m01 % b, (float2)a._m10_m11 % b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator %(float a, float2x2 b) => float2x2(a % (float2)b._m00_m01, a % (float2)b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 < b._m00_m01, (float2)a._m10_m11 < b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <(float2x2 a, float b) => float2x2((float2)a._m00_m01 < b, (float2)a._m10_m11 < b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <(float a, float2x2 b) => float2x2(a < (float2)b._m00_m01, a < (float2)b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <=(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 <= (float2)b._m00_m01, (float2)a._m10_m11 <= b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <=(float2x2 a, float b) => float2x2((float2)a._m00_m01 <= b, (float2)a._m10_m11 <= b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator <=(float a, float2x2 b) => float2x2(a <= (float2)b._m00_m01, a <= (float2)b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 > b._m00_m01, (float2)a._m10_m11 > b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >(float2x2 a, float b) => float2x2((float2)a._m00_m01 > b, (float2)a._m10_m11 > b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >(float a, float2x2 b) => float2x2(a > (float2)b._m00_m01, a > (float2)b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >=(float2x2 a, float2x2 b) => float2x2((float2)a._m00_m01 >= b._m00_m01, (float2)a._m10_m11 >= b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >=(float2x2 a, float b) => float2x2((float2)a._m00_m01 >= b, (float2)a._m10_m11 >= b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator >=(float a, float2x2 b) => float2x2(a >= (float2)b._m00_m01, a >= (float2)b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator -(float2x2 val) => float2x2(-val._m00_m01, -val._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator +(float2x2 val) => float2x2(val._m00_m01, val._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator ==(float2x2 a, float2x2 b) => float2x2(a._m00_m01 == b._m00_m01, a._m10_m11 == b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator ==(float2x2 a, float b) => float2x2((float2)a._m00_m01 == b, (float2)a._m10_m11 == b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator ==(float a, float2x2 b) => float2x2(a == (float2)b._m00_m01, a == (float2)b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator !=(float2x2 a, float2x2 b) => float2x2(a._m00_m01 != b._m00_m01, a._m10_m11 != b._m10_m11);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator !=(float2x2 a, float b) => float2x2((float2)a._m00_m01 != b, (float2)a._m10_m11 != b);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2x2 operator !=(float a, float2x2 b) => float2x2(a != (float2)b._m00_m01, a != (float2)b._m10_m11);
     public Float2 this[int i] { get => i == 0 ? _m00_m01 : _m10_m11; set { if (i == 0) _m00_m01 = value; else _m10_m11 = value; } }
     public float this[int row, int col] { get => this[row][col]; set => this[row][col] = value; }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool Equals(float2x2 b) => _m00_m01.Equals(b._m00_m01) && _m10_m11.Equals(b._m10_m11); 
-    public override bool Equals(object o) => Equals((float2x2)o); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public override int GetHashCode() => (int)hash(this); 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public override string ToString() => $"{_m00_m01.x}{separator}{_m00_m01.y}{separator}{_m10_m11.x}{separator}{_m10_m11.y}"; 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public string ToString(string format, IFormatProvider formatProvider) => string.Format("float2x2({0}f, {1}f,  {2}f, {3}f)", _m00_m01.x.ToString(format, formatProvider), _m10_m11.x.ToString(format, formatProvider), _m00_m01.y.ToString(format, formatProvider), _m10_m11.y.ToString(format, formatProvider)); 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public bool Equals(float2x2 b) => _m00_m01.Equals(b._m00_m01) && _m10_m11.Equals(b._m10_m11);
+    public override bool Equals(object o) => Equals((float2x2)o);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public override int GetHashCode() => (int)hash(this);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public override string ToString() => $"{_m00_m01.x}{separator}{_m00_m01.y}{separator}{_m10_m11.x}{separator}{_m10_m11.y}";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public string ToString(string format, IFormatProvider formatProvider) => string.Format("float2x2({0}f, {1}f,  {2}f, {3}f)", _m00_m01.x.ToString(format, formatProvider), _m10_m11.x.ToString(format, formatProvider), _m00_m01.y.ToString(format, formatProvider), _m10_m11.y.ToString(format, formatProvider));
 
     public float2x2(params object[] items)
     {

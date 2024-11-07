@@ -698,6 +698,8 @@ namespace GpuScript
     public static void Swap(RWStructuredBuffer<float3> a, uint i, uint j) { if (i != j) { float3 t = a[i]; a[i] = a[j]; a[j] = t; } }
     public static void Swap(RWStructuredBuffer<float4> a, uint i, uint j) { if (i != j) { float4 t = a[i]; a[i] = a[j]; a[j] = t; } }
 
+    //public static float2 rotate_sc(float2 p, float s, float c) { return float2(c * p.x + s * p.y, c * p.y - s * p.x); }
+
 #endif //!gs_compute && !gs_shader  //region code in both compute shader and material shader
 
     public static void swap(ref int a, ref int b) { a ^= b ^ (b = a); }
@@ -1681,9 +1683,9 @@ namespace GpuScript
 #if !gs_compute && !gs_shader //C# code
     //<<<<< GpuScript Code Extensions. This section contains code that runs on both compute shaders and material shaders, but is not in HLSL
 
-    public float[] floats(params float[] vs) => vs;
-    public int[] ints(params int[] vs) => vs;
-    public uint[] uints(params uint[] vs) => vs;
+    //public float[] floats(params float[] vs) => vs;
+    //public int[] ints(params int[] vs) => vs;
+    //public uint[] uints(params uint[] vs) => vs;
 
     public static float Secs(Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
 

@@ -271,53 +271,10 @@ public class GS_Window : EditorWindow
       (compute_filename, shader_filename, material_filename) = ($"{gsPathFile}.compute", $"{gsPathFile}.shader", $"{gsPathFile}.mat");
     }
 
-    //bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, List<string> libKernels)
-    //{
-    //  bool changed = false;
-    //  string declaration = $"{libFld.FieldType} {libFld.Name};";
-    //  if (_GS_Code0.Contains(declaration))
-    //  {
-    //    string region = $"\n  #region <{libFld.Name}>", endregion = $"\n  #endregion <{libFld.Name}>", s = _GS_Code0.After(declaration);
-    //    bool rebuild = s.DoesNotContain(region), erase = !rebuild && s.Before(region).CharN("\n") >= 1;
-    //    string libTypeName = libFld.FieldType.ToString(), libName = libTypeName.After("gs");
-
-    //    bool isExternalLib = libFld.isExternal_Lib();
-    //    string libPath = isExternalLib ? "" : $"{AssemblyPath(libTypeName)}Lib/";
-    //    string libPrefix = $"{libPath}{libTypeName}";
-
-    //    bool libPath_Exists = libPath.IsNotEmpty() && libPath.Exists();
-    //    string _GS_lib_Code = libPath_Exists ? $"{libPrefix}_GS_lib.txt".ReadAllText() : "", cs_lib_Code = libPath_Exists ? $"{libPrefix}_cs_lib.txt".ReadAllText() : "";
-
-    //    string cs_lib_kernels_str = libPath_Exists ? $"{libPrefix}_cs_lib_kernels.txt".ReadAllText() : "";
-    //    string[] cs_lib_includes = libPath_Exists ? $"{libPrefix}_cs_lib_includes.txt".ReadAllLines() : new string[] { };
-    //    if (libName != libFld.Name)
-    //    {
-    //      string pattern1 = $@"\b{libName}_", replace1 = libFld.Name + "_", pattern2 = $@"_{libName}", replace2 = "_" + libFld.Name;
-    //      _GS_lib_Code = _GS_lib_Code.RegexReplace(pattern1, replace1, pattern2, replace2);
-    //      cs_lib_Code = cs_lib_Code.RegexReplace(pattern1, replace1, pattern2, replace2);
-    //      cs_lib_kernels_str = cs_lib_kernels_str.RegexReplace(pattern1, replace1, pattern2, replace2);
-    //    }
-    //    string[] cs_lib_kernels = cs_lib_kernels_str.Split("\t");
-    //    if (cs_lib_kernels != null) foreach (var k in cs_lib_kernels) if (!libKernels.Contains(k)) libKernels.Add(k);
-    //    if (cs_lib_includes != null) foreach (var i in cs_lib_includes) if (_cs_includes.ToString().DoesNotContain(i)) _cs_includes.Add("\n" + i);
-    //    if (rebuild || erase)
-    //    {
-    //      _GS_Code0 = StrBldr(_GS_Code0.BeforeIncluding(declaration), region, "\n", _GS_lib_Code, endregion, _GS_Code0.After(rebuild ? declaration : endregion));
-    //      changed = true;
-    //    }
-    //    cs_lib_Code = cs_lib_Code.RegexReplace($@"\b{libFld.Name}_Gpu_", "Gpu_" + libFld.Name + "_",
-    //      $@"\b{libFld.Name}_Cpu_", "Cpu_" + libFld.Name + "_", $@"\b{libFld.Name}_g{libName}\b", $"g{Name0}");
-
-    //    if (libFld.isExternal_Lib())
-    //      cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
-    //    _cs_lib_regions.Add($"\n  #region <{libFld.Name}>\n", cs_lib_Code, $"\n  #endregion <{libFld.Name}>");
-    //  }
-    //  return changed;
-    //}
-
     public static bool skip_GS_import = false;
-
-    bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, List<string> libKernels)
+    //string libInterfaces = "";
+    //StrBldr libCheckKeys;
+    bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, StrBldr libInterfaces, StrBldr libCheckKeys, List<string> libKernels)
     {
       bool changed = false;
       string declaration = $"{libFld.FieldType} {libFld.Name};";
@@ -330,6 +287,19 @@ public class GS_Window : EditorWindow
         bool isExternalLib = libFld.isExternal_Lib();
         string libPath = isExternalLib ? "" : $"{AssemblyPath(libTypeName)}Lib/";
         string libPrefix = $"{libPath}{libTypeName}";
+
+        var att = libFld.AttGS();
+        if (att?.libEmail.IsNotEmpty() ?? false)
+        {
+          if (libInterfaces.IsEmpty() || libInterfaces.ToString().DoesNotContain(libTypeName))
+          {
+            libInterfaces.Add($", I{libName}");
+            //libCheckKeys.Add($"\n    GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey});");
+            libCheckKeys.Add(
+              $"\n    if(!GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
+              $"\n      print($\"gs{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
+          }
+        }
 
         bool libPath_Exists = libPath.IsNotEmpty() && libPath.Exists();
         string _GS_lib_Code = libPath_Exists ? $"{libPrefix}_GS_lib.txt".ReadAllText() : "", cs_lib_Code = libPath_Exists ? $"{libPrefix}_cs_lib.txt".ReadAllText() : "";
@@ -467,6 +437,8 @@ public class GS_Window : EditorWindow
       AssetDatabase.Refresh();
     }
 
+    StrBldr libInterfaces, libCheckKeys;
+
     bool _GS_Build_Libs()
     {
       bool changed = false;
@@ -475,6 +447,7 @@ public class GS_Window : EditorWindow
       Get_gStruct();
       libKernels = new List<string>();
       _cs_lib_regions = StrBldr();
+      (libInterfaces, libCheckKeys) = StrBldr();
       if (lib_flds.Count > 0) //add library code to _GS, comment out lib_flds in _GS, compile libraries by writing gsLib.cs files, or just use regex
       {
         _cs_lib_kernels.Clear();
@@ -482,7 +455,7 @@ public class GS_Window : EditorWindow
         {
           ProjectData libProject = new ProjectData(libFld.FieldType.ToString());
           libProjects.Add(libProject);
-          if (libProject.BuildLib(Name, libFld, ref _GS_Text0, _cs_includes, _cs_lib_regions, libKernels)) changed = true;
+          if (libProject.BuildLib(Name, libFld, ref _GS_Text0, _cs_includes, _cs_lib_regions, libInterfaces, libCheckKeys, libKernels)) changed = true;
         }
         if (_GS_filename.WriteAllText_IfChanged(_GS_Text0))
         {
@@ -571,7 +544,7 @@ public class GS_Window : EditorWindow
           Type[] classTypes = _GS_nestedTypes.Where(t => !t.IsValueType && !t.IsEnum).Select(t => t).ToArray();
           e._GS_fieldType = classTypes.First(a => a.Name.After("+") == member.Name);
         }
-        if (e.attGS != null && member.Name != "class" && !isRenderMethod && !e.attGS.GroupShared)
+        if (!e.isExternalLib && e.attGS != null && member.Name != "class" && !isRenderMethod && !e.attGS.GroupShared)
           UI_VisualElement.UXML_UI_Element(e, _gs_members);
         else if (e.isExternalLib) //if is a library, insert UI
         {
@@ -1730,7 +1703,7 @@ public class GS_Window : EditorWindow
         s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()", s_OnApplicationQuit, "OnApplicationQuit_GS()");
 
       StrBldr _cs = StrBldr().Add(_cs_includes,
-     $"\npublic class gs{Name}_ : GS",
+     $"\npublic class gs{Name}_ : GS", libInterfaces,
       "\n{",
       "\n  [HideInInspector] public uiData data;", G_Str, kernelWrappers, Enums, AssignEnums, AssignConsts,
       "\n  [HideInInspector] public bool ValuesChanged, gChanged;",
@@ -1738,6 +1711,10 @@ public class GS_Window : EditorWindow
      $"\n  public virtual void Awake() {{ This = this as gs{Name}; Awake_GS(); }}",
       "\n  public virtual void Awake_GS() { }",
       "\n  public virtual void Start() { Build_UI(); Load_UI(); Start0_GS(); InitBuffers(); Start1_GS(); }", s_start0_GS, s_start1_GS,
+      "\n  public override void onLoaded()",
+      "\n  {",
+      "\n    base.onLoaded();", libCheckKeys,
+      "\n  }",
       "\n  [HideInInspector] public bool already_quited = false;",
       "\n  public override void OnApplicationQuit() { Save_UI(); OnApplicationQuit_GS(); base.OnApplicationQuit(); already_quited = true; }", s_OnApplicationQuit, gridWrapper,
       "\n  public override void ui_to_data()",
@@ -2256,7 +2233,7 @@ public class GS_Window : EditorWindow
           if (m.sync) { }
           else if (m.code.DoesNotContain("\n")) m.code = $" {{ unchecked {{ if ({m.id_less}){m.code} }} }}";
           else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    unchecked\n    {{\n      if ({m.id_less}){m.code}\n    }}\n  }}"; }
-     
+
           m.code = AddG(m.code);
           if (m.sync) s.Add("\n  [numthreads(", m.numThreads, ")] void ", m.methodName, "(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)", m.code.RegexReplace(@"\byield return ", ""));
           else s.Add("\n  [numthreads(", m.numThreads, ")] void ", m.methodName, "(", m.args, " : SV_DispatchThreadID)", m.code);

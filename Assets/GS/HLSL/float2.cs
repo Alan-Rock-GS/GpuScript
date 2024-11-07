@@ -9,7 +9,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [Serializable]
-  public struct float2 : IEquatable<float2>, IFormattable
+  public struct float2 : IEquatable<float2>, IFormattable //, I_float2
   {
     public float x, y;
 

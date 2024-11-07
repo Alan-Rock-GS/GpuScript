@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct float3x3 
+  public struct float3x3 // : I_float3x3
   {
     public Float3 _m00_m01_m02;
     public Float3 _m10_m11_m12;

@@ -9,7 +9,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct float3
+  public struct float3 // : I_float3
   {
     public float x, y, z;
 
