@@ -1,7 +1,3 @@
 Base path: 'C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data', plugins path 'C:/Program Files/Unity/Hub/Editor/6000.0.25f1/Editor/Data/PlaybackEngines'
 Cmd: initializeCompiler
 
-Cmd: compileComputeKernel
-  insize=11766 file=Assets/GS_Tutorials/gsArray_Tutorial/gsArray_Tutorial.compute kernel=BuildSpheres ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=60000025> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR UNITY_PLATFORM_SUPPORTS_DEPTH_FETCH uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=4294967295 forceFXC=0 ok=1 outsize=2250
-
-Cmd: shutdown

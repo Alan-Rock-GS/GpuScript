@@ -302,6 +302,12 @@ public class GS_Window : EditorWindow
             libCheckKeys.Add(
               $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
               $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
+            //libCheckKeys.Add(
+            //  $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
+            //  $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class, key should be {{GS_Register.Key_6_digit(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\")}}\");",
+            //  $"\n    else",
+            //  $"\n      print($\"{libName} registered, key is {{GS_Register.Key_6_digit(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\")}}\");",
+            //  "");
           }
         }
 
@@ -1475,18 +1481,18 @@ $"\n    {m_name}_To_UI();",
 
     $"\n  public virtual void {m_name}_OnHeaderButtonClicked(string label)",
      "\n  {", colSort,
-    //$"\n    if ({m_name}.Length < 2) return;",
-    //$"\n    {m_name} = label switch",
-    // "\n    {",
-    //$"\n      \"User\" => {m_name}[0].client_Username.CompareTo({m_name}[^1].client_Username) < 0 ? {m_name}.OrderByDescending(a => a.client_Username).ToArray() : {m_name}.OrderBy(a => a.client_Username).ToArray(),",
-    //$"\n      \"Email\" => {m_name}[0].client_Email.CompareTo({m_name}[^1].client_Email) < 0 ? {m_name}.OrderByDescending(a => a.client_Email).ToArray() : {m_name}.OrderBy(a => a.client_Email).ToArray(),",
-    //$"\n      \"Library\" => {m_name}[0].client_Library.CompareTo({m_name}[^1].client_Library) < 0 ? {m_name}.OrderByDescending(a => a.client_Library).ToArray() : {m_name}.OrderBy(a => a.client_Library).ToArray(),",
-    //$"\n      \"Expires\" => {m_name}[0].client_ExpireDate.CompareTo({m_name}[^1].client_ExpireDate) < 0 ? {m_name}.OrderByDescending(a => a.client_ExpireDate).ToArray() : {m_name}.OrderBy(a => a.client_ExpireDate).ToArray(),",
-    //$"\n      \"Duration\" => {m_name}[0].client_Duration.CompareTo({m_name}[^1].client_Duration) < 0 ? {m_name}.OrderByDescending(a => a.client_Duration).ToArray() : {m_name}.OrderBy(a => a.client_Duration).ToArray(),",
-    //$"\n      \"Price\" => {m_name}[0].client_Price.CompareTo({m_name}[^1].client_Price) < 0 ? {m_name}.OrderByDescending(a => a.client_Price).ToArray() : {m_name}.OrderBy(a => a.client_Price).ToArray(),",
-    //$"\n      \"Key\" => {m_name}[0].client_LicenseKey.CompareTo({m_name}[^1].client_LicenseKey) < 0 ? {m_name}.OrderByDescending(a => a.client_LicenseKey).ToArray() : {m_name}.OrderBy(a => a.client_LicenseKey).ToArray(),",
-    // "\n    };",
-    //$"\n    {m_name}_To_UI();",
+     //$"\n    if ({m_name}.Length < 2) return;",
+     //$"\n    {m_name} = label switch",
+     // "\n    {",
+     //$"\n      \"User\" => {m_name}[0].client_Username.CompareTo({m_name}[^1].client_Username) < 0 ? {m_name}.OrderByDescending(a => a.client_Username).ToArray() : {m_name}.OrderBy(a => a.client_Username).ToArray(),",
+     //$"\n      \"Email\" => {m_name}[0].client_Email.CompareTo({m_name}[^1].client_Email) < 0 ? {m_name}.OrderByDescending(a => a.client_Email).ToArray() : {m_name}.OrderBy(a => a.client_Email).ToArray(),",
+     //$"\n      \"Library\" => {m_name}[0].client_Library.CompareTo({m_name}[^1].client_Library) < 0 ? {m_name}.OrderByDescending(a => a.client_Library).ToArray() : {m_name}.OrderBy(a => a.client_Library).ToArray(),",
+     //$"\n      \"Expires\" => {m_name}[0].client_ExpireDate.CompareTo({m_name}[^1].client_ExpireDate) < 0 ? {m_name}.OrderByDescending(a => a.client_ExpireDate).ToArray() : {m_name}.OrderBy(a => a.client_ExpireDate).ToArray(),",
+     //$"\n      \"Duration\" => {m_name}[0].client_Duration.CompareTo({m_name}[^1].client_Duration) < 0 ? {m_name}.OrderByDescending(a => a.client_Duration).ToArray() : {m_name}.OrderBy(a => a.client_Duration).ToArray(),",
+     //$"\n      \"Price\" => {m_name}[0].client_Price.CompareTo({m_name}[^1].client_Price) < 0 ? {m_name}.OrderByDescending(a => a.client_Price).ToArray() : {m_name}.OrderBy(a => a.client_Price).ToArray(),",
+     //$"\n      \"Key\" => {m_name}[0].client_LicenseKey.CompareTo({m_name}[^1].client_LicenseKey) < 0 ? {m_name}.OrderByDescending(a => a.client_LicenseKey).ToArray() : {m_name}.OrderBy(a => a.client_LicenseKey).ToArray(),",
+     // "\n    };",
+     //$"\n    {m_name}_To_UI();",
      "\n  }",
 
 

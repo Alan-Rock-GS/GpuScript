@@ -593,10 +593,6 @@
       <HintPath>Library\PackageCache\com.unity.testtools.codecoverage\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GS_DLL">
-      <HintPath>Assets\GS_DLL.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <Private>False</Private>
@@ -606,7 +602,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="GS_Lib">
-      <HintPath>Assets\GS_Lib.dll</HintPath>
+      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Net.Http.Headers">

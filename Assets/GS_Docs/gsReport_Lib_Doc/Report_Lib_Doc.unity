@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 1317741891}
   - component: {fileID: 1317741892}
   - component: {fileID: 1317741893}
+  - component: {fileID: 1317741894}
   m_Layer: 0
   m_Name: gsReport_Lib_Doc
   m_TagString: Untagged
@@ -1482,6 +1483,243 @@ MonoBehaviour:
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
+--- !u!114 &1317741894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317741885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c05e3344a4f1b4292620e565c62885, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uxml_level: 2
+  ui_loaded: 0
+  ui_txt_str: 
+  generateComputeShader: 0
+  const_bindings: 56
+  SM6: 1
+  computeShader: {fileID: 0}
+  material: {fileID: 0}
+  renderTextures: []
+  sync: 0
+  render: 1
+  isInitBuffers: 0
+  loadedProjectPath: 
+  touch2Dist0: 0
+  maxTouch2Dist: 210
+  mousePosition0:
+    x: 0
+    y: 0
+  leftButton: 0
+  rightButton: 0
+  middleButton: 0
+  MouseLeftButton: 0
+  MouseRightButton: 0
+  MouseMiddleButton: 0
+  MouseLeftButtonDown: 0
+  MouseRightButtonDown: 0
+  MouseMiddleButtonDown: 0
+  MouseLeftButtonUp: 0
+  MouseRightButtonUp: 0
+  MouseMiddleButtonUp: 0
+  MousePosition:
+    x: 0
+    y: 0
+  MousePositionDelta:
+    x: 0
+    y: 0
+  ScrollWheel: 0
+  canSave: 1
+  isSelected: 0
+  UNITY_LIGHTMODEL_AMBIENT:
+    x: 1
+    y: 1
+    z: 1
+    w: 1
+  _Time:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  _SinTime:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  _CosTime:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  unity_DeltaTime:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  _ProjectionParams:
+    x: -0
+    y: -0
+    z: -1
+    w: -0
+  _ScreenParams:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  unity_ObjectToWorld:
+    _m00_m01_m02_m03:
+      a:
+        x: 1
+        y: 0
+        z: 0
+        w: 1
+    _m10_m11_m12_m13:
+      a:
+        x: 0
+        y: 1
+        z: 0
+        w: 1
+    _m20_m21_m22_m23:
+      a:
+        x: 0
+        y: 0
+        z: 1
+        w: 1
+    _m30_m31_m32_m33:
+      a:
+        x: 1
+        y: 1
+        z: 1
+        w: 1
+  unity_WorldToObject:
+    _m00_m01_m02_m03:
+      a:
+        x: 1
+        y: 0
+        z: 0
+        w: 1
+    _m10_m11_m12_m13:
+      a:
+        x: 0
+        y: 1
+        z: 0
+        w: 1
+    _m20_m21_m22_m23:
+      a:
+        x: 0
+        y: 0
+        z: 1
+        w: 1
+    _m30_m31_m32_m33:
+      a:
+        x: 1
+        y: 1
+        z: 1
+        w: 1
+  unity_CameraProjection:
+    _m00_m01_m02_m03:
+      a:
+        x: 1
+        y: 0
+        z: 0
+        w: 1
+    _m10_m11_m12_m13:
+      a:
+        x: 0
+        y: 1
+        z: 0
+        w: 1
+    _m20_m21_m22_m23:
+      a:
+        x: 0
+        y: 0
+        z: 1
+        w: 1
+    _m30_m31_m32_m33:
+      a:
+        x: 1
+        y: 1
+        z: 1
+        w: 1
+  unity_CameraInvProjection:
+    _m00_m01_m02_m03:
+      a:
+        x: 1
+        y: 0
+        z: 0
+        w: 1
+    _m10_m11_m12_m13:
+      a:
+        x: 0
+        y: 1
+        z: 0
+        w: 1
+    _m20_m21_m22_m23:
+      a:
+        x: 0
+        y: 0
+        z: 1
+        w: 1
+    _m30_m31_m32_m33:
+      a:
+        x: 1
+        y: 1
+        z: 1
+        w: 1
+  unity_CameraToWorld:
+    _m00_m01_m02_m03:
+      a:
+        x: 1
+        y: 0
+        z: 0
+        w: 1
+    _m10_m11_m12_m13:
+      a:
+        x: 0
+        y: 1
+        z: 0
+        w: 1
+    _m20_m21_m22_m23:
+      a:
+        x: 0
+        y: 0
+        z: 1
+        w: 1
+    _m30_m31_m32_m33:
+      a:
+        x: 1
+        y: 1
+        z: 1
+        w: 1
+  _WorldSpaceCameraPos:
+    x: 0
+    y: 0
+    z: 0
+  _WorldSpaceLightPos0:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  _LightColor0:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  _ZBufferParams:
+    x: -0
+    y: -0
+    z: -1
+    w: -0
+  data:
+    siUnits: 0
+  ValuesChanged: 0
+  gChanged: 0
+  already_quited: 0
+  lateUpdateI: 0
+  _PaletteTex: {fileID: 0}
 --- !u!108 &5435866961072660939 stripped
 Light:
   m_CorrespondingSourceObject: {fileID: 2717229981320845237, guid: 0993678f31e9ba940bf7542e5a7e6552, type: 3}
