@@ -1773,6 +1773,7 @@ namespace GpuScript
     public string status { get => progressBar?.title; set { if (progressBar != null) progressBar.title = value; } }
     public string print_status(string s) => status = print(s);
     public static string print(string s) { MonoBehaviour.print(s); return s; }
+    public string _print(string s) { return print(s); }
 
     public IEnumerator Status() { status = ""; progress(0); yield return null; }
     public IEnumerator Status(string s) { status = s; yield return null; }
@@ -2571,6 +2572,7 @@ namespace GpuScript
       //set { if (_siUnits != value) _siUnits = value; }
       set { _siUnits = true; }
     }
+    public bool si_Units { get => siUnits; set => siUnits = value; }
     public virtual void OnUnitsChanged()
     {
       //var flds = GetType().GetFields(GetBindingFlags);
@@ -2852,6 +2854,9 @@ namespace GpuScript
     public static bool Ctrl { get => Key(KeyCode.LeftControl) || Key(KeyCode.RightControl); }
     public static bool Alt { get => Key(KeyCode.LeftAlt) || Key(KeyCode.RightAlt); }
     public static bool Shift { get => Key(KeyCode.LeftShift) || Key(KeyCode.RightShift); }
+    public bool _Ctrl { get => Ctrl; }
+    public bool _Alt { get => Alt; }
+    public bool _Shift { get => Shift; }
 
     public static bool CtrlOnly { get => Ctrl && !Alt && !Shift; }
     public static bool AltOnly { get => !Ctrl && Alt && !Shift; }
@@ -3473,6 +3478,14 @@ namespace GpuScript
     }
     public static string projectName { get => projectPath.After(dataPath).After("/").BeforeLast("/"); }
 
+
+    public virtual string _projectName => projectName;
+    public virtual string _appName => appName;
+    public virtual string _appPath => appPath;
+    public virtual string __projectPath { get => projectPath; set => projectPath = value; }
+    public virtual Type GetType(object o) { return o.GetType(); }
+
+
     public string SelectedProjectFile => $"{appPath}SelectedProject.txt";
     public string projectPaths { set { foreach (var c in gameObject.GetComponents<GS>()) nameof(ProjectPath).SetPropertyValue(c, value); } }
     [HideInInspector] public string loadedProjectPath;
@@ -3536,6 +3549,8 @@ namespace GpuScript
     public RenderTexture newRenderTexture(int w = 1920, int h = 1048) { RenderTexture r = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32); r.Create(); return r; }
 
     public static bool mouseInUI, sliderHasFocus;
+    public bool _mouseInUI { get => mouseInUI; set => mouseInUI = value; }
+    public bool _sliderHasFocus { get => sliderHasFocus; set => sliderHasFocus = value; }
     public static uint2 ScreenSize() => uint2(Screen.width, Screen.height);
 
     public static bool isEditor => !Application.isPlaying;
@@ -3704,6 +3719,7 @@ namespace GpuScript
 
     public static Camera _mainCam;
     public static Camera mainCam { get => _mainCam ?? (_mainCam = Camera.main); set => _mainCam = value; }
+    public Camera __mainCam { get => mainCam; set => mainCam = value; }
     public static bool isLoaded = false;
 
     bool serializedSettings = false;
@@ -3882,34 +3898,7 @@ namespace GpuScript
     public static string new_guid_string() => new_guid().ToString();
     public static string new_uxml_guid() => new_guid_string().Replace("-", "");
 
-    protected static void SendGEmail(string host, int port, string username, string password, string From, string[] To, string[] Bcc, string Subject,
-      string Body, params string[] attachments)
-    {
-      MailMessage mail = new MailMessage();
-      mail.From = new MailAddress(From);
-      if (To != null) foreach (var T in To) if (T != null) mail.To.Add(T);
-      foreach (var B in Bcc) mail.Bcc.Add(B);
-      mail.Subject = Subject;
-      mail.Body = Body;
-      foreach (string attachment in attachments) mail.Attachments.Add(new Attachment(attachment));
-      try
-      {
-        SmtpClient smtpClient = new SmtpClient(host, port);
-        smtpClient.Credentials = (ICredentialsByHost)new NetworkCredential(username, password);
-        smtpClient.EnableSsl = true;
-        ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
-        smtpClient.Send(mail);
-      }
-      catch (Exception e)
-      {
-        string s = "\n";
-        foreach (var T in To) s = $"{s}{T};";
-        s = $"{s}\n{Subject}\n{Body}\n";
-        print($"error = {e}{s}");
-      }
-    }
-
-     public TAtt Get_TAtt()
+    public TAtt Get_TAtt()
     {
       return GetType().GetCustomAttributes(typeof(TAtt), true).FirstOrDefault() as TAtt;
     }

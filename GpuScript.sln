@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Tutorials_Assembly", "GS_Tutorials_Assembly.csproj", "{C94D9869-A0D8-7583-FDC6-5D41A0F77109}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Docs_Assembly", "GS_Docs_Assembly.csproj", "{A6D5E6FD-B132-5E41-2531-D3228725DE8B}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Assembly", "GS_Assembly.csproj", "{CB58F927-B93E-620E-811B-6F8D016F40C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Editor_Assembly", "GS_Editor_Assembly.csproj", "{A70758A2-D9ED-776F-7DE9-EB002DAF4B7E}"
@@ -19,6 +21,10 @@ Global
 		{C94D9869-A0D8-7583-FDC6-5D41A0F77109}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C94D9869-A0D8-7583-FDC6-5D41A0F77109}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C94D9869-A0D8-7583-FDC6-5D41A0F77109}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6D5E6FD-B132-5E41-2531-D3228725DE8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6D5E6FD-B132-5E41-2531-D3228725DE8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6D5E6FD-B132-5E41-2531-D3228725DE8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6D5E6FD-B132-5E41-2531-D3228725DE8B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CB58F927-B93E-620E-811B-6F8D016F40C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CB58F927-B93E-620E-811B-6F8D016F40C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB58F927-B93E-620E-811B-6F8D016F40C4}.Release|Any CPU.ActiveCfg = Release|Any CPU

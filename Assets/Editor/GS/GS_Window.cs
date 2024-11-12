@@ -293,11 +293,15 @@ public class GS_Window : EditorWindow
         {
           if (libInterfaces.IsEmpty() || libInterfaces.ToString().DoesNotContain(libTypeName))
           {
-            libInterfaces.Add($", I{libName}");
+            if (att.libInternal)
+              libInterfaces.Add($", I{libName}");
             //libCheckKeys.Add($"\n    GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey});");
+            //libCheckKeys.Add(
+            //  $"\n    if(!GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
+            //  $"\n      print($\"gs{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
             libCheckKeys.Add(
-              $"\n    if(!GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
-              $"\n      print($\"gs{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
+              $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
+              $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
           }
         }
 
@@ -1232,7 +1236,7 @@ public class GS_Window : EditorWindow
       StrBldr tData = StrBldr("\n  [Serializable]", "\n  public class uiData", "\n  {");
       StackFields(tData, "bool", "siUnits");
 
-      var (ui_to_data, Load_UI, data_to_ui, data_to_ui_Defaults, gridWrapper, OnGrid, onMethodClicked, clickedMethods) = StrBldr();
+      var (ui_to_data, Load_UI, data_to_ui, data_to_ui_Defaults, gridWrapper, OnGrid, onMethodClicked, clickedMethods, colSort) = StrBldr();
 
       ui_to_data.Add($"\n    data.siUnits = siUnits;");
       if (_gs_members != null)
@@ -1373,6 +1377,18 @@ public class GS_Window : EditorWindow
                     onMethodClicked.Clear();
                     string else_str = "";
 
+                    colSort.Clear();
+                    if (attGS.ColumnSorting)
+                    {
+                      colSort.Add(
+$"\n    if ({m_name}.Length < 2) return;",
+$"\n    {m_name} = label switch",
+"\n    {",
+"");
+                    }
+
+
+
                     foreach (var classMember in classMembers)
                     {
                       if (classMember.IsFld())
@@ -1405,6 +1421,20 @@ public class GS_Window : EditorWindow
                           grid_ShowIf.Add($"\n    if (col == {m_name}_{fldName}_Col) return {att.ShowIf.ToString().ReplaceAll("False", "false", "True", "true")};");
                         ui_to_array.Add($"\n      row.{fldName}{v} = {enumCast}ui.{fldName};");
                         grid_item_OnValueChanged.Add($"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue) {{ }}");
+
+                        if (attGS.ColumnSorting)
+                        {
+                          colSort.Add(
+$"\n      \"{att.Name}\" => {m_name}[0].{fldName}.CompareTo({m_name}[^1].{fldName}) < 0 ? {m_name}.OrderByDescending(a => a.{fldName}).ToArray() : {m_name}.OrderBy(a => a.{fldName}).ToArray(),",
+//$"\n      \"User\" => {m_name}[0].client_Username.CompareTo({m_name}[^1].client_Username) < 0 ? {m_name}.OrderByDescending(a => a.client_Username).ToArray() : {m_name}.OrderBy(a => a.client_Username).ToArray(),",
+//$"\n      \"Email\" => {m_name}[0].client_Email.CompareTo({m_name}[^1].client_Email) < 0 ? {m_name}.OrderByDescending(a => a.client_Email).ToArray() : {m_name}.OrderBy(a => a.client_Email).ToArray(),",
+//$"\n      \"Library\" => {m_name}[0].client_Library.CompareTo({m_name}[^1].client_Library) < 0 ? {m_name}.OrderByDescending(a => a.client_Library).ToArray() : {m_name}.OrderBy(a => a.client_Library).ToArray(),",
+//$"\n      \"Expires\" => {m_name}[0].client_ExpireDate.CompareTo({m_name}[^1].client_ExpireDate) < 0 ? {m_name}.OrderByDescending(a => a.client_ExpireDate).ToArray() : {m_name}.OrderBy(a => a.client_ExpireDate).ToArray(),",
+//$"\n      \"Duration\" => {m_name}[0].client_Duration.CompareTo({m_name}[^1].client_Duration) < 0 ? {m_name}.OrderByDescending(a => a.client_Duration).ToArray() : {m_name}.OrderBy(a => a.client_Duration).ToArray(),",
+//$"\n      \"Price\" => {m_name}[0].client_Price.CompareTo({m_name}[^1].client_Price) < 0 ? {m_name}.OrderByDescending(a => a.client_Price).ToArray() : {m_name}.OrderBy(a => a.client_Price).ToArray(),",
+//$"\n      \"Key\" => {m_name}[0].client_LicenseKey.CompareTo({m_name}[^1].client_LicenseKey) < 0 ? {m_name}.OrderByDescending(a => a.client_LicenseKey).ToArray() : {m_name}.OrderBy(a => a.client_LicenseKey).ToArray(),",
+"");
+                        }
                       }
                       else if (classMember.IsMethod())
                       {
@@ -1414,6 +1444,16 @@ public class GS_Window : EditorWindow
                       }
                       gridCol++;
                     }
+
+                    if (attGS.ColumnSorting)
+                    {
+                      colSort.Add(
+ "\n      _ => default,",
+ "\n    };",
+$"\n    {m_name}_To_UI();",
+ "");
+                    }
+
 
                     ui_to_array.Add($"\n      {m_name}[i + startRow] = row;");
 
@@ -1430,6 +1470,25 @@ public class GS_Window : EditorWindow
     $"\n    var UI_grid = UI_grid_{m_name};",
     $"\n    var name = UI_grid.RowItems[row][col].name.After(\"UI_method_\").BeforeLast(\"_\");", onMethodClicked,
     "\n  }",
+
+    $"\n  public virtual void {m_name}_OnRowNumberButtonClicked(int row) {{ }}",
+
+    $"\n  public virtual void {m_name}_OnHeaderButtonClicked(string label)",
+     "\n  {", colSort,
+    //$"\n    if ({m_name}.Length < 2) return;",
+    //$"\n    {m_name} = label switch",
+    // "\n    {",
+    //$"\n      \"User\" => {m_name}[0].client_Username.CompareTo({m_name}[^1].client_Username) < 0 ? {m_name}.OrderByDescending(a => a.client_Username).ToArray() : {m_name}.OrderBy(a => a.client_Username).ToArray(),",
+    //$"\n      \"Email\" => {m_name}[0].client_Email.CompareTo({m_name}[^1].client_Email) < 0 ? {m_name}.OrderByDescending(a => a.client_Email).ToArray() : {m_name}.OrderBy(a => a.client_Email).ToArray(),",
+    //$"\n      \"Library\" => {m_name}[0].client_Library.CompareTo({m_name}[^1].client_Library) < 0 ? {m_name}.OrderByDescending(a => a.client_Library).ToArray() : {m_name}.OrderBy(a => a.client_Library).ToArray(),",
+    //$"\n      \"Expires\" => {m_name}[0].client_ExpireDate.CompareTo({m_name}[^1].client_ExpireDate) < 0 ? {m_name}.OrderByDescending(a => a.client_ExpireDate).ToArray() : {m_name}.OrderBy(a => a.client_ExpireDate).ToArray(),",
+    //$"\n      \"Duration\" => {m_name}[0].client_Duration.CompareTo({m_name}[^1].client_Duration) < 0 ? {m_name}.OrderByDescending(a => a.client_Duration).ToArray() : {m_name}.OrderBy(a => a.client_Duration).ToArray(),",
+    //$"\n      \"Price\" => {m_name}[0].client_Price.CompareTo({m_name}[^1].client_Price) < 0 ? {m_name}.OrderByDescending(a => a.client_Price).ToArray() : {m_name}.OrderBy(a => a.client_Price).ToArray(),",
+    //$"\n      \"Key\" => {m_name}[0].client_LicenseKey.CompareTo({m_name}[^1].client_LicenseKey) < 0 ? {m_name}.OrderByDescending(a => a.client_LicenseKey).ToArray() : {m_name}.OrderBy(a => a.client_LicenseKey).ToArray(),",
+    // "\n    };",
+    //$"\n    {m_name}_To_UI();",
+     "\n  }",
+
 
     $"\n  public virtual void UI_To_{m_name}()",
      "\n  {",

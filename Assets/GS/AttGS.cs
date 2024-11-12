@@ -53,6 +53,7 @@ namespace GpuScript
     public usUnit usUnit;
     public bool readOnly, isSingleRow, fixedLength, useScrollbar, isSerialize, isPassword, GroupShared, FullRace, HalfRace;
     public int DisplayRowN;
+    public bool ColumnSorting;
     public List<object> Size;
     public int MaxMem_GB, GroupShared_Size;
     public bool RenderPoints, RenderQuads, RenderMeshes;
@@ -121,6 +122,7 @@ namespace GpuScript
             case UI.FixedLength: fixedLength = true; break;
             case UI.Sync: isSync = true; break;
             case UI.DisplayRowN: DisplayRowN = vals[++i].To_int(); break;
+            case UI.ColumnSorting: ColumnSorting = true; break;
             case UI.Key: Key = vals[++i].ToString(); break;
             case UI.OnValueChanged: OnValueChanged = vals[++i].ToString(); break;
             case UI.OnClicked: OnClicked = vals[++i].ToString(); break;
@@ -245,6 +247,7 @@ namespace GpuScript
     OnValueChanged, OnClicked,
     Pow2_Slider,
     IsPow10, IsPow2, Nearest,
+    ColumnSorting,
     Null
   };
 

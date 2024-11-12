@@ -143,6 +143,13 @@ namespace GpuScript
       headerButtons = header_Buttons_Container.Query<UI_grid_header>().ToList();
       headerButtons.ForEach(a => a.Init(gs));
 
+      for (int i = 0; i < headerButtons.Count; i++)
+      {
+        var headerButton = headerButtons[i];
+        headerButton.RegisterCallback<ClickEvent>((evt) => OnHeaderButtonClicked(evt));
+      }
+
+
       footer_Container = grid_Container?.Q<VisualElement>("Footer_Container");
       addRowButton = footer_Container?.Q<Button>("AddRow_Button");
 
@@ -186,6 +193,7 @@ namespace GpuScript
       DrawGrid();
       return true;
     }
+
 
     public void dispRowN_OnTextFieldChanged(ChangeEvent<string> evt)
     {
@@ -419,7 +427,8 @@ namespace GpuScript
           m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
       }
     }
-
+    //public void OnHeaderButtonClicked(int col) => $"{name}_OnHeaderButtonClicked".InvokeMethod(gs, col + 1);
+    public void OnHeaderButtonClicked(string label) => $"{name}_OnHeaderButtonClicked".InvokeMethod(gs, label);
     public void OnRowNumberButtonClicked(int row)
     {
       if (GS.Ctrl) isRowSelected[row] = !isRowSelected[row];
@@ -451,6 +460,8 @@ namespace GpuScript
       else if (evt.isKey()) $"{name}_OnKeyDown".InvokeMethod(gs);
     }
 
+    //void OnHeaderButtonClicked(ClickEvent evt) => headerButtons.Select((b, i) => (b, i)).Where(a => a.b.label == ((Button)evt.target).text).ForEach(a => OnHeaderButtonClicked(a.i));
+    void OnHeaderButtonClicked(ClickEvent evt) => OnHeaderButtonClicked(((Button)evt.target).text);
     void OnRowNumberButtonClicked(ClickEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).ForEach(a => OnRowNumberButtonClicked(a.i + StartRow));
     void OnRowNumberKeyUp(KeyUpEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).ForEach(a => OnRowNumberKeyUp(a.i + StartRow, evt));
     void OnRowNumberKeyDown(KeyDownEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).ForEach(a => OnRowNumberKeyDown(a.i + StartRow, evt));

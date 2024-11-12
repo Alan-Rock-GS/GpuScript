@@ -1299,6 +1299,11 @@ namespace GpuScript
       trigger.triggers.Add(entry);
     }
 
+    public static bool isValidDateTime(this string s, string format = "yyyy/MM/dd HH:mm:ss")
+    {
+      DateTime dt;
+      return DateTime.TryParseExact(s, format, null, DateTimeStyles.None, out dt);
+    }
     public static DateTime ToDate(this string s, string format = "yyyy/MM/dd HH:mm:ss") => DateTime.ParseExact(s, format, null);
     public static string ToLabel(this usUnit us)
     {
