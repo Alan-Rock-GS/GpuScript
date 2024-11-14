@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Docs/gsPuppeteer_Lib_Doc/Puppeteer_Lib_Doc.unity
+- path: Assets/GS_Projects/gsCodeBackup/CodeBackup.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

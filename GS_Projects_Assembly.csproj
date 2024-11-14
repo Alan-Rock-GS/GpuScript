@@ -62,13 +62,13 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.25f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses_.cs" />
-    <Compile Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses.cs" />
-    <Compile Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses_GS.cs" />
+    <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup.cs" />
+    <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_GS.cs" />
+    <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\GS_Projects\GS_Projects_Assembly.asmdef" />
-    <None Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses_UXML.uxml" />
+    <None Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_UXML.uxml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
@@ -587,10 +587,6 @@
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GS_Lib">
-      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Microsoft.Net.Http.Headers">
       <HintPath>Assets\Plugins\Microsoft.Net.Http.Headers.dll</HintPath>
       <Private>False</Private>
@@ -617,6 +613,10 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GS_Lib">
+      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">

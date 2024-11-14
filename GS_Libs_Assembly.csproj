@@ -68,16 +68,19 @@
     <Compile Include="Assets\GS_Libs\gsAppendBuff\gsAppendBuff_.cs" />
     <Compile Include="Assets\GS_Libs\gsBDraw\gsBDraw.cs" />
     <Compile Include="Assets\GS_Libs\gsOCam_Lib\gsOCam_Lib_GS.cs" />
+    <Compile Include="Assets\GS_Libs\gsBackup_Lib\gsBackup_Lib_GS.cs" />
     <Compile Include="Assets\GS_Libs\gsPuppeteer_Lib\gsPuppeteer_Lib_GS.cs" />
     <Compile Include="Assets\GS_Libs\gsPuppeteer_Lib\gsPuppeteer_Lib_.cs" />
     <Compile Include="Assets\GS_Libs\gsOCam_Lib\gsOCam_Lib.cs" />
     <Compile Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib_.cs" />
     <Compile Include="Assets\GS_Libs\gsAppendBuff\gsAppendBuff_GS.cs" />
     <Compile Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib.cs" />
+    <Compile Include="Assets\GS_Libs\gsBackup_Lib\gsBackup_Lib_.cs" />
     <Compile Include="Assets\GS_Libs\gsPuppeteer_Lib\gsPuppeteer_Lib.cs" />
     <Compile Include="Assets\GS_Libs\gsAppendBuff\gsAppendBuff.cs" />
     <Compile Include="Assets\GS_Libs\gsBDraw\gsBDraw_GS.cs" />
     <Compile Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib_GS.cs" />
+    <Compile Include="Assets\GS_Libs\gsBackup_Lib\gsBackup_Lib.cs" />
     <Compile Include="Assets\GS_Libs\gsRand\gsRand_.cs" />
     <Compile Include="Assets\GS_Libs\gsRand\gsRand_GS.cs" />
   </ItemGroup>
@@ -95,6 +98,7 @@
     <None Include="Assets\GS_Libs\gsRand\Lib\gsRand_cs_lib.txt" />
     <None Include="Assets\GS_Libs\gsBDraw\Lib\gsBDraw_cs_lib.txt" />
     <None Include="Assets\GS_Libs\gsOCam_Lib\gsOCam_Lib_UXML.uxml" />
+    <None Include="Assets\GS_Libs\gsBackup_Lib\gsBackup_Lib_UXML.uxml" />
     <None Include="Assets\GS_Libs\gsBDraw\Lib\gsBDraw_GS_lib.txt" />
     <None Include="Assets\GS_Libs\GS_Libs_Assembly.asmdef" />
     <None Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib.shader" />
@@ -623,10 +627,6 @@
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GS_Lib">
-      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Microsoft.Net.Http.Headers">
       <HintPath>Assets\Plugins\Microsoft.Net.Http.Headers.dll</HintPath>
       <Private>False</Private>
@@ -653,6 +653,10 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GS_Lib">
+      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">

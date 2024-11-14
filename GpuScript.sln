@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Editor_Assembly", "GS_Ed
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Libs_Assembly", "GS_Libs_Assembly.csproj", "{FE740B3A-20D2-7B5A-CC8F-E88BC771ECA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GS_Projects_Assembly", "GS_Projects_Assembly.csproj", "{D239DF3D-785D-857A-9103-AB2E3B0F38C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{FE740B3A-20D2-7B5A-CC8F-E88BC771ECA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE740B3A-20D2-7B5A-CC8F-E88BC771ECA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE740B3A-20D2-7B5A-CC8F-E88BC771ECA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D239DF3D-785D-857A-9103-AB2E3B0F38C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D239DF3D-785D-857A-9103-AB2E3B0F38C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D239DF3D-785D-857A-9103-AB2E3B0F38C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D239DF3D-785D-857A-9103-AB2E3B0F38C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

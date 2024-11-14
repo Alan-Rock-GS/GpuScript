@@ -601,10 +601,6 @@
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GS_Lib">
-      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Microsoft.Net.Http.Headers">
       <HintPath>Assets\Plugins\Microsoft.Net.Http.Headers.dll</HintPath>
       <Private>False</Private>
@@ -631,6 +627,10 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions">
       <HintPath>Assets\Plugins\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GS_Lib">
+      <HintPath>Assets\Plugins\GS_Lib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
