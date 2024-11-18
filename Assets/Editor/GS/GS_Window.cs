@@ -272,9 +272,7 @@ public class GS_Window : EditorWindow
     }
 
     public static bool skip_GS_import = false;
-    //string libInterfaces = "";
-    //StrBldr libCheckKeys;
-    bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, StrBldr libInterfaces, StrBldr libCheckKeys, List<string> libKernels)
+    bool BuildLib(string Name0, FieldInfo libFld, ref string _GS_Code0, StrBldr _cs_includes, StrBldr _cs_lib_regions, StrBldr libInterfaces, StrBldr libCheckKeys, StrBldr libOnLoaded, List<string> libKernels)
     {
       bool changed = false;
       string declaration = $"{libFld.FieldType} {libFld.Name};";
@@ -295,19 +293,10 @@ public class GS_Window : EditorWindow
           {
             if (att.libInternal)
               libInterfaces.Add($", I{libName}");
-            //libCheckKeys.Add($"\n    GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey});");
-            //libCheckKeys.Add(
-            //  $"\n    if(!GS_{libName}.CheckKey(\"gs{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
-            //  $"\n      print($\"gs{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
             libCheckKeys.Add(
               $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
               $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
-            //libCheckKeys.Add(
-            //  $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
-            //  $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class, key should be {{GS_Register.Key_6_digit(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\")}}\");",
-            //  $"\n    else",
-            //  $"\n      print($\"{libName} registered, key is {{GS_Register.Key_6_digit(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\")}}\");",
-            //  "");
+            if (libName.EndsWith("_Lib")) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({libName});");
           }
         }
 
@@ -447,7 +436,7 @@ public class GS_Window : EditorWindow
       AssetDatabase.Refresh();
     }
 
-    StrBldr libInterfaces, libCheckKeys;
+    StrBldr libInterfaces, libCheckKeys, libOnLoaded;
 
     bool _GS_Build_Libs()
     {
@@ -457,7 +446,7 @@ public class GS_Window : EditorWindow
       Get_gStruct();
       libKernels = new List<string>();
       _cs_lib_regions = StrBldr();
-      (libInterfaces, libCheckKeys) = StrBldr();
+      (libInterfaces, libCheckKeys, libOnLoaded) = StrBldr();
       if (lib_flds.Count > 0) //add library code to _GS, comment out lib_flds in _GS, compile libraries by writing gsLib.cs files, or just use regex
       {
         _cs_lib_kernels.Clear();
@@ -465,7 +454,7 @@ public class GS_Window : EditorWindow
         {
           ProjectData libProject = new ProjectData(libFld.FieldType.ToString());
           libProjects.Add(libProject);
-          if (libProject.BuildLib(Name, libFld, ref _GS_Text0, _cs_includes, _cs_lib_regions, libInterfaces, libCheckKeys, libKernels)) changed = true;
+          if (libProject.BuildLib(Name, libFld, ref _GS_Text0, _cs_includes, _cs_lib_regions, libInterfaces, libCheckKeys, libOnLoaded, libKernels)) changed = true;
         }
         if (_GS_filename.WriteAllText_IfChanged(_GS_Text0))
         {
@@ -1122,7 +1111,7 @@ public class GS_Window : EditorWindow
     bool _cs_Write()
     {
       valueChanges.Clear();
-      var (showIfs, update, lateUpdate, lateUpdate_keys, lateUpdate_ValuesChanged, onValueChanged, dataWrappers) = StrBldr();
+      var (showIfs, update, lateUpdate, lateUpdate_keys, lateUpdate_ValuesChanged, onValueChanged, dataWrappers, uiWrappers) = StrBldr();
       _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
       Calc_enums(); Calc_consts(); Calc_structs(); Get_compute_or_material_shader(); Calc_kernels();
 
@@ -1645,7 +1634,7 @@ $"\n    {m_name}_To_UI();",
                       $"\n        UI_grid_{m_name}.headerButtons[i].unitLabel.style.display = DisplayIf(item.siUnit != siUnit.Null || item.usUnit != usUnit.Null || item.Unit != Unit.Null);",
                        "\n    }",
                       $"\n    UI_grid_{m_name}.VScroll.value = data.{m_name}_VScroll;",
-                      $"\n    UI_grid_{m_name}.dispRowN.v = data.{m_name}_DisplayRowN == 0 ? 5 : data.{m_name}_DisplayRowN;",
+                      $"\n    UI_grid_{m_name}.dispRowN.v = data.{m_name}_DisplayRowN == 0 ? 20 : data.{m_name}_DisplayRowN;",
                       $"\n    UI_grid_{m_name}.isExpanded = data.{m_name}_isExpanded;",
                       $"\n    UI_grid_{m_name}.selectedRows = data.{m_name}_selectedRows;",
                       $"\n    UI_grid_{m_name}.lastClickedRow = data.{m_name}_lastClickedRow;",
@@ -1687,7 +1676,11 @@ $"\n    {m_name}_To_UI();",
                   }
                 }
                 else if (m_typeStr.StartsWith("gs")) { }
-                else StackFields(dataWrappers, $"UI_{m_typeStr}", $"UI_{m_name}", "  ");
+                else
+                {
+                  StackFields(dataWrappers, $"UI_{m_typeStr}", $"UI_{m_name}", "  ");
+                  uiWrappers.Add($"\n  public UI_{m_typeStr} ui_{m_name} => UI_{m_name};");
+                }
               }
               else
                 dataWrappers.Add($"\n  public {m_name}[] UI_{m_name};");
@@ -1781,7 +1774,7 @@ $"\n    {m_name}_To_UI();",
    "\n  public virtual void Start() { Build_UI(); Load_UI(); Start0_GS(); InitBuffers(); Start1_GS(); }", s_start0_GS, s_start1_GS,
       "\n  public override void onLoaded()",
       "\n  {",
-      "\n    base.onLoaded();", //libCheckKeys,
+      "\n    base.onLoaded();", libOnLoaded,
       "\n  }",
       "\n  [HideInInspector] public bool already_quited = false;",
       "\n  public override void OnApplicationQuit() { Save_UI(); OnApplicationQuit_GS(); base.OnApplicationQuit(); already_quited = true; }", s_OnApplicationQuit, gridWrapper,
@@ -1854,7 +1847,7 @@ $"\n    {m_name}_To_UI();",
       "\n    if (!ui_loaded) return;", onValueChanged,
       "\n    OnValueChanged_GS();",
       "\n  }", s_onValueChanged, Scenes_in_Build,
-      "", showIfs, dataWrappers, tData, initBuffers, base_groupshared, declare_classes, classArrays,
+      "", showIfs, dataWrappers, uiWrappers, tData, initBuffers, base_groupshared, declare_classes, classArrays,
       compute_or_material_shader, kernels_,
       vertCode, virtual_verts, renderObject, fragCode,
       "\n}");

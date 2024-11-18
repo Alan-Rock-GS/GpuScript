@@ -16,15 +16,39 @@
   RWStructuredBuffer<int> ints;
   RWStructuredBuffer<uint4> Rand_rs;
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
   uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
+  uint4 Rand_grp_u4(uint i) { return uint4(Rand_UV(Rand_grp[i] = Rand_U4(Rand_grp[i])), Rand_UV(Rand_grp[i] = Rand_U4(Rand_grp[i])), Rand_UV(Rand_grp[i] = Rand_U4(Rand_grp[i])), Rand_UV(Rand_grp[i] = Rand_U4(Rand_grp[i]))); }
+  void Rand_Fill_grp(uint grpI, uint i) { if (grpI < i) Rand_grp[grpI + i] = Rand_grp_u4(grpI); }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    if (grpI == 0) Rand_grp[grpI] = Rand_rs[grp_id.x * numthreads1];
+    GroupMemoryBarrierWithGroupSync();
+    for (uint i = 1; i < numthreads1; i *= 2) { Rand_Fill_grp(grpI, i); GroupMemoryBarrierWithGroupSync(); }
+    if (grpI < g.Rand_N) Rand_rs[id.x] = Rand_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    if (grpI == 0 && grp_id.x * numthreads1 * numthreads1 < g.Rand_N) Rand_grp[grpI] = Rand_rs[grp_id.x * numthreads1 * numthreads1];
+    GroupMemoryBarrierWithGroupSync();
+    for (uint i = 1; i < numthreads1; i *= 2) { Rand_Fill_grp(grpI, i); GroupMemoryBarrierWithGroupSync(); }
+    if (grpI < ceilu(g.Rand_N / (float)numthreads1)) { uint k = grpI * numthreads1; if (k < g.Rand_N) Rand_rs[k] = Rand_grp[grpI]; }
+  }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    if (grp_id.x == 0 && grpI == 0) Rand_grp[grpI] = g.Rand_seed4;
+    GroupMemoryBarrierWithGroupSync();
+    uint _n = ceilu(g.Rand_N / (float)numthreads1 / numthreads1);
+    for (uint i = 1; i < numthreads1; i *= 2)
+    {
+      if (grp_id.x == 0 && grpI < _n && i <= _n)
+        Rand_Fill_grp(grpI, i);
+      GroupMemoryBarrierWithGroupSync();
+    }
+    if (grp_id.x == 0 && grpI < _n) { uint k = grpI * numthreads1 * numthreads1; if (k < g.Rand_N) Rand_rs[k] = Rand_grp[grpI]; }
+  }
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
   uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
   float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
@@ -73,8 +97,8 @@
   #pragma kernel Integral_Avg
   #pragma kernel Count_Pnts_out_of_Circle
   #pragma kernel Count_Pnts_in_Circle
-  #pragma kernel Rand_initState
-  #pragma kernel Rand_initSeed
   #pragma kernel Rand_grp_fill_1K
   #pragma kernel Rand_grp_init_1K
   #pragma kernel Rand_grp_init_1M
+  #pragma kernel Rand_initState
+  #pragma kernel Rand_initSeed

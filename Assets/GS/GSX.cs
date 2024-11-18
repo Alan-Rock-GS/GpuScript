@@ -50,7 +50,8 @@ namespace GpuScript
     public static bool[] ints_to_selected_bools(this int[] ints, int n)
     {
       bool[] isSelected = new bool[n];
-      foreach (var i in ints) isSelected[i] = true;
+      foreach (var i in ints) if (i >= 0 && i < n) isSelected[i] = true;
+      if (ints.Length == 1 && ints[0] == -1 && n > 0) isSelected[0] = true;
       return isSelected;
     }
     public static string bools_to_RangeStr(this bool[] ranges)

@@ -24,7 +24,7 @@ namespace GpuScript
     public bool[] isRowSelected;
     public string selectedRows;
     public int StartRow, lastClickedRow;
-    public int DisplayRowN => dispRowN == null ? 5 : (int)dispRowN.v;
+    public int DisplayRowN => dispRowN == null ? 20 : (int)dispRowN.v;
     public bool isExpanded = false, isClass;
 
     public UI_grid() : base() { }
