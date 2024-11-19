@@ -296,7 +296,8 @@ public class GS_Window : EditorWindow
             libCheckKeys.Add(
               $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
               $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
-            if (libName.EndsWith("_Lib")) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({libName});");
+            //if (libName.EndsWith("_Lib") && att.libExternal) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({libName});");
+            if (libName.EndsWith("_Lib")) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({(att.libExternal ? libName : "this")});");
           }
         }
 
@@ -329,6 +330,9 @@ public class GS_Window : EditorWindow
 
           if (libFld.isExternal_Lib())
             cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
+          //else
+          //  cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
+
           _cs_lib_regions.Add($"\n  #region <{libFld.Name}>\n", cs_lib_Code, $"\n  #endregion <{libFld.Name}>");
         }
       }
@@ -746,7 +750,13 @@ public class GS_Window : EditorWindow
         args = match.Group(5);
 
         code = match.Group(6);
-        if (code.Contains(" => ")) code = $" {{ return {match.Group(6).Between(" => ", ";")}; }}";
+        if (code.Contains(" => "))
+        {
+          if (return_type == "void")
+            code = $" {{ {match.Group(6).Between(" => ", ";")}; }}";
+          else
+            code = $" {{ return {match.Group(6).Between(" => ", ";")}; }}";
+        }
         argN = args.ArgN();
       }
       public MethodInfo method;
@@ -1421,13 +1431,6 @@ $"\n    {m_name} = label switch",
                         {
                           colSort.Add(
 $"\n      \"{att.Name}\" => {m_name}[0].{fldName}.CompareTo({m_name}[^1].{fldName}) < 0 ? {m_name}.OrderByDescending(a => a.{fldName}).ToArray() : {m_name}.OrderBy(a => a.{fldName}).ToArray(),",
-//$"\n      \"User\" => {m_name}[0].client_Username.CompareTo({m_name}[^1].client_Username) < 0 ? {m_name}.OrderByDescending(a => a.client_Username).ToArray() : {m_name}.OrderBy(a => a.client_Username).ToArray(),",
-//$"\n      \"Email\" => {m_name}[0].client_Email.CompareTo({m_name}[^1].client_Email) < 0 ? {m_name}.OrderByDescending(a => a.client_Email).ToArray() : {m_name}.OrderBy(a => a.client_Email).ToArray(),",
-//$"\n      \"Library\" => {m_name}[0].client_Library.CompareTo({m_name}[^1].client_Library) < 0 ? {m_name}.OrderByDescending(a => a.client_Library).ToArray() : {m_name}.OrderBy(a => a.client_Library).ToArray(),",
-//$"\n      \"Expires\" => {m_name}[0].client_ExpireDate.CompareTo({m_name}[^1].client_ExpireDate) < 0 ? {m_name}.OrderByDescending(a => a.client_ExpireDate).ToArray() : {m_name}.OrderBy(a => a.client_ExpireDate).ToArray(),",
-//$"\n      \"Duration\" => {m_name}[0].client_Duration.CompareTo({m_name}[^1].client_Duration) < 0 ? {m_name}.OrderByDescending(a => a.client_Duration).ToArray() : {m_name}.OrderBy(a => a.client_Duration).ToArray(),",
-//$"\n      \"Price\" => {m_name}[0].client_Price.CompareTo({m_name}[^1].client_Price) < 0 ? {m_name}.OrderByDescending(a => a.client_Price).ToArray() : {m_name}.OrderBy(a => a.client_Price).ToArray(),",
-//$"\n      \"Key\" => {m_name}[0].client_LicenseKey.CompareTo({m_name}[^1].client_LicenseKey) < 0 ? {m_name}.OrderByDescending(a => a.client_LicenseKey).ToArray() : {m_name}.OrderBy(a => a.client_LicenseKey).ToArray(),",
 "");
                         }
                       }
@@ -1470,18 +1473,6 @@ $"\n    {m_name}_To_UI();",
 
     $"\n  public virtual void {m_name}_OnHeaderButtonClicked(string label)",
      "\n  {", colSort,
-     //$"\n    if ({m_name}.Length < 2) return;",
-     //$"\n    {m_name} = label switch",
-     // "\n    {",
-     //$"\n      \"User\" => {m_name}[0].client_Username.CompareTo({m_name}[^1].client_Username) < 0 ? {m_name}.OrderByDescending(a => a.client_Username).ToArray() : {m_name}.OrderBy(a => a.client_Username).ToArray(),",
-     //$"\n      \"Email\" => {m_name}[0].client_Email.CompareTo({m_name}[^1].client_Email) < 0 ? {m_name}.OrderByDescending(a => a.client_Email).ToArray() : {m_name}.OrderBy(a => a.client_Email).ToArray(),",
-     //$"\n      \"Library\" => {m_name}[0].client_Library.CompareTo({m_name}[^1].client_Library) < 0 ? {m_name}.OrderByDescending(a => a.client_Library).ToArray() : {m_name}.OrderBy(a => a.client_Library).ToArray(),",
-     //$"\n      \"Expires\" => {m_name}[0].client_ExpireDate.CompareTo({m_name}[^1].client_ExpireDate) < 0 ? {m_name}.OrderByDescending(a => a.client_ExpireDate).ToArray() : {m_name}.OrderBy(a => a.client_ExpireDate).ToArray(),",
-     //$"\n      \"Duration\" => {m_name}[0].client_Duration.CompareTo({m_name}[^1].client_Duration) < 0 ? {m_name}.OrderByDescending(a => a.client_Duration).ToArray() : {m_name}.OrderBy(a => a.client_Duration).ToArray(),",
-     //$"\n      \"Price\" => {m_name}[0].client_Price.CompareTo({m_name}[^1].client_Price) < 0 ? {m_name}.OrderByDescending(a => a.client_Price).ToArray() : {m_name}.OrderBy(a => a.client_Price).ToArray(),",
-     //$"\n      \"Key\" => {m_name}[0].client_LicenseKey.CompareTo({m_name}[^1].client_LicenseKey) < 0 ? {m_name}.OrderByDescending(a => a.client_LicenseKey).ToArray() : {m_name}.OrderBy(a => a.client_LicenseKey).ToArray(),",
-     // "\n    };",
-     //$"\n    {m_name}_To_UI();",
      "\n  }",
 
 
@@ -1553,14 +1544,11 @@ $"\n    {m_name}_To_UI();",
     $"\n  public virtual void {m_name}_OnCut()",
     "\n  {",
     $"\n    {m_name}_OnCopy();",
-    //_GS_fieldType.GetElementType().IsStruct() ? $"\n    {m_name} = {m_name}.writeBuffer.Except({m_name}_CopyPaste).ToArray();"
-    //: $"\n    {m_name} = {m_name}.Except({m_name}_CopyPaste).ToArray();",
     $"\n    {m_name} = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".writeBuffer" : "")}.Except({m_name}_CopyPaste).ToArray();",
     $"\n    UI_grid_{m_name}.StartRow = min(UI_grid_{m_name}.StartRow, max(0, {m_name}_CopyPaste.Count - UI_grid_{m_name}.DisplayRowN));",
     $"\n    UI_grid_{m_name}.isRowSelected = new bool[{m_name}_CopyPaste.Count];",
     $"\n    UI_grid_{m_name}.DrawGrid();",
     "\n  }",
-    //$"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
     $"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".writeBuffer" : "")}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
     $"\n  public virtual void {m_name}_OnPaste()",
     "\n  {",
@@ -1680,6 +1668,7 @@ $"\n    {m_name}_To_UI();",
                 {
                   StackFields(dataWrappers, $"UI_{m_typeStr}", $"UI_{m_name}", "  ");
                   uiWrappers.Add($"\n  public UI_{m_typeStr} ui_{m_name} => UI_{m_name};");
+                  //uiWrappers.Add($"\n  public UI_{m_typeStr} UI_{m_name}_ => UI_{m_name};");
                 }
               }
               else
@@ -1753,8 +1742,6 @@ $"\n    {m_name}_To_UI();",
           s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
         }
 
-      //if (uiDocument && gsName != "gsReport") s_onValueChanged.Add("\n    GetComponent<gsReport>()?.OnValueChanged_GS();");
-      //if (uiDocument && gsName != "gsReport") s_onValueChanged.Add("\n        ((GS)GetComponent(\"gsReport\".ToType()))?.OnValueChanged_GS();");
       if (uiDocument && gsName != "gsReport") s_onValueChanged.Add("\n    var type = \"gsReport\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
 
       virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
@@ -2639,7 +2626,8 @@ $"\n    {m_name}_To_UI();",
       cs_Code = cs_Code.RegexReplace($@"\b{Name}_kernel_", $@"kernel_{Name}_", $@"\b{Name}_vert_", $@"vert_{Name}_",
         $@"\b{Name}_frag_", $@"frag_{Name}_", $@"\b{Name}_frag", $@"frag_{Name}", $@"{Name}_{Name}_", $"{Name}_");
 
-      cs_Code = cs_Code.ReplaceAll("public virtual string ToString()", "public override string ToString()");
+      cs_Code = cs_Code.ReplaceAll("public virtual string ToString()", "public override string ToString()",
+        $"GS_{Name}.{Name}_onLoaded(this);", $"GS_{Name}.onLoaded(this);");
 
       $"{path}{gsName}_cs_lib.txt".WriteAllText(cs_Code);
 

@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Docs/gsProject_Lib_Doc/Project_Lib_Doc.unity
+- path: Assets/GS_Docs/gsViews_Lib_Doc/Views_Lib_Doc.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

@@ -63,8 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\GS_Libs\gsRand\gsRand.cs" />
+    <Compile Include="Assets\GS_Libs\gsViews_Lib\gsViews_Lib_GS.cs" />
     <Compile Include="Assets\GS_Libs\gsBDraw\gsBDraw_.cs" />
     <Compile Include="Assets\GS_Libs\gsOCam_Lib\gsOCam_Lib_.cs" />
+    <Compile Include="Assets\GS_Libs\gsViews_Lib\gsViews_Lib_.cs" />
     <Compile Include="Assets\GS_Libs\gsAppendBuff\gsAppendBuff_.cs" />
     <Compile Include="Assets\GS_Libs\gsBDraw\gsBDraw.cs" />
     <Compile Include="Assets\GS_Libs\gsProject_Lib\gsProject_Lib.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="Assets\GS_Libs\gsBackup_Lib\gsBackup_Lib.cs" />
     <Compile Include="Assets\GS_Libs\gsRand\gsRand_.cs" />
     <Compile Include="Assets\GS_Libs\gsRand\gsRand_GS.cs" />
+    <Compile Include="Assets\GS_Libs\gsViews_Lib\gsViews_Lib.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\GS_Libs\gsBDraw\Lib\gsBDraw_cs_lib_includes.txt" />
@@ -94,17 +97,22 @@
     <None Include="Assets\GS_Libs\gsAppendBuff\Lib\gsAppendBuff_cs_lib_kernels.txt" />
     <None Include="Assets\GS_Libs\gsAppendBuff\Lib\gsAppendBuff_cs_lib_includes.txt" />
     <None Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib.compute" />
+    <None Include="Assets\GS_Libs\gsViews_Lib\Lib\gsViews_Lib_cs_lib_includes.txt" />
     <None Include="Assets\GS_Libs\gsRand\Lib\gsRand_cs_lib_kernels.txt" />
     <None Include="Assets\GS_Libs\gsBDraw\Lib\gsBDraw_cs_lib_kernels.txt" />
     <None Include="Assets\GS_Libs\gsOCam_Lib\gsOCam_Lib.compute" />
     <None Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib_UXML.uxml" />
+    <None Include="Assets\GS_Libs\gsViews_Lib\Lib\gsViews_Lib_cs_lib_kernels.txt" />
     <None Include="Assets\GS_Libs\gsRand\Lib\gsRand_cs_lib.txt" />
+    <None Include="Assets\GS_Libs\gsViews_Lib\gsViews_Lib_UXML.uxml" />
     <None Include="Assets\GS_Libs\gsBDraw\Lib\gsBDraw_cs_lib.txt" />
+    <None Include="Assets\GS_Libs\gsViews_Lib\Lib\gsViews_Lib_GS_lib.txt" />
     <None Include="Assets\GS_Libs\gsOCam_Lib\gsOCam_Lib_UXML.uxml" />
     <None Include="Assets\GS_Libs\gsBackup_Lib\gsBackup_Lib_UXML.uxml" />
     <None Include="Assets\GS_Libs\gsBDraw\Lib\gsBDraw_GS_lib.txt" />
     <None Include="Assets\GS_Libs\GS_Libs_Assembly.asmdef" />
     <None Include="Assets\GS_Libs\gsReport_Lib\gsReport_Lib.shader" />
+    <None Include="Assets\GS_Libs\gsViews_Lib\Lib\gsViews_Lib_cs_lib.txt" />
     <None Include="Assets\GS_Libs\gsProject_Lib\gsProject_Lib_UXML.uxml" />
     <None Include="Assets\GS_Libs\gsAppendBuff\gsAppendBuff.compute" />
     <None Include="Assets\GS_Libs\gsBDraw\gsBDraw.shader" />
