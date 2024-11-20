@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Docs/gsViews_Lib_Doc/Views_Lib_Doc.unity
+- path: Assets/GS_Projects/gsFractal/Fractal.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

@@ -63,11 +63,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup.cs" />
+    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_GS.cs" />
+    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_.cs" />
+    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\GS_Projects\gsFractal\gsFractal.shader" />
     <None Include="Assets\GS_Projects\GS_Projects_Assembly.asmdef" />
+    <None Include="Assets\GS_Projects\gsFractal\gsFractal_UXML.uxml" />
+    <None Include="Assets\GS_Projects\gsFractal\gsFractal.compute" />
     <None Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_UXML.uxml" />
   </ItemGroup>
   <ItemGroup>
