@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Projects/gsRayTrace/RayTrace.unity
+- path: Assets/GS_Projects/gsSort/Sort.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

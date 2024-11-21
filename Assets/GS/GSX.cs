@@ -672,6 +672,13 @@ namespace GpuScript
     public static void ForEach(this (int a, uint b) r, Action<int> f) { r.For().ForEach(f); }
     public static void ForEach(this (int a, int b, int dx) r, Action<int> f) { r.For().ForEach(f); }
 
+    public static IEnumerable<int> ForProduct(this (int a, int b, int dx) r)
+    {
+      for (int a = r.a, b = r.b, dx = r.dx; a <= b; a *= dx) yield return a;
+    }
+    public static void ForEachProduct(this (int a, int b, int dx) r, Action<int> f) { r.ForProduct().ForEach(f); }
+
+
     public static void ForEach<T>(this IEnumerable<T> e, Action<T> a) { foreach (T v in e) a(v); }
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> e, Func<T, T> a) { foreach (T v in e) yield return a(v); }
 

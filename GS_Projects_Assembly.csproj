@@ -63,27 +63,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\GS_Projects\gsSwarm\gsSwarm_GS.cs" />
+    <Compile Include="Assets\GS_Projects\gsSort\gsSort_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsSwarm\gsSwarm_.cs" />
     <Compile Include="Assets\GS_Projects\gsRayTrace\gsRayTrace.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup.cs" />
     <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_.cs" />
     <Compile Include="Assets\GS_Projects\gsRayTrace\gsRayTrace_GS.cs" />
+    <Compile Include="Assets\GS_Projects\gsSort\gsSort_.cs" />
     <Compile Include="Assets\GS_Projects\gsFractal\gsFractal.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsRayTrace\gsRayTrace_.cs" />
     <Compile Include="Assets\GS_Projects\gsSwarm\gsSwarm.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_.cs" />
+    <Compile Include="Assets\GS_Projects\gsSort\gsSort.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\GS_Projects\gsSort\gsSort.compute" />
     <None Include="Assets\GS_Projects\gsRayTrace\gsRayTrace_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsFractal\gsFractal.shader" />
     <None Include="Assets\GS_Projects\GS_Projects_Assembly.asmdef" />
     <None Include="Assets\GS_Projects\gsSwarm\gsSwarm.compute" />
+    <None Include="Assets\GS_Projects\gsSort\gsSort.shader" />
     <None Include="Assets\GS_Projects\gsSwarm\gsSwarm_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsRayTrace\gsRayTrace.shader" />
     <None Include="Assets\GS_Projects\gsRayTrace\gsRayTrace.compute" />
     <None Include="Assets\GS_Projects\gsFractal\gsFractal_UXML.uxml" />
+    <None Include="Assets\GS_Projects\gsSort\gsSort_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsFractal\gsFractal.compute" />
     <None Include="Assets\GS_Projects\gsSwarm\gsSwarm.shader" />
     <None Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_UXML.uxml" />
