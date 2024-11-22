@@ -102,11 +102,11 @@ Shader "gs/gsSort"
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
   RWStructuredBuffer<GSort> gSort;
-  RWStructuredBuffer<uint> BDraw_tab_delimeted_text, counts, sorts, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
+  RWStructuredBuffer<float> vs;
+  RWStructuredBuffer<uint> counts, sorts, BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<uint4> Rand_rs;
-  RWStructuredBuffer<float> vs;
 
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
@@ -117,7 +117,7 @@ Shader "gs/gsSort"
   }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.node_size > 1, g.segN * g.sortN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.segN * g.sortN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.segN * g.sortN, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
   float get_r() { return g.node_size / 1000; }
   float3 get_p0(uint i) { return float3(2 * (i % g.sortN) / (g.sortN - 1.0f) - 1, 0.2f, i / g.sortN * get_r() * 4); }
   float4 palette(float v) { return paletteColor(_PaletteTex, v); }

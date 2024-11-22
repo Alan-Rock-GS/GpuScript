@@ -12,9 +12,6 @@ using System.Collections;
 using System.Linq;
 using System.Net;
 using UnityEngine.SceneManagement;
-using System.Net.Mail;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
 using UnityEngine.EventSystems;
 using System.IO;
 using System.Net.Sockets;
@@ -22,14 +19,13 @@ using UnityEngine.UIElements;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
-using System.Runtime.CompilerServices;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace GpuScript
 {
-  public class GS : MonoBehaviour //, IBStream
+  public class GS : MonoBehaviour
   {
     // abs - returns absolute value of scalars and vectors.
     public static int abs(int v) => v < 0 ? -v : v;
@@ -95,8 +91,6 @@ namespace GpuScript
     public static bool all(bool3 v) => v.x && v.y && v.z;
     public static bool all(bool4 v) => v.x && v.y && v.z && v.w;
 
-    //public static WaitForEndOfFrame AllMemoryBarrier() => new WaitForEndOfFrame();
-    //public WaitForEndOfFrame AllMemoryBarrierWithGroupSync() { sync++; return new WaitForEndOfFrame(); }
     public static WaitForEndOfFrame AllMemoryBarrier() => new();
     public WaitForEndOfFrame AllMemoryBarrierWithGroupSync() { sync++; return new(); }
 
@@ -211,12 +205,8 @@ namespace GpuScript
                 + A._m12_m13_m10_m11 * (A._m23_m20_m21_m22 * A._m31_m32_m33_m30 - A._m21_m22_m23_m20 * A._m33_m30_m31_m32)
                 + A._m13_m10_m11_m12 * (A._m21_m22_m23_m20 * A._m32_m33_m30_m31 - A._m22_m23_m20_m21 * A._m31_m32_m33_m30));
     }
-
-    //Blocks execution of all threads in a group until all device memory accesses have been completed.
-    public static WaitForEndOfFrame DeviceMemoryBarrier() => new();
-
-    //Blocks execution of all threads in a group until all device memory accesses have been completed and all threads in the group have reached this call.
-    public static WaitForEndOfFrame DeviceMemoryBarrierWithGroupSync() => new();
+    public static WaitForEndOfFrame DeviceMemoryBarrier() => new();//Blocks execution of all threads in a group until all device memory accesses have been completed.
+    public static WaitForEndOfFrame DeviceMemoryBarrierWithGroupSync() => new();//Blocks execution of all threads in a group until all device memory accesses have been completed and all threads in the group have reached this call.
 
     //fVector dst(in fVector src0, in fVector src1);
     //void errorf(string format, argument ...);
@@ -456,12 +446,6 @@ namespace GpuScript
 
     //mul - multiply a matrix by a column vector, row vector by a matrix, or matrix by a matrix
     public static float4 mul(float4x3 M, float3 v) => float4(dot(M._m00_m01_m02, v), dot(M._m10_m11_m12, v), dot(M._m20_m21_m22, v), dot(M._m30_m31_m32, v));
-    //float2 mul2(float2x2 m, float2 v)
-    //{
-    //  float a = m[0].x, b = m[0].y, c = m[1].x, d = m[1].y, e = v.x, f = v.y;
-    //  return float2(a * e + b * f, c * e + d * f);
-    //}
-
     public static float2 mul(float2x2 M, float2 v) => float2(dot(M._m00_m01, v), dot(M._m10_m11, v));
     public static float3 mul(float3x3 M, float3 v) => float3(dot(M._m00_m01_m02, v), dot(M._m10_m11_m12, v), dot(M._m20_m21_m22, v));
     public static float4 mul(float4x4 M, float4 v) => float4(dot(M._m00_m01_m02_m03, v), dot(M._m10_m11_m12_m13, v), dot(M._m20_m21_m22_m23, v), dot(M._m30_m31_m32_m33, v));
@@ -818,7 +802,6 @@ namespace GpuScript
     public static uint roundu(float v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
     public static uint roundu(uint v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
 
-
     public static int ceili(float v, int nearest) { return nearest == 0 ? ceili(v) : ceili(v / nearest) * nearest; }
     public static uint ceilu(float v, uint nearest) { return nearest == 0 ? ceilu(v) : ceilu(v / nearest) * nearest; }
     public static float ceil(float v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
@@ -838,27 +821,11 @@ namespace GpuScript
     public static float3 tet2cart(float3 v) { return (v.yxx + v.zzy) * rcp(Sqrt2); }
     public static float3 cart2tet(float3 t) { return (t.yxx + t.zzy - t) * rcp(Sqrt2); }
     public static float tetdot(float3 U, float3 V) { return csum(U * (V.zxy + V.yzx)) / 2 + dot(U, V); }
-    public static float3 tetcross2cart(float3 U, float3 V)
-    {
-      //float Vzx = csum(V.zx), Vyz = csum(V.yz), Vxy = csum(V.xy);
-      //return float3(csum(U * float3(V.y - V.z, -Vzx, Vxy)), csum(U * float3(Vyz, V.z - V.x, -Vxy)), csum(U * float3(-Vyz, Vzx, V.x - V.y))) / 2;
-      return float3(csum(U * (V.yzx * f1_1 + V.zxy * f__1)), csum(U * (V.yzx * f11_ + V.zxy * f1__)), csum(U * (V.yzx * f_11 + V.zxy * f_1_))) / 2;
-    }
-    public static float3 tetcross(float3 U, float3 V)
-    {
-      //return float3(csum(U * float3(-V.y + V.z, 3 * V.z + V.x, -V.x - 3 * V.y)), csum(U * float3(-V.y - 3 * V.z, -V.z + V.x, 3 * V.x + V.y)), csum(U * float3(3 * V.y + V.z, -V.z - 3 * V.x, -V.x + V.y))) * (rcp(Sqrt2) / 2);
-      return float3(csum(U * (V.yxx * f_1_ + V.zzy * (f01_ * 2 + f11_))), csum(U * (V.yzx * f__1 + V.zxy * (f_01 * 2 + f_11))), csum(U * (V.zzx * f11_ + V.yxy * (f1_0 * 2 + f1_1)))) * (rcp(Sqrt2) / 2);
-    }
+    public static float3 tetcross2cart(float3 U, float3 V) { return float3(csum(U * (V.yzx * f1_1 + V.zxy * f__1)), csum(U * (V.yzx * f11_ + V.zxy * f1__)), csum(U * (V.yzx * f_11 + V.zxy * f_1_))) / 2; }
+    public static float3 tetcross(float3 U, float3 V) { return float3(csum(U * (V.yxx * f_1_ + V.zzy * (f01_ * 2 + f11_))), csum(U * (V.yzx * f__1 + V.zxy * (f_01 * 2 + f_11))), csum(U * (V.zzx * f11_ + V.yxy * (f1_0 * 2 + f1_1)))) * (rcp(Sqrt2) / 2); }
     public static float taxicab(float3 v) { return csum(abs(v)); }
     public static float3 tetaxisangle(float a, float3 U, float3 W) { float s = sin(a), c = cos(a), t = (1 - c) * tetdot(W, U); float3 S = tetcross(W, U); return c * U + s * S + t * W; }
     public static float3 axisangle(float a, float3 U, float3 W) { float s = sin(a), c = cos(a), t = (1 - c) * tetdot(W, U); float3 S = cross(W, U); return c * U + s * S + t * W; }
-    //print cross(tet2cart(* U), tet2cart(* V))
-    //print tetcross2cart(U, V)
-    //print cart2tet(*tetcross2cart(U, V))
-    //print tetcross(U, V)
-    //print dot(tet2cart(* U), tet2cart(* V))
-    //print cart2tet(*axisangle(radians(33.0),tet2cart(*U),tet2cart(0,-1,1)))
-    //print tetaxisangle(radians(33.0),U,(0,-1,1))
 
     public static uint i_to_id(uint i, uint N) { return i; }
     public static uint i_to_id(uint i, int N) { return i; }
@@ -1149,7 +1116,6 @@ namespace GpuScript
 
     public static bool IsNotOutside(int p, int2 range) { return !IsOutside(p, range); }
     public static bool IsNotOutside(uint p, uint2 range) { return !IsOutside(p, range); }
-    //public static bool IsNotOutside(uint p, uint mn, uint mx) { return !IsOutside(p, mn, mx); }
     public static bool IsNotOutside(float p, float2 range) { return !IsOutside(p, range); }
     public static bool IsNotOutside(float p, float mn, float mx) { return !IsOutside(p, mn, mx); }
     public static bool IsNotOutside(float2 p, float2 mn, float2 mx) { return !IsOutside(p, mn, mx); }
@@ -1282,13 +1248,6 @@ namespace GpuScript
 
     public static uint SetBitu(uint x, uint i, uint v) { return (x & ~(1u << (int)i)) | (v << (int)i); }
 
-
-    /// <summary>
-    /// Tests if x 
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="bit"></param>
-    /// <returns></returns>
     public static bool isBitSet(int x, int bitI) { return bitI == 31 ? x < 0 : ((x >= 0 ? x : -x) & (1 << bitI)) != 0; }
     public static bool isBitSet(uint x, uint bitI) { return (x & (1 << (int)bitI)) != 0; }
     public static bool isBitSet(uint x, int bitI) { return (x & (1 << bitI)) != 0; }
@@ -1393,30 +1352,6 @@ namespace GpuScript
       return ok;
     }
 
-    //Returns (distToBox, distInsideBox). If ray misses box, dstInsideBox will be zero, Adapted from: http://jcgt.org/published/0007/03/04/
-    // case 1: ray intersects box from outside (0 <= dstA <= dstB), dstA is dst to nearest intersection, dstB dst to far intersection
-    // case 2: ray intersects box from inside (dstA < 0 < dstB), dstA is the dst to intersection behind the ray, dstB is dst to forward intersection
-    // case 3: ray misses box (dstA > dstB)
-    //public static float2 distToBox_distInsideBox(float3 boxMin, float3 boxMax, float3 rayOrigin, float3 rayDir)
-    //{
-    //  float3 invRayDir = rcp(rayDir), sgn = invRayDir < f000, bMin = boxMin * sgn + boxMax * (1 - sgn), bMax = boxMax * sgn + boxMin * (1 - sgn), t0 = (bMin - rayOrigin) * invRayDir, t1 = (bMax - rayOrigin) * invRayDir;
-    //  float dstA = max(min(t0, t1)), dstB = min(max(t0, t1)), dstToBox = max(0, dstA), dstInsideBox = max(0, dstB - dstToBox);
-    //  return float2(dstToBox, dstInsideBox);
-    //}
-    //public static float2 distToBox_distInsideBox(float3 boxMin, float3 boxMax, float3 rayOrigin, float3 rayDir)
-    //{
-    //  //float3 t0 = (boxMin - rayOrigin) / rayDir, t1 = (boxMax - rayOrigin) / rayDir;
-
-    //  //float2 bx = float2(boxMin.x, boxMax.x), by = float2(boxMin.y, boxMax.y), bz = float2(boxMin.z, boxMax.z);
-    //  //float3 invRayDir = rcp(rayDir), sgn = invRayDir < f000, t0 = (boxMin - rayOrigin) * invRayDir, t1 = (boxMax - rayOrigin) * invRayDir;
-    //  //float3 bMin = boxMin * sgn + boxMax * (1 - sgn), bMax = boxMax * sgn + boxMin * (1 - sgn);
-
-
-    //  float3 invRayDir = rcp(rayDir), sgn = invRayDir < f000, bMin = boxMin * sgn + boxMax * (1 - sgn), bMax = boxMax * sgn + boxMin * (1 - sgn), t0 = (bMin - rayOrigin) * invRayDir, t1 = (bMax - rayOrigin) * invRayDir;
-    //  float dstA = max(min(t0, t1)), dstB = min(max(t0, t1)), dstToBox = max(0, dstA), dstInsideBox = max(0, dstB - dstToBox);
-    //  return float2(dstToBox, dstInsideBox);
-    //}
-
     public static bool BoxIntersectsSphere(float3 boxMin, float3 boxMax, float3 center, float radius)
     {
       return csum(sqr((center < boxMin) * (center - boxMin)) + sqr((center > boxMax) * (center - boxMax))) <= radius * radius;
@@ -1442,12 +1377,7 @@ namespace GpuScript
 
     public static uint upperTriangularIndex(uint2 ij, uint n) { if (ij.x > ij.y) ij = ij.yx; uint i = ij.x, j = ij.y; return n * (n - 1) / 2 - (n - i) * (n - i - 1) / 2 + j - i - 1; }
     public static uint upperTriangularIndex(uint i, uint j, uint n) { return upperTriangularIndex(uint2(i, j), n); }
-    public static uint2 upperTriangularIndex(uint k, uint n)
-    {
-      uint i = n - 2 - flooru(sqrt(-8 * k + 4 * n * (n - 1) - 7) / 2.0f - 0.5f), j = k + i + 1 - n * (n - 1) / 2 + (n - i) * (n - i - 1) / 2;
-      //uint n1 = n - 1, i = n - 2 - flooru(sqrt(-8 * k + 4 * n * n1 - 7) / 2.0f - 0.5f), ni = n - i, j = k + i + 1 - n * n1 / 2 + ni * (ni - 1) / 2;
-      return uint2(i, j);
-    }
+    public static uint2 upperTriangularIndex(uint k, uint n) { uint n2 = n * (n - 1), i = n - 2 - (uint)(sqrt(4 * (n2 - k - k) - 7) / 2.0f - 0.5f), ni = n - i; return uint2(i, k + i + 1 - n2 / 2 + ni * (ni - 1) / 2); }
 
     public static float amp_to_dB(float v) { return 20 * log10(v); }
     public static float dB_to_amp(float v) { return pow10(v / 20); }
@@ -1529,11 +1459,7 @@ namespace GpuScript
     public static uint BinarySearch(RWStructuredBuffer<uint> a, uint v, uint n)
     {
       uint k, k0, k1;
-      for (k0 = 0, k1 = n, k = (k0 + k1) / 2; k0 < k1; k = (k0 + k1) / 2)
-      {
-        uint m = a[k];
-        if (m > v) k1 = k; else if (m < v) k0 = k + 1; else break;
-      }
+      for (k0 = 0, k1 = n, k = (k0 + k1) / 2; k0 < k1; k = (k0 + k1) / 2) { uint m = a[k]; if (m > v) k1 = k; else if (m < v) k0 = k + 1; else break; }
       return k;
     }
 
@@ -1653,11 +1579,7 @@ namespace GpuScript
       bool t0 = t == 0, t1 = t == 1;
       int a0 = (int)Is(t0), a1 = (int)Is(t1), a2 = 1 - a0 - a1;
       lnkID += a == 0 ? a1_ * i100 : a == 1 ? int3(z2 - a01, 0, a1_) : a == 2 ? int3(z2 - a10, 0, a1_) : a == 3 ? int3((a1 + a01 * (a0 - a1) + a2) * z2 - a2, a1_, -a1 + a01 * (a1 + a0) - a1_ * a2) : a == 4 ? int3(a10 * (a0 * z2 + a1) + a01 * (a1 * (z2 - 1) - a2), a1_, a0 - a01 * (a0 + a1)) : int3(a10 * (a0 * (z2 - 1) - a2) + a01 * (a0 + a1 * z2), a1_, a0 - a01 * (a0 + a1));
-      //return IsNotOutside(lnkID, i000, _nodeN - 1) ? lnkID : uint_max * u111;
-      if (IsNotOutside(lnkID, i000, _nodeN - u111))
-        return lnkID;
-      else
-        return uint_max * u111;
+      if (IsNotOutside(lnkID, i000, _nodeN - u111)) return lnkID; else return uint_max * u111;
     }
     public uint TetraLinkI_FCC_13(uint3 id, uint3 _nodeN, uint I) { uint3 lnkID = TetraLinkID_FCC_13(id, _nodeN, I); return lnkID.x == uint_max ? uint_max : id_to_i(lnkID, _nodeN); }
     public uint TetraLinkI_FCC(uint3 id, uint3 _nodeN, uint I) { uint3 lnkID = TetraLinkID_FCC(id, _nodeN, I); return lnkID.x == uint_max ? uint_max : id_to_i(lnkID, _nodeN); }
@@ -1674,18 +1596,12 @@ namespace GpuScript
     }
 
     public float gain(float a, float b) { return (b - a) / a; }
-    //public float gain(uint a, uint b) { return (b - a) / (float)a; }
-    //public float gain(int a, int b) { return (b - a) / (float)a; }
     public float gain_a(float _gain, float b) { return b / (_gain + 1); }
     public float gain_b(float _gain, float a) { return a * (_gain + 1); }
 
 
 #if !gs_compute && !gs_shader //C# code
     //<<<<< GpuScript Code Extensions. This section contains code that runs on both compute shaders and material shaders, but is not in HLSL
-
-    //public float[] floats(params float[] vs) => vs;
-    //public int[] ints(params int[] vs) => vs;
-    //public uint[] uints(params uint[] vs) => vs;
 
     public static float Secs(Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
 
@@ -1717,7 +1633,6 @@ namespace GpuScript
     }
 
     public virtual void OnCamChanged() { }
-    //public virtual int GetGridArrayLength(UI_grid grid) => 0;
     public virtual void OnButtonClicked(string methodName) { }
     [HideInInspector] public bool ui_loaded = false;
     private GS _lib_parent_gs;
@@ -1747,7 +1662,6 @@ namespace GpuScript
     }
     public static string SerializeWithStringEnum(object obj) => JsonConvert.SerializeObject(obj, new StringEnumConverter());
     public static StrBldr StrBldr(params object[] items) => new(items);
-    //public virtual void OnValueChanged() { }
     public virtual void OnValueChanged_GS() { }
     public virtual void OnValueChanged() { if (ui_loaded) OnValueChanged_GS(); }
 
@@ -1764,7 +1678,6 @@ namespace GpuScript
     static TextGenerationSettings _defaultTextGenerationSettings;
     public static TextGenerationSettings defaultTextGenerationSettings => _defaultTextGenerationSettings.font != defaultFont || defaultFontSize != _defaultFontSize ? _defaultTextGenerationSettings = new TextGenerationSettings() { font = defaultFont, fontSize = _defaultFontSize = defaultFontSize } : _defaultTextGenerationSettings;
     static TextGenerator _defaultTextGenerator;
-    //public static TextGenerator defaultTextGenerator => _defaultTextGenerator ?? (_defaultTextGenerator = new TextGenerator());
     public static TextGenerator defaultTextGenerator => _defaultTextGenerator ?? (_defaultTextGenerator = new TextGenerator());
     public static float UI_TextWidth(string s, int fontSize = 12) { _defaultFontSize = fontSize; return s.IsEmpty() ? 0 : defaultTextGenerator.GetPreferredWidth(s, defaultTextGenerationSettings); }
     public static int UI_Component_Width(string text) => roundi(UI_TextWidth(text));
@@ -1789,8 +1702,6 @@ namespace GpuScript
 
     public ProgressBar _progressBar = null; public ProgressBar progressBar => _progressBar ?? (_progressBar = root?.Q<ProgressBar>("Progress") ?? null);
     public float progress(float v) => progressBar != null ? progressBar.value = v : v;
-    //public float progress(uint i, uint n) => progress(i * 100f / (n - 1));
-    //public float progress(int i, int n) => progress(i * 100f / (n - 1));
     public float progress(uint i, uint n) => progress((i + 1) * 100f / n);
     public float progress(int i, int n) => progress((uint)i, (uint)n);
     public virtual string ui_txt => $"{appPath}{GetType()}.txt";
@@ -2148,7 +2059,6 @@ namespace GpuScript
     public void TransferBuffer<T>(RWStructuredBuffer<T> fromBuffer, ref RWStructuredBuffer<T> toBuffer)
     {
       if (fromBuffer == null) return;
-      //if (toBuffer == null) toBuffer = new RWStructuredBuffer<T>();
       toBuffer ??= new RWStructuredBuffer<T>();
       toBuffer.computeBuffer = fromBuffer.computeBuffer;
       if (fromBuffer.writeBuffer != null) { toBuffer.writeBuffer = fromBuffer.writeBuffer; toBuffer.reallocated = true; }
@@ -3191,8 +3101,6 @@ namespace GpuScript
     public static uint Min(params uint[] xs) { uint mn = xs[0]; for (uint i = 1; i < xs.Length; i++) mn = min(mn, xs[i]); return mn; }
     public static uint Max(params uint[] xs) { uint mx = xs[0]; for (uint i = 1; i < xs.Length; i++) mx = max(mx, xs[i]); return mx; }
 
-
-
     public static float2 GetRange(float2 range, float v) => float2(min(range.x, v), max(range.y, v));
 
     public static int iTrue = 1, iFalse = 0;
@@ -3335,7 +3243,6 @@ namespace GpuScript
     public static double4 double4(Color v) => new double4(v);
     public static double4 double4(string v) => new double4(v);
     public static double4 double4(bool x, bool y, bool z, bool w) => new double4(x, y, z, w);
-
 
     public static int2 int2(int x, int y) => new int2(x, y);
     public static int2 int2(uint x, uint y) => new int2(x, y);
@@ -4293,7 +4200,6 @@ namespace GpuScript
       return webCamTexture;
     }
 
-
     public bool Update_webCamTexture(WebCamTexture webCam, GameObject plane = null)
     {
       bool camUpdated = false;
@@ -4318,7 +4224,6 @@ namespace GpuScript
     }
 
     public void StopWebCam(ref WebCamTexture webCamTexture) { if (webCamTexture) { webCamTexture.Stop(); DestroyImmediate(webCamTexture); webCamTexture = null; } }
-
 
     public string GetLocalIPAddress() { foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList) if (ip.AddressFamily == AddressFamily.InterNetwork) return ip.ToString(); return null; }
 
@@ -4439,14 +4344,6 @@ namespace GpuScript
       if (onChanged != null) { watcher.Changed += onChanged; watcher.Created += onChanged; watcher.Deleted += onChanged; }
       if (onRenamed != null) watcher.Renamed += onRenamed;
     }
-    //public virtual void CreateFileWatcher(string path, string filter, FileSystemEventHandler onChanged, RenamedEventHandler onRenamed)
-    //{
-    //  FileSystemWatcher watcher = new FileSystemWatcher(path, filter);
-    //  watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-    //  if (onChanged != null) { watcher.Changed += onChanged; watcher.Created += onChanged; watcher.Deleted += onChanged; }
-    //  if (onRenamed != null) watcher.Renamed += onRenamed;
-    //  watcher.EnableRaisingEvents = true;
-    //}
     public virtual void CreateFileWatcher(string file, FileSystemEventHandler onChanged)
     {
       FileSystemWatcher watcher = new(file.BeforeLastIncluding("/"), file.AfterLast("/")) { NotifyFilter = NotifyFilters.LastWrite, EnableRaisingEvents = true };
@@ -4542,10 +4439,7 @@ namespace GpuScript
           {
             if (c is float || c is int || c is uint) WaitForSeconds = c.To_float();
             else if (c is WaitForSeconds) WaitForSeconds = "m_Seconds".GetFieldFloat(typeof(WaitForSeconds), c);
-            else if (c is IEnumerator)
-            {
-              print($"Need to run {c}");
-            }
+            else if (c is IEnumerator) print($"Need to run {c}");
             startWaitTime = DateTime.Now;
           }
         }
@@ -4560,7 +4454,6 @@ namespace GpuScript
     public Syncs syncs = new();
     public Sync Start_Sync(IEnumerator routine) => syncs.Add(new Sync(routine));
     //endregion Sync
-
 
     public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials" };
     public T Add_Component_to_gameObject<T>() where T : Component => gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
