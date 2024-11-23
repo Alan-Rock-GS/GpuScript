@@ -293,10 +293,8 @@ public class GS_Window : EditorWindow
           {
             if (att.libInternal)
               libInterfaces.Add($", I{libName}");
-            libCheckKeys.Add(
-              $"\n    if(!GS_{libName}.CheckKey(\"{libName}\", \"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
-              $"\n      print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
-            //if (libName.EndsWith("_Lib") && att.libExternal) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({libName});");
+            libCheckKeys.Add($"\n    if(!GS_{libName}.CheckKey(\"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
+              $" print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
             if (libName.EndsWith("_Lib")) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({(att.libExternal ? libName : "this")});");
           }
         }
@@ -330,8 +328,6 @@ public class GS_Window : EditorWindow
 
           if (libFld.isExternal_Lib())
             cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
-          //else
-          //  cs_lib_Code = $"  {libTypeName} _{libFld.Name}; public {libTypeName} {libFld.Name} => _{libFld.Name} = _{libFld.Name} ?? Add_Component_to_gameObject<{libTypeName}>();" + cs_lib_Code;
 
           _cs_lib_regions.Add($"\n  #region <{libFld.Name}>\n", cs_lib_Code, $"\n  #endregion <{libFld.Name}>");
         }
@@ -752,10 +748,8 @@ public class GS_Window : EditorWindow
         code = match.Group(6);
         if (code.Contains(" => "))
         {
-          if (return_type == "void")
-            code = $" {{ {match.Group(6).Between(" => ", ";")}; }}";
-          else
-            code = $" {{ return {match.Group(6).Between(" => ", ";")}; }}";
+          if (return_type == "void") code = $" {{ {match.Group(6).Between(" => ", ";")}; }}";
+          else code = $" {{ return {match.Group(6).Between(" => ", ";")}; }}";
         }
         argN = args.ArgN();
       }
@@ -816,7 +810,7 @@ public class GS_Window : EditorWindow
     }
 
     public List<FieldInfo> texture_flds;
-    public StrBldr drawSphere, RWStructuredBuffers, classArrays, compute_groupshared, base_groupshared, addComputeBuffers, initBuffers,
+    public StrBldr drawSphere, RWStructuredBuffers, AllocateBuffers, classArrays, compute_groupshared, base_groupshared, addComputeBuffers, initBuffers,
       renderObject, RenderSetValues, Texture2Ds;
 
     public class buffer_data
@@ -840,7 +834,7 @@ public class GS_Window : EditorWindow
     {
       texture_flds = _GS_fields.Where(a => a.FieldType == typeof(Texture2D)).Select(a => a).ToList();
 
-      (drawSphere, Texture2Ds, RWStructuredBuffers, compute_groupshared, base_groupshared, addComputeBuffers, RenderSetValues, renderObject) = StrBldr();
+      (drawSphere, Texture2Ds, RWStructuredBuffers, AllocateBuffers, compute_groupshared, base_groupshared, addComputeBuffers, RenderSetValues, renderObject) = StrBldr();
 
       foreach (var fld in texture_flds) Texture2Ds.Add($"\n  public Texture2D {fld.Name};");
       var (s, gParams) = StrBldr();
@@ -873,6 +867,7 @@ public class GS_Window : EditorWindow
         {
           if (drawSphere == "") drawSphere.Set("\n    if (i < (n = 1)) o = vert_DrawSphere(f000, 1, palette(0.5f), i, j, o); i -= n;// *********** green sphere test ************");
           StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{bufferType}>", bufferName, "  ");
+          AllocateBuffers.Add($"\n  public void Allocate_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
           if (buff.member.IsProp())
           {
             string bufferN = buff.sizeInfo.sizeN;
@@ -901,7 +896,11 @@ public class GS_Window : EditorWindow
           string fldTypeStr = cFld.FieldType.FullName.Before("[]");
           Type arrayType = fldTypeStr.ToType();
           if (arrayType?.IsClass ?? false) { }
-          else StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{fldType.Before("[]")}>", fName, "  ");
+          else
+          {
+            StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{fldType.Before("[]")}>", fName, "  ");
+            AllocateBuffers.Add($"\n  public void Allocate_{fName}(uint n) => AddComputeBuffer(ref {fName}, nameof({fName}), n);");
+          }
         }
         else StackFields(classArrays, fldType, fName, "  ");
       }
@@ -996,7 +995,7 @@ public class GS_Window : EditorWindow
 
       compute_or_material_shader = StrBldr(
         "\n  [Serializable]", gStruct,
-       $"\n  public RWStructuredBuffer<G{Name}> g{Name};", declare_structs, RWStructuredBuffers,
+       $"\n  public RWStructuredBuffer<G{Name}> g{Name};", declare_structs, RWStructuredBuffers, AllocateBuffers,
         "\n  public Texture2D _PaletteTex;",
         "\n  public float4 palette(float v) => paletteColor(_PaletteTex, v);",
         "\n  public float4 palette(float v, float w) => float4(palette(v).xyz, w);",

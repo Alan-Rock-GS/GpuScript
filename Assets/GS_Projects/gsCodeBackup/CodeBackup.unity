@@ -447,6 +447,7 @@ GameObject:
   - component: {fileID: 1867566864}
   - component: {fileID: 1867566863}
   - component: {fileID: 1867566867}
+  - component: {fileID: 1867566868}
   m_Layer: 0
   m_Name: gsCodeBackup
   m_TagString: Untagged
@@ -1002,28 +1003,11 @@ MonoBehaviour:
     w: -0
   data:
     siUnits: 0
-    group_Backup: 0
-    backup_Code: 0
-    backup_Data: 0
-    backup_HTML: 0
-    backup_Local: 0
-    backup_External: 0
-    backup_Remote: 0
-    backup_Number: 0
-    backup_Description: 
-  g:
-    backup_Code: 0
-    backup_Data: 0
-    backup_HTML: 0
-    backup_Local: 0
-    backup_External: 0
-    backup_Remote: 0
-    backup_Number: 0
+    group_UI: 0
   ValuesChanged: 0
   gChanged: 0
   already_quited: 0
   lateUpdateI: 0
-  in_Backup: 0
   _PaletteTex: {fileID: 0}
 --- !u!114 &1867566865
 MonoBehaviour:
@@ -1307,6 +1291,25 @@ MonoBehaviour:
   lateUpdateI: 0
   in_Backup: 0
   _PaletteTex: {fileID: 0}
+--- !u!114 &1867566868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867566862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 11400000, guid: a64302c2b81fd3b449678afffdc420b0, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: efa3c6653d9e7a946928f0e34fb51f9f, type: 3}
+  m_SortingOrder: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

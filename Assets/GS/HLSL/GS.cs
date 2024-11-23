@@ -4460,6 +4460,29 @@ namespace GpuScript
     public List<string> NewStrList => new();
     public string[] NewStrArray => new string[0];
     public string[] NewStrArrayN(int n) => new string[n];
+
+
+    //public double _round(double v) => round(v);
+    //public float  _round(float v) => round(v);
+    //public float2 _round(float2 v) => round(v);
+    //public float3 _round(float3 v) => round(v);
+    //public float4 _round(float4 v) => round(v);
+
+    public uint _roundu(float v) => roundu(v);
+    public uint2 _roundu(float2 v) => roundu(v);
+    public uint3 _roundu(float3 v) => roundu(v);
+    public uint4 _roundu(float4 v) => roundu(v);
+
+    public int _product(int a) => product(a);
+    public uint _product(uint a) => product(a);
+    public float _product(float a) => product(a);
+    public int _product(int2 a) => product(a);
+    public uint _product(uint2 a) => product(a);
+    public float _product(float2 a) => product(a);
+    public int _product(int3 a) => product(a);
+    public uint _product(uint3 a) => product(a);
+    public float _product(float3 a) => product(a);
+
   }
 }
 //namespace System.Runtime.CompilerServices { [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)] internal class IsExternalInit { } }

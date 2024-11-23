@@ -64,10 +64,13 @@
   <ItemGroup>
     <Compile Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsPuppeteer_Lib_Doc\gsPuppeteer_Lib_Doc_GS.cs" />
+    <Compile Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc_GS.cs" />
+    <Compile Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsPuppeteer_Lib_Doc\gsPuppeteer_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsViews_Lib_Doc\gsViews_Lib_Doc_GS.cs" />
+    <Compile Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsViews_Lib_Doc\gsViews_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsProject_Lib_Doc\gsProject_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsViews_Lib_Doc\gsViews_Lib_Doc_.cs" />
@@ -79,6 +82,8 @@
     <Compile Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc.shader" />
+    <None Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc.compute" />
     <None Include="Assets\GS_Docs\gsPuppeteer_Lib_Doc\gsPuppeteer_Lib_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsProject_Lib_Doc\gsProject_Lib_Doc_UXML.uxml" />
@@ -86,6 +91,7 @@
     <None Include="Assets\GS_Docs\gsViews_Lib_Doc\gsViews_Lib_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc.compute" />
+    <None Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc_UXML.uxml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
