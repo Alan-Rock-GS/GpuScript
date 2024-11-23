@@ -8,7 +8,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct double3 : IComparable //, I_double3
+  public struct double3 : IComparable
   {
     public double x, y, z;
 

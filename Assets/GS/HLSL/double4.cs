@@ -1,5 +1,6 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
 using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -7,7 +8,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct double4 // : I_double4
+  public struct double4
   {
     public float x, y, z, w;
 
@@ -525,6 +526,12 @@ namespace GpuScript
       float x2 = q.x * q.x, y2 = q.y * q.y, z2 = q.z * q.z, xy = q.x * q.y, xz = q.x * q.z, yz = q.y * q.z, wx = q.w * q.x, wy = q.w * q.y, wz = q.w * q.z;
       return new float4x4(1 - 2 * (y2 + z2), 2 * (xy - wz), 2 * (xz + wy), 0, 2 * (xy + wz), 1 - 2 * (x2 + z2), 2 * (yz - wx), 0, 2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (x2 + y2), 0, 2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (x2 + y2), 0);
     }
+
+    public int CompareTo(object obj)
+    {
+      throw new NotImplementedException();
+    }
     #endregion quaternion
+    //public int CompareTo(object o) => (o is double4 f) ? x == f.x ? y == f.y ? z == f.z ? w == f.w ? 0 : w < f.w ? -1 : 1 : z < f.z ? -1 : 1 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_double4());
   }
 }

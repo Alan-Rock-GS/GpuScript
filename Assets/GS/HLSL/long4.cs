@@ -8,7 +8,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct long4 // : I_long4
+  public struct long4
   {
     public long x, y, z, w;
 

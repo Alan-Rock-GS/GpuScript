@@ -1,10 +1,11 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
+using System;
 using UnityEngine;
 using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct bool2 // : I_bool2
+  public struct bool2 : IComparable
   {
     public bool x, y;
     public int X { get => x ? 1 : 0; }
@@ -53,5 +54,7 @@ namespace GpuScript
 
     public override bool Equals(object obj) => base.Equals(obj);
     public override int GetHashCode() => base.GetHashCode();
+
+    public int CompareTo(object o) => (o is bool2 f) ? x == f.x ? y == f.y ? 0 : y ? -1 : 1 : x ? -1 : 1 : CompareTo(o.To_bool2());
   }
 }

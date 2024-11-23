@@ -9,7 +9,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [Serializable]
-  public struct float2 : IEquatable<float2>, IFormattable //, I_float2
+  public struct float2 : IEquatable<float2>, IFormattable, IComparable
   {
     public float x, y;
 
@@ -149,6 +149,8 @@ namespace GpuScript
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public string ToString(string format, string separator) => Append(x.ToString(format), separator, y.ToString(format));
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public string ToString(string formatX, string separator, string formatY) => Append(x.ToString(formatX), separator, y.ToString(formatY));
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public string ToString_Short(string format, string separator) => Append(x.ToString(format), x == y ? "" : Append(separator, y.ToString(format)));
+
+    public int CompareTo(object o) => (o is float2 f) ? x == f.x ? y == f.y ? 0 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_float2());
   }
 
   [Serializable]

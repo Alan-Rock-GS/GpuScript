@@ -9,7 +9,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct float3 // : I_float3
+  public struct float3 : IComparable
   {
     public float x, y, z;
 
@@ -56,17 +56,17 @@ namespace GpuScript
       }
     }
 
-    public override string ToString() => $"{x}{separator}{y}{separator}{z}"; 
+    public override string ToString() => $"{x}{separator}{y}{separator}{z}";
 
-    public static implicit operator float3(uint3 p) => float3(p.x, p.y, p.z); 
-    public static implicit operator float3(int3 p) => float3(p.x, p.y, p.z); 
-    public static explicit operator Color(float3 p) => new Color(p.x, p.y, p.z); 
-    public static explicit operator float3(Color p) => float3(p.r, p.g, p.b); 
+    public static implicit operator float3(uint3 p) => float3(p.x, p.y, p.z);
+    public static implicit operator float3(int3 p) => float3(p.x, p.y, p.z);
+    public static explicit operator Color(float3 p) => new Color(p.x, p.y, p.z);
+    public static explicit operator float3(Color p) => float3(p.r, p.g, p.b);
 
-    public static implicit operator Vector3(float3 p) => new Vector3(p.x, p.y, p.z); 
-    public static implicit operator float3(Vector3 p) => float3(p.x, p.y, p.z); 
-    public static implicit operator float3(Color32 p) => float3(p.r, p.g, p.b); 
-    public static implicit operator float[](float3 p) => new float[] { p.x, p.y, p.z }; 
+    public static implicit operator Vector3(float3 p) => new Vector3(p.x, p.y, p.z);
+    public static implicit operator float3(Vector3 p) => float3(p.x, p.y, p.z);
+    public static implicit operator float3(Color32 p) => float3(p.r, p.g, p.b);
+    public static implicit operator float[](float3 p) => new float[] { p.x, p.y, p.z };
 
     public static explicit operator float3(bool p) { int b = p ? 1 : 0; return float3(b, b, b); }
 
@@ -183,30 +183,32 @@ namespace GpuScript
 
     public float3 xy3(float p) => float3(x, y, p);
     public float3 xz3(float p) => float3(x, p, z);
-    public float3 yz3(float p) => float3(p, y, z); 
+    public float3 yz3(float p) => float3(p, y, z);
 
     [JsonIgnore] public float3 rgb { get => float3(x, z, y); set { x = value.x; y = value.y; z = value.z; } }
     [JsonIgnore] public float r { get => x; set => x = value; }
     [JsonIgnore] public float g { get => y; set => y = value; }
     [JsonIgnore] public float b { get => z; set => z = value; }
 
-    public override bool Equals(object obj) => base.Equals(obj); 
-    public override int GetHashCode() => base.GetHashCode(); 
+    public override bool Equals(object obj) => base.Equals(obj);
+    public override int GetHashCode() => base.GetHashCode();
 
     public float this[int i] { get { i %= 3; return i == 0 ? x : i == 1 ? y : z; } set { i %= 3; if (i == 0) x = value; else if (i == 1) y = value; else z = value; } }
     public float this[uint i] { get { i %= 3; return i == 0 ? x : i == 1 ? y : z; } set { i %= 3; if (i == 0) x = value; else if (i == 1) y = value; else z = value; } }
 
-    public string ToString(string format) => ToString(format, ", "); 
-    public string ToTabString(string format) => ToString(format, "\t"); 
-    public string ToTabString() => ToSeparatorString("\t"); 
-    public string ToSpaceString(string format) => ToString(format, " "); 
-    public string ToSpaceString() => ToSeparatorString(" "); 
-    public string ToSeparatorString(string separator) => $"{x}{separator}{y}{separator}{z}"; 
-    public string ToString(string format, string separator) => $"{x.ToString(format)}{separator}{y.ToString(format)}{separator}{z.ToString(format)}"; 
+    public string ToString(string format) => ToString(format, ", ");
+    public string ToTabString(string format) => ToString(format, "\t");
+    public string ToTabString() => ToSeparatorString("\t");
+    public string ToSpaceString(string format) => ToString(format, " ");
+    public string ToSpaceString() => ToSeparatorString(" ");
+    public string ToSeparatorString(string separator) => $"{x}{separator}{y}{separator}{z}";
+    public string ToString(string format, string separator) => $"{x.ToString(format)}{separator}{y.ToString(format)}{separator}{z.ToString(format)}";
 
-    public bool NotAboutEquals(float3 a) => !AboutEquals(a); 
-    public bool AboutEquals(float3 a, float eps = 1e-6f) => all(this == a) || (x.AboutEqual(a.x, eps) && y.AboutEqual(a.y, eps) && z.AboutEqual(a.z, eps)); 
-    public bool AboutEqual() => x.AboutEqual(y) && x.AboutEqual(z); 
+    public bool NotAboutEquals(float3 a) => !AboutEquals(a);
+    public bool AboutEquals(float3 a, float eps = 1e-6f) => all(this == a) || (x.AboutEqual(a.x, eps) && y.AboutEqual(a.y, eps) && z.AboutEqual(a.z, eps));
+    public bool AboutEqual() => x.AboutEqual(y) && x.AboutEqual(z);
+
+    public int CompareTo(object o) => (o is float3 f) ? x == f.x ? y == f.y ? z == f.z ? 0 : z < f.z ? -1 : 1 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_float3());
   }
 
   [System.Serializable]
@@ -221,38 +223,38 @@ namespace GpuScript
     public float y { get => a.y; set => a.y = value; }
     public float z { get => a.z; set => a.z = value; }
 
-    public static implicit operator float3(Float3 p) => float3(p.x, p.y, p.z); 
-    public static implicit operator Float3(float3 p) => new Float3(p.x, p.y, p.z); 
+    public static implicit operator float3(Float3 p) => float3(p.x, p.y, p.z);
+    public static implicit operator Float3(float3 p) => new Float3(p.x, p.y, p.z);
 
     public float this[int i] { get => a[i]; set => a[i] = value; }
 
-    public static Float3 operator +(Float3 a, Float3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z); 
-    public static Float3 operator +(Float3 a, Color32 b) => new Float3(a.x + b.r, a.y + b.g, a.z + b.b); 
-    public static Float3 operator +(Float3 a, Vector3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z); 
-    public static Float3 operator +(Vector3 a, Float3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z); 
-    public static Float3 operator +(Float3 a, int3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z); 
-    public static Float3 operator +(int3 a, Float3 b) => b + a; 
-    public static Float3 operator +(Float3 a, float b) => new Float3(a.x + b, a.y + b, a.z + b); 
-    public static Float3 operator +(float a, Float3 b) => b + a; 
+    public static Float3 operator +(Float3 a, Float3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z);
+    public static Float3 operator +(Float3 a, Color32 b) => new Float3(a.x + b.r, a.y + b.g, a.z + b.b);
+    public static Float3 operator +(Float3 a, Vector3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z);
+    public static Float3 operator +(Vector3 a, Float3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z);
+    public static Float3 operator +(Float3 a, int3 b) => new Float3(a.x + b.x, a.y + b.y, a.z + b.z);
+    public static Float3 operator +(int3 a, Float3 b) => b + a;
+    public static Float3 operator +(Float3 a, float b) => new Float3(a.x + b, a.y + b, a.z + b);
+    public static Float3 operator +(float a, Float3 b) => b + a;
 
-    public static Float3 operator -(Float3 a) => new Float3(-a.x, -a.y, -a.z); 
-    public static Float3 operator -(Float3 a, Float3 b) => new Float3(a.x - b.x, a.y - b.y, a.z - b.z); 
-    public static Float3 operator -(Float3 a, Vector3 b) => new Float3(a.x - b.x, a.y - b.y, a.z - b.z); 
-    public static Float3 operator -(Vector3 a, Float3 b) => new Float3(a.x - b.x, a.y - b.y, a.z - b.z); 
-    public static Float3 operator -(Float3 a, float b) => new Float3(a.x - b, a.y - b, a.z - b); 
-    public static Float3 operator -(float a, Float3 b) => new Float3(a - b.x, a - b.y, a - b.z); 
+    public static Float3 operator -(Float3 a) => new Float3(-a.x, -a.y, -a.z);
+    public static Float3 operator -(Float3 a, Float3 b) => new Float3(a.x - b.x, a.y - b.y, a.z - b.z);
+    public static Float3 operator -(Float3 a, Vector3 b) => new Float3(a.x - b.x, a.y - b.y, a.z - b.z);
+    public static Float3 operator -(Vector3 a, Float3 b) => new Float3(a.x - b.x, a.y - b.y, a.z - b.z);
+    public static Float3 operator -(Float3 a, float b) => new Float3(a.x - b, a.y - b, a.z - b);
+    public static Float3 operator -(float a, Float3 b) => new Float3(a - b.x, a - b.y, a - b.z);
 
-    public static Float3 operator *(Float3 a, Float3 b) => new Float3(a.x * b.x, a.y * b.y, a.z * b.z); 
-    public static Float3 operator *(Float3 a, int3 b) => new Float3(a.x * b.x, a.y * b.y, a.z * b.z); 
-    public static Float3 operator *(int3 a, Float3 b) => b * a; 
-    public static Float3 operator *(Float3 a, float b) => new Float3(a.x * b, a.y * b, a.z * b); 
-    public static Float3 operator *(float a, Float3 b) => b * a; 
+    public static Float3 operator *(Float3 a, Float3 b) => new Float3(a.x * b.x, a.y * b.y, a.z * b.z);
+    public static Float3 operator *(Float3 a, int3 b) => new Float3(a.x * b.x, a.y * b.y, a.z * b.z);
+    public static Float3 operator *(int3 a, Float3 b) => b * a;
+    public static Float3 operator *(Float3 a, float b) => new Float3(a.x * b, a.y * b, a.z * b);
+    public static Float3 operator *(float a, Float3 b) => b * a;
 
-    public static Float3 operator /(Float3 a, Float3 b) => new Float3(b.x == 0 ? 0 : a.x / b.x, b.y == 0 ? 0 : a.y / b.y, b.z == 0 ? 0 : a.z / b.z); 
-    public static Float3 operator /(Float3 a, int3 b) => new Float3(b.x == 0 ? 0 : a.x / b.x, b.y == 0 ? 0 : a.y / b.y, b.z == 0 ? 0 : a.z / b.z); 
-    public static Float3 operator /(int3 a, Float3 b) => new Float3(b.x == 0 ? 0 : a.x / b.x, b.y == 0 ? 0 : a.y / b.y, b.z == 0 ? 0 : a.z / b.z); 
+    public static Float3 operator /(Float3 a, Float3 b) => new Float3(b.x == 0 ? 0 : a.x / b.x, b.y == 0 ? 0 : a.y / b.y, b.z == 0 ? 0 : a.z / b.z);
+    public static Float3 operator /(Float3 a, int3 b) => new Float3(b.x == 0 ? 0 : a.x / b.x, b.y == 0 ? 0 : a.y / b.y, b.z == 0 ? 0 : a.z / b.z);
+    public static Float3 operator /(int3 a, Float3 b) => new Float3(b.x == 0 ? 0 : a.x / b.x, b.y == 0 ? 0 : a.y / b.y, b.z == 0 ? 0 : a.z / b.z);
     public static Float3 operator /(Float3 a, float b) { if (b == 0) return new Float3(f000); return new Float3(a.x / b, a.y / b, a.z / b); }
-    public static Float3 operator /(float a, Float3 b) => new Float3(b.x == 0 ? 0 : a / b.x, b.y == 0 ? 0 : a / b.y, b.z == 0 ? 0 : a / b.z); 
+    public static Float3 operator /(float a, Float3 b) => new Float3(b.x == 0 ? 0 : a / b.x, b.y == 0 ? 0 : a / b.y, b.z == 0 ? 0 : a / b.z);
   }
   public enum ETIntersect { Disjoint, Intersects, SamePlane, Degenerate, SegmentDoesNotIntersect }
 }

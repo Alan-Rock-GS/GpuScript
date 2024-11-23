@@ -970,6 +970,63 @@ namespace GpuScript
     public static bool AboutEqual(this float a, float b, float eps = EPS) => Mathf.Abs(a - b) < eps;
     public static bool AboutEqual(this double a, double b, double eps = EPS) => Math.Abs(a - b) < eps;
 
+    public static bool2 To_bool2(this object o)
+    {
+      if (o == null) return b00;
+      if (o is string s)
+      {
+        if (s.IsEmpty()) return b00;
+        s = s.ToLower();
+        string ch = s.Contains(",") ? "," : "~";
+        if (s.Contains(ch)) { string a = s.Before(ch), b = s.After(ch); return bool2(a.To_bool(), b.To_bool()); }
+        return bool2(s.To_bool(), s.To_bool());
+      }
+      return o is bool2 b2 ? b2 : o is int2 i2 ? bool2(i2.x > 0, i2.y > 0) : o is uint2 u2 ? bool2(u2.x > 0, u2.y > 0)
+        : o is float f ? bool2(f) : o is int i ? bool2(i) : o is uint u ? bool2(u) : o is double d ? bool2((float)d) : b00;
+    }
+
+    public static bool3 To_bool3(this object o)
+    {
+      if (o is string s)
+      {
+        s = s.ToLower();
+        string ch = s.Contains(",") ? "," : " ";
+        if (s.Contains(ch))
+        {
+          string a = s.Before(ch), b = s.After(ch);
+          if (b.Contains(ch)) { string c = b.After(ch); b = b.Before(ch); return bool3(a.To_bool(), b.To_bool(), c.To_bool()); }
+          bool r = a.To_bool();
+          return bool3(r, r, b.To_bool());
+        }
+        return bool3(s.To_bool(), s.To_bool(), s.To_bool());
+      }
+      return o is bool3 b3 ? b3 : o is int3 i3 ? bool3(i3.x > 0, i3.y > 0, i3.z > 0) : o is uint3 u3 ? bool3(u3.x > 0, u3.y > 0, u3.z > 0)
+        : o is float f ? bool3(f, f, f) : o is int i ? bool3(i, i, i) : o is uint u ? bool3(u, u, u) : o is double d ? bool3(((float)d) > 0, ((float)d) > 0, ((float)d) > 0) : b000;
+    }
+
+    public static bool4 To_bool4(this object o)
+    {
+      if (o is string)
+      {
+        string s = (string)o;
+        s = s.ToLower();
+        string ch = s.Contains(",") ? "," : " ";
+        if (s.Contains(ch))
+        {
+          string a = s.Before(ch), b = s.After(ch);
+          if (b.Contains(ch))
+          {
+            string c = b.After(ch);
+            b = b.Before(ch);
+            if (c.Contains(ch)) { string ds = c.After(ch); c = c.Before(ch); return bool4(a.To_bool(), b.To_bool(), c.To_bool(), ds.To_bool()); }
+          }
+        }
+        return bool4(s.To_bool(), s.To_bool(), s.To_bool(), s.To_bool());
+      }
+      return o is bool4 b4 ? b4 : o is int4 i4 ? bool4(i4.x > 0, i4.y > 0, i4.z > 0, i4.w > 0) : o is uint4 u4 ? bool4(u4.x > 0, u4.y > 0, u4.z > 0, u4.w > 0)
+        : o is float f ? bool4(f, f, f, f) : o is int i ? bool4(i, i, i, i) : o is uint u ? bool4(u, u, u, u) : o is double d ? bool4(((float)d) > 0, ((float)d) > 0, ((float)d) > 0, ((float)d) > 0) : b0000;
+    }
+
     public static float2 To_float2(this object o)
     {
       if (o == null) return f00;

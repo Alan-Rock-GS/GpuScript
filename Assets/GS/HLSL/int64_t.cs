@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct int64_t // : I_int64_t
+  public struct int64_t
   {
     public int x;
 

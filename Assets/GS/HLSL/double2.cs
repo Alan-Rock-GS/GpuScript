@@ -6,7 +6,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct double2 // : I_double2
+  public struct double2 : IComparable
   {
     public double x, y;
 
@@ -165,6 +165,8 @@ namespace GpuScript
     public double GetNormal(double val) => (val - x) / (y - x);
     public double GetInvNormal(double val) => val * (y - x) + x;
     public double2 Lerp(double2 v2, double v) { var v1 = this; return (v2 - v1) * v + v1; }
+
+    public int CompareTo(object o) => (o is double2 f) ? x == f.x ? y == f.y ? 0 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo((double2)o.To_float2());
   }
   public class V2ds : List<double2>
   {

@@ -6,7 +6,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [Serializable]
-  public struct float2x2 // : I_float2x2
+  public struct float2x2
   {
     public Float2 _m00_m01;
     public Float2 _m10_m11;

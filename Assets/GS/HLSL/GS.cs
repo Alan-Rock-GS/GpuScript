@@ -3168,8 +3168,11 @@ namespace GpuScript
     public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
 
     //allow structs to be declared without new keyword, prevents Non-invocable member ... cannot be used like a method
+    public static bool2 bool2(bool x) => new bool2(x, x);
     public static bool2 bool2(bool x, bool y) => new bool2(x, y);
+    public static bool2 bool2(int x) => new bool2(x, x);
     public static bool2 bool2(int x, int y) => new bool2(x, y);
+    public static bool2 bool2(float x) => new bool2(x, x);
     public static bool2 bool2(float x, float y) => new bool2(x, y);
 
     public static bool3 bool3(bool x, bool y, bool z) => new bool3(x, y, z);

@@ -2,7 +2,7 @@
 namespace GpuScript
 {
   [System.Serializable]
-  public struct float4x3 // : I_float4x3
+  public struct float4x3
   {
     public Float3 _m00_m01_m02, _m10_m11_m12, _m20_m21_m22, _m30_m31_m32;
     

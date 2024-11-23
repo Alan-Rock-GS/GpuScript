@@ -1,5 +1,6 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
 using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -8,7 +9,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct int3 // : I_int3
+  public struct int3 : IComparable
   {
     public int x, y, z;
 
@@ -172,6 +173,8 @@ namespace GpuScript
     public string ToTabString() => ToString("\t"); 
 
     public override bool Equals(object obj) => base.Equals(obj); 
-    public override int GetHashCode() => base.GetHashCode(); 
+    public override int GetHashCode() => base.GetHashCode();
+
+    public int CompareTo(object o) => (o is int3 f) ? x == f.x ? y == f.y ? z == f.z ? 0 : z < f.z ? -1 : 1 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_int3());
   }
 }

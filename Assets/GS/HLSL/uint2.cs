@@ -11,7 +11,7 @@ using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct uint2 // : I_uint2
+  public struct uint2 : IComparable
   {
     public uint x, y;
 
@@ -278,5 +278,7 @@ namespace GpuScript
         return float3((x - 0.5f) / y, 0.5f, 1.0f / y);
       }
     }
+    public int CompareTo(object o) => (o is uint2 f) ? x == f.x ? y == f.y ? 0 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_uint2());
+
   }
 }

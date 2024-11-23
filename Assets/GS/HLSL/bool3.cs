@@ -1,9 +1,10 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
+using System;
 using static GpuScript.GS;
 namespace GpuScript
 {
   [System.Serializable]
-  public struct bool3 // : I_bool3
+  public struct bool3 : IComparable
   {
     public bool x, y, z;
     public int X { get => x ? 1 : 0; }
@@ -33,6 +34,8 @@ namespace GpuScript
 
     public override bool Equals(object obj) => base.Equals(obj);
     public override int GetHashCode() => base.GetHashCode();
+
+    public int CompareTo(object o) => (o is bool3 f) ? x == f.x ? y == f.y ? z == f.z ? 0 : z ? -1 : 1 : y ? -1 : 1 : x ? -1 : 1 : CompareTo(o.To_bool3());
 
     public static bool3 operator +(bool3 a, bool3 b) => bool3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
     public static bool3 operator +(bool3 a, int b) => bool3(a.X + b, a.Y + b, a.Z + b);

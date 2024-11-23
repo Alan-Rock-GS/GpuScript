@@ -9,7 +9,7 @@ namespace GpuScript
 {
 
   [System.Serializable]
-  public struct int4 // : I_int4
+  public struct int4
   {
     public int x, y, z, w;
 
