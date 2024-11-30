@@ -27,16 +27,16 @@ GpuScript is free and open source. It is written in C# and integrated with Unity
 
 ( JavaScript, Python, and C++ programmers can quickly catch on, as these languages are essentially the same as C# when it comes to Object-Oriented Programming. )
 
-Program the Gpu in Object-Oriented Programming (OOP) and skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction OOP class, and GpuScript generates thousands of lines of boiler-plate OOP, UI, and GPU code. Then, fill in the program-critical code, and the project is done.
+Program the Gpu in C#. Skip learning HLSL, OpenGL, OpenCL, CUDA, and ShaderLab. Write an instruction C# class, and GpuScript generates thousands of lines of boiler-plate OOP, UI, and GPU code (usually generates over 100 lines for each line in the instruction file). Fill in program-critical code, debug, modify the instruction file, and iteratively program in C# as usual.
 
 GpuScript increases programmer productivity significantly.
 ### $${\color{red}Instead\space\space\color{red} of\space\space\color{red} spending \space\space\color{red}a \space\space\color{red}month\space\space\color{red} to\space\space\color{red} write\space\space\color{red} a \space\space\color{red}program,\space\space\color{red} finish\space\space\color{red} it \space\space\color{red}in \space\space\color{red}two\space\space\color{red} hours!}$$
 
 GpuScript turns a laptop into a supercomputer. GpuScript increases program graphics and computation speed by orders of magnitude. 
 
-Imagine running a 4096x4096 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transfrom in 3 nano-seconds. 
+Imagine running a 2048x2048 matrix multiply in one nano-second. Imagine running a 4096 Fourier Transform in 3 nano-seconds. Sort a 2000 element array in one nano-second.
 
-Debug group-shared memory kernels. Learn integer computation tricks to break floating point operation barriers by orders of magnitude. 
+Debug group-shared memory kernels. Learn Intrinsic Function integer computation tricks to break floating point operation barriers by orders of magnitude. 
 
 GpuScript brings Object-Orientated Programming (OOP), limited Functional Programming (FP), and full debugging support to the GPU. 
 
@@ -84,10 +84,10 @@ The following is a list of all free tutorials available, and it's recommended to
 <a id="available"></a>
 ## Available Libraries
 
-* BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, and 3D text.
+* BDraw: Draw hundreds of millions of billboard/semi-billboard graphics in high-speed, including spheres, lines, arrows, signals, 3D text, and 3D axes.
 * AppendBuff: High-speed and high-volume append buffers and prefix sums, with many use cases.
 
-#### With GpuScript, you can write programs with lightening fast graphics and computations on GPU with ease!! :boom:
+#### With GpuScript, you can write programs with lightening fast graphics and general purpose computation on GPU with ease!! :boom:
 
 
 
@@ -98,22 +98,26 @@ https://github.com/user-attachments/assets/e4158af7-9630-47b9-9f11-39a67e700fbb
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <a id="future_library"></a>
-## More Libraries to Come:
+## Currently Available Libraries:
 
 * Backup: Backup files to local and/or external locations
-* FFT: Fastest Fourier Transform in existence
 * OCam: Orbit camera with legends.
 * Project: Project manager.
 * Puppeteer: Automate Chrome for numerous web applications, such as web scraping and bypassing APIs (not responsible for illegal usage).
 * Rand: Fastest random number generator in existence.
-* Sort: Fastest sort in existence.
 * Report: Generate reports and documentation with tables, figures, and animations. Full automation of all program features from an instruction file.
-* Cloud: Multi-user/multi-process support for distributed GPU computing. Provides >5X acceleration using a single laptop with a single GPU. Even faster for local area networks and over the internet.
 * VGrid: Fastest 3D volumetric rendering in existence, with axes grids.
 * Views: Customized camera views and other program settings
+
+<a id="future_library"></a>
+## More Libraries to Come:
+
+* FFT: Fastest Fourier Transform in existence
+* Sort: Fastest sort in existence.
+* Cloud: Multi-user/multi-process support for distributed GPU computing. Provides >5X acceleration using a single laptop with a single GPU. Even faster for local area networks and over the internet.
 * GEM: AI neural network with instantaneous and automatic construction of all hidden layers, size of each layer, and all neuron connections. Instant training with optimal fitting, interpolation, and extrapolation. Instant thinking. Data correction to fill in unknown entries, automatic detection and correction of outliers, and fixing jitter caused by roundoff or scatter. Optimization, to find the least number of training examples that can interpolate or extrapolate the entire set. Also supports correlated inputs for predictive analytics, statistics, design optimization, process control, and much more. [Learn more about GEM AI here!](https://github.com/Alan-Rock-GS/GpuScript/wiki/GEM-AI-Neural-Network)
 * Matrix: Fastest matrix multiplication in existence for a GPU (23 PFLOPS on a common GPU released in 2020). Combined with GEM, results in the fastest matrix inversion in existence. Yes, GEM can perform accurate matrix operations.
-* GpuScript sample projects: Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
+* GpuScript sample projects: Sort, Fractals, AI data models with predictive analytics, statistics, process control, and machine learning, ray-tracing, particle simulations, and CT-scan volumetric rendering.
 
 <ins>Below is an illustration of the simplest GEM AI neural network ever: 1 input, 1 output, and 2 training examples (0=>0), (1=>1). It has 918 concurrent hidden layers, 1838 nodes, and 3676 links. It is built with GpuScript on a single laptop with a GPU rated at 20 TFLOPS.<ins>
 
@@ -128,7 +132,7 @@ https://github.com/user-attachments/assets/ee057a66-4686-4891-95c3-d6887e19ef38
 
 GpuScript is now a v1.0 released product. If you find a bug, create a new [Issue](https://github.com/Alan-Rock-GS/GS/issues).
 
-GpuScript is supported by Unity Engine. Unity runs on numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS.
+GpuScript is integrated into Unity. Unity runs on numerous platforms, including Windows, Mac, Linux, Dedicated Server, Android, IOS, PS4, PS5, Web, Universal Windows Platform, tvOS, and visionOS.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
