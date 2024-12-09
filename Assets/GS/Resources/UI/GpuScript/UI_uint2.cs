@@ -1,18 +1,19 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS;
 
 namespace GpuScript
 {
   public class UI_uint2 : UI_Slider_base
   {
-    public uint2 Slider_Pow_Val(float2 v) => GS.clamp(GS.roundu(is_Pow2_Slider ? (GS.pow10(v) - 1) / 0.999f : v), range_Min, range_Max); 
-    public float2 Slider_Log_Val(uint2 v) => is_Pow2_Slider ? GS.log10(v * 0.999f + 1) : (float2)v; 
+    public uint2 Slider_Pow_Val(float2 v) => clamp(roundu(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
+    public float2 Slider_Log_Val(uint2 v) => is_Pow2_Slider ? log10(clamp(roundu(v, Nearest), range_Min, range_Max) * 0.999f + 1) : (float2)v;
     public uint2 SliderV { get => Slider_Pow_Val(new float2(sliders[0].value, sliders[1].value)); set { if (sliders[0] != null) { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; } } }
     public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") }; 
     public UI_uint2() : base() { }
     public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_uint2(); } }
-    public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && GS.any(previousValue != o.value.To_uint2())) { OnTextFieldChanged(o); previousValue = o.value.To_uint2(); changed = false; } } }
+    public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_uint2())) { OnTextFieldChanged(o); previousValue = o.value.To_uint2(); changed = false; } } }
     public static Type Get_Base_Type() => typeof(uint2); 
     public static bool IsType(Type type) => type == typeof(uint2); 
     public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_uint2(); return true; }
@@ -35,11 +36,11 @@ namespace GpuScript
     public uint2 v
     {
       get => textField != null ? val = textField.value.To_uint2() : val;
-      set { val = is_Pow10 ? GS.roundu(GS.pow10(GS.round(GS.log10((float2)value)))) : is_Pow2 ? GS.roundu(GS.pow2(GS.round(GS.log2((float2)value)))) : value; if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val; }
+      set { val = is_Pow10 ? roundu(pow10(round(log10((float2)value)))) : is_Pow2 ? roundu(pow2(round(log2((float2)value)))) : value; if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val; }
     }
     public override string textString => v.ToString(format);
     public override object v_obj { get => v; set => v = value.To_uint2(); }
-    public override bool hasRange { get => GS.any(range_Min < range_Max); }
+    public override bool hasRange { get => any(range_Min < range_Max); }
     uint2 _range_Min; public uint2 range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) { var v = Slider_Log_Val(value); for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = v[i]; } } }
     uint2 _range_Max; public uint2 range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) { var v = Slider_Log_Val(value); for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = v[i]; } } }
 
@@ -50,7 +51,7 @@ namespace GpuScript
     {
       if (evt.currentTarget is Slider && textField != null)
       {
-        if (GS.Key(UnityEngine.KeyCode.F1))
+        if (Key(UnityEngine.KeyCode.F1))
         {
           var sliderV = SliderV;
           if (!F1_Pressed) { F1_Pressed = true; dV = sliderV.y - sliderV.x; }
@@ -78,7 +79,7 @@ namespace GpuScript
     {
       if (hasRange) SliderV = o.value.To_uint2(); else { property.SetValue(gs, textField.value.To_uint2()); gs.OnValueChanged(); }
     }
-    public override bool Changed { get => GS.any(v != _v); set => _v = value ? v - 1 : v; }
+    public override bool Changed { get => any(v != _v); set => _v = value ? v - 1 : v; }
     public static implicit operator uint2(UI_uint2 f) => f.v; 
     public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider, 
       bool isPow10, bool isPow2, float nearest, string treeGroup_parent)

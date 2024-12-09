@@ -7,15 +7,15 @@ namespace GpuScript
 {
   public class UI_int : UI_Slider_base
   {
-    public int Slider_Pow_Val(float v) => clamp(roundi(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v), range_Min, range_Max); 
-    public float Slider_Log_Val(int v) => is_Pow2_Slider ? log10(abs(v) * 0.999f + 1) : v; 
+    public int Slider_Pow_Val(float v) => clamp(roundi(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
+    public float Slider_Log_Val(int v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
     public int SliderV { get => Slider_Pow_Val(sliders[0].value); set => sliders[0].value = Slider_Log_Val(value); }
-    public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") }; 
+    public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
     public UI_int() : base() { }
     public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_int(); } }
     public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_int())) { OnTextFieldChanged(o); previousValue = o.value.To_int(); changed = false; } } }
-    public static Type Get_Base_Type() => typeof(int); 
-    public static bool IsType(Type type) => type == typeof(int); 
+    public static Type Get_Base_Type() => typeof(int);
+    public static bool IsType(Type type) => type == typeof(int);
     public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_int(); return true; }
     public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged,
       StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
@@ -39,7 +39,7 @@ namespace GpuScript
       get => textField != null ? val = textField.value.To_int() : val;
       set
       {
-        val = is_Pow10 ? roundi(pow10(round(log10(value)))) : is_Pow2 ? roundi(pow2(round(log2(value)))) : value; 
+        val = is_Pow10 ? roundi(pow10(round(log10(value)))) : is_Pow2 ? roundi(pow2(round(log2(value)))) : value;
         if (Nearest > 0) val = roundi(val, Nearest);
         if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
       }
@@ -69,7 +69,7 @@ namespace GpuScript
       }
     }
     public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
-    public static implicit operator int(UI_int f) => f.v; 
+    public static implicit operator int(UI_int f) => f.v;
     public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider,
       bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
     {

@@ -45,7 +45,7 @@
   #pragma use_dxc
   struct GSort
   {
-    uint sortN, segN, benchmarkType, vsN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
+    uint useUpperTriangular, arrayLength, numberOfArrays, runtimeN, benchmarkType, vsN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float sort_runtime, node_size, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
@@ -61,7 +61,19 @@
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<uint4> Rand_rs;
-  [numthreads(numthreads2, numthreads2, 1)] void set_sorts(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.sortN && id.x < g.segN) { uint segI = id.x, sortI = id.y, j = segI * g.sortN, i = j + sortI; sorts[j + counts[i]] = sortI; } } }
+  [numthreads(numthreads2, numthreads2, 1)] void set_sorts(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.arrayLength && id.x < g.numberOfArrays) { uint segI = id.x, sortI = id.y, j = segI * g.arrayLength, i = j + sortI; sorts[j + counts[i]] = sortI; } } }
+  [numthreads(numthreads2, numthreads2, 1)] void add_counts_triangle(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.arrayLength * (g.arrayLength - 1) / 2 && id.x < g.numberOfArrays)
+    {
+      uint segI = id.x, k = id.y, j = segI * g.arrayLength;
+      uint2 u = upperTriangularIndex(k, g.arrayLength) + u11 * j;
+      InterlockedAdd(counts, vs[u.x] > vs[u.y] ? u.x : u.y, 1);
+    }
+    }
+  }
   [numthreads(numthreads1, 1, 1)] void init_counts(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.vsN) { counts[id.x] = 0; } } }
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_GetIndexes(uint3 id : SV_DispatchThreadID)
@@ -125,10 +137,10 @@
       if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
@@ -217,20 +229,20 @@
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads2, numthreads2, 1)] void add_counts(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads3, numthreads3, numthreads3)] void add_counts(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.y < g.sortN * (g.sortN - 1) / 2 && id.x < g.segN)
+      if (id.z < g.arrayLength && id.y < g.arrayLength && id.x < g.numberOfArrays)
     {
-      uint segI = id.x, k = id.y, j = segI * g.sortN;
-      uint2 u = upperTriangularIndex(k, g.sortN) + u11 * j;
-      InterlockedAdd(counts, vs[u.x] > vs[u.y] ? u.x : u.y, 1);
+      uint i = id.x * g.arrayLength, i0 = i + id.y, i1 = i + id.z;
+      if (vs[i0] > vs[i1]) InterlockedAdd(counts, i0, 1);
     }
     }
   }
   #pragma kernel set_sorts
   #pragma kernel add_counts
+  #pragma kernel add_counts_triangle
   #pragma kernel init_counts
   #pragma kernel init_vs
   #pragma kernel Rand_initState
@@ -247,6 +259,6 @@
   #pragma kernel BDraw_AppendBuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
-  #pragma kernel Rand_grp_init_1M
-  #pragma kernel Rand_grp_init_1K
   #pragma kernel Rand_grp_fill_1K
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_init_1M

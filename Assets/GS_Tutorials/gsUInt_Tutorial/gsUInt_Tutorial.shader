@@ -174,7 +174,7 @@ Shader "gs/gsUInt_Tutorial"
   v2f vert_Spheres(uint i, uint j, v2f o)
   {
     float r = 0.2f;
-    return vert_BDraw_Sphere(i * r * 2 * f010, r, palette(i / (max(g.sphereN, 2) - 1.0f)), i, j, o);
+    return vert_BDraw_Sphere(i * r * 2 * f010, r, palette(i / (g.sphereN - 1.0f)), i, j, o);
   }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }

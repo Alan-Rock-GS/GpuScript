@@ -2040,16 +2040,24 @@ namespace GpuScript
       return s;
     }
 
-    public static string[] GetAllFiles(this string path, string searchPattern = "*.*")
+    //public static string[] GetAllFiles(this string path, string searchPattern = "*.*")
+    //{
+    //  try
+    //  {
+    //    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+    //    var files = FastDirectory.GetFiles(path, searchPattern, SearchOption.AllDirectories);
+    //    return files;
+    //  }
+    //  catch (Exception) { return null; }
+    //}
+    public static string[] GetAllFiles(this string path, params string[] searchPatterns)
     {
-      try
-      {
-        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-        var files = FastDirectory.GetFiles(path, searchPattern, SearchOption.AllDirectories);
-        return files;
-      }
-      catch (Exception) { return null; }
+      if (searchPatterns == null) searchPatterns = new string[] { "*.*" };
+      var files = new string[0];
+      if (path.Exists()) foreach (var p in searchPatterns) files = files.Concat(FastDirectory.GetFiles(path, p, SearchOption.AllDirectories)).ToArray();
+      return files.Select(a => a.Replace("\\", "/")).ToArray();
     }
+
     public static bool IsRunning(this Process process) { try { Process.GetProcessById(process.Id); } catch (Exception) { return false; } return true; }
     public static bool IsRunning(this string processName) => Process.GetProcessesByName(processName).Length > 0;
     public static bool IsNotRunning(this string processName) => !processName.IsRunning();

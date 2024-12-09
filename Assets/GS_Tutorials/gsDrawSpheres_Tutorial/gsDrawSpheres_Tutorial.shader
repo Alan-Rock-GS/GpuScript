@@ -90,7 +90,7 @@ Shader "gs/gsDrawSpheres_Tutorial"
   #define BDraw_SPACE 32
   struct GDrawSpheres_Tutorial
   {
-    uint displaySpheres, sphereN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
+    uint displayButtons, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
     float BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
   };
@@ -104,10 +104,6 @@ Shader "gs/gsDrawSpheres_Tutorial"
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
-  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
-  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.displaySpheres, g.sphereN, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
-  float4 palette(float v) { return paletteColor(_PaletteTex, v); }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   float3 BDraw_gridMin() { return f000; }
   float3 BDraw_gridMax() { return f111; }
@@ -166,16 +162,12 @@ Shader "gs/gsDrawSpheres_Tutorial"
     if (libI == 0) return frag_BDraw_GS(i, color);
     return color;
   }
+  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
+  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
-  float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
-  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
-  v2f vert_Spheres(uint i, uint j, v2f o)
-  {
-    float r = 0.2f;
-    return vert_BDraw_Sphere(i * r * 2 * f010, r, palette(i / (max(g.sphereN, 2) - 1.0f)), i, j, o);
-  }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, BDraw_Draw_Line, r); return o; }
@@ -297,8 +289,7 @@ Shader "gs/gsDrawSpheres_Tutorial"
   v2f vert_GS(uint i, uint j, v2f o)
   {
     uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;
-    if (level == ++index) { o = vert_Spheres(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_BDraw_Text(i, j, o); o.tj.x = 0; }
+    if (level == ++index) { o = vert_BDraw_Text(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_BDraw_Box(i, j, o); o.tj.x = 0; }
     return o;
   }

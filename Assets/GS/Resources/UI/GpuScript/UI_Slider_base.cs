@@ -12,7 +12,7 @@ namespace GpuScript
     public TextField textField;
     public Slider[] sliders;
     public bool is_Pow2_Slider, is_Pow10, is_Pow2;
-    public float Nearest;
+    public float Nearest = 0;
     public virtual Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
     public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
     {
@@ -162,7 +162,7 @@ namespace GpuScript
       this.usFormat = usFormat;
       formatString = format;
       is_Pow2_Slider = isPow2Slider;
-      Nearest = nearest;
+      Nearest = nearest.isNan() ? 0 : nearest;
     }
     public string usFormat, siFormat;
     public string format => siUnits ? siFormat : usFormat;

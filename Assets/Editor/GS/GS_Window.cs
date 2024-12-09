@@ -17,21 +17,72 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using static GpuScript.GS;
 using UnityEditor.Compilation;
+using PuppeteerSharp.Input;
 
 //https://www.youtube.com/watch?v=Xy_jvBg1vS0
 
 [InitializeOnLoad]
 public class GS_Window : EditorWindow
 {
+  public void Lib_Paste_clicked(ClickEvent evt = null)
+  {
+    string s = Clipboard;
+    if (s.Contains(","))
+    {
+      var items = s.Split(",");
+      if (items.Length == 8)
+      {
+        string email = items[3].Between("\"", "\"").Trim(), expires = items[5].Between("\"", "\"").Trim(), key = items[7].Before(")").Trim(), lib = items[7].Between(" gs", " ");
+        Lib_Info.value = $"{lib},{email},{expires},{key}";
+      }
+      else if (items.Length == 4) Lib_Info.value = Clipboard;
+    }
+  }
+  public void Lib_Update_clicked(ClickEvent evt = null)
+  {
+    //print($"Update Library: {Lib_Info.text}");
+    string path = assetsPath, text = Lib_Info.value;
+    if (text.Contains(","))
+    {
+      var items = text.Split(",");
+      if (items.Length == 4)
+      {
+        var (lib, email, expires, key) = (items[0].Trim(), items[1].Trim(), items[2].Trim(), items[3].Trim());
+        var _GS_files = path.GetAllFiles("*_GS.cs").Select(a => a.Replace("\\", "/")).Where(a => a.DoesNotContain("/Assets/GS/")).ToArray();
+        foreach (var f in _GS_files)
+        {
+          string s = f.ReadAllText(), original_s = s;
+          string t = $")] gs{lib} {lib};", t2 = "[GS_UI, AttGS(", t3 = "GS_Lib.Email, \"";
+          if (s.Contains(t))
+          {
+            string s0 = s.BeforeIncluding(t);
+            if (s0.Contains(t2))
+            {
+              string s1 = s0.AfterLastIncluding(t2);
+              if (s1.Contains(t3))
+              {
+                s1 = s1.BeforeIncluding(t3);
+                string s2 = $"{s1}{email}\", GS_Lib.Expires, \"{expires}\", GS_Lib.Key, {key}{t}";
+                s = s.Before(t).BeforeLast(t2) + s2 + s.After(t);
+              }
+            }
+          }
+          if (s != original_s)
+            f.WriteAllText(s);
+        }
+      }
+    }
+  }
+
   [SerializeField] VisualTreeAsset visualTreeAsset;
 
   [MenuItem("Window/GpuScript")] public static void ShowWindow() { var w = GetWindow<GS_Window>("GpuScript"); w.minSize = new Vector2(200, 50); }
 
-  [SerializeField] string gsClass_name_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val;
+  [SerializeField] string gsClass_name_val, Lib_info_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val;
   [SerializeField] bool gsClass_Run_Val, exe_Parent_val, exe_Build_val, exe_Debug_val, exe_Run_val;
 
-  TextField gsClass_name, package_name, backup_description, backup_omitFolders, info_Android_dirs, CodeCount, exe_Version;
-  Button gsClass_Build, gsClass_Fix, gsClass_Lib, package_Create, backup_Backup, backup_Restore,
+  TextField gsClass_name, Lib_Info, package_name, backup_description, backup_omitFolders, info_Android_dirs, CodeCount, exe_Version;
+  Button gsClass_Build, gsClass_Fix, gsClass_Lib, Lib_Paste, Lib_Update, package_Create, backup_Backup, backup_Restore,
     android_projectPath, android_persistentPath, android_phonePath, exe_Exe, exe_Setup, exe_Apk, exe_Apk_CMake;
   Toggle gsClass_Run, exe_Parent, exe_Build, exe_Debug, exe_Run;
   DropdownField info_platform;
@@ -210,6 +261,7 @@ public class GS_Window : EditorWindow
       }
     }
   }
+
 
   public void android_projectPath_clicked(ClickEvent evt = null) { print(projectPath); projectPath.Run(); }
   public void android_persistentPath_clicked(ClickEvent evt = null) { print(dataPath); }
@@ -867,7 +919,8 @@ public class GS_Window : EditorWindow
         {
           if (drawSphere == "") drawSphere.Set("\n    if (i < (n = 1)) o = vert_DrawSphere(f000, 1, palette(0.5f), i, j, o); i -= n;// *********** green sphere test ************");
           StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{bufferType}>", bufferName, "  ");
-          AllocateBuffers.Add($"\n  public void Allocate_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
+          AllocateBuffers.Add($"\n  public virtual void Allocate_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
+          AllocateBuffers.Add($"\n  public virtual void Assign_{bufferName}(params {bufferType}[] data) => AddComputeBufferData(ref {bufferName}, nameof({bufferName}), data);");
           if (buff.member.IsProp())
           {
             string bufferN = buff.sizeInfo.sizeN;
@@ -1741,7 +1794,8 @@ $"\n    {m_name}_To_UI();",
           s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
         }
 
-      if (uiDocument && gsName != "gsReport") s_onValueChanged.Add("\n    var type = \"gsReport\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
+      //if (uiDocument && gsName != "gsReport") s_onValueChanged.Add("\n    var type = \"gsReport\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
+      if (uiDocument && gsName != "gsReport_Lib") s_onValueChanged.Add("\n    var type = \"gsReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
 
       virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
         s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()", s_OnApplicationQuit, "OnApplicationQuit_GS()");
@@ -1801,7 +1855,8 @@ $"\n    {m_name}_To_UI();",
       "\n    if (lib_parent_gs == this)",
       "\n    {",
       "\n      foreach (var lib in GetComponents<GS>())",
-      "\n        if (lib != this && lib.GetType() != Type.GetType(\"gsProject\"))",
+      //"\n        if (lib != this && lib.GetType() != Type.GetType(\"gsProject\"))",
+      "\n        if (lib != this && lib.GetType() != \"gsProject_Lib\".ToType())",
       "\n        {",
       "\n          lib.Build_UI();",
       "\n          lib.Load_UI();",
@@ -3000,15 +3055,16 @@ $"\n    {m_name}_To_UI();",
 
   string LineCountStr()
   {
-    string dir = Directory.GetCurrentDirectory(), all = CountLines($@"{dir}\Assets", "*.cs", "*.cginc", "*.compute", "*.shader"),
-      core = CountLines($@"{dir}\Assets\GS", "*.cs", "*.cginc"), scn = "";
+    string dir = Directory.GetCurrentDirectory(), all = CountLines($@"{dir}\Assets", "*.cs", "*.cginc", "*.compute", "*.shader", "*.uxml"),
+      core = CountLines($@"{dir}\Assets\GS", "*.cs", "*.cginc"), scn = "", scn0 = "";
     foreach (var a in GS_Assemblies)
       if ($@"{dir}\Assets\{a}\gs{sceneName}".Exists())
       {
-        scn = CountLines($@"{dir}\Assets\{a}\gs{sceneName}", "*.cs", "*.compute", "*.shader");
+        scn = CountLines($@"{dir}\Assets\{a}\gs{sceneName}", "*.cs", "*.compute", "*.shader", "*.uxml");
+        scn0 = CountLines($@"{dir}\Assets\{a}\gs{sceneName}", $"gs{sceneName}.cs");
         break;
       }
-    return $"GS({core}) All({all}) Scene({scn})";
+    return $"GS({core}) All({all}) Scene({scn.Before(",")},{scn0}/{scn.After(", ")})";
   }
 
   void CodeCount_clicked(ClickEvent evt) { CodeCount.value = LineCountStr(); }
@@ -3276,7 +3332,8 @@ $"\n    {m_name}_To_UI();",
   #region Unity Project Menu
   public static string Get_Report_Suffix(string path)
   {
-    string report = @$"{path}gsReport.txt";
+    //string report = @$"{path}gsReport.txt";
+    string report = @$"{path}gsReport_Lib.txt";
     if (report.Exists()) return report.ReadAllText().Between("suffixName\": \"", "\"");
     return "";
   }

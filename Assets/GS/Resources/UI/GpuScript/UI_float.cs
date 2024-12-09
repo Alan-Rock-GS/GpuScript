@@ -7,15 +7,17 @@ namespace GpuScript
 {
   public class UI_float : UI_Slider_base
   {
-    public float Slider_Pow_Val(float v) => clamp(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, range_Min, range_Max); 
-    public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(v) * 0.999f + 1) : v; 
-    public float SliderV { get => sliders[0] == null ? default : Slider_Pow_Val(sliders[0].value);  set { if (sliders[0] != null) { sliders[0].value = Slider_Log_Val(value); } } }
-    public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") }; 
+    public float Slider_Pow_Val(float v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
+    public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
+    //public float Slider_Pow_Val(float v) => clamp(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, range_Min, range_Max);
+    //public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(v) * 0.999f + 1) : v;
+    public float SliderV { get => sliders[0] == null ? default : Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) { sliders[0].value = Slider_Log_Val(value); } } }
+    public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
     public UI_float() : base() { }
     public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_float(); } }
     public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_float())) { OnTextFieldChanged(o); previousValue = o.value.To_float(); changed = false; } } }
-    public static Type Get_Base_Type() => typeof(float); 
-    public static bool IsType(Type type) => type == typeof(float); 
+    public static Type Get_Base_Type() => typeof(float);
+    public static bool IsType(Type type) => type == typeof(float);
     public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_float(); return true; }
     public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged, StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
     {
@@ -43,7 +45,7 @@ namespace GpuScript
       {
         if (any(isnan(value)) || any(isinf(value))) return;
         var val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
-        if (Nearest > 0) val = roundu(val, roundu(Nearest));
+        if (Nearest > 0) val = round(val, Nearest);
         if (textField != null) textField.value = val.ToString(format);
         _si = hasRange ? iconvert(SliderV = val) : iconvert(val);
       }
@@ -104,7 +106,7 @@ namespace GpuScript
     public float siRange, usRange;
     public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }
 
-    public static implicit operator float(UI_float f) => f.si; 
+    public static implicit operator float(UI_float f) => f.si;
 
     public float ns { get => si * convert(Unit, Unit.ns); set => si = value / convert(Unit, Unit.ns); }
     public float us { get => si * convert(Unit, Unit.us); set => si = value / convert(Unit, Unit.us); }

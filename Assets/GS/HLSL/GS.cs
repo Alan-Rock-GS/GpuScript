@@ -778,43 +778,83 @@ namespace GpuScript
     public static uint3 roundu(float3 v) { return uint3(round(v.x), round(v.y), round(v.z)); }
     public static uint4 roundu(float4 v) { return uint4(round(v.x), round(v.y), round(v.z), round(v.w)); }
 
-    public static int roundi(float v, int nearest) { return nearest == 0 ? roundi(v) : roundi(v / nearest) * nearest; }
-    public static uint roundu(float v, uint nearest) { return nearest == 0 ? roundu(v) : roundu(v / nearest) * nearest; }
-    public static float round(float v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-    public static float2 round(float2 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-    public static float3 round(float3 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-    public static float4 round(float4 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
+    //public static int roundi(float v, int nearest) { return nearest == 0 ? roundi(v) : roundi(v / nearest) * nearest; }
+    //public static uint roundu(float v, uint nearest) { return nearest == 0 ? roundu(v) : roundu(v / nearest) * nearest; }
+    //public static float round(float v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
+    //public static float2 round(float2 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
+    //public static float3 round(float3 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
+    //public static float4 round(float4 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
 
-    public static int4 roundi(float4 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    public static int4 roundi(int4 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    public static uint4 roundu(float4 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    public static uint4 roundu(uint4 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-    public static int3 roundi(float3 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    public static int3 roundi(int3 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    public static uint3 roundu(float3 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    public static uint3 roundu(uint3 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-    public static int2 roundi(float2 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    public static int2 roundi(int2 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    public static uint2 roundu(float2 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    public static uint2 roundu(uint2 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-    public static int roundi(float v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    public static int roundi(int v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    public static uint roundu(float v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    public static uint roundu(uint v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
+    //public static int4 roundi(float4 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    //public static int4 roundi(int4 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
+    //public static uint4 roundu(float4 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    //public static uint4 roundu(uint4 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
+    //public static int3 roundi(float3 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    //public static int3 roundi(int3 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
+    //public static uint3 roundu(float3 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    //public static uint3 roundu(uint3 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
+    //public static int2 roundi(float2 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    //public static int2 roundi(int2 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
+    //public static uint2 roundu(float2 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    //public static uint2 roundu(uint2 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
+    //public static int roundi(float v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    //public static int roundi(int v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
+    //public static uint roundu(float v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    //public static uint roundu(uint v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
 
-    public static int ceili(float v, int nearest) { return nearest == 0 ? ceili(v) : ceili(v / nearest) * nearest; }
-    public static uint ceilu(float v, uint nearest) { return nearest == 0 ? ceilu(v) : ceilu(v / nearest) * nearest; }
-    public static float ceil(float v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-    public static float2 ceil(float2 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-    public static float3 ceil(float3 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-    public static float4 ceil(float4 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
+    //public static int ceili(float v, int nearest) { return nearest == 0 ? ceili(v) : ceili(v / nearest) * nearest; }
+    //public static uint ceilu(float v, uint nearest) { return nearest == 0 ? ceilu(v) : ceilu(v / nearest) * nearest; }
+    //public static float ceil(float v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
+    //public static float2 ceil(float2 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
+    //public static float3 ceil(float3 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
+    //public static float4 ceil(float4 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
 
-    public static int floori(float v, int nearest) { return nearest == 0 ? floori(v) : floori(v / nearest) * nearest; }
-    public static uint flooru(float v, uint nearest) { return nearest == 0 ? flooru(v) : flooru(v / nearest) * nearest; }
-    public static float floor(float v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-    public static float2 floor(float2 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-    public static float3 floor(float3 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-    public static float4 floor(float4 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
+    //public static int floori(float v, int nearest) { return nearest == 0 ? floori(v) : floori(v / nearest) * nearest; }
+    //public static uint flooru(float v, uint nearest) { return nearest == 0 ? flooru(v) : flooru(v / nearest) * nearest; }
+    //public static float floor(float v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
+    //public static float2 floor(float2 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
+    //public static float3 floor(float3 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
+    //public static float4 floor(float4 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
+
+
+    public static int roundi(float v, int nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(v / nearest) * nearest; }
+    public static uint roundu(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(v / nearest) * nearest; }
+    public static float round(float v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
+    public static float2 round(float2 v, float nearest) { return nearest == 0|| isnan(nearest) ? v : round(v / nearest) * nearest; }
+    public static float3 round(float3 v, float nearest) { return nearest == 0|| isnan(nearest) ? v : round(v / nearest) * nearest; }
+    public static float4 round(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
+
+    public static int4 roundi(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int4 roundi(int4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static uint4 roundu(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint4 roundu(uint4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
+    public static int3 roundi(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int3 roundi(int3 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static uint3 roundu(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint3 roundu(uint3 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
+    public static int2 roundi(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int2 roundi(int2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static uint2 roundu(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint2 roundu(uint2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
+    public static int roundi(float v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int roundi(int v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static uint roundu(float v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint roundu(uint v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
+
+    public static int ceili(float v, int nearest) { return nearest == 0 || isnan(nearest) ? ceili(v) : ceili(v / nearest) * nearest; }
+    public static uint ceilu(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? ceilu(v) : ceilu(v / nearest) * nearest; }
+    public static float ceil(float v, float nearest) { return nearest == 0 || isnan(nearest) ? v : ceil(v / nearest) * nearest; }
+    public static float2 ceil(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : ceil(v / nearest) * nearest; }
+    public static float3 ceil(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : ceil(v / nearest) * nearest; }
+    public static float4 ceil(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : ceil(v / nearest) * nearest; }
+
+    public static int floori(float v, int nearest) { return nearest == 0 || isnan(nearest) ? floori(v) : floori(v / nearest) * nearest; }
+    public static uint flooru(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? flooru(v) : flooru(v / nearest) * nearest; }
+    public static float floor(float v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
+    public static float2 floor(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
+    public static float3 floor(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
+    public static float4 floor(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
+
 
     //https://gist.github.com/paniq/3afdb420b5d94bf99e36
     public static float3 tetnorm(float3 v) { return sqrt(v * float3(csum(v), csum(v.yz), v.z)); }
@@ -2035,11 +2075,20 @@ namespace GpuScript
       if (buffer != null) buffer.SetData();
     }
 
+    //public void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, string bufferName, params T[] data)
+    //{
+    //  AddComputeBufferData(ref buffer, data);
+    //  if (buffer != null && buffer.bufferId < 0) buffer.bufferId = Shader.PropertyToID(bufferName);
+    //}
     public void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, string bufferName, params T[] data)
     {
-      AddComputeBufferData(ref buffer, data);
-      if (buffer != null && buffer.bufferId < 0) buffer.bufferId = Shader.PropertyToID(bufferName);
+      if (data?.Length > 0)
+      {
+        AddComputeBufferData(ref buffer, data);
+        if (buffer != null && buffer.bufferId < 0) buffer.bufferId = Shader.PropertyToID(bufferName);
+      }
     }
+
 
     public void AddComputeBufferData<T>(ComputeBufferType computeBufferType, ref RWStructuredBuffer<T> buffer, params T[] data)
     {
@@ -3373,6 +3422,7 @@ namespace GpuScript
 
     public static string appName => $"{SceneManager.GetActiveScene().name}";
     public static string appPath => $"{dataPath}{appName}/";
+    public static string assetsPath => $"{dataPath}Assets/";
     public static bool useUndoRedo = false;
     string serializeFilename => projectPath == null ? null : $"{projectPath}Project_Data_{undoI:0000}.txt";
     public static string _projectPath;
@@ -4485,6 +4535,10 @@ namespace GpuScript
     public int _product(int3 a) => product(a);
     public uint _product(uint3 a) => product(a);
     public float _product(float3 a) => product(a);
+
+    public float _exp(float v) => exp(v);
+    public float _ln(float v) => ln(v);
+    public float _lerp(float a, float b, float w) => lerp(a, b, w);
 
   }
 }

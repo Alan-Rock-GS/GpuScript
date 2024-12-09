@@ -7,8 +7,9 @@ namespace GpuScript
 {
   public class UI_float2 : UI_Slider_base
   {
-    public float2 Slider_Pow_Val(float2 v) => clamp(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, range_Min, range_Max); 
-    public float2 Slider_Log_Val(float2 v) => is_Pow2_Slider ? log10(abs(v) * 0.999f + 1) : v; 
+    public float2 Slider_Pow_Val(float2 v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
+    public float2 Slider_Log_Val(float2 v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
+
     public float2 SliderV { get => Slider_Pow_Val(new float2(sliders[0].value, sliders[1].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; } }
     public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") }; 
     public UI_float2() : base() { }

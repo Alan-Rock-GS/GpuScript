@@ -7,13 +7,13 @@ namespace GpuScript
 {
   public class UI_uint : UI_Slider_base
   {
-    public uint Slider_Pow_Val(float v) => GS.clamp(GS.roundu(is_Pow2_Slider ? (GS.pow10(v) - 1) / 0.999f : v), range_Min, range_Max);
-    public float Slider_Log_Val(uint v) => is_Pow2_Slider ? GS.log10(v * 0.999f + 1) : v;
+    public uint Slider_Pow_Val(float v) => clamp(roundu(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
+    public float Slider_Log_Val(uint v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
     public uint SliderV { get => Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) sliders[0].value = Slider_Log_Val(value); } }
     public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
     public UI_uint() : base() { }
     public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_uint(); } }
-    public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && GS.any(previousValue != o.value.To_uint())) { OnTextFieldChanged(o); previousValue = o.value.To_uint(); changed = false; } } }
+    public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_uint())) { OnTextFieldChanged(o); previousValue = o.value.To_uint(); changed = false; } } }
     public static Type Get_Base_Type() => typeof(uint);
     public static bool IsType(Type type) => type == typeof(uint);
     public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_uint(); return true; }
@@ -38,7 +38,7 @@ namespace GpuScript
       get => textField != null ? val = textField.value.To_uint() : val;
       set
       {
-        val = is_Pow10 ? GS.roundu(GS.pow10(GS.round(GS.log10(value)))) : is_Pow2 ? GS.roundu(GS.pow2(GS.round(GS.log2(value)))) : value;
+        val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
         if (Nearest > 0) val = roundu(val, Nearest);
         if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
       }

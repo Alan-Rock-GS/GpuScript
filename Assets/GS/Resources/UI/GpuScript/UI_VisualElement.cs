@@ -19,7 +19,7 @@ namespace GpuScript
     public Stopwatch LastChangedTime;
     public virtual string textString => "";
     public virtual float ui_width { get => UI_TextWidth(textString); set { style.width = value; } }
-    public float4 screen_coordinates() => worldBound; 
+    public float4 screen_coordinates() => worldBound;
     public virtual void OnUnitsChanged() { }
     protected void Load() { Resources.Load<VisualTreeAsset>("UI/GpuScript/" + GetType().Name)?.CloneTree(this); }
     public UI_VisualElement() { Load(); }
@@ -32,8 +32,8 @@ namespace GpuScript
     public string description = "";
     public string treeGroup_parent_name = "";
     public bool isGrid = false;
-    public static DisplayStyle DisplayIf(bool display) => display ? DisplayStyle.Flex : DisplayStyle.None; 
-    public static DisplayStyle HideIf(bool hide) => DisplayIf(!hide); 
+    public static DisplayStyle DisplayIf(bool display) => display ? DisplayStyle.Flex : DisplayStyle.None;
+    public static DisplayStyle HideIf(bool hide) => DisplayIf(!hide);
     public bool isNotGrid => !isGrid;
     [UxmlAttribute]
     public virtual bool isReadOnly { get; set; }
@@ -41,7 +41,7 @@ namespace GpuScript
     public virtual void OnMouseEnter(MouseEnterEvent evt) { if (gs != null) { gs.status = description; GS.mouseInUI = true; } }
     public virtual void OnMouseLeave(MouseLeaveEvent evt) { if (gs != null) { gs.status = ""; if (!GS.sliderHasFocus) GS.mouseInUI = false; } }
     public virtual bool display { get => style.display == DisplayStyle.Flex; set => style.display = value ? DisplayStyle.Flex : DisplayStyle.None; }
-    protected virtual object GetValue(AttGS attGS, PropertyInfo property, GS gs, bool isNull, bool ui_txt_Exists, object v) => attGS?.Val ?? property?.GetValue(gs) ?? v; 
+    protected virtual object GetValue(AttGS attGS, PropertyInfo property, GS gs, bool isNull, bool ui_txt_Exists, object v) => attGS?.Val ?? property?.GetValue(gs) ?? v;
 
     public static int width_UI = 200;
 
@@ -230,7 +230,7 @@ namespace GpuScript
       sb.Add(" >");
       gs.uxml_level++;
     }
-    public static string UXML_Level(int level) => "\n".PadRight(4 * level, ' '); 
+    public static string UXML_Level(int level) => "\n".PadRight(4 * level, ' ');
     public static void End_UXML_Component_Text(StrBldr sb) { sb.Add(" />"); }
     public static void Middle_UXML_Component_Text(StrBldr uxml, string component, string name = "", string label = "", string text = "", string className = "",
       string type = "", string value = "", string low_value = "", string high_value = "", string picking_mode = "", string tabindex = "",
@@ -569,15 +569,15 @@ namespace GpuScript
       return 0;
     }
 
-    public float convert() => convert(siUnit, usUnit); 
-    public float iconvert(float v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float2 iconvert(float2 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float3 iconvert(float3 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float4 iconvert(float4 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float convert(float v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float2 convert(float2 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float3 convert(float3 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
-    public float4 convert(float4 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit)); 
+    public float convert() => convert(siUnit, usUnit);
+    public float iconvert(float v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float2 iconvert(float2 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float3 iconvert(float3 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float4 iconvert(float4 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float convert(float v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float2 convert(float2 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float3 convert(float3 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+    public float4 convert(float4 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
     public static float convert(siUnit siUnit, usUnit usUnit)
     {
       var u = usUnit;
@@ -727,7 +727,7 @@ namespace GpuScript
       foreach (var grp in grps) if (treeGroup_parent == grp || (treeGroup_parent?.isInGroup(grp) ?? false)) return true;
       return false;
     }
-    public bool isNotInGroup(params UI_TreeGroup[] grps) => !isInGroup(grps); 
+    public bool isNotInGroup(params UI_TreeGroup[] grps) => !isInGroup(grps);
   }
 
   public class UI_Element
@@ -762,8 +762,8 @@ namespace GpuScript
 
   public static class UI_Extensions
   {
-    public static float ui_width(this string label) => label != null ? GS.UI_TextWidth(label) : 0; 
-    public static float ui_width(this Label label) => label?.text?.ui_width() ?? 0; 
+    public static float ui_width(this string label) => label != null ? GS.UI_TextWidth(label) : 0;
+    public static float ui_width(this Label label) => label?.text?.ui_width() ?? 0;
     public static VisualElement Append(this VisualElement visualElement, params object[] items)
     {
       foreach (var item in items) if (item != null) { if (item is VisualElement) visualElement.Add((VisualElement)item); else visualElement.Append((VisualElement[])item); }
@@ -784,7 +784,7 @@ namespace GpuScript
       return visualElement;
     }
     public static void display(this VisualElement visualElement, bool display) { visualElement.style.display = UI_VisualElement.DisplayIf(display); }
-    public static void DisplayIf(this VisualElement visualElement, bool display) { visualElement.style.display = UI_VisualElement.DisplayIf(display); }
+    public static void DisplayIf(this VisualElement visualElement, bool display) { if (visualElement != null && visualElement.style != null) visualElement.style.display = UI_VisualElement.DisplayIf(display); }
     public static void HideIf(this VisualElement visualElement, bool hide) { visualElement.style.display = UI_VisualElement.HideIf(hide); }
 
     public static bool isKey(this KeyDownEvent evt)
@@ -793,12 +793,12 @@ namespace GpuScript
           && evt.keyCode != KeyCode.LeftAlt && evt.keyCode != KeyCode.RightAlt
           && evt.keyCode != KeyCode.LeftShift && evt.keyCode != KeyCode.RightShift;
     }
-    public static bool isDelete(this KeyDownEvent evt) => evt.keyCode == KeyCode.Delete; 
-    public static bool isInsert(this KeyDownEvent evt) => evt.keyCode == KeyCode.Insert; 
-    public static bool isUpArrow(this KeyDownEvent evt) => evt.keyCode == KeyCode.UpArrow; 
-    public static bool isDownArrow(this KeyDownEvent evt) => evt.keyCode == KeyCode.DownArrow; 
-    public static bool isCut(this KeyDownEvent evt) => evt.ctrlKey && evt.keyCode == KeyCode.X; 
-    public static bool isCopy(this KeyDownEvent evt) => evt.ctrlKey && evt.keyCode == KeyCode.C; 
-    public static bool isPaste(this KeyDownEvent evt) => evt.ctrlKey && evt.keyCode == KeyCode.V; 
+    public static bool isDelete(this KeyDownEvent evt) => evt.keyCode == KeyCode.Delete;
+    public static bool isInsert(this KeyDownEvent evt) => evt.keyCode == KeyCode.Insert;
+    public static bool isUpArrow(this KeyDownEvent evt) => evt.keyCode == KeyCode.UpArrow;
+    public static bool isDownArrow(this KeyDownEvent evt) => evt.keyCode == KeyCode.DownArrow;
+    public static bool isCut(this KeyDownEvent evt) => evt.ctrlKey && evt.keyCode == KeyCode.X;
+    public static bool isCopy(this KeyDownEvent evt) => evt.ctrlKey && evt.keyCode == KeyCode.C;
+    public static bool isPaste(this KeyDownEvent evt) => evt.ctrlKey && evt.keyCode == KeyCode.V;
   }
 }

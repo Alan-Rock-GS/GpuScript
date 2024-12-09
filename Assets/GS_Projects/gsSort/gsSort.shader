@@ -94,7 +94,7 @@ Shader "gs/gsSort"
   #define BDraw_SPACE 32
   struct GSort
   {
-    uint sortN, segN, benchmarkType, vsN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
+    uint useUpperTriangular, arrayLength, numberOfArrays, runtimeN, benchmarkType, vsN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float sort_runtime, node_size, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
@@ -118,10 +118,10 @@ Shader "gs/gsSort"
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
+  float3 get_p0(uint i) { return float3(2 * (i % g.arrayLength) / (g.arrayLength - 1.0f) - 1, 0.2f, 2 * (i / g.arrayLength) / (g.arrayLength - 1.0f) - 1); }
   float get_r() { return g.node_size / 1000; }
-  float3 get_p0(uint i) { return float3(2 * (i % g.sortN) / (g.sortN - 1.0f) - 1, 0.2f, i / g.sortN * get_r() * 4); }
   float4 palette(float v) { return paletteColor(_PaletteTex, v); }
-  float3 get_p1(uint i) { return float3(2 * counts[i] / (g.sortN - 1.0f) - 1, -0.2f, i / g.sortN * get_r() * 4); }
+  float3 get_p1(uint i) { return float3(2 * counts[i] / (g.arrayLength - 1.0f) - 1, -0.2f, 2 * (i / g.arrayLength) / (g.arrayLength - 1.0f) - 1); }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   float3 BDraw_gridMin() { return f000; }
   float3 BDraw_gridMax() { return f111; }
