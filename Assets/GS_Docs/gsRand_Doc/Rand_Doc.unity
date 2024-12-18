@@ -2380,23 +2380,37 @@ MonoBehaviour:
     group_UI: 0
     group_Rand: 0
     group_Avg: 0
-    group_PI: 0
+    group_Area_PI: 0
+    group_Integral_PI: 0
     pntN: 0
     Avg_Val: 0
+    Avg_Val_Runtime: 0
+    Avg_Val_TFlops: 0
     Area_PI_Val: 0
     Area_PI_Error: 0
+    Area_PI_Runtime: 0
+    Area_PI_TFlops: 0
     Integral_PI_Val: 0
     Integral_PI_Error: 0
+    Integral_PI_Runtime: 0
+    Integral_PI_TFlops: 0
   g:
+    f2i: 0
+    Avg_Val: 0
+    Avg_Val_Runtime: 0
+    Avg_Val_TFlops: 0
+    Area_PI_Val: 0
+    Area_PI_Error: 0
+    Area_PI_Runtime: 0
+    Area_PI_TFlops: 0
+    Integral_PI_Val: 0
+    Integral_PI_Error: 0
+    Integral_PI_Runtime: 0
+    Integral_PI_TFlops: 0
     pntN: 0
     Rand_N: 0
     Rand_I: 0
     Rand_J: 0
-    Avg_Val: 0
-    Area_PI_Val: 0
-    Area_PI_Error: 0
-    Integral_PI_Val: 0
-    Integral_PI_Error: 0
     Rand_seed4:
       x: 0
       y: 0
@@ -6504,17 +6518,15 @@ MonoBehaviour:
     z: 0
     w: 0
   _PaletteTex: {fileID: 0}
-  kernel_Calc_Average: 0
   kernel_Integral_Avg: 0
   kernel_Count_Pnts_out_of_Circle: 0
   kernel_Count_Pnts_in_Circle: 0
+  kernel_Calc_Average: 0
+  kernel_Rand_initState: 0
+  kernel_Rand_initSeed: 0
   kernel_Rand_grp_fill_1K: 0
   kernel_Rand_grp_init_1K: 0
   kernel_Rand_grp_init_1M: 0
-  kernel_Rand_initState: 0
-  kernel_Rand_initSeed: 0
-  runtime_ms: 0
-  tflops: 0
 --- !u!114 &622991499
 MonoBehaviour:
   m_ObjectHideFlags: 0

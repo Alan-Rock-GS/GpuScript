@@ -24,18 +24,29 @@ using PuppeteerSharp.Input;
 [InitializeOnLoad]
 public class GS_Window : EditorWindow
 {
+  //public void Lib_Paste_clicked(ClickEvent evt = null)
+  //{
+  //  string s = Clipboard;
+  //  if (s.Contains(","))
+  //  {
+  //    var items = s.Split(",");
+  //    if (items.Length == 8)
+  //    {
+  //      string email = items[3].Between("\"", "\"").Trim(), expires = items[5].Between("\"", "\"").Trim(), key = items[7].Before(")").Trim(), lib = items[7].Between(" gs", " ");
+  //      Lib_Info.value = $"{lib},{email},{expires},{key}";
+  //    }
+  //    else if (items.Length == 4) Lib_Info.value = Clipboard;
+  //  }
+  //}
   public void Lib_Paste_clicked(ClickEvent evt = null)
   {
     string s = Clipboard;
-    if (s.Contains(","))
+    if (s.Contains("\n"))
     {
-      var items = s.Split(",");
-      if (items.Length == 8)
-      {
-        string email = items[3].Between("\"", "\"").Trim(), expires = items[5].Between("\"", "\"").Trim(), key = items[7].Before(")").Trim(), lib = items[7].Between(" gs", " ");
-        Lib_Info.value = $"{lib},{email},{expires},{key}";
-      }
-      else if (items.Length == 4) Lib_Info.value = Clipboard;
+      var items = s.Split("\n").Where(a => a.Contains(":")).Select(a => (a.Before(":").Trim(), a.After(":").Trim()));
+      string email = "", lib = "", expires = "", key = "";
+      items.ForEach(item => s = item.Item1 switch { "Email" => email = item.Item2, "Library" => lib = item.Item2, "Expires" => expires = item.Item2, "Key" => key = item.Item2, _ => "" });
+      Lib_Info.value = $"{lib},{email},{expires},{key}";
     }
   }
   public void Lib_Update_clicked(ClickEvent evt = null)
@@ -2048,7 +2059,8 @@ $"\n    {m_name}_To_UI();",
         }
         else if (method.name.IsAny("vert_GS", "frag"))
         {
-          vert_frag_include_methods.Add(method); vert_frag_methods.Add(method);
+          vert_frag_include_methods.Add(method); 
+          vert_frag_methods.Add(method);
           methods.RemoveAt(i);
         }
       }

@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/GS_Projects/gsSort/Sort.unity
+- path: Assets/GS_Tutorials/gsRand_Tutorial/Rand_Tutorial.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0

@@ -15,7 +15,6 @@ namespace GpuScript
       toggle.UnregisterValueChangedCallback(On_UI_bool_Changed);
       toggle.RegisterValueChangedCallback(On_UI_bool_Changed);
     }
-    //void On_UI_bool_Changed(ChangeEvent<bool> evt) { gs.OnValueChanged(grid, gridRow, gridCol); }
     void On_UI_bool_Changed(ChangeEvent<bool> evt) => grid_OnValueChanged();
     public UI_bool() : base()
     {
@@ -36,7 +35,6 @@ namespace GpuScript
     {
       if (!base.Init(gs, gss)) return false;
       v = toggle.value;
-      //toggle.focusable = !isReadOnly;
       return true;
     }
     public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged,
@@ -69,10 +67,25 @@ namespace GpuScript
     public bool previousValue;
     public static implicit operator bool(UI_bool f) { return f.v; }
     public static explicit operator int(UI_bool f) { return f.v ? 1 : 0; }
-    public bool v { get => toggle?.value ?? false; set { if (toggle != null) toggle.value = value; } }
+    //public bool v0 = false;
+    public bool v
+    {
+      get => toggle?.value ?? false;
+      set
+      {
+        if (toggle != null) toggle.value = value;
+        //v0 = value;
+      }
+    }
     public override string textString => v.ToString();
     public override object v_obj { get => v; set => v = value.To_bool(); }
+    //void OnValueChanged(ChangeEvent<bool> evt)
+    //{
+    //  previousValue = evt.previousValue;
+    //  if (!isReadOnly) { v = evt.newValue; property?.SetValue(gs, v); } else if (toggle.value != v0) toggle.value = v0;
+    //}
     void OnValueChanged(ChangeEvent<bool> evt) { previousValue = evt.previousValue; v = evt.newValue; property?.SetValue(gs, v); }
+
     public override bool Changed { get => v != previousValue; set => previousValue = value ? !v : v; }
     public new class UxmlFactory : UxmlFactory<UI_bool, UxmlTraits> { }
     public new class UxmlTraits : UI_VisualElement.UxmlTraits

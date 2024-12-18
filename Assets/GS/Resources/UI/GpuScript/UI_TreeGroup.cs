@@ -35,8 +35,8 @@ namespace GpuScript
     }
 
     void OnMouseDown(MouseDownEvent evt) { previousValue = v; v = !v; property?.SetValue(gs, v); }
-    public static Type Get_Base_Type() => typeof(TreeGroup); 
-    public static bool IsType(Type type) => type == typeof(TreeGroup); 
+    public static Type Get_Base_Type() => typeof(TreeGroup);
+    public static bool IsType(Type type) => type == typeof(TreeGroup);
     public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged,
       StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
     {
@@ -87,8 +87,8 @@ namespace GpuScript
     }
     public int level;
     public bool previousValue;
-    public static implicit operator bool(UI_TreeGroup f) => f.v; 
-    public static explicit operator int(UI_TreeGroup f) => f.v ? 1 : 0; 
+    public static implicit operator bool(UI_TreeGroup f) => f.v;
+    public static explicit operator int(UI_TreeGroup f) => f.v ? 1 : 0;
     public bool v
     {
       get => isShowing && (toggle?.value ?? false);
@@ -125,7 +125,10 @@ namespace GpuScript
       foreach (var c in leaf.ui_children) { c.display = show; if (c is UI_TreeGroup) ShowHide_Tree((UI_TreeGroup)c, show); }
     }
     public void Display_Tree() { ShowHide_Tree(this, v); }
-    public void Display_Tree_If(bool v) { DisplayIf(v); ShowHide_Tree(this, v); }
+    //public void Display_Tree_If(bool v) { DisplayIf(v); ShowHide_Tree(this, v); }
+    public bool isDisplaying => display;
+    public void Display_Tree_If(bool v) { display = v; ShowHide_Tree(this, v); }
+
     public override bool Changed { get => v != previousValue; set => previousValue = value ? !v : v; }
     public bool isExpanded => v && isShowing && (treeGroup_parent?.isExpanded ?? true);
 
