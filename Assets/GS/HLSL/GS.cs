@@ -4426,12 +4426,13 @@ namespace GpuScript
 
     public static Stopwatch runtime, segmentTime;
     public static void InitClock() { if (runtime == null) { runtime = new Stopwatch(); segmentTime = new Stopwatch(); runtime.Restart(); segmentTime.Restart(); } }
-    public static float ClockSec_SoFar() { InitClock(); segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
+    //public static float ClockSec_SoFar() { InitClock(); segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
+    public static float ClockSec_SoFar() { segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
 
     public static float ClockSec_Segment() { float t = segmentTime.ElapsedTicks * rcp(Stopwatch.Frequency); segmentTime.Restart(); return t; }
     public static string ClockStr_Segment() => GS.ToTimeString(ClockSec_Segment());
     public static string ClockStr_SoFar() => GS.ToTimeString(ClockSec_SoFar());
-    public static float ClockSec() { float t = ClockSec_SoFar(); runtime.Restart(); segmentTime.Restart(); return t; }
+    public static float ClockSec() { InitClock(); float t = ClockSec_SoFar(); runtime.Restart(); segmentTime.Restart(); return t; }
     public static string ClockStr() => GS.ToTimeString(ClockSec());
 
     //region Coroutines
@@ -4540,7 +4541,10 @@ namespace GpuScript
     public float _ln(float v) => ln(v);
     public float _lerp(float a, float b, float w) => lerp(a, b, w);
 
-  }
+		public bool IsOnly(uint i, params bool[] vs) { vs[i] = !vs[i]; bool r = !vs.Any(v => v); vs[i] = !vs[i]; return r; }
+		//public bool IsOnly(params bool[] vs) => IsOnly(0, vs);
+
+	}
 }
 //namespace System.Runtime.CompilerServices { [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)] internal class IsExternalInit { } }
 #endif //!gs_compute && !gs_shader //C# code

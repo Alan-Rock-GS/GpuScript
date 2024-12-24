@@ -90,8 +90,9 @@ Shader "gs/gsRand_Tutorial"
   #define BDraw_SPACE 32
   struct GRand_Tutorial
   {
-    uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
-    float lineThickness, Average, BDraw_fontSize, BDraw_boxThickness;
+    uint I, J, randomNumberN, cityN, cityPathN, isDrawAnneal, isDrawSignal, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
+    uint4 seed4;
+    float lineThickness, Average, Runtime, cityBorderReward, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
   };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
@@ -99,15 +100,21 @@ Shader "gs/gsRand_Tutorial"
   RWStructuredBuffer<GRand_Tutorial> gRand_Tutorial;
   RWStructuredBuffer<int> ints;
   RWStructuredBuffer<uint4> randomNumbers;
-  RWStructuredBuffer<uint> BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
+  RWStructuredBuffer<float3> cities;
+  RWStructuredBuffer<int3> segments;
+  RWStructuredBuffer<uint> cityPaths, pathLengths, min_pathLength_i, BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
 
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
+  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
+  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.isDrawSignal, 1, i, index, LIN); onRenderObject_LIN(g.isDrawSignal, 1, i, index, LIN); onRenderObject_LIN(g.isDrawSignal, 1, i, index, LIN); onRenderObject_LIN(g.isDrawAnneal, 5, i, index, LIN); onRenderObject_LIN(g.isDrawAnneal, g.cityN, i, index, LIN); onRenderObject_LIN(g.isDrawAnneal, g.cityN, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
   float signal_panel_width() { return 0.1f; }
   float avg() { return ints[0] / 1e6f / g.randomNumberN; }
+  uint bestPath(uint cityI) { return cityPaths[cityI % g.cityN]; }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   float3 BDraw_gridMin() { return f000; }
   float3 BDraw_gridMax() { return f111; }
@@ -144,9 +151,6 @@ Shader "gs/gsRand_Tutorial"
     return color;
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
-  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
-  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint BDraw_SampleN() { return g.randomNumberN; }
   float BDraw_SignalThickness() { return g.lineThickness; }
@@ -159,19 +163,27 @@ Shader "gs/gsRand_Tutorial"
   v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { return vert_BDraw_Signal(f_00, f100, signal_panel_width(), i, j, o); }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, BDraw_Draw_Line, r); return o; }
-  v2f vert_Draw_Calc_Avg(uint i, uint j, v2f o)
-	{
-		float3 p = signal_panel_width() * float3(0, avg(), -2);
-		return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o);
-	}
-  v2f vert_Draw_Avg(uint i, uint j, v2f o)
-	{
-		float3 p = -signal_panel_width() * f001;
-		return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o);
-	}
-	
+  v2f vert_Draw_Calc_Avg(uint i, uint j, v2f o) { float3 p = signal_panel_width() * float3(0, avg(), -2); return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o); }
+  v2f vert_Draw_Avg(uint i, uint j, v2f o) { float3 p = -signal_panel_width() * f001; return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o); }
+  v2f vert_Draw_Cities_Border(uint i, uint j, v2f o)
+  {
+    float r = 0.01f;
+    if (i == 0) return vert_BDraw_Line(f__0, f1_0, r, BLACK, i, j, o);
+    else if (i == 1) return vert_BDraw_Line(f1_0, f110, r, BLACK, i, j, o);
+    else if (i == 2) return vert_BDraw_Line(f110, f_10, r, BLACK, i, j, o);
+    else if (i == 3) return vert_BDraw_Line(f_10, f__0, r, BLACK, i, j, o);
+    return vert_BDraw_Line(f0_0, f010, r, BLUE, i, j, o);
+  }
+  v2f vert_Draw_City_Path(uint i, uint j, v2f o)
+  {
+    float3 p0 = cities[bestPath(i)], p1 = cities[bestPath((i + 1) % g.cityN)];
+    return vert_BDraw_Line(p0, p1, 0.01f, p0.x * p1.x < 0 ? RED : GREEN, i, j, o);
+  }
   v2f vert_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(BDraw_gridMin(), BDraw_gridMax(), g.BDraw_boxThickness, g.BDraw_boxColor, i, j, o); }
+  float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
+  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
+  v2f vert_Draw_Cities(uint i, uint j, v2f o) { return vert_BDraw_Sphere(cities[i], 0.02f, YELLOW, i, j, o); }
   float2 BDraw_LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }
   v2f vert_BDraw_LineArrow(float dpf, float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_LineArrow_uv(dpf, p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, dpf == 1 ? BDraw_Draw_Line : BDraw_Draw_Arrow, r); return o; }
   v2f vert_BDraw_Arrow(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return vert_BDraw_LineArrow(3, p0, p1, r, color, i, j, o); }
@@ -291,6 +303,9 @@ Shader "gs/gsRand_Tutorial"
     if (level == ++index) { o = vert_Draw_Random_Signal(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_Draw_Calc_Avg(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_Draw_Avg(i, j, o); o.tj.x = 0; }
+    else if (level == ++index) { o = vert_Draw_Cities_Border(i, j, o); o.tj.x = 0; }
+    else if (level == ++index) { o = vert_Draw_Cities(i, j, o); o.tj.x = 0; }
+    else if (level == ++index) { o = vert_Draw_City_Path(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_BDraw_Text(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_BDraw_Box(i, j, o); o.tj.x = 0; }
     return o;
@@ -300,7 +315,7 @@ Shader "gs/gsRand_Tutorial"
   uint rUInt(uint i) { return cxor(UInt4(randomNumbers[i])); }
   float rFloat(uint i) { return 2.3283064365387e-10f * rUInt(i); }
   float rFloat(uint i, float a, float b) { return lerp(a, b, rFloat(i)); }
-  float BDraw_SampleV(uint i) { return rFloat(roundu(i), -1, 1); }
+  float BDraw_SampleV(uint i) { return rFloat(i, -1, 1); }
   float4 frag_BDraw_Signal(v2f i)
 	{
 		uint SmpN = BDraw_SampleN();

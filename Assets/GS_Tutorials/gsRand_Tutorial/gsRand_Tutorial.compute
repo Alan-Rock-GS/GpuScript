@@ -43,8 +43,9 @@
   #pragma use_dxc
   struct GRand_Tutorial
   {
-    uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
-    float lineThickness, Average, BDraw_fontSize, BDraw_boxThickness;
+    uint I, J, randomNumberN, cityN, cityPathN, isDrawAnneal, isDrawSignal, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
+    uint4 seed4;
+    float lineThickness, Average, Runtime, cityBorderReward, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
   };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
@@ -54,9 +55,16 @@
   RWStructuredBuffer<GRand_Tutorial> gRand_Tutorial;
   RWStructuredBuffer<int> ints;
   RWStructuredBuffer<uint4> randomNumbers;
-  RWStructuredBuffer<uint> BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
+  RWStructuredBuffer<float3> cities;
+  RWStructuredBuffer<int3> segments;
+  RWStructuredBuffer<uint> cityPaths, pathLengths, min_pathLength_i, BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
+  [numthreads(numthreads1, 1, 1)] void init_path_lengths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityPathN) { pathLengths[id.x] = 0; } } }
+  [numthreads(numthreads1, 1, 1)] void find_min_path_lengthI(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityPathN) { uint i = id.x; if (pathLengths[i] == min_pathLength_i[0]) min_pathLength_i[1] = i; } } }
+  [numthreads(numthreads1, 1, 1)] void find_min_path_length(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityPathN) { InterlockedMin(min_pathLength_i, 0, pathLengths[id.x]); } } }
+  [numthreads(numthreads1, 1, 1)] void init_min_path_length(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 1) { min_pathLength_i[id.x] = uint_max; } } }
+  [numthreads(numthreads1, 1, 1)] void initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { uint i = id.x; randomNumbers[i] = i == 0 ? g.seed4 : u0000; } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_GetIndexes(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -118,6 +126,39 @@
       if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
     }
   }
+  [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityPathN) { } } }
+  bool IsInPath(uint i, uint a, uint b) { a %= g.cityN; b %= g.cityN; if (i < a) i += g.cityN; if (b < a) b += g.cityN; return i >= a && i <= b; }
+  void cityPath(uint pathI, uint cityI, uint v) { cityPaths[(pathI + 1) * g.cityN + (cityI % g.cityN)] = v; }
+  uint bestPath(uint cityI) { return cityPaths[cityI % g.cityN]; }
+  [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.cityPathN - 1 && id.x < g.cityN)
+    {
+      uint pathI = id.y, cityI = id.x, cityJ = cityI;
+      int3 seg = segments[pathI];
+      uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z;
+      bool isReverse = seg.z == -1;
+      if (isReverse) cityJ = IsInPath(cityI, a, b) ? (b - (cityI - a) + g.cityN) % g.cityN : cityI;
+      else
+      {
+        if (IsInPath(cityI, a, b)) cityJ += c - a; 
+        else
+        {
+          uint d = c + b - a;
+          cityJ -= cityJ > b % g.cityN ? b >= g.cityN ? ((b + 1) % g.cityN) : b - a + 1 : 0; 
+          cityJ += cityJ >= c % g.cityN ? b - a + 1 : d % g.cityN <= b - a ? (d + 1) % g.cityN : 0; 
+        }
+      }
+      cityPath(pathI, cityJ, bestPath(cityI));
+    }
+    }
+  }
+  void bestPath(uint cityI, uint v) { cityPaths[cityI % g.cityN] = v; }
+  [numthreads(numthreads2, numthreads2, 1)] void init_paths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.cityPathN && id.x < g.cityN) { uint pI = id.y, cI = id.x; if (pI == 0) bestPath(cI, cI); else cityPath(pI, cI, uint_max); } } }
+  uint cityPath(uint pathI, uint cityI) { return cityPaths[(pathI + 1) * g.cityN + (cityI % g.cityN)]; }
+  [numthreads(numthreads1, 1, 1)] void save_best_path(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityPathN) { uint cityI = id.x; bestPath(cityI, cityPath(min_pathLength_i[1] - 1, cityI)); } } }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
@@ -155,6 +196,21 @@
       t.x /= g.BDraw_fontSize;
       ti.uvSize = t;
       BDraw_textInfo(i, ti);
+    }
+    }
+  }
+  float u2f(uint u) { return u * 1e6f; }
+  uint f2u(float f) { return roundu(f * u2f(1)); }
+  [numthreads(numthreads2, numthreads2, 1)] void calc_path_lengths(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.cityPathN && id.x < g.cityN)
+    {
+      uint cityI = id.x, pathI = id.y, cityJ = (cityI + 1) % g.cityN;
+      uint aI = cityPath(pathI - 1, cityI), bI = cityPath(pathI - 1, cityJ);
+      float3 a = cities[aI], b = cities[bI];
+      InterlockedAdd(pathLengths, pathI, f2u(max(0, distance(a, b) - g.cityBorderReward * Is(a.x * b.x < 0))));
     }
     }
   }
@@ -197,10 +253,50 @@
   uint TausStep(uint z, int S1, int S2, int S3, uint M) { return ((z & M) << S3) ^ (((z << S1) ^ z) >> S2); }
   uint4 UInt4(uint4 r) { return uint4(TausStep(r.x, 13, 19, 12, 4294967294u), TausStep(r.y, 2, 25, 4, 4294967288u), TausStep(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
   uint UInt(uint i) { return cxor(randomNumbers[i] = UInt4(randomNumbers[i])); }
+  [numthreads(numthreads1, 1, 1)] void initState(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.I)
+    {
+      uint i = id.x + g.I;
+      if (i < g.randomNumberN) randomNumbers[i] = index(randomNumbers[i], g.J, UInt(id.x));
+    }
+    }
+  }
   float Float(uint i) { return 2.3283064365387e-10f * UInt(i); }
+  [numthreads(numthreads1, 1, 1)] void Calc_Random_Numbers(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { Float(id.x); } } }
   float Float(uint i, float a, float b) { return lerp(a, b, Float(i)); }
   [numthreads(numthreads1, 1, 1)] void Calc_Average(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { InterlockedAdd(ints, 0, roundi(Float(id.x, -1, 1) * 1e6f)); } } }
+  uint UInt(uint i, uint a, uint b) { return (uint)min(b - 1, lerp(a, b, Float(i))); }
+  [numthreads(numthreads1, 1, 1)] void calc_segments(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.cityPathN)
+    {
+      uint i = id.x, j = i * 4, a = UInt(j + 1, 0, g.cityN), b = a + 1 + UInt(j + 2, 0, g.cityN - 1);
+      bool isReverse = Float(j) < 0.5f;
+      int c = isReverse ? -1 : (int)(b + 1 + UInt(j + 3, 0, g.cityN - (b - a)));
+      segments[i] = int3(a, b, c);
+    }
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void init_cities(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityN) { uint i = id.x, j = i * 2; cities[i] = float3(Float(j, -1, 1), Float(j + 1, -1, 1), 0); } } }
+  #pragma kernel init_cities
+  #pragma kernel calc_paths
+  #pragma kernel init_paths
+  #pragma kernel calc_segments
+  #pragma kernel calc_path_lengths
+  #pragma kernel init_path_lengths
+  #pragma kernel find_min_path_lengthI
+  #pragma kernel find_min_path_length
+  #pragma kernel init_min_path_length
+  #pragma kernel save_best_path
   #pragma kernel Calc_Average
+  #pragma kernel Calc_Random_Numbers
+  #pragma kernel initState
+  #pragma kernel initSeed
   #pragma kernel BDraw_AppendBuff_GetIndexes
   #pragma kernel BDraw_AppendBuff_IncSums
   #pragma kernel BDraw_AppendBuff_IncFills1
@@ -213,3 +309,4 @@
   #pragma kernel BDraw_AppendBuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
+  #pragma kernel calc_reverse_or_transport

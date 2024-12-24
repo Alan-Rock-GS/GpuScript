@@ -1580,6 +1580,7 @@ namespace GpuScript
 		public static bool IsAny<T>(this T item, List<T> items) { foreach (var v in items) if (EqualityComparer<T>.Default.Equals(item, v)) return true; return false; }
 		public static bool IsNotAny<T>(this T item, List<T> items) => !IsAny(item, items);
 
+		public static bool IsOnly(this bool v, params bool[] vs) => v && !vs.Any(a => a);
 
 		public static T ToEnum<T>(this string value) => Enum.IsDefined(typeof(T), value) ? (T)Enum.Parse(typeof(T), value) : (T)(object)0;
 		public static T ToEnum<T>(this int value) => (T)(object)value;
