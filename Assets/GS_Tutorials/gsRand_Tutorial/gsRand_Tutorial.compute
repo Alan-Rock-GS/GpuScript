@@ -2,6 +2,11 @@
   #include "UnityCG.cginc"
   #include "Lighting.cginc"
   #include "../../GS/GS_Compute.cginc"
+  #define DrawGroup_None	0
+  #define DrawGroup_Avg	1
+  #define DrawGroup_PI_Area	2
+  #define DrawGroup_PI_Integral	3
+  #define DrawGroup_TSP	4
   #define BDraw_Draw_Point	0
   #define BDraw_Draw_Sphere	1
   #define BDraw_Draw_Line	2
@@ -43,7 +48,7 @@
   #pragma use_dxc
   struct GRand_Tutorial
   {
-    uint I, J, randomNumberN, cityN, cityPathN, isDrawAnneal, isDrawSignal, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
+    uint I, J, randomNumberN, cityN, cityPathN, drawGroup, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
     uint4 seed4;
     float lineThickness, Average, Runtime, cityBorderReward, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
@@ -127,34 +132,8 @@
     }
   }
   [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.cityPathN) { } } }
-  bool IsInPath(uint i, uint a, uint b) { a %= g.cityN; b %= g.cityN; if (i < a) i += g.cityN; if (b < a) b += g.cityN; return i >= a && i <= b; }
   void cityPath(uint pathI, uint cityI, uint v) { cityPaths[(pathI + 1) * g.cityN + (cityI % g.cityN)] = v; }
   uint bestPath(uint cityI) { return cityPaths[cityI % g.cityN]; }
-  [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.cityPathN - 1 && id.x < g.cityN)
-    {
-      uint pathI = id.y, cityI = id.x, cityJ = cityI;
-      int3 seg = segments[pathI];
-      uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z;
-      bool isReverse = seg.z == -1;
-      if (isReverse) cityJ = IsInPath(cityI, a, b) ? (b - (cityI - a) + g.cityN) % g.cityN : cityI;
-      else
-      {
-        if (IsInPath(cityI, a, b)) cityJ += c - a; 
-        else
-        {
-          uint d = c + b - a;
-          cityJ -= cityJ > b % g.cityN ? b >= g.cityN ? ((b + 1) % g.cityN) : b - a + 1 : 0; 
-          cityJ += cityJ >= c % g.cityN ? b - a + 1 : d % g.cityN <= b - a ? (d + 1) % g.cityN : 0; 
-        }
-      }
-      cityPath(pathI, cityJ, bestPath(cityI));
-    }
-    }
-  }
   void bestPath(uint cityI, uint v) { cityPaths[cityI % g.cityN] = v; }
   [numthreads(numthreads2, numthreads2, 1)] void init_paths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.cityPathN && id.x < g.cityN) { uint pI = id.y, cI = id.x; if (pI == 0) bestPath(cI, cI); else cityPath(pI, cI, uint_max); } } }
   uint cityPath(uint pathI, uint cityI) { return cityPaths[(pathI + 1) * g.cityN + (cityI % g.cityN)]; }
@@ -196,6 +175,25 @@
       t.x /= g.BDraw_fontSize;
       ti.uvSize = t;
       BDraw_textInfo(i, ti);
+    }
+    }
+  }
+  bool IsInPath(uint i, uint a, uint b) { a %= g.cityN; b %= g.cityN; if (i < a) i += g.cityN; if (b < a) b += g.cityN; return i >= a && i <= b; }
+  uint ReversePath(uint cityI, uint a, uint b) { return IsInPath(cityI, a, b) ? (b - (cityI - a) + g.cityN) % g.cityN : cityI; }
+  uint TransferPath(uint cityJ, uint a, uint c) { return cityJ + c - a; }
+  uint InsertPath(uint cityJ, uint a, uint b, uint c) { uint d = c + b - a; return cityJ + (cityJ >= c % g.cityN ? b - a + 1 : d % g.cityN <= b - a ? (d + 1) % g.cityN : 0); }
+  uint RemovePath(uint cityJ, uint a, uint b) { return cityJ - (cityJ > b % g.cityN ? b >= g.cityN ? ((b + 1) % g.cityN) : b - a + 1 : 0); }
+  uint MovePath(uint cityI, uint a, uint b, uint c) { return IsInPath(cityI, a, b) ? TransferPath(cityI, a, c) : InsertPath(RemovePath(cityI, a, b), a, b, c); }
+  [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.cityPathN - 1 && id.x < g.cityN)
+    {
+      uint pathI = id.y, cityI = id.x;
+      int3 seg = segments[pathI];
+      uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z, cityJ = seg.z == -1 ? ReversePath(cityI, a, b) : MovePath(cityI, a, b, c);
+      cityPath(pathI, cityJ, bestPath(cityI));
     }
     }
   }

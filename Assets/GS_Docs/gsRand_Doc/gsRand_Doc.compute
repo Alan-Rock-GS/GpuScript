@@ -6,7 +6,7 @@
   #define DrawGroup_Average	1
   #define DrawGroup_PI_Area	2
   #define DrawGroup_PI_Integral	3
-  #define DrawGroup_Anneal	4
+  #define DrawGroup_TSP	4
   #define UInts_Count	0
   #define UInts_MinPathLength	1
   #define UInts_MinPathI	2
@@ -63,7 +63,7 @@
   groupshared uint BDraw_AppendBuff_grp[1024];
   groupshared uint BDraw_AppendBuff_grp0[1024];
   RWStructuredBuffer<GRand_Doc> gRand_Doc;
-  RWStructuredBuffer<float3> cities;
+  RWStructuredBuffer<float3> stars;
   RWStructuredBuffer<int3> segments;
   RWStructuredBuffer<uint> starPaths, pathLengths, uints, BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<int> ints;
@@ -146,47 +146,15 @@
       if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
+  [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { } } }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.starPathN) { }
-     
-    }
-  }
-  bool IsInPath(uint i, uint a, uint b) { a %= g.starN; b %= g.starN; if (i < a) i += g.starN; if (b < a) b += g.starN; return i >= a && i <= b; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
   void starPath(uint pathI, uint starI, uint v) { starPaths[(pathI + 1) * g.starN + (starI % g.starN)] = v; }
   uint bestPath(uint starI) { return starPaths[starI % g.starN]; }
-  [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.starPathN - 1 && id.x < g.starN)
-    {
-      uint pathI = id.y, starI = id.x, starJ = starI;
-      int3 seg = segments[pathI];
-      uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z;
-      bool isReverse = seg.z == -1;
-      if (isReverse) starJ = IsInPath(starI, a, b) ? (b - (starI - a) + g.starN) % g.starN : starI;
-      else
-      {
-        if (IsInPath(starI, a, b)) starJ += c - a; 
-        else
-        {
-          uint d = c + b - a;
-          starJ -= starJ > b % g.starN ? b >= g.starN ? ((b + 1) % g.starN) : b - a + 1 : 0; 
-          starJ += starJ >= c % g.starN ? b - a + 1 : d % g.starN <= b - a ? (d + 1) % g.starN : 0; 
-        }
-      }
-      starPath(pathI, starJ, bestPath(starI));
-    }
-    }
-  }
   void bestPath(uint starI, uint v) { starPaths[starI % g.starN] = v; }
   [numthreads(numthreads2, numthreads2, 1)] void init_paths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.starPathN && id.x < g.starN) { uint pI = id.y, cI = id.x; if (pI == 0) bestPath(cI, cI); else starPath(pI, cI, uint_max); } } }
   uint starPath(uint pathI, uint starI) { return starPaths[(pathI + 1) * g.starN + (starI % g.starN)]; }
@@ -231,8 +199,27 @@
     }
     }
   }
-  float u2f(uint u) { return u * 1e6f; }
-  uint f2u(float f) { return roundu(f * u2f(1)); }
+  bool IsInPath(uint i, uint a, uint b) { a %= g.starN; b %= g.starN; if (i < a) i += g.starN; if (b < a) b += g.starN; return i >= a && i <= b; }
+  uint ReversePath(uint starI, uint a, uint b) { return IsInPath(starI, a, b) ? (b - (starI - a) + g.starN) % g.starN : starI; }
+  uint TransferPath(uint starJ, uint a, uint c) { return starJ + c - a; }
+  uint InsertPath(uint starJ, uint a, uint b, uint c) { uint d = c + b - a; return starJ + (starJ >= c % g.starN ? b - a + 1 : d % g.starN <= b - a ? (d + 1) % g.starN : 0); }
+  uint RemovePath(uint starJ, uint a, uint b) { return starJ - (starJ > b % g.starN ? b >= g.starN ? ((b + 1) % g.starN) : b - a + 1 : 0); }
+  uint MovePath(uint starI, uint a, uint b, uint c) { return IsInPath(starI, a, b) ? TransferPath(starI, a, c) : InsertPath(RemovePath(starI, a, b), a, b, c); }
+  [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.starPathN - 1 && id.x < g.starN)
+    {
+      uint pathI = id.y, starI = id.x;
+      int3 seg = segments[pathI];
+      uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z, starJ = seg.z == -1 ? ReversePath(starI, a, b) : MovePath(starI, a, b, c);
+      starPath(pathI, starJ, bestPath(starI));
+    }
+    }
+  }
+  float u2f(uint u) { return u * 1e-6f; }
+  uint f2u(float f) { return roundu(f / u2f(1)); }
   [numthreads(numthreads2, numthreads2, 1)] void calc_path_lengths(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -241,13 +228,13 @@
     {
       uint starI = id.x, pathI = id.y, starJ = (starI + 1) % g.starN;
       uint aI = starPath(pathI - 1, starI), bI = starPath(pathI - 1, starJ);
-      float3 a = cities[aI], b = cities[bI];
+      float3 a = stars[aI], b = stars[bI];
       InterlockedAdd(pathLengths, pathI, f2u(max(0, distance(a, b) - g.starBorderReward * Is(a.x * b.x < 0))));
     }
     }
   }
-  float i2f(int i) { return i * 1e6f; }
-  int f2i(float f) { return roundi(f * i2f(1)); }
+  float i2f(int i) { return i * 1e-6f; }
+  int f2i(float f) { return roundi(f / i2f(1)); }
   bool BDraw_AppendBuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
   uint BDraw_AppendBuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_AppendBuff_N && BDraw_AppendBuff_IsBitOn(i)) << (int)j); }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
@@ -291,7 +278,7 @@
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
   uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
   float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
-  [numthreads(numthreads1, 1, 1)] void Integral_Avg(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { InterlockedAdd(ints, 0, f2i(sqrt(1 - sqr(Rand_Float(id.x))) - PIo4)); } } }
+  [numthreads(numthreads1, 1, 1)] void Calc_Integral_PI(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { InterlockedAdd(ints, 0, f2i(sqrt(1 - sqr(Rand_Float(id.x))) - PIo4)); } } }
   [numthreads(numthreads1, 1, 1)] void Count_Pnts_out_of_Circle(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -331,8 +318,8 @@
     }
   }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void init_cities(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starN) { uint i = id.x, j = i * 3; cities[i] = float3(Rand_Float(j, -1, 1), Rand_Float(j + 1, -1, 1), Rand_Float(j + 2, -1, 1)); } } }
-  #pragma kernel init_cities
+  [numthreads(numthreads1, 1, 1)] void init_stars(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starN) { uint i = id.x, j = i * 3; stars[i] = float3(Rand_Float(j, -1, 1), Rand_Float(j + 1, -1, 1), Rand_Float(j + 2, -1, 1)); } } }
+  #pragma kernel init_stars
   #pragma kernel calc_paths
   #pragma kernel init_paths
   #pragma kernel calc_segments
@@ -342,7 +329,7 @@
   #pragma kernel find_min_path_length
   #pragma kernel init_min_path_length
   #pragma kernel save_best_path
-  #pragma kernel Integral_Avg
+  #pragma kernel Calc_Integral_PI
   #pragma kernel Count_Pnts_out_of_Circle
   #pragma kernel Count_Pnts_in_Circle
   #pragma kernel Calc_Average
@@ -360,7 +347,7 @@
   #pragma kernel BDraw_AppendBuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
-  #pragma kernel Rand_grp_fill_1K
-  #pragma kernel Rand_grp_init_1K
-  #pragma kernel Rand_grp_init_1M
   #pragma kernel calc_reverse_or_transport
+  #pragma kernel Rand_grp_init_1M
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_fill_1K

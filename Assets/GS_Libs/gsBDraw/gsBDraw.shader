@@ -109,7 +109,6 @@ Shader "gs/gsBDraw"
   float4 frag_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = i.ti.w; float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = i.ti.w; float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_Mesh(v2f i) { float3 p = i.wPos; float4 color = i.color; color.xyz += dot(i.normal, _WorldSpaceLightPos0.xyz) / 2; return saturate(color); }
-	
   TextInfo textInfo(uint i) { return textInfos[i]; }
   float4 frag_Text(Texture2D t, RWStructuredBuffer<uint> _text, RWStructuredBuffer<FontInfo> fontInfos, float fontSize, uint quadType, float4 backColor, uint2 textIs, v2f i)
   {
@@ -140,22 +139,22 @@ Shader "gs/gsBDraw"
   uint2 Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : AppendBuff_Indexes[textI - 1] + 1, textI < g.AppendBuff_IndexN ? AppendBuff_Indexes[textI] : g.textCharN); }
   float3 gridMin() { return f000; }
   float3 gridMax() { return f111; }
-  uint SampleN() { return 1024; }
-  float SignalThickness() { return 0.004f; }
-  float SampleV(uint i) { return 0; }
-  float4 SignalColor() { return YELLOW; }
-  float4 SignalBackColor() { return float4(1, 1, 1, 0.2f); }
+  uint SignalSmpN(uint chI) { return 1024; }
+  float SignalThickness(uint chI) { return 0.004f; }
+  float SignalSmpV(uint chI, uint smpI) { return 0; }
+  float4 SignalColor(uint chI) { return YELLOW; }
+  float4 SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
   float4 frag_Signal(v2f i)
-	{
-		uint SmpN = SampleN();
-		float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
-		float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = SignalThickness() * SmpN, d = float_PositiveInfinity;
-		uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
-		float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * SampleV(SmpI0)), q1;
-		for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * SampleV(sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
-		return d < thick ? float4(SignalColor().xyz * (1 - d / thick), 1) : SignalBackColor();
-	}
-	
+  {
+    uint chI = roundu(i.ti.x);
+    uint SmpN = SignalSmpN(chI);
+    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
+    float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * SignalSmpV(chI, SmpI0)), q1;
+    for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
+    return d < thick ? float4(SignalColor(chI).xyz * (1 - d / thick), 1) : SignalBackColor(chI);
+  }
   float4 frag_GS(v2f i, float4 color)
   {
     switch (roundu(i.ti.z))
@@ -170,9 +169,9 @@ Shader "gs/gsBDraw"
         TextInfo t = textInfo(roundu(i.ti.x));
         color = frag_Text(fontTexture, tab_delimeted_text, fontInfos, g.fontSize, t.quadType, t.backColor, Get_text_indexes(t.textI), i);
         break;
-			case Draw_Signal: color = frag_Signal(i); break;
-		}
-		return color;
+      case Draw_Signal: color = frag_Signal(i); break;
+    }
+    return color;
   }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
