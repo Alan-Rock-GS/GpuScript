@@ -48,9 +48,9 @@
   #pragma use_dxc
   struct GRand_Tutorial
   {
+    float lineThickness, Average, Runtime, cityBorderReward, BDraw_fontSize, BDraw_boxThickness;
     uint I, J, randomNumberN, cityN, cityPathN, drawGroup, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
     uint4 seed4;
-    float lineThickness, Average, Runtime, cityBorderReward, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
   };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
@@ -190,15 +190,14 @@
     {
       if (id.y < g.cityPathN - 1 && id.x < g.cityN)
     {
-      uint pathI = id.y, cityI = id.x;
-      int3 seg = segments[pathI];
-      uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z, cityJ = seg.z == -1 ? ReversePath(cityI, a, b) : MovePath(cityI, a, b, c);
-      cityPath(pathI, cityJ, bestPath(cityI));
+      uint3 seg = segments[id.y];
+      uint pathI = id.y, cityI = id.x, a = seg.x, b = seg.y, c = seg.z;
+      cityPath(pathI, seg.z == uint_max ? ReversePath(cityI, a, b) : MovePath(cityI, a, b, c), bestPath(cityI));
     }
     }
   }
-  float u2f(uint u) { return u * 1e6f; }
-  uint f2u(float f) { return roundu(f * u2f(1)); }
+  float u2f(uint u) { return u * 1e-5f; }
+  uint f2u(float f) { return roundu(f / u2f(1)); }
   [numthreads(numthreads2, numthreads2, 1)] void calc_path_lengths(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -251,17 +250,7 @@
   uint TausStep(uint z, int S1, int S2, int S3, uint M) { return ((z & M) << S3) ^ (((z << S1) ^ z) >> S2); }
   uint4 UInt4(uint4 r) { return uint4(TausStep(r.x, 13, 19, 12, 4294967294u), TausStep(r.y, 2, 25, 4, 4294967288u), TausStep(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
   uint UInt(uint i) { return cxor(randomNumbers[i] = UInt4(randomNumbers[i])); }
-  [numthreads(numthreads1, 1, 1)] void initState(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.I)
-    {
-      uint i = id.x + g.I;
-      if (i < g.randomNumberN) randomNumbers[i] = index(randomNumbers[i], g.J, UInt(id.x));
-    }
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.I) { uint i = id.x + g.I; if (i < g.randomNumberN) randomNumbers[i] = index(randomNumbers[i], g.J, UInt(id.x)); } } }
   float Float(uint i) { return 2.3283064365387e-10f * UInt(i); }
   [numthreads(numthreads1, 1, 1)] void Calc_Random_Numbers(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { Float(id.x); } } }
   float Float(uint i, float a, float b) { return lerp(a, b, Float(i)); }

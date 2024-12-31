@@ -2060,7 +2060,7 @@ $"\n    {m_name}_To_UI();",
         }
         else if (method.name.IsAny("vert_GS", "frag"))
         {
-          vert_frag_include_methods.Add(method); 
+          vert_frag_include_methods.Add(method);
           vert_frag_methods.Add(method);
           methods.RemoveAt(i);
         }
@@ -2694,7 +2694,8 @@ $"\n    {m_name}_To_UI();",
         $@"\b{Name}_frag_", $@"frag_{Name}_", $@"\b{Name}_frag", $@"frag_{Name}", $@"{Name}_{Name}_", $"{Name}_");
 
       cs_Code = cs_Code.ReplaceAll("public virtual string ToString()", "public override string ToString()",
-        $"GS_{Name}.{Name}_onLoaded(this);", $"GS_{Name}.onLoaded(this);");
+        $"GS_{Name}.{Name}_onLoaded(this);", $"GS_{Name}.onLoaded(this);",
+        "Allocate_", $"Allocate_{Name}_", "Assign_", $"Assign_{Name}_");
 
       $"{path}{gsName}_cs_lib.txt".WriteAllText(cs_Code);
 

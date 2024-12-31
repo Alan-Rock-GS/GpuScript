@@ -820,8 +820,8 @@ namespace GpuScript
     public static int roundi(float v, int nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(v / nearest) * nearest; }
     public static uint roundu(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(v / nearest) * nearest; }
     public static float round(float v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
-    public static float2 round(float2 v, float nearest) { return nearest == 0|| isnan(nearest) ? v : round(v / nearest) * nearest; }
-    public static float3 round(float3 v, float nearest) { return nearest == 0|| isnan(nearest) ? v : round(v / nearest) * nearest; }
+    public static float2 round(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
+    public static float3 round(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
     public static float4 round(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
 
     public static int4 roundi(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
@@ -1479,7 +1479,8 @@ namespace GpuScript
     public static float length2(float3 v) { return dot(v, v); }
     public static float length2(float4 v) { return dot(v, v); }
 
-    public static int extent(uint2 v) { return (int)(v.y - v.x); }
+    //public static int extent(uint2 v) { return (int)(v.y - v.x); }
+    public static uint extent(uint2 v) { return v.y - v.x; }
     public static int extent(int2 v) { return v.y - v.x; }
     public static float extent(float2 v) { return v.y - v.x; }
     public static float middle(float2 v) { return csum(v) / 2; }
@@ -1503,37 +1504,56 @@ namespace GpuScript
       return k;
     }
 
+    //public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
+    //{
+    //  int v = int_min, _sign = 1;
+    //  for (uint i = i0; i < i1; i++)
+    //  {
+    //    uint c = TextByte(a, i);
+    //    if (c == ASCII_Plus) _sign = 1;
+    //    else if (c == ASCII_Dash) _sign = -1;
+    //    else if (c >= ASCII_0 && c <= ASCII_9) { if (v == int_min) v = 0; v = v * 10 + (int)(c - ASCII_0); }
+    //    else if (c == ASCII_Period) break;
+    //    else if (IsNotNegInf(v) && (c == 0x45 || c == 0x65)) //E or e
+    //    {
+    //      int exponent = 0, exponent_sign = 1;
+    //      for (i++; i < i1; i++)
+    //      {
+    //        c = TextByte(a, i);
+    //        if (c == ASCII_Plus) exponent_sign = 1; else if (c == ASCII_Dash) exponent_sign = -1; else if (c >= ASCII_0 && c <= ASCII_9) exponent = (int)(exponent * 10 + c - ASCII_0);
+    //      }
+    //      v *= pow10(exponent_sign * exponent);
+    //    }
+    //    else if (c != ASCII_Space) break;
+    //  }
+    //  return v * _sign;
+    //}
     public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
     {
-      int v = int_min, _sign = 1;
+      int v = 0, _sign = 1;
       for (uint i = i0; i < i1; i++)
       {
-        uint c = TextByte(a, i);
-        if (c == ASCII_Plus) _sign = 1;
+        int c = (int)TextByte(a, i);
+        if (c >= ASCII_0 && c <= ASCII_9) v = v * 10 + c - (int)ASCII_0;
         else if (c == ASCII_Dash) _sign = -1;
-        else if (c >= ASCII_0 && c <= ASCII_9) { if (v == int_min) v = 0; v = v * 10 + (int)(c - ASCII_0); }
-        else if (c == ASCII_Period) break;
-        else if (IsNotNegInf(v) && (c == 0x45 || c == 0x65)) //E or e
-        {
-          int exponent = 0, exponent_sign = 1;
-          for (i++; i < i1; i++)
-          {
-            c = TextByte(a, i);
-            if (c == ASCII_Plus) exponent_sign = 1; else if (c == ASCII_Dash) exponent_sign = -1; else if (c >= ASCII_0 && c <= ASCII_9) exponent = (int)(exponent * 10 + c - ASCII_0);
-          }
-          v *= pow10(exponent_sign * exponent);
-        }
-        else if (c != ASCII_Space) break;
       }
       return v * _sign;
     }
+    public static uint ToUInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
+    {
+      uint v = 0;
+      for (uint i = i0; i < i1; i++) { uint c = TextByte(a, i); if (c >= ASCII_0 && c <= ASCII_9) v = v * 10 + c - ASCII_0; }
+      return v;
+    }
+
     public static float ToFloat(RWStructuredBuffer<uint> a, uint i0, uint i1)
     {
       float v = fNegInf, decimalFactor = 0, _sign = 1;
       for (uint i = i0; i < i1; i++)
       {
         uint c = TextByte(a, i);
-        if (c == ASCII_Plus) _sign = 1;
+        if (c == 0) { }
+        else if (c == ASCII_Plus) _sign = 1;
         else if (c == ASCII_Dash) _sign = -1;
         else if (c >= ASCII_0 && c <= ASCII_9) { c -= ASCII_0; if (IsNegInf(v)) v = 0; if (decimalFactor == 0) v = v * 10 + c; else { decimalFactor /= 10; v += c * decimalFactor; } }
         else if (c == ASCII_Period) decimalFactor = 1;
@@ -1983,8 +2003,8 @@ namespace GpuScript
       if (buffer == null) { AddComputeBuffer(buffer = new RWStructuredBuffer<T>(n * 2)); buffer.reallocated = true; }
       buffer.N = (uint)n;
     }
-    private void AddComputeBuffer_Expand2<T>(ref RWStructuredBuffer<T> buffer, uint n) { AddComputeBuffer_Expand2(ref buffer, (int)n); }
-    private void AddComputeBuffer_Expand2<T>(ref RWStructuredBuffer<T> buffer, uint2 n) { AddComputeBuffer_Expand2(ref buffer, (int)product(n)); }
+    private void AddComputeBuffer_Expand2<T>(ref RWStructuredBuffer<T> buffer, uint n) => AddComputeBuffer_Expand2(ref buffer, (int)n);
+    private void AddComputeBuffer_Expand2<T>(ref RWStructuredBuffer<T> buffer, uint2 n) => AddComputeBuffer_Expand2(ref buffer, (int)product(n));
     /// <summary>
     /// Expands buffer to 2 * length if n > buffer.length
     /// </summary>
@@ -1996,7 +2016,7 @@ namespace GpuScript
     /// <summary>
     /// Expands buffer to 2 * length if n > buffer.length
     /// </summary>
-    public void AddComputeBuffer_Expand2<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint n) { AddComputeBuffer_Expand2(ref buffer, bufferName, (int)n); }
+    public void AddComputeBuffer_Expand2<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint n) => AddComputeBuffer_Expand2(ref buffer, bufferName, (int)n);
 
     private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, int n)
     {
@@ -2005,9 +2025,9 @@ namespace GpuScript
       if (buffer == null) { AddComputeBuffer(buffer = new RWStructuredBuffer<T>(n)); buffer.reallocated = true; }
       buffer.N = (uint)n;
     }
-    private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, uint n) { AddComputeBuffer_ExactN(ref buffer, (int)n); }
-    private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, uint2 n) { AddComputeBuffer_ExactN(ref buffer, (int)product(n)); }
-    private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, uint3 n) { AddComputeBuffer_ExactN(ref buffer, (int)product(n)); }
+    private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, uint n) => AddComputeBuffer_ExactN(ref buffer, (int)n);
+    private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, uint2 n) => AddComputeBuffer_ExactN(ref buffer, (int)product(n));
+    private void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, uint3 n) => AddComputeBuffer_ExactN(ref buffer, (int)product(n));
     /// <summary>
     /// Reallocates buffer if length is different
     /// </summary>
@@ -2019,7 +2039,7 @@ namespace GpuScript
     /// <summary>
     /// Reallocates buffer if length is different
     /// </summary>
-    public void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint n) { AddComputeBuffer_ExactN(ref buffer, bufferName, (int)n); }
+    public void AddComputeBuffer_ExactN<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint n) => AddComputeBuffer_ExactN(ref buffer, bufferName, (int)n);
 
     /// <summary>
     /// Expands buffer to length if n > buffer.length
@@ -2029,7 +2049,7 @@ namespace GpuScript
     /// <summary>
     /// Expands buffer to length if n > buffer.length
     /// </summary>
-    private void AddComputeBuffer<T>(RWStructuredBuffer<T> a, ComputeBufferType computeBufferType) { computeBuffers.Add(a.NewComputeBuffer(this, computeBufferType)); }
+    private void AddComputeBuffer<T>(RWStructuredBuffer<T> a, ComputeBufferType computeBufferType) => computeBuffers.Add(a.NewComputeBuffer(this, computeBufferType));
 
     /// <summary>
     /// Expands buffer to length if n > buffer.length
@@ -2041,26 +2061,22 @@ namespace GpuScript
       if (buffer == null) { AddComputeBuffer(buffer = new RWStructuredBuffer<T>(n)); buffer.reallocated = true; }
       buffer.N = (uint)n;
     }
-    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, uint n) { AddComputeBuffer(ref buffer, (int)n); }
-    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, int2 n) { AddComputeBuffer(ref buffer, product(n)); }
-    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, uint2 n) { AddComputeBuffer(ref buffer, (int)product(n)); }
-    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, int3 n) { AddComputeBuffer(ref buffer, product(n)); }
-    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, uint3 n) { AddComputeBuffer(ref buffer, (int)product(n)); }
+    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, uint n) => AddComputeBuffer(ref buffer, (int)n);
+    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, int2 n) => AddComputeBuffer(ref buffer, product(n));
+    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, uint2 n) => AddComputeBuffer(ref buffer, (int)product(n));
+    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, int3 n) => AddComputeBuffer(ref buffer, product(n));
+    private void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, uint3 n) => AddComputeBuffer(ref buffer, (int)product(n));
     public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, int n)
     {
       AddComputeBuffer(ref buffer, n);
       if (buffer != null && buffer.bufferId < 0) buffer.bufferId = Shader.PropertyToID(bufferName);
     }
-    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint n) { AddComputeBuffer(ref buffer, bufferName, (int)n); }
-    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, int2 n) { AddComputeBuffer(ref buffer, bufferName, product(n)); }
-    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint2 n) { AddComputeBuffer(ref buffer, bufferName, (int)product(n)); }
-    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, int3 n) { AddComputeBuffer(ref buffer, bufferName, product(n)); }
-    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint3 n) { AddComputeBuffer(ref buffer, bufferName, (int)product(n)); }
-    public RWStructuredBuffer<T> AddComputeBuffer<T>(RWStructuredBuffer<T> buffer, int n)
-    {
-      AddComputeBuffer(ref buffer, n);
-      return buffer;
-    }
+    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint n) => AddComputeBuffer(ref buffer, bufferName, (int)n);
+    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, int2 n) => AddComputeBuffer(ref buffer, bufferName, product(n));
+    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint2 n) => AddComputeBuffer(ref buffer, bufferName, (int)product(n));
+    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, int3 n) => AddComputeBuffer(ref buffer, bufferName, product(n));
+    public void AddComputeBuffer<T>(ref RWStructuredBuffer<T> buffer, string bufferName, uint3 n) => AddComputeBuffer(ref buffer, bufferName, (int)product(n));
+    public RWStructuredBuffer<T> AddComputeBuffer<T>(RWStructuredBuffer<T> buffer, int n) { AddComputeBuffer(ref buffer, n); return buffer; }
     private void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, params T[] data)
     {
       if (data == null) return;
@@ -2074,12 +2090,6 @@ namespace GpuScript
       else { if (buffer != null && buffer.writeBuffer.Length != buffer.Length && data != null) buffer.GetData(); ArrayCopy(data, buffer.writeBuffer); }
       if (buffer != null) buffer.SetData();
     }
-
-    //public void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, string bufferName, params T[] data)
-    //{
-    //  AddComputeBufferData(ref buffer, data);
-    //  if (buffer != null && buffer.bufferId < 0) buffer.bufferId = Shader.PropertyToID(bufferName);
-    //}
     public void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, string bufferName, params T[] data)
     {
       if (data?.Length > 0)
@@ -2089,7 +2099,6 @@ namespace GpuScript
       }
     }
 
-
     public void AddComputeBufferData<T>(ComputeBufferType computeBufferType, ref RWStructuredBuffer<T> buffer, params T[] data)
     {
       if (buffer != null && buffer.Length != data.Length) { buffer.Release(); buffer = null; }
@@ -2097,7 +2106,7 @@ namespace GpuScript
       else { if (buffer != null && buffer.writeBuffer.Length != buffer.Length) buffer.GetData(); ArrayCopy(data, buffer.writeBuffer); }
       if (buffer != null) buffer.SetData();
     }
-    public void AddComputeBuffer<T>(ComputeBufferType computeBufferType, ref RWStructuredBuffer<T> buffer, uint n) { AddComputeBuffer(computeBufferType, ref buffer, n); }
+    public void AddComputeBuffer<T>(ComputeBufferType computeBufferType, ref RWStructuredBuffer<T> buffer, uint n) => AddComputeBuffer(computeBufferType, ref buffer, n);
     public void AddComputeBuffer<T>(ComputeBufferType computeBufferType, ref RWStructuredBuffer<T> buffer, int n)
     {
       n = max(n, 1);
@@ -2130,10 +2139,10 @@ namespace GpuScript
 
     [HideInInspector] public List<RenderTexture> renderTextures = new();
 
-    public void AddTexture<T>(RWTexture2D<T> tex) { renderTextures.Add(tex.NewRenderTexture()); }
+    public void AddTexture<T>(RWTexture2D<T> tex) => renderTextures.Add(tex.NewRenderTexture());
 
     protected bool builtBuffers = false;
-    public virtual void BuildBuffers() { builtBuffers = true; }
+    public virtual void BuildBuffers() => builtBuffers = true;
 
     public void InitKernels()
     {
@@ -2175,11 +2184,11 @@ namespace GpuScript
       builtBuffers = false;
     }
 
-    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, uint n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1, 1), vals); }
-    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, int n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1, 1), vals); }
-    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, uint2 n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1), vals); }
-    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, int2 n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1), vals); }
-    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, int3 n, params object[] vals) { Gpu(kernelFunction, (uint3)n, vals); }
+    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, uint n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1, 1), vals);
+    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, int n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1, 1), vals);
+    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, uint2 n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1), vals);
+    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, int2 n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1), vals);
+    public void Gpu(KernelFunction_dispatchThreadID kernelFunction, int3 n, params object[] vals) => Gpu(kernelFunction, (uint3)n, vals);
     public void Gpu(KernelFunction_dispatchThreadID kernelFunction, uint3 n, params object[] vals)
     {
       string kernelName = $"kernel_{kernelFunction.Method.Name}";
@@ -2187,17 +2196,17 @@ namespace GpuScript
       SetKernelValues(kernel, vals);
       Dispatch(kernel, kernelFunction, n);
     }
-    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, uint n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, uint2 n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, uint3 n) { Dispatch(kernelIndex, kernelFunction, n); }
-    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, int n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, int2 n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, int3 n) { Dispatch(kernelIndex, kernelFunction, (uint3)n); }
-    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, uint n, params object[] vals) { Cpu(kernelFunction, uint3(n, 1, 1), vals); }
-    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, int n, params object[] vals) { Cpu(kernelFunction, uint3(n, 1, 1), vals); }
-    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, uint2 n, params object[] vals) { Cpu(kernelFunction, uint3(n, 1), vals); }
-    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, int2 n, params object[] vals) { Cpu(kernelFunction, uint3(n, 1), vals); }
-    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, int3 n, params object[] vals) { Cpu(kernelFunction, (uint3)n, vals); }
+    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, uint n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1));
+    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, uint2 n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1));
+    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, uint3 n) => Dispatch(kernelIndex, kernelFunction, n);
+    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, int n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1));
+    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, int2 n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1));
+    public void Gpu(int kernelIndex, KernelFunction_dispatchThreadID kernelFunction, int3 n) => Dispatch(kernelIndex, kernelFunction, (uint3)n);
+    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, uint n, params object[] vals) => Cpu(kernelFunction, uint3(n, 1, 1), vals);
+    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, int n, params object[] vals) => Cpu(kernelFunction, uint3(n, 1, 1), vals);
+    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, uint2 n, params object[] vals) => Cpu(kernelFunction, uint3(n, 1), vals);
+    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, int2 n, params object[] vals) => Cpu(kernelFunction, uint3(n, 1), vals);
+    public void Cpu(KernelFunction_dispatchThreadID kernelFunction, int3 n, params object[] vals) => Cpu(kernelFunction, (uint3)n, vals);
     public void Cpu(KernelFunction_dispatchThreadID kernelFunction, uint3 n, params object[] vals)
     {
       bool useGpGpu0 = useGpGpu;
@@ -2210,11 +2219,11 @@ namespace GpuScript
       useGpGpu = useGpGpu0;
     }
 
-    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1, 1), vals); }
-    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1, 1), vals); }
-    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1), vals); }
-    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n, params object[] vals) { Gpu(kernelFunction, uint3(n, 1), vals); }
-    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n, params object[] vals) { Gpu(kernelFunction, (uint3)n, vals); }
+    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1, 1), vals);
+    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1, 1), vals);
+    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1), vals);
+    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n, params object[] vals) => Gpu(kernelFunction, uint3(n, 1), vals);
+    public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n, params object[] vals) => Gpu(kernelFunction, (uint3)n, vals);
     public void Gpu(KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint3 n, params object[] vals)
     {
       string kernelName = $"kernel_{kernelFunction.Method.Name}";
@@ -2222,16 +2231,16 @@ namespace GpuScript
       SetKernelValues(kernel, vals);
       Dispatch(kernel, kernelFunction, n);
     }
-    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n) { Dispatch(kernelIndex, kernelFunction, uint3(n, 1)); }
-    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n) { Dispatch(kernelIndex, kernelFunction, (uint3)n); }
-    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n, params object[] vals) { Cpu(kernelIndex, kernelFunction, uint3(n, 1, 1), vals); }
-    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n, params object[] vals) { Cpu(kernelIndex, kernelFunction, uint3(n, 1, 1), vals); }
-    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n, params object[] vals) { Cpu(kernelIndex, kernelFunction, uint3(n, 1), vals); }
-    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n, params object[] vals) { Cpu(kernelIndex, kernelFunction, uint3(n, 1), vals); }
-    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n, params object[] vals) { Cpu(kernelIndex, kernelFunction, (uint3)n, vals); }
+    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1));
+    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1));
+    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1));
+    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1));
+    public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n) => Dispatch(kernelIndex, kernelFunction, (uint3)n);
+    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n, params object[] vals) => Cpu(kernelIndex, kernelFunction, uint3(n, 1, 1), vals);
+    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n, params object[] vals) => Cpu(kernelIndex, kernelFunction, uint3(n, 1, 1), vals);
+    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n, params object[] vals) => Cpu(kernelIndex, kernelFunction, uint3(n, 1), vals);
+    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n, params object[] vals) => Cpu(kernelIndex, kernelFunction, uint3(n, 1), vals);
+    public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n, params object[] vals) => Cpu(kernelIndex, kernelFunction, (uint3)n, vals);
     public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint3 n, params object[] vals)
     {
       SetKernelValues(kernelIndex, vals);
@@ -2430,22 +2439,22 @@ namespace GpuScript
           _Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)z);
       }
     }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint3 I) { Dispatch(kernel, kernelFunction, I.x, I.y, I.z); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int3 I) { Dispatch(kernel, kernelFunction, I.x, I.y, I.z); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint x, uint y) { Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint x) { Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int x, int y, int z) { Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)z); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int x, int y) { Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint2 xy) { Dispatch(kernel, kernelFunction, xy.x, xy.y, 1); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int2 xy) { Dispatch(kernel, kernelFunction, (uint)xy.x, (uint)xy.y, (uint)1); }
-    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int x) { Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1); }
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint3 I) => Dispatch(kernel, kernelFunction, I.x, I.y, I.z);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int3 I) => Dispatch(kernel, kernelFunction, I.x, I.y, I.z);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint x, uint y) => Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint x) => Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int x, int y, int z) => Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)z);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int x, int y) => Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, uint2 xy) => Dispatch(kernel, kernelFunction, xy.x, xy.y, 1);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int2 xy) => Dispatch(kernel, kernelFunction, (uint)xy.x, (uint)xy.y, (uint)1);
+    private void Dispatch(int kernel, KernelFunction_dispatchThreadID kernelFunction, int x) => Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1);
 
-    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint3 I) { Dispatch(kernel, kernelFunction, I.x, I.y, I.z); }
-    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint x, uint y) { Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1); }
-    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint x) { Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1); }
-    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int x, int y, int z) { Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)z); }
-    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int x, int y) { Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1); }
-    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int x) { Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1); }
+    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint3 I) => Dispatch(kernel, kernelFunction, I.x, I.y, I.z);
+    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint x, uint y) => Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1);
+    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint x) => Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1);
+    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int x, int y, int z) => Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)z);
+    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int x, int y) => Dispatch(kernel, kernelFunction, (uint)x, (uint)y, (uint)1);
+    void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int x) => Dispatch(kernel, kernelFunction, (uint)x, (uint)1, (uint)1);
     void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint x, uint y, uint z)
     {
       uint3 numthreads = kernelFunction.numthreads(), iter = uint3(x, y, z), dispatch = iter / numthreads + ceilu((iter % numthreads) / (float3)numthreads);
@@ -2474,9 +2483,9 @@ namespace GpuScript
     public byte[] GetBytes<T>(RWStructuredBuffer<T> a, byte[] b, uint I, uint N) => a.ToBytes(b, I, N);
     public byte[] GetBytes<T>(RWStructuredBuffer<T> a, uint I, uint N) => GetBytes(a, null, I, N);
 
-    public void SetBytes<T>(ref RWStructuredBuffer<T> a, byte[] bytes)
+    public uint SetBytes<T>(ref RWStructuredBuffer<T> a, byte[] bytes)
     {
-      if (bytes == null || bytes.Length == 0) { AddComputeBuffer_ExactN(ref a, 1); return; }
+      if (bytes == null || bytes.Length == 0) { AddComputeBuffer_ExactN(ref a, 1); return 0; }
       Type type = typeof(T);
       AddComputeBuffer_ExactN(ref a, (bytes.Length - 1) / Marshal.SizeOf(type) + 1);
       if (type.IsPrimitive) { a.AllocWriteBuffer(); BlockCopy(bytes, a.writeBuffer); }
@@ -2488,25 +2497,24 @@ namespace GpuScript
         finally { if (handle.IsAllocated) handle.Free(); }
       }
       a.SetData();
+      return a.N;
     }
 
-    public void SetBytes<T>(ref RWStructuredBuffer<T> a, byte[] bytes, uint byteN)
+    public uint SetBytes<T>(ref RWStructuredBuffer<T> a, byte[] bytes, uint byteN)
     {
       int sz = sizeof(int);
       if (a != null && a.Length > 0) sz = Marshal.SizeOf(a[0]);
       uint uintN = (uint)((byteN - 1) / sz + 1); AddComputeBuffer(ref a, uintN); a.AllocWriteBuffer(); if (bytes.Length > 0) { BlockCopy(bytes, a.writeBuffer, (int)byteN); a.SetData(); }
+      return a.N;
     }
 
-    public void CopyBytes<T>(ref RWStructuredBuffer<T> a, uint aI, byte[] bytes, uint bI, uint N)
-    {
-      BlockCopy(bytes, bI, a.writeBuffer, aI, N);
-    }
+    public void CopyBytes<T>(ref RWStructuredBuffer<T> a, uint aI, byte[] bytes, uint bI, uint N) => BlockCopy(bytes, bI, a.writeBuffer, aI, N);
 
-    public void Load<T>(ref RWStructuredBuffer<T> a, string file) { SetBytes(ref a, file.ReadAllBytes()); }
+    public uint AddComputeBufferDataFromFile<T>(ref RWStructuredBuffer<T> a, string file) => SetBytes(ref a, file.ReadAllBytes());
 
     //endregion GPU
     //region vertex/fragment shaders
-    void OnRenderObject() { onRenderObject(); }
+    void OnRenderObject() => onRenderObject();
 
     [HideInInspector]
     public bool render = true;
@@ -2731,12 +2739,7 @@ namespace GpuScript
     public static bool IsEmpty(string s) => s == null || s.Length == 0;
     public static bool IsNotEmpty(string s) => !IsEmpty(s);
 
-    public static bool ParseAfter(string after, ref string result)
-    {
-      if (result == null || !result.Contains(after)) return false;
-      result = After(result, after);
-      return true;
-    }
+    public static bool ParseAfter(string after, ref string result) { if (result == null || !result.Contains(after)) return false; result = After(result, after); return true; }
     public static string After(string str, string label) { int i = str.IndexOf(label); return i >= 0 ? str.Substring(i + label.Length) : str; }
 
     public static string[] Split(string text, string separators) => text.Split(separators.ToCharArray(), StringSplitOptions.None);
@@ -2759,10 +2762,14 @@ namespace GpuScript
       return z;
     }
 
-    public static bool IsType(Type parent, Type child) { if (child == null) return false; return child.IsAssignableFrom(parent); }
-    public static bool IsType(object parent, Type child) { if (parent == null) return false; return IsType(parent.GetType(), child); }
-    public static bool IsType(object parent, object child) { if (parent == null || child == null) return false; return IsType(parent.GetType(), child.GetType()); }
-    public static bool IsType(Type parent, object child) { if (child == null) return false; return IsType(parent, child.GetType()); }
+    //public static bool IsType(Type parent, Type child) { if (child == null) return false; return child.IsAssignableFrom(parent); }
+    //public static bool IsType(object parent, Type child) { if (parent == null) return false; return IsType(parent.GetType(), child); }
+    //public static bool IsType(object parent, object child) { if (parent == null || child == null) return false; return IsType(parent.GetType(), child.GetType()); }
+    //public static bool IsType(Type parent, object child) { if (child == null) return false; return IsType(parent, child.GetType()); }
+    public static bool IsType(Type parent, Type child) => child?.IsAssignableFrom(parent) ?? false;
+    public static bool IsType(object parent, Type child) => (parent == null) ? false : IsType(parent.GetType(), child);
+    public static bool IsType(object parent, object child) => parent == null || child == null ? false : IsType(parent.GetType(), child.GetType());
+    public static bool IsType(Type parent, object child) => child == null ? false : IsType(parent, child.GetType());
 
     public static T[] SetLength<T>(T[] a, int w, int h) { int wh = w * h; return a == null || a.Length != wh ? new T[wh] : a; }
     public static T[] SetLength<T>(T[] a, int len) => a == null || a.Length != len ? new T[len] : a;
@@ -2785,49 +2792,51 @@ namespace GpuScript
     public static Array BlockCopy(uint[] a, uint aI, uint[] b, uint bI, uint N) { Buffer.BlockCopy(a, (int)aI * 4, b, (int)bI * 4, (int)N * 4); return b; }
     public static Array BlockCopy(int[] a, uint aI, int[] b, uint bI, uint N) { Buffer.BlockCopy(a, (int)aI * 4, b, (int)bI * 4, (int)N * 4); return b; }
 
-    public static void ArrayCopy(Array a, Array b, uint length) { Array.Copy(a, b, length); }
-    public static void ArrayCopy(Array a, Array b, int length) { Array.Copy(a, b, length); }
-    public static void ArrayCopy(Array a, Array b) { Array.Copy(a, b, a.Length); }
-    public static void ArrayCopy(Array a, int aOffset, Array b, int bOffset) { Array.Copy(a, aOffset, b, bOffset, a.Length); }
-    public static void ArrayCopy(Array a, int aOffset, Array b, int bOffset, int length) { Array.Copy(a, aOffset, b, bOffset, length); }
-    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, RWStructuredBuffer<T> b) { ArrayCopy(a.writeBuffer, b.writeBuffer); }
-    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, int aOffset, RWStructuredBuffer<T> b, int bOffset, int length) { Array.Copy(a.writeBuffer, aOffset, b.writeBuffer, bOffset, length); }
-    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, RWStructuredBuffer<T> b, uint bOffset, uint length) { Array.Copy(a.writeBuffer, aOffset, b.writeBuffer, bOffset, length); }
-    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, Array b, uint bOffset, uint length) { Array.Copy(a.writeBuffer, aOffset, b, bOffset, length); }
-    public static void ArrayCopy<T>(T[] a, byte[] b) { a.CopyTo(b, 0); }
+    public static void ArrayCopy(Array a, Array b, uint length) => Array.Copy(a, b, length);
+    public static void ArrayCopy(Array a, Array b, int length) => Array.Copy(a, b, length);
+    public static void ArrayCopy(Array a, Array b) => Array.Copy(a, b, a.Length);
+    public static void ArrayCopy(Array a, int aOffset, Array b, int bOffset) => Array.Copy(a, aOffset, b, bOffset, a.Length);
+    public static void ArrayCopy(Array a, int aOffset, Array b, int bOffset, int length) => Array.Copy(a, aOffset, b, bOffset, length);
+    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, RWStructuredBuffer<T> b) => ArrayCopy(a.writeBuffer, b.writeBuffer);
+    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, int aOffset, RWStructuredBuffer<T> b, int bOffset, int length) => Array.Copy(a.writeBuffer, aOffset, b.writeBuffer, bOffset, length);
+    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, RWStructuredBuffer<T> b, uint bOffset, uint length) => Array.Copy(a.writeBuffer, aOffset, b.writeBuffer, bOffset, length);
+    public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, Array b, uint bOffset, uint length) => Array.Copy(a.writeBuffer, aOffset, b, bOffset, length);
+    public static void ArrayCopy<T>(T[] a, byte[] b) => a.CopyTo(b, 0);
 
     public static bool GetKey(char c) { if (char.IsUpper(c)) return Shift && Input.GetKey((KeyCode)char.ToLower(c)); return Input.GetKey((KeyCode)char.ToLower(c)); }
     public static bool Key(KeyCode c) => Input.GetKey(c);
     public static bool Key(char c) => char.IsUpper(c) ? Shift && Key((KeyCode)char.ToLower(c)) : Key((KeyCode)c);
     public static bool Key(string keyList) { for (int i = 0; i < keyList.Length; i++) if (Key(keyList[i])) return true; return false; }
-    public static bool GetKeyDown(char c) { if (char.IsUpper(c)) return Shift && Input.GetKeyDown((KeyCode)char.ToLower(c)); return Input.GetKeyDown((KeyCode)char.ToLower(c)); }
+    //public static bool GetKeyDown(char c) { if (char.IsUpper(c)) return Shift && Input.GetKeyDown((KeyCode)char.ToLower(c)); return Input.GetKeyDown((KeyCode)char.ToLower(c)); }
+    public static bool GetKeyDown(char c) => char.IsUpper(c) ? Shift && Input.GetKeyDown((KeyCode)char.ToLower(c)) : Input.GetKeyDown((KeyCode)char.ToLower(c));
     public static bool GetKeyDown(bool modifier, char c) => modifier && GetKeyDown(c);
     public static bool KeyDown(KeyCode c) => Input.GetKeyDown(c);
-    public static bool GetKeyUp(char c) { if (char.IsUpper(c)) return Shift && Input.GetKeyUp((KeyCode)char.ToLower(c)); return Input.GetKeyUp((KeyCode)char.ToLower(c)); }
+    //public static bool GetKeyUp(char c) { if (char.IsUpper(c)) return Shift && Input.GetKeyUp((KeyCode)char.ToLower(c)); return Input.GetKeyUp((KeyCode)char.ToLower(c)); }
+    public static bool GetKeyUp(char c) => char.IsUpper(c) ? Shift && Input.GetKeyUp((KeyCode)char.ToLower(c)) : Input.GetKeyUp((KeyCode)char.ToLower(c));
 
     public static char GetKeyInRange(char c0, char c1) { if (Input.anyKey) for (char c = c0; c <= c1; c++) if (Input.GetKey((KeyCode)c)) return c; return (char)0; }
     public static char GetKeyDownInRange(char c0, char c1) { if (Input.anyKey) for (char c = c0; c <= c1; c++) if (Input.GetKeyDown((KeyCode)c)) return c; return (char)0; }
     public static bool AnyLetterKey() => GetKeyInRange('a', 'z') != 0;
 
 
-    public static bool Ctrl { get => Key(KeyCode.LeftControl) || Key(KeyCode.RightControl); }
-    public static bool Alt { get => Key(KeyCode.LeftAlt) || Key(KeyCode.RightAlt); }
-    public static bool Shift { get => Key(KeyCode.LeftShift) || Key(KeyCode.RightShift); }
-    public bool _Ctrl { get => Ctrl; }
-    public bool _Alt { get => Alt; }
-    public bool _Shift { get => Shift; }
+    public static bool Ctrl => Key(KeyCode.LeftControl) || Key(KeyCode.RightControl);
+    public static bool Alt => Key(KeyCode.LeftAlt) || Key(KeyCode.RightAlt);
+    public static bool Shift => Key(KeyCode.LeftShift) || Key(KeyCode.RightShift);
+    public bool _Ctrl => Ctrl;
+    public bool _Alt => Alt;
+    public bool _Shift => Shift;
 
-    public static bool CtrlOnly { get => Ctrl && !Alt && !Shift; }
-    public static bool AltOnly { get => !Ctrl && Alt && !Shift; }
-    public static bool ShiftOnly { get => !Ctrl && !Alt && Shift; }
-    public static bool CtrlAlt { get => Ctrl && Alt; }
-    public static bool CtrlAltOnly { get => Ctrl && Alt && !Shift; }
-    public static bool CtrlShift { get => Ctrl && Shift; }
-    public static bool CtrlShiftOnly { get => Ctrl && Shift && !Alt; }
-    public static bool AltShift { get => Alt && Shift; }
-    public static bool AltShiftOnly { get => Alt && Shift && !Ctrl; }
-    public static bool CtrlAltShift { get => Ctrl && Alt && Shift; }
-    public static bool NoModifier { get => !Ctrl && !Alt && !Shift; }
+    public static bool CtrlOnly => Ctrl && !Alt && !Shift;
+    public static bool AltOnly => !Ctrl && Alt && !Shift;
+    public static bool ShiftOnly => !Ctrl && !Alt && Shift;
+    public static bool CtrlAlt => Ctrl && Alt;
+    public static bool CtrlAltOnly => Ctrl && Alt && !Shift;
+    public static bool CtrlShift => Ctrl && Shift;
+    public static bool CtrlShiftOnly => Ctrl && Shift && !Alt;
+    public static bool AltShift => Alt && Shift;
+    public static bool AltShiftOnly => Alt && Shift && !Ctrl;
+    public static bool CtrlAltShift => Ctrl && Alt && Shift;
+    public static bool NoModifier => !Ctrl && !Alt && !Shift;
 
     public static bool CtrlKey(char c) => CtrlOnly && GetKeyDown(c);
     public static bool AltKey(char c) => AltOnly && GetKeyDown(c);
@@ -2837,7 +2846,7 @@ namespace GpuScript
     public static bool AltShiftKey(char c) => AltShiftOnly && GetKeyDown(c);
     public static bool CtrlAltShiftKey(char c) => CtrlAltShift && GetKeyDown(c);
 
-    public static bool OnlyShift { get => !Ctrl && !Alt && Shift && !Input.anyKey; }
+    public static bool OnlyShift => !Ctrl && !Alt && Shift && !Input.anyKey;
 
     public static readonly float2 f00 = float2(0, 0);
     public static readonly float2 f01 = float2(0, 1);
@@ -4541,10 +4550,10 @@ namespace GpuScript
     public float _ln(float v) => ln(v);
     public float _lerp(float a, float b, float w) => lerp(a, b, w);
 
-		public bool IsOnly(uint i, params bool[] vs) { vs[i] = !vs[i]; bool r = !vs.Any(v => v); vs[i] = !vs[i]; return r; }
-		//public bool IsOnly(params bool[] vs) => IsOnly(0, vs);
+    public bool IsOnly(uint i, params bool[] vs) { vs[i] = !vs[i]; bool r = !vs.Any(v => v); vs[i] = !vs[i]; return r; }
+    //public bool IsOnly(params bool[] vs) => IsOnly(0, vs);
 
-	}
+  }
 }
 //namespace System.Runtime.CompilerServices { [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)] internal class IsExternalInit { } }
 #endif //!gs_compute && !gs_shader //C# code

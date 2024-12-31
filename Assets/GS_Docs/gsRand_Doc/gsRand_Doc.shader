@@ -190,7 +190,8 @@ Shader "gs/gsRand_Doc"
   v2f vert_Draw_Star_Path(uint i, uint j, v2f o)
   {
     float3 p0 = stars[bestPath(i)], p1 = stars[bestPath((i + 1) % g.starN)];
-    return vert_BDraw_Line(p0, p1, 0.01f, palette(lerp1(-1, 1, p0.x * p1.x < 0 ? g.starBorderReward : 0)), i, j, o);
+    float t = (i - ((_Time.y * 100) % g.starN) + g.starN) % g.starN, n = 100, r = g.lineThickness * (t < n ? 4 * t / n + 1 : 1);
+    return vert_BDraw_Line(p0, p1, r, t < n ? palette(t / n / 2 + 0.5f) : palette(lerp1(-1, 1, p0.x * p1.x < 0 ? g.starBorderReward : 0)), i, j, o);
   }
   v2f vert_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
   v2f vert_Draw_Stars_Border(uint i, uint j, v2f o)
@@ -202,7 +203,7 @@ Shader "gs/gsRand_Doc"
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(BDraw_gridMin(), BDraw_gridMax(), g.BDraw_boxThickness, g.BDraw_boxColor, i, j, o); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
   v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
-  v2f vert_Draw_Stars(uint i, uint j, v2f o) { return vert_BDraw_Sphere(stars[i], 0.02f, YELLOW, i, j, o); }
+  v2f vert_Draw_Stars(uint i, uint j, v2f o) { return vert_BDraw_Sphere(stars[i], g.lineThickness * 2, YELLOW, i, j, o); }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }

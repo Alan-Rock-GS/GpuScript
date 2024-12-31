@@ -421,8 +421,9 @@ namespace GpuScript
 			return new string[] { path }.Concat(Directory.GetDirectories(path)).ToArray();
 		}
 		public static string[] GetFiles(this string path) { try { if (!Directory.Exists(path)) Directory.CreateDirectory(path); return FastDirectory.GetFiles(path); } catch (Exception) { return null; } }
-		public static string[] ReadAllLines(this string s) { if (s.DoesNotExist()) return null; s.GetPath().setAttributesNormal(); return File.ReadAllLines(s); }
-		public static string[][] ReadAllLineItems(this string s, string delimeters = "\t")
+		public static string[] ReadAllLines(this string s) => File.ReadAllLines(s);
+		public static string[] ReadAllLines_setAttributes(this string s) { if (s.DoesNotExist()) return null; s.GetPath().setAttributesNormal(); return File.ReadAllLines(s); } //Very slow
+    public static string[][] ReadAllLineItems(this string s, string delimeters = "\t")
 		{
 			var lines = s.ReadAllLines();
 			string[][] items = new string[lines.Length][];
