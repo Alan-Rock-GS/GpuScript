@@ -13,10 +13,10 @@
   RWStructuredBuffer<GRand> gRand;
   RWStructuredBuffer<uint4> rs;
   [numthreads(numthreads1, 1, 1)] void initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; rs[i] = i == 0 ? g.seed4 : u0000; } } }
-  [numthreads(numthreads1, 1, 1)] void grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
   uint UV(uint4 r) { return cxor(r); }
   float FV(uint4 r) { return 2.3283064365387e-10f * UV(r); }
@@ -30,6 +30,6 @@
   [numthreads(numthreads1, 1, 1)] void initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.I) { uint i = id.x + g.I; if (i < g.N) rs[i] = index(rs[i], g.J, UInt(id.x, 0, uint_max)); } } }
   #pragma kernel initState
   #pragma kernel initSeed
-  #pragma kernel grp_init_1M
-  #pragma kernel grp_init_1K
   #pragma kernel grp_fill_1K
+  #pragma kernel grp_init_1K
+  #pragma kernel grp_init_1M

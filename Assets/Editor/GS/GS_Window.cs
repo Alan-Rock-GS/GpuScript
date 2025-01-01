@@ -931,8 +931,8 @@ public class GS_Window : EditorWindow
         {
           if (drawSphere == "") drawSphere.Set("\n    if (i < (n = 1)) o = vert_DrawSphere(f000, 1, palette(0.5f), i, j, o); i -= n;// *********** green sphere test ************");
           StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{bufferType}>", bufferName, "  ");
-          AllocateBuffers.Add($"\n  public virtual void Allocate_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
-          AllocateBuffers.Add($"\n  public virtual void Assign_{bufferName}(params {bufferType}[] data) => AddComputeBufferData(ref {bufferName}, nameof({bufferName}), data);");
+          AllocateBuffers.Add($"\n  public virtual void AllocateBuffer_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
+          AllocateBuffers.Add($"\n  public virtual void AssignBuffer_{bufferName}(params {bufferType}[] data) => AddComputeBufferData(ref {bufferName}, nameof({bufferName}), data);");
           if (buff.member.IsProp())
           {
             string bufferN = buff.sizeInfo.sizeN;
@@ -964,7 +964,7 @@ public class GS_Window : EditorWindow
           else
           {
             StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{fldType.Before("[]")}>", fName, "  ");
-            AllocateBuffers.Add($"\n  public void Allocate_{fName}(uint n) => AddComputeBuffer(ref {fName}, nameof({fName}), n);");
+            AllocateBuffers.Add($"\n  public void AllocateBuffer_{fName}(uint n) => AddComputeBuffer(ref {fName}, nameof({fName}), n);");
           }
         }
         else StackFields(classArrays, fldType, fName, "  ");
@@ -1806,7 +1806,6 @@ $"\n    {m_name}_To_UI();",
           s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
         }
 
-      //if (uiDocument && gsName != "gsReport") s_onValueChanged.Add("\n    var type = \"gsReport\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
       if (uiDocument && gsName != "gsReport_Lib") s_onValueChanged.Add("\n    var type = \"gsReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
 
       virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
@@ -1867,7 +1866,6 @@ $"\n    {m_name}_To_UI();",
       "\n    if (lib_parent_gs == this)",
       "\n    {",
       "\n      foreach (var lib in GetComponents<GS>())",
-      //"\n        if (lib != this && lib.GetType() != Type.GetType(\"gsProject\"))",
       "\n        if (lib != this && lib.GetType() != \"gsProject_Lib\".ToType())",
       "\n        {",
       "\n          lib.Build_UI();",
@@ -2695,7 +2693,7 @@ $"\n    {m_name}_To_UI();",
 
       cs_Code = cs_Code.ReplaceAll("public virtual string ToString()", "public override string ToString()",
         $"GS_{Name}.{Name}_onLoaded(this);", $"GS_{Name}.onLoaded(this);",
-        "Allocate_", $"Allocate_{Name}_", "Assign_", $"Assign_{Name}_");
+        "AllocateBuffer_", $"AllocateBuffer_{Name}_", "AssignBuffer_", $"AssignBuffer_{Name}_");
 
       $"{path}{gsName}_cs_lib.txt".WriteAllText(cs_Code);
 
@@ -3346,7 +3344,6 @@ $"\n    {m_name}_To_UI();",
   #region Unity Project Menu
   public static string Get_Report_Suffix(string path)
   {
-    //string report = @$"{path}gsReport.txt";
     string report = @$"{path}gsReport_Lib.txt";
     if (report.Exists()) return report.ReadAllText().Between("suffixName\": \"", "\"");
     return "";

@@ -1528,23 +1528,37 @@ namespace GpuScript
     //  }
     //  return v * _sign;
     //}
+    //public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
+    //{
+    //  int v = 0, _sign = 1;
+    //  for (uint i = i0; i < i1; i++)
+    //  {
+    //    int c = (int)TextByte(a, i);
+    //    if (c >= ASCII_0 && c <= ASCII_9) v = v * 10 + c - (int)ASCII_0;
+    //    else if (c == ASCII_Dash) _sign = -1;
+    //  }
+    //  return v * _sign;
+    //}
     public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
     {
       int v = 0, _sign = 1;
       for (uint i = i0; i < i1; i++)
       {
-        int c = (int)TextByte(a, i);
-        if (c >= ASCII_0 && c <= ASCII_9) v = v * 10 + c - (int)ASCII_0;
+        uint c = TextByte(a, i);
+        if (c >= ASCII_0 && c <= ASCII_9) v = (int)(v * 10 + c - ASCII_0);
         else if (c == ASCII_Dash) _sign = -1;
       }
       return v * _sign;
     }
+    public static int ToInt(RWStructuredBuffer<uint> a, uint2 i) { return ToInt(a, i.x, i.y); }
+
     public static uint ToUInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
     {
       uint v = 0;
       for (uint i = i0; i < i1; i++) { uint c = TextByte(a, i); if (c >= ASCII_0 && c <= ASCII_9) v = v * 10 + c - ASCII_0; }
       return v;
     }
+    public static uint ToUInt(RWStructuredBuffer<uint> a, uint2 i) { return ToUInt(a, i.x, i.y); }
 
     public static float ToFloat(RWStructuredBuffer<uint> a, uint i0, uint i1)
     {
@@ -1571,6 +1585,7 @@ namespace GpuScript
       }
       return v * _sign;
     }
+    public static float ToFloat(RWStructuredBuffer<uint> a, uint2 i) { return ToFloat(a, i.x, i.y); }
 
     public float extract_v(uint item, uint2 iRange, float2 vRange) { int iBits = (int)log2(iRange.y) + 1; return lerp(vRange, (item >> iBits) / (float)((1 << (31 - iBits)) - 1)); }
     public uint extract_i(uint item, uint2 iRange, float2 vRange) { int iBits = (int)log2(iRange.y) + 1; return item & (uint)((1 << iBits) - 1); }

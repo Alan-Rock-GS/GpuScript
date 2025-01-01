@@ -175,6 +175,35 @@ Shader "gs/gsOCam_Lib"
     return color;
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
+  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
+  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); onRenderObject_LIN(g.legendPaletteN + g.legendSphereN, i, index, LIN); return LIN; }
+  float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
+  v2f vert_BDraw_Quad(float3 p0, float3 p1, float3 p2, float3 p3, float4 color, uint i, uint j, v2f o) { float3 p = o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1, n = cross(p1 - p0, p0 - p3); o.color = color; o.pos = UnityObjectToClipPos(p); o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)); o.normal = n; o.ti = float4(i, 0, BDraw_Draw_Texture_2D, 0); return o; }
+  v2f vert_Draw_Legend(uint i, uint j, v2f o)
+  {
+    float w = 0.4f, h = 8, y0 = g.legendSphereN * 0.4f - h / 2, y1 = h / 2;
+    float3 c = f110 * 10000, p0 = c + float3(w, y0, 0), p1 = p0 + f100 * w, p2 = p1 + (y1 - y0) * f010, p3 = p0 + (y1 - y0) * f010;
+    o = vert_BDraw_Quad(p0, p1, p2, p3, WHITE, i, j, o);
+    o.tj.z = DrawType_Legend;
+    return o;
+  }
+  uint BDraw_SignalSmpN(uint chI) { return 1024; }
+  float BDraw_SignalThickness(uint chI) { return 0.004f; }
+  float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
+  float4 BDraw_SignalColor(uint chI) { return YELLOW; }
+  float4 BDraw_SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
+  float4 frag_BDraw_Signal(v2f i)
+  {
+    uint chI = roundu(i.ti.x);
+    uint SmpN = BDraw_SignalSmpN(chI);
+    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
+    float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
+    for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
+    return d < thick ? float4(BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : BDraw_SignalBackColor(chI);
+  }
   float4 frag_BDraw_GS(v2f i, float4 color)
   {
     switch (roundu(i.ti.z))
@@ -189,6 +218,7 @@ Shader "gs/gsOCam_Lib"
         BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
         color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
         break;
+      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
     }
     return color;
   }
@@ -198,19 +228,6 @@ Shader "gs/gsOCam_Lib"
     if (roundu(i.ti.z) == BDraw_Draw_Texture_2D)
       switch (roundu(i.tj.z)) { case DrawType_Legend: uint drawType = roundu(i.tj.z); if (drawType == 1) color = palette(i.uv.y); break; }
     return color;
-  }
-  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
-  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); onRenderObject_LIN(g.legendPaletteN + g.legendSphereN, i, index, LIN); return LIN; }
-  float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
-  v2f vert_BDraw_Quad(float3 p0, float3 p1, float3 p2, float3 p3, float4 color, uint i, uint j, v2f o) { float3 p = o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1, n = cross(p1 - p0, p0 - p3); o.color = color; o.pos = UnityObjectToClipPos(p); o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)); o.normal = n; o.ti = float4(i, 0, BDraw_Draw_Texture_2D, 0); return o; }
-  v2f vert_Draw_Legend(uint i, uint j, v2f o)
-  {
-    float w = 0.4f, h = 8, y0 = g.legendSphereN * 0.4f - h / 2, y1 = h / 2;
-    float3 c = f110 * 10000, p0 = c + float3(w, y0, 0), p1 = p0 + f100 * w, p2 = p1 + (y1 - y0) * f010, p3 = p0 + (y1 - y0) * f010;
-    o = vert_BDraw_Quad(p0, p1, p2, p3, WHITE, i, j, o);
-    o.tj.z = DrawType_Legend;
-    return o;
   }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
