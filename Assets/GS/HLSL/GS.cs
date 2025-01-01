@@ -1673,6 +1673,8 @@ namespace GpuScript
     public float gain(float a, float b) { return (b - a) / a; }
     public float gain_a(float _gain, float b) { return b / (_gain + 1); }
     public float gain_b(float _gain, float a) { return a * (_gain + 1); }
+    public float ln2gain(float a, float b) { return ln2(gain(a, b) + 1); }
+    public float ln2gain_to_gain(float ln_gain) { return pow2(ln_gain) - 1; }
 
 
 #if !gs_compute && !gs_shader //C# code
