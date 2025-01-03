@@ -639,14 +639,20 @@ namespace GpuScript
 		public static IEnumerable<int> Seq(this (int a, int b) r) => (r.a, r.b, 1).Seq();
 		public static IEnumerable<int> Seq(this (int a, uint b) r) => (r.a, (int)r.b, 1).Seq();
 
-		public static IEnumerable<float> Decay(this (float a, float b, float d) r)
-		{
-			var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
-			if (d < 1) for (; b >= a; b *= d) yield return b;
-			else if (d > 1) for (; a <= b; a *= d) yield return a;
-		}
+    public static IEnumerable<float> Decay(this (float a, float b, float d) r)
+    {
+      var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
+      if (d < 1) for (; b >= a; b *= d) yield return b;
+      else if (d > 1) for (; a <= b; a *= d) yield return a;
+    }
+    public static IEnumerable<uint> Decay(this (uint a, uint b, uint d) r)
+    {
+      var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
+      if (d < 1) for (; b >= a; b *= d) yield return b;
+      else if (d > 1) for (; a <= b; a *= d) yield return a;
+    }
 
-		public static bool DoesNotContain<TSource>(this IEnumerable<TSource> source, TSource value) => !source.Contains(value);
+    public static bool DoesNotContain<TSource>(this IEnumerable<TSource> source, TSource value) => !source.Contains(value);
 
 		public static IEnumerable<(float v, int i)> ForI(this (float a, float b, float dx) r)
 		{
