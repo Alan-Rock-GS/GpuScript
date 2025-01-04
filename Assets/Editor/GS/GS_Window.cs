@@ -358,7 +358,8 @@ public class GS_Window : EditorWindow
             if (att.libInternal)
               libInterfaces.Add($", I{libName}");
             libCheckKeys.Add($"\n    if(!GS_{libName}.CheckKey(\"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
-              $" print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
+              $" Status($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
+            //$" print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
             if (libName.EndsWith("_Lib")) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({(att.libExternal ? libName : "this")});");
           }
         }
