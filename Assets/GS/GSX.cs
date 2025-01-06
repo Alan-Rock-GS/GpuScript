@@ -423,9 +423,16 @@ namespace GpuScript
 		public static string[] GetFiles(this string path) { try { if (!Directory.Exists(path)) Directory.CreateDirectory(path); return FastDirectory.GetFiles(path); } catch (Exception) { return null; } }
 		public static string[] ReadAllLines(this string s) => File.ReadAllLines(s);
 		public static string[] ReadAllLines_setAttributes(this string s) { if (s.DoesNotExist()) return null; s.GetPath().setAttributesNormal(); return File.ReadAllLines(s); } //Very slow
-    public static string[][] ReadAllLineItems(this string s, string delimeters = "\t")
+		public static string[][] ReadAllLineItems(this string s, string delimeters = "\t")
 		{
 			var lines = s.ReadAllLines();
+			string[][] items = new string[lines.Length][];
+			for (int i = 0; i < lines.Length; i++) items[i] = lines[i].Split(delimeters.ToCharArray(), StringSplitOptions.None);
+			return items;
+		}
+		public static string[][] ReadAllLineItems_RemoveCommentsAndBlanks(this string s, string delimeters = "\t")
+		{
+			var lines = s.ReadAllLines().Select(t => t.Contains("//") ? t.Before("//") : t).Where(t => !t.IsWhitespace()).ToArray();
 			string[][] items = new string[lines.Length][];
 			for (int i = 0; i < lines.Length; i++) items[i] = lines[i].Split(delimeters.ToCharArray(), StringSplitOptions.None);
 			return items;
@@ -2019,6 +2026,8 @@ namespace GpuScript
 		public static string rRemoveEmptyLines(this string s) => Regex.Replace(s, @"\n\s*\n", "\n");
 		public static string rRemoveDuplicateEmptyLines(this string s) => Regex.Replace(s, @"\n((\s*\n){2,})", "\n");
 		public static void rRemoveEmptyLines(this StrBldr sb) { sb.Set(sb.ToString().rRemoveEmptyLines()); }
+		public static string ReplaceTabsWithSpaces(this string s) => s.ReplaceAll("\t", "  ");
+		public static void ReplaceTabsWithSpaces(this StrBldr sb) { sb.Set(sb.ToString().ReplaceTabsWithSpaces()); }
 
 		public static string Utf8ToChinese(this byte[] utf8Bytes)
 		{

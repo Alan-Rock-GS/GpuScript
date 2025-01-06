@@ -122,6 +122,7 @@ namespace GpuScript
     public void ShowHide_Tree(UI_TreeGroup leaf, bool v)
     {
       bool show = leaf.v && v && isExpanded;
+      if (treeGroup_parent != null) leaf.display = show;
       foreach (var c in leaf.ui_children) { c.display = show; if (c is UI_TreeGroup) ShowHide_Tree((UI_TreeGroup)c, show); }
     }
     public void Display_Tree() { ShowHide_Tree(this, v); }

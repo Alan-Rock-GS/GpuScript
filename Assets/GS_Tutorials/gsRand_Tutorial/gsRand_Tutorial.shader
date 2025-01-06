@@ -90,8 +90,8 @@ Shader "gs/gsRand_Tutorial"
   #define BDraw_SPACE 32
   struct GRand_Tutorial
   {
-    uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float lineThickness, Average, Runtime, BDraw_fontSize, BDraw_boxThickness;
+    uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
   };
@@ -150,7 +150,7 @@ Shader "gs/gsRand_Tutorial"
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(g.randomNumberN, i, index, LIN); onRenderObject_LIN(12, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint BDraw_SignalSmpN(uint chI) { return g.randomNumberN; }
   float BDraw_SignalThickness(uint chI) { return g.lineThickness; }
@@ -160,21 +160,74 @@ Shader "gs/gsRand_Tutorial"
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   v2f vert_BDraw_Signal(float3 p0, float3 p1, float r, uint i, uint j, v2f o) { float2 p = BDraw_JQuadf(j); o.p0 = p0; o.p1 = p1; o.uv = f11 - p.yx; o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.ti = float4(i, 0, BDraw_Draw_Signal, r); return o; }
-  v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { return vert_BDraw_Signal(f_00, f100, signal_panel_width(), i, j, o); }
+  v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { return vert_BDraw_Signal(float3(-1, 1.1f, 0), float3(1, 1.1f, 0), signal_panel_width(), i, j, o); }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, BDraw_Draw_Line, r); return o; }
   v2f vert_Draw_Calc_Avg(uint i, uint j, v2f o)
-  {
-    float3 p = signal_panel_width() * float3(0, avg(), -2);
-    return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o);
-  }
+	{
+		float3 p = signal_panel_width() * float3(0, avg(), -2);
+		return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o);
+	}
   v2f vert_Draw_Avg(uint i, uint j, v2f o)
-  {
-    float3 p = -signal_panel_width() * f001;
-    return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o);
-  }
+	{
+		float3 p = -signal_panel_width() * f001;
+		return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o);
+	}
+	
   v2f vert_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
+  v2f vert_Draw_Border(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(f___, f111, 0.01f, BLACK, i, j, o); }
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(BDraw_gridMin(), BDraw_gridMax(), g.BDraw_boxThickness, g.BDraw_boxColor, i, j, o); }
+  float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
+  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
+  uint Rand_UV(uint4 r) { return cxor(r); }
+  float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
+  uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
+  uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
+  uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
+  float Rand_rFloat(uint i) { return Rand_FV(Rand_rUInt4(i)); }
+  v2f vert_Draw_Pnts(uint i, uint j, v2f o)
+	{
+		return vert_BDraw_Sphere(float3(i / (g.randomNumberN - 1.0f) * 2 - 1, Rand_rFloat(i) * 2 - 1, 0), 0.01f, Rand_rFloat(i) > 0.5f ? BLUE : RED, i, j, o);
+	}
+	
+  float Rand_rFloat(uint i, float a, float b) { return lerp(a, b, Rand_rFloat(i)); }
+  float BDraw_SignalSmpV(uint chI, uint smpI) { return Rand_rFloat(smpI, -1, 1); }
+  float4 frag_BDraw_Signal(v2f i)
+  {
+    uint chI = roundu(i.ti.x);
+    uint SmpN = BDraw_SignalSmpN(chI);
+    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
+    float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
+    for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
+    return d < thick ? float4(BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : BDraw_SignalBackColor(chI);
+  }
+  float4 frag_BDraw_GS(v2f i, float4 color)
+  {
+    switch (roundu(i.ti.z))
+    {
+      case uint_max: Discard(0); break;
+      case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
+      case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
+      case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
+      case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
+      case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
+      case BDraw_Draw_Text3D:
+        BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
+        color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
+        break;
+      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
+    }
+    return color;
+  }
+  float4 frag_GS(v2f i, float4 color)
+  {
+    uint libI = roundu(i.tj.x);
+    if (libI == 0) return frag_BDraw_GS(i, color);
+    if (libI == 1) return frag_Rand_GS(i, color);
+    return color;
+  }
   float2 BDraw_LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }
   v2f vert_BDraw_LineArrow(float dpf, float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_LineArrow_uv(dpf, p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, dpf == 1 ? BDraw_Draw_Line : BDraw_Draw_Arrow, r); return o; }
   v2f vert_BDraw_Arrow(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return vert_BDraw_LineArrow(3, p0, p1, r, color, i, j, o); }
@@ -294,51 +347,11 @@ Shader "gs/gsRand_Tutorial"
     if (level == ++index) { o = vert_Draw_Random_Signal(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_Draw_Calc_Avg(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_Draw_Avg(i, j, o); o.tj.x = 0; }
+    else if (level == ++index) { o = vert_Draw_Pnts(i, j, o); o.tj.x = 0; }
+    else if (level == ++index) { o = vert_Draw_Border(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_BDraw_Text(i, j, o); o.tj.x = 0; }
     else if (level == ++index) { o = vert_BDraw_Box(i, j, o); o.tj.x = 0; }
     return o;
-  }
-  uint TausStep(uint z, int S1, int S2, int S3, uint M) { return ((z & M) << S3) ^ (((z << S1) ^ z) >> S2); }
-  uint4 UInt4(uint4 r) { return uint4(TausStep(r.x, 13, 19, 12, 4294967294u), TausStep(r.y, 2, 25, 4, 4294967288u), TausStep(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
-  uint rUInt(uint i) { return cxor(UInt4(randomNumbers[i])); }
-  float rFloat(uint i) { return 2.3283064365387e-10f * rUInt(i); }
-  float rFloat(uint i, float a, float b) { return lerp(a, b, rFloat(i)); }
-  float BDraw_SignalSmpV(uint chI, uint smpI) { return rFloat(roundu(smpI), -1, 1); }
-  float4 frag_BDraw_Signal(v2f i)
-  {
-    uint chI = roundu(i.ti.x);
-    uint SmpN = BDraw_SignalSmpN(chI);
-    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
-    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
-    uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
-    float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
-    for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
-    return d < thick ? float4(BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : BDraw_SignalBackColor(chI);
-  }
-  float4 frag_BDraw_GS(v2f i, float4 color)
-  {
-    switch (roundu(i.ti.z))
-    {
-      case uint_max: Discard(0); break;
-      case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
-      case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
-      case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
-      case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
-      case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
-      case BDraw_Draw_Text3D:
-        BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
-        color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
-        break;
-      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
-    }
-    return color;
-  }
-  float4 frag_GS(v2f i, float4 color)
-  {
-    uint libI = roundu(i.tj.x);
-    if (libI == 0) return frag_BDraw_GS(i, color);
-    if (libI == 1) return frag_Rand_GS(i, color);
-    return color;
   }
   float4 frag(v2f i) : SV_Target
   {

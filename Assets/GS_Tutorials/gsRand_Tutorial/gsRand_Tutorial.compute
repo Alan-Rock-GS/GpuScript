@@ -43,8 +43,8 @@
   #pragma use_dxc
   struct GRand_Tutorial
   {
-    uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float lineThickness, Average, Runtime, BDraw_fontSize, BDraw_boxThickness;
+    uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
   };
@@ -202,12 +202,6 @@
     }
     }
   }
-  uint TausStep(uint z, int S1, int S2, int S3, uint M) { return ((z & M) << S3) ^ (((z << S1) ^ z) >> S2); }
-  uint4 UInt4(uint4 r) { return uint4(TausStep(r.x, 13, 19, 12, 4294967294u), TausStep(r.y, 2, 25, 4, 4294967288u), TausStep(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
-  uint UInt(uint i) { return cxor(randomNumbers[i] = UInt4(randomNumbers[i])); }
-  float Float(uint i) { return 2.3283064365387e-10f * UInt(i); }
-  [numthreads(numthreads1, 1, 1)] void Calc_Random_Numbers(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { Float(id.x); } } }
-  float Float(uint i, float a, float b) { return lerp(a, b, Float(i)); }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
@@ -215,10 +209,11 @@
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
   uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
   float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
+  [numthreads(numthreads1, 1, 1)] void Calc_Random_Numbers(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { Rand_Float(id.x); } } }
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void Calc_Average(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { InterlockedAdd(ints, 0, roundi(Float(id.x, -1, 1) * 1e6f)); } } }
+  [numthreads(numthreads1, 1, 1)] void Calc_Average(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.randomNumberN) { InterlockedAdd(ints, 0, roundi(Rand_Float(id.x, -1, 1) * 1e6f)); } } }
   #pragma kernel Calc_Average
   #pragma kernel Calc_Random_Numbers
   #pragma kernel Rand_initState
