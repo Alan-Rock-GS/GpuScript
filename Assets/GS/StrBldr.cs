@@ -47,9 +47,10 @@ public class StrBldr
     }
     return this;
   }
-  public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\r\n");
+	public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\r\n");
+	public StrBldr AddLineTabs(params object[] items) => Add("\n").AddTabRow(items);
 
-  public StrBldr Add(params object[] items) { foreach (var item in items) sb.Append(item); return this; }
+	public StrBldr Add(params object[] items) { foreach (var item in items) sb.Append(item); return this; }
   public StrBldr AddChar(string c, int n) { for (int i = 0; i < n; i++) sb.Append(c); return this; }
   public StrBldr AppendLines(params object[] items) { foreach (var item in items) { sb.Append(separator); sb.Append(item); } return this; }
   public int Length { get => sb.Length; }

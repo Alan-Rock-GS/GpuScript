@@ -301,7 +301,7 @@ public class GS_Window : EditorWindow
 		//bool _cs_file_changed = false; string _cs_FileTextCode { get => (_cs_Text = _cs_filename.ReadAllText()).Clean(); set { if (_cs_file_changed = _cs_filename.WriteAllText_IfChanged(_cs_Text = value)) _cs_Code = _cs_Text.Clean(); } }
 		//bool cs_file_changed = false; string cs_FileTextCode { get => (cs_Text = cs_filename.ReadAllText()).rRemoveExcludeRegions().Clean(); set { if (cs_file_changed = cs_filename.WriteAllText_IfChanged(cs_Text = value)) cs_Code = cs_Text.Clean(); } }
 		string _GS_FileTextCode => (_GS_Text = _GS_filename.ReadAllText()).Clean();
-		string _cs_FileTextCode  => (_cs_Text = _cs_filename.ReadAllText()).Clean();
+		string _cs_FileTextCode => (_cs_Text = _cs_filename.ReadAllText()).Clean();
 		string cs_FileTextCode => (cs_Text = cs_filename.ReadAllText()).rRemoveExcludeRegions().Clean();
 
 
@@ -818,11 +818,13 @@ public class GS_Window : EditorWindow
 				args = match.Group(5);
 
 				code = match.Group(6);
-				if (code.Contains(" => "))
-				{
-					if (return_type == "void") code = $" {{ {match.Group(6).Between(" => ", ";")}; }}";
-					else code = $" {{ return {match.Group(6).Between(" => ", ";")}; }}";
-				}
+				//if (code.Contains(" => "))
+				//{
+				//	if (return_type == "void") code = $" {{ {match.Group(6).Between(" => ", ";")}; }}";
+				//	else code = $" {{ return {match.Group(6).Between(" => ", ";")}; }}";
+				//}
+				if (code.Contains(" => ")) code = $" {{ {(return_type == "void" ? "" : "return ")}{match.Group(6).Between(" => ", ";")}; }}";
+
 				argN = args.ArgN();
 			}
 			public MethodInfo method;
