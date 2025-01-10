@@ -347,9 +347,10 @@ public class GS_Window : EditorWindow
 			string declaration = $"{libFld.FieldType} {libFld.Name};";
 			if (_GS_Code0.Contains(declaration))
 			{
-				string region = $"\n  #region <{libFld.Name}>", endregion = $"\n  #endregion <{libFld.Name}>", s = _GS_Code0.After(declaration);
+				string region = $"\n  #region <{libFld.Name}>", endregion = $"\n  #endregion <{libFld.Name}>", s = _GS_Code0.After(declaration).ReplaceTabsWithSpaces();
 				//string region = $"\n\t#region <{libFld.Name}>", endregion = $"\n\t#endregion <{libFld.Name}>", s = _GS_Code0.After(declaration);
 				bool rebuild = s.DoesNotContain(region), erase = !rebuild && s.Before(region).CharN("\n") >= 1;
+				//rebuild = false;
 				string libTypeName = libFld.FieldType.ToString(), libName = libTypeName.After("gs");
 
 				bool isExternalLib = libFld.isExternal_Lib();

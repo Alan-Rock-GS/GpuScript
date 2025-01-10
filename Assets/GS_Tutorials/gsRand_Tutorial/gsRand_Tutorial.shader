@@ -90,7 +90,7 @@ Shader "gs/gsRand_Tutorial"
   #define BDraw_SPACE 32
   struct GRand_Tutorial
   {
-    float lineThickness, Average, Runtime, BDraw_fontSize, BDraw_boxThickness;
+    float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, BDraw_fontSize, BDraw_boxThickness;
     uint randomNumberN, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
