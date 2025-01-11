@@ -92,19 +92,7 @@ namespace GpuScript
 		public override string label { get => base.label; set { base.label = value; if (headerLabel != null) headerLabel.text = value; } }
 		public MethodInfo GetStrings_Method;
 		public string[] strings;
-		public string v
-		{
-			get => dropdownField.value; set
-			{
-				if (dropdownField != null)
-				{
-					dropdownField.value = value;
-					dropdownField.label = value;
-
-					//dropdownField.text = value;
-				}
-			}
-		}
+		public string v { get => dropdownField.value; set { if (dropdownField != null) dropdownField.value = dropdownField.label = value; } }
 		public override string textString => v;
 		public override float ui_width { get => (dropdownField?.choices?.Max(a => a.ui_width()) ?? 100) + 60; set => style.width = dropdownField.style.width = value; }
 		public override object v_obj { get => v; set => v = value.ToString(); }
