@@ -22,7 +22,18 @@ namespace GpuScript
 		{
 			headerLabel = this.Q<Label>();
 			headerLabel.RegisterCallback<MouseEnterEvent>(OnMouseEnter); headerLabel.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+
 			dropdownField = this.Q<DropdownField>();
+			//dropdownField = new DropdownField("Options", new List<string> { "Option 1", "Option 2", "Option 3" }, 0);
+			//dropdownField.choices.Add("Option 4");
+			//dropdownField.index = 1; // Option 2
+			//dropdownField.value = "Option3";
+			////Assert.IsTrue(myDropdown.index == 2);
+
+
+
+
+
 			dropdownField.RegisterCallback<MouseEnterEvent>(OnMouseEnter); dropdownField.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 			dropdownField.RegisterValueChangedCallback(OnValueChanged);
 			RegisterCallback<MouseEnterEvent>(OnMouseEnter); RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
@@ -92,7 +103,16 @@ namespace GpuScript
 		public override string label { get => base.label; set { base.label = value; if (headerLabel != null) headerLabel.text = value; } }
 		public MethodInfo GetStrings_Method;
 		public string[] strings;
-		public string v { get => dropdownField.value; set { if (dropdownField != null) dropdownField.value = dropdownField.label = value; } }
+		public string v
+		{
+			get => dropdownField.value; set
+			{
+				if (dropdownField != null)
+				{
+					dropdownField.value = dropdownField.label = value;
+				}
+			}
+		}
 		public override string textString => v;
 		public override float ui_width { get => (dropdownField?.choices?.Max(a => a.ui_width()) ?? 100) + 60; set => style.width = dropdownField.style.width = value; }
 		public override object v_obj { get => v; set => v = value.ToString(); }
