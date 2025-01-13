@@ -2018,11 +2018,12 @@ namespace GpuScript
 		public static string ReadAllTextAscii(this string file) => file.Exists() ? File.ReadAllText(file, new ASCIIEncoding()) : "";
 		public static void WriteAllTextUnicode(this string filename, string s) { filename.CreatePath(); File.WriteAllText(filename, $"{(char)255}{(char)254}{s}", new UnicodeEncoding()); }
 
-		public static string rRemoveCpuComments(this string s) => Regex.Replace(s, @"\n.*?//.*?(?i)debug.*?\n", "\n");
+		//public static string rRemoveCpuComments(this string s) => Regex.Replace(s, @"\n.*?//.*?(?i)debug.*?\n", "\n");
+		public static string rRemoveCpuDebugComments(this string s) => Regex.Replace(s, @"\n.*?//.*?(?i)debug", "\n");
 		public static string rRemoveRegions(this string s) => Regex.Replace(s, @"\n.*?\#(?=region|endregion).*?\n", "\n");
 		public static string rRemoveExcludeRegions(this string s) => Regex.Replace(s, @"\n.*?\#region Exclude(?s:.*?)\#endregion Exclude.*?\n", "\n");
 		public static string rRemoveComments(this string s) => Regex.Replace(s, @"(@(?:""[^""]*"")+|""(?:[^""\n\\]+|\\.)*""|'(?:[^'\n\\]+|\\.)*')|//.*|/\*(?s:.*?)\*/", "$1");
-		public static string Clean(this string s) => s.rRemoveCpuComments().rRemoveComments().rRemoveEmptyLines();
+		public static string Clean(this string s) => s.rRemoveCpuDebugComments().rRemoveComments().rRemoveEmptyLines();
 		public static string rRemoveEmptyLines(this string s) => Regex.Replace(s, @"\n\s*\n", "\n");
 		public static string rRemoveDuplicateEmptyLines(this string s) => Regex.Replace(s, @"\n((\s*\n){2,})", "\n");
 		public static void rRemoveEmptyLines(this StrBldr sb) { sb.Set(sb.ToString().rRemoveEmptyLines()); }
