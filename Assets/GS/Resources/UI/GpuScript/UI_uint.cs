@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using UnityEngine.UIElements;
 using static GpuScript.GS;
+using static GpuScript.GSX;
 
 namespace GpuScript
 {
@@ -16,8 +17,9 @@ namespace GpuScript
     public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_uint())) { OnTextFieldChanged(o); previousValue = o.value.To_uint(); changed = false; } } }
     public static Type Get_Base_Type() => typeof(uint);
     public static bool IsType(Type type) => type == typeof(uint);
-    public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_uint(); return true; }
-    public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged, StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
+		//public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_uint(); return true; }
+		public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField_uint; return true; }
+		public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged, StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
     {
       StackFields(tData, typeStr, name);
       lateUpdate.Add($"\n    if (UI_{name}.Changed || {name} != UI_{name}.v) {name} = UI_{name}.v;");
@@ -32,18 +34,31 @@ namespace GpuScript
       UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
       e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
     }
-    uint _v = default, val = default;
-    public uint v
-    {
-      get => textField != null ? val = textField.value.To_uint() : val;
-      set
-      {
-        val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
-        if (Nearest > 0) val = roundu(val, Nearest);
-        if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
-      }
-    }
-    public override string textString => v.ToString(format);
+		public string textField_value => textField.value.ReplaceAll("/", "");
+		public uint textField_uint => textField_value.To_uint();
+		uint _v = default, val = default;
+		//public uint v
+		//{
+		//  get => textField != null ? val = textField.value.To_uint() : val;
+		//  set
+		//  {
+		//    val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
+		//    if (Nearest > 0) val = roundu(val, Nearest);
+		//    if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
+		//  }
+		//}
+		public uint v
+		{
+			get => textField != null ? val = textField_uint : val;
+			set
+			{
+				val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
+				if (Nearest > 0) val = roundu(val, Nearest);
+				if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
+			}
+		}
+
+		public override string textString => v.ToString(format);
     public override object v_obj { get => v; set => v = value.To_uint(); }
     public override bool hasRange { get => range_Min < range_Max; }
     uint _range_Min, _range_Max;
@@ -57,8 +72,9 @@ namespace GpuScript
         SliderV = o.value.To_uint();
       else
       {
-        property?.SetValue(gs, textField.value.To_uint());
-        gs.OnValueChanged();
+				//property?.SetValue(gs, textField.value.To_uint());
+				property?.SetValue(gs, textField_uint);
+				gs.OnValueChanged();
       }
     }
     public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }

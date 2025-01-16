@@ -36,19 +36,38 @@ public class StrBldr
   //  }
   //  sb.Append("\r\n"); return this;
   //}
-  public StrBldr AddTabRow(params object[] items)
-  {
-    for (int i = 0; i < items.Length; i++)
-    {
-      if (i > 0) sb.Append("\t");
-      if (items[i] is Array) { var a = items[i] as Array; for (int j = 0; j < a.Length; j++) { if (j > 0) sb.Append("\t"); sb.Append(a.GetValue(j)); } }
-      else if (items[i] is List<string>) { var a = items[i] as List<string>; for (int j = 0; j < a.Count; j++) { if (j > 0) sb.Append("\t"); sb.Append(a[j]); } }
-      else sb.Append(items[i]);
-    }
-    return this;
-  }
-	public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\r\n");
+ // public StrBldr AddTabRow(params object[] items)
+ // {
+ //   for (int i = 0; i < items.Length; i++)
+ //   {
+ //     if (i > 0) sb.Append("\t");
+ //     if (items[i] is Array) { var a = items[i] as Array; for (int j = 0; j < a.Length; j++) { if (j > 0) sb.Append("\t"); sb.Append(a.GetValue(j)); } }
+ //     else if (items[i] is List<string>) { var a = items[i] as List<string>; for (int j = 0; j < a.Count; j++) { if (j > 0) sb.Append("\t"); sb.Append(a[j]); } }
+ //     else sb.Append(items[i]);
+ //   }
+ //   return this;
+ // }
+	//public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\r\n");
+	//public StrBldr AddLineTabs(params object[] items) => Add("\n").AddTabRow(items);
+
+	public StrBldr AddSeparatorRow(string separator, params object[] items)
+	{
+		for (int i = 0; i < items.Length; i++)
+		{
+			if (i > 0) sb.Append(separator);
+			if (items[i] is Array) { var a = items[i] as Array; for (int j = 0; j < a.Length; j++) { if (j > 0) sb.Append(separator); sb.Append(a.GetValue(j)); } }
+			else if (items[i] is List<string>) { var a = items[i] as List<string>; for (int j = 0; j < a.Count; j++) { if (j > 0) sb.Append(separator); sb.Append(a[j]); } }
+			else sb.Append(items[i]);
+		}
+		return this;
+	}
+	public StrBldr AddSeparatorLine(string separator, params object[] items) => AddSeparatorRow(separator, items).Add("\n");
+	public StrBldr AddLineSeparators(string separator, params object[] items) => Add("\n").AddSeparatorRow(separator, items);
+
+  public StrBldr AddTabRow(params object[] items) => AddSeparatorRow("\t", items);
+	public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\n");
 	public StrBldr AddLineTabs(params object[] items) => Add("\n").AddTabRow(items);
+
 
 	public StrBldr Add(params object[] items) { foreach (var item in items) sb.Append(item); return this; }
   public StrBldr AddChar(string c, int n) { for (int i = 0; i < n; i++) sb.Append(c); return this; }
