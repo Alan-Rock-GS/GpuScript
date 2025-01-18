@@ -1767,8 +1767,9 @@ namespace GpuScript
 
     public IEnumerator Status() { status = ""; progress(0); yield return null; }
     public IEnumerator Status(string s) { status = s; yield return null; }
-    public IEnumerator Status(uint i, uint n, string s) { status = s; progress(i, n); yield return null; }
-    public IEnumerator Status(int i, int n, string s)
+		public IEnumerator Status(uint i, uint n, string s) { status = s; progress(i, n); yield return null; }
+		//public void _Status(uint i, uint n, string s) { status = s; progress(i, n);  }
+		public IEnumerator Status(int i, int n, string s)
     {
       if (i == n - 1) yield return Status();
       else { status = s; progress(i, n); yield return null; }
