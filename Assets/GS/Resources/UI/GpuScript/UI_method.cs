@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Reflection;
 using UnityEngine.UIElements;
 
@@ -14,7 +13,6 @@ namespace GpuScript
 			base.RegisterGridCallbacks(gs, grid, gridRow, gridCol);
 			button.RegisterCallback<ClickEvent>(On_grid_button_Changed);
 		}
-		//private void On_grid_button_Changed(ClickEvent evt) { gs.OnValueChanged(grid, gridRow, gridCol); }
 		void On_grid_button_Changed(ClickEvent evt) => grid_OnValueChanged();
 		public UI_method() : base()
 		{
@@ -23,46 +21,6 @@ namespace GpuScript
 			button.RegisterCallback<MouseEnterEvent>(OnMouseEnter); button.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 			RegisterCallback<MouseEnterEvent>(OnMouseEnter); RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 		}
-		//private void OnButtonClicked(ClickEvent evt)
-		//{
-		//  if (isGrid) grid.gs.OnButtonClicked(grid, gridRow, gridCol);
-		//  else
-		//  {
-		//    if (gs != null && method != null)
-		//    {
-		//      if (method.ReturnType == typeof(IEnumerator))
-		//        gs.StartCoroutine(method.Name);
-		//      else
-		//      {
-		//        try
-		//        {
-		//          method.Invoke(gs, null);
-		//        }
-		//        catch(Exception e)
-		//        {
-		//          print($"OnButtonClicked {method?.Name}: {e}");
-		//        }
-		//      }
-		//    }
-		//    else print($"Button {label} clicked");
-		//  }
-		//}
-		//private void OnButtonClicked(ClickEvent evt)
-		//{
-		//  if (isGrid)
-		//  {
-		//    //grid.gs.OnButtonClicked(grid, gridRow, gridCol);
-		//    $"{grid.name}_OnButtonClicked".InvokeMethod(gs, gridRow, gridCol);
-		//  }
-		//  else if (gs != null && method != null)
-		//  {
-		//    if (method.ReturnType == typeof(IEnumerator)) gs.StartCoroutine(method.Name);
-		//    else try { method.Invoke(gs, null); } catch (Exception e) { print($"OnButtonClicked {method?.Name}: {e}"); }
-		//    gs.OnButtonClicked(method.Name);
-		//  }
-		//  else print($"Button {label} clicked");
-		//}
-
 		private void OnButtonClicked(ClickEvent evt)
 		{
 			if (isGrid) $"{grid.name}_OnButtonClicked".InvokeMethod(gs, gridRow, gridCol);
@@ -74,28 +32,6 @@ namespace GpuScript
 			}
 			else print($"Button {label} clicked");
 		}
-
-		//private Stopwatch clickTime;// = new Stopwatch();
-		//private void OnButtonClicked(ClickEvent evt)
-		//{
-		//	print("Button Clicked");
-		//	if (clickTime != null) print($"Button Clicked, time = {clickTime.ElapsedTicks / (float)Stopwatch.Frequency}");
-		//	if (clickTime == null || clickTime.ElapsedTicks / (float)Stopwatch.Frequency > 0.1f)
-		//	{
-		//		if (isGrid) $"{grid.name}_OnButtonClicked".InvokeMethod(gs, gridRow, gridCol);
-		//		else if (gs != null && method != null)
-		//		{
-		//			if (method.ReturnType == typeof(IEnumerator)) gs.StartCoroutine(method.Name);
-		//			else try { method.Invoke(gs, null); } catch (Exception e) { print($"OnButtonClicked {method?.Name}: {e}"); }
-		//			gs.OnButtonClicked(method.Name);
-		//		}
-		//		else print($"Button {label} clicked");
-		//		if (clickTime == null) clickTime = new Stopwatch();
-		//		clickTime.Restart();
-		//	}
-		//}
-
-
 		public override bool Init(GS gs, params GS[] gss)
 		{
 			if (!base.Init(gs, gss)) return false;
