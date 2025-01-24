@@ -130,9 +130,13 @@ namespace GpuScript
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator ==(Vector2 a, float2 b) => float2(a.x == b.x ? 1 : 0, a.y == b.y ? 1 : 0);
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !=(Vector2 a, float2 b) => 1 - (a == b);
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator ==(float2 a, int b) => float2(a.x == b ? 1 : 0, a.y == b ? 1 : 0);
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !=(float2 a, int b) => 1 - (a == b);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !=(float2 a, int b) => 1 - (a == b);
 
-    [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public float2 xx { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => float2(x, x); [MethodImpl(MethodImplOptions.AggressiveInlining)] set => x = y = value.x; }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !(float2 v) => Complement(v);
+		[MethodImpl(MethodImplOptions.AggressiveInlining)] public static float operator ^(float2 a, float2 b) {return (Antiwedge(a, b));}
+
+
+	[JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public float2 xx { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => float2(x, x); [MethodImpl(MethodImplOptions.AggressiveInlining)] set => x = y = value.x; }
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public float2 xy { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => this; [MethodImpl(MethodImplOptions.AggressiveInlining)] set => this = value; }
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public float2 yx { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => float2(y, x); [MethodImpl(MethodImplOptions.AggressiveInlining)] set { y = value.x; x = value.y; } }
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public float2 yy { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => float2(y, y); [MethodImpl(MethodImplOptions.AggressiveInlining)] set => x = y = value.y; }

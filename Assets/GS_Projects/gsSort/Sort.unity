@@ -4910,14 +4910,18 @@ MonoBehaviour:
     siUnits: 0
     group_UI: 0
     group_Sort: 0
-    sortN: 0
-    segN: 0
+    useUpperTriangular: 0
+    arrayLength: 0
+    numberOfArrays: 0
+    runtimeN: 0
     sort_runtime: 0
     node_size: 0
     benchmarkType: 0
   g:
-    sortN: 0
-    segN: 0
+    useUpperTriangular: 0
+    arrayLength: 0
+    numberOfArrays: 0
+    runtimeN: 0
     benchmarkType: 0
     vsN: 0
     BDraw_AppendBuff_IndexN: 0
@@ -9056,6 +9060,7 @@ MonoBehaviour:
   BDraw_fontTexture: {fileID: 0}
   kernel_set_sorts: 0
   kernel_add_counts: 0
+  kernel_add_counts_triangle: 0
   kernel_init_counts: 0
   kernel_init_vs: 0
   kernel_Rand_initState: 0

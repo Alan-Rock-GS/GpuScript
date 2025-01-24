@@ -15,6 +15,7 @@ using static GpuScript.GS;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
 using System.Globalization;
+using UnityEditor.PackageManager;
 
 namespace GpuScript
 {
@@ -472,6 +473,8 @@ namespace GpuScript
 			return items.ToArray();
 		}
 
+		public static uint Sum(this IEnumerable<uint> vs) { uint num = 0; foreach (uint v in vs) num = unchecked(num + v); return num; }
+
 		public static string Join(this IEnumerable<string> vs, string separator) => string.Join(separator, vs);
 		public static string Join<T>(this IEnumerable<T> vs, string separator = "\t ") => string.Join(separator, vs);
 
@@ -646,20 +649,20 @@ namespace GpuScript
 		public static IEnumerable<int> Seq(this (int a, int b) r) => (r.a, r.b, 1).Seq();
 		public static IEnumerable<int> Seq(this (int a, uint b) r) => (r.a, (int)r.b, 1).Seq();
 
-    public static IEnumerable<float> Decay(this (float a, float b, float d) r)
-    {
-      var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
-      if (d < 1) for (; b >= a; b *= d) yield return b;
-      else if (d > 1) for (; a <= b; a *= d) yield return a;
-    }
-    public static IEnumerable<uint> Decay(this (uint a, uint b, uint d) r)
-    {
-      var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
-      if (d < 1) for (; b >= a; b *= d) yield return b;
-      else if (d > 1) for (; a <= b; a *= d) yield return a;
-    }
+		public static IEnumerable<float> Decay(this (float a, float b, float d) r)
+		{
+			var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
+			if (d < 1) for (; b >= a; b *= d) yield return b;
+			else if (d > 1) for (; a <= b; a *= d) yield return a;
+		}
+		public static IEnumerable<uint> Decay(this (uint a, uint b, uint d) r)
+		{
+			var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
+			if (d < 1) for (; b >= a; b *= d) yield return b;
+			else if (d > 1) for (; a <= b; a *= d) yield return a;
+		}
 
-    public static bool DoesNotContain<TSource>(this IEnumerable<TSource> source, TSource value) => !source.Contains(value);
+		public static bool DoesNotContain<TSource>(this IEnumerable<TSource> source, TSource value) => !source.Contains(value);
 
 		public static IEnumerable<(float v, int i)> ForI(this (float a, float b, float dx) r)
 		{
