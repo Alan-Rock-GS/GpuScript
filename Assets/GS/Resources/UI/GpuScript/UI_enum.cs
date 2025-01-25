@@ -74,7 +74,10 @@ namespace GpuScript
     public uint v
     {
       get => enumValue.To_uint();
-      set { enumValue = (Enum)Enum.ToObject(enumType, value); if (dropdownField != null) dropdownField.value = Enum.ToObject(enumType, value).ToString(); }
+      set { 
+        enumValue = (Enum)Enum.ToObject(enumType, value); 
+        if (dropdownField != null) 
+          dropdownField.value = Enum.ToObject(enumType, value).ToString(); }
     }
     public override string textString => enumValue.ToString();
     public override float ui_width { get => Enum.GetNames(enumType).Max(a => UI_Component_Width(a)) + 60; set => style.width = dropdownField.style.width = value; }
@@ -87,7 +90,9 @@ namespace GpuScript
       dropdownField.value = evt.newValue;
       if (enumType != null)
         v = Enum.Parse(enumType, dropdownField.value).To_uint();
-    }
+			gs?.OnValueChanged();
+      gs?.lib_parent_gs?.OnValueChanged();
+		}
     public override bool Changed { get => dropdownField != null ? dropdownField.value != previousValue : false; set => previousValue = dropdownField != null && !value ? dropdownField.value : null; }
 
     public void Build(string label, string description, string typeName_GS, int val, bool isReadOnly, bool isGrid, string treeGroup_parent)

@@ -15,7 +15,6 @@ using static GpuScript.GS;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
 using System.Globalization;
-using UnityEditor.PackageManager;
 
 namespace GpuScript
 {
