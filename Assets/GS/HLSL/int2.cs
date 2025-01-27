@@ -50,9 +50,9 @@ namespace GpuScript
       }
     }
 
-    public string ToString(string separator) => $"{x}{separator}{y}"; 
-    public string ToString(string format, string separator) => $"{x.ToString(format)}{separator}{y.ToString(format)}"; 
-    public string ToTabString() => ToString("\t"); 
+    //public string ToString(string separator) => $"{x}{separator}{y}"; 
+    public string ToString(string format, string separator = ", ") => $"{x.ToString(format)}{separator}{y.ToString(format)}"; 
+    public string ToTabString() => ToString("0", "\t"); 
 
     public static explicit operator int2(float2 p) => int2((int)p.x, (int)p.y); 
     public static explicit operator int2(Vector2 p) => int2((int)p.x, (int)p.y); 

@@ -169,10 +169,14 @@ namespace GpuScript
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public int2 zy { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => int2(z, y); [MethodImpl(MethodImplOptions.AggressiveInlining)] set { z = value.x; y = value.y; } }
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public int2 zz { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => int2(z, z); }
 
-    public string ToString(string separator) => $"{x}{separator}{y}{separator}{z}"; 
-    public string ToTabString() => ToString("\t"); 
+  //  public string ToString(string separator) => $"{x}{separator}{y}{separator}{z}";
+		//public string ToString(string format, string separator = ", ") => $"{x.ToString(format)}{separator}{y.ToString(format)}";
+		//public string ToTabString() => ToString("\t");
 
-    public override bool Equals(object obj) => base.Equals(obj); 
+		public string ToString(string format, string separator = ", ") => $"{x.ToString(format)}{separator}{y.ToString(format)}{separator}{z.ToString(format)}";
+		public string ToTabString() => ToString("0", "\t");
+
+		public override bool Equals(object obj) => base.Equals(obj); 
     public override int GetHashCode() => base.GetHashCode();
 
     public int CompareTo(object o) => (o is int3 f) ? x == f.x ? y == f.y ? z == f.z ? 0 : z < f.z ? -1 : 1 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_int3());

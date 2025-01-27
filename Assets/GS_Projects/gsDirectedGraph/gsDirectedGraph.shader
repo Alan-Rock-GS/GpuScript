@@ -367,8 +367,8 @@ Shader "gs/gsDirectedGraph"
   v2f vert_BDraw_Text(BDraw_TextInfo t, uint i, uint j, v2f o)
 	{
 		uint nodeI = i, edgeI = i - g.nodeN;
-		if (i < g.nodeN) t.p = nodePs[nodeI]; else { Edge edge = edges[edgeI]; t.p = lerp(nodePs[edge.node0], nodePs[edge.node1], 0.4f); }
-		t.p += -0.01f * f001;
+		if (i < g.nodeN) t.p = nodePs[nodeI]; else { Edge e = edges[edgeI]; t.p = lerp(nodePs[e.node0], nodePs[e.node1], 0.4f); }
+		t.p -= 0.001f * f001;
 		t.color = BLACK; t.height = radius();
 		return base_vert_BDraw_Text(t, i, j, o);
 	}

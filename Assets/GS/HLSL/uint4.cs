@@ -467,10 +467,14 @@ namespace GpuScript
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public uint2 wz { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => uint2(w, z); [MethodImpl(MethodImplOptions.AggressiveInlining)] set { w = value.x; z = value.y; } }
     [JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public uint2 ww { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => uint2(w, w); }
 
-    public string ToString(string separator) => $"{x}{separator}{y}{separator}{z}{separator}{w}"; 
-    public string ToTabString() => ToString("\t"); 
+    //public string ToString(string separator) => $"{x}{separator}{y}{separator}{z}{separator}{w}"; 
+    //public string ToTabString() => ToString("\t");
 
-    public override bool Equals(object obj) => base.Equals(obj); 
+		public string ToString(string format, string separator = ", ") => $"{x.ToString(format)}{separator}{y.ToString(format)}{separator}{z.ToString(format)}{separator}{w.ToString(format)}";
+		public string ToTabString() => ToString("0", "\t");
+
+
+		public override bool Equals(object obj) => base.Equals(obj); 
     public override int GetHashCode() => base.GetHashCode(); 
   }
 }

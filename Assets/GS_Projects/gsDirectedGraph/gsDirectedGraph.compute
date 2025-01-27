@@ -169,26 +169,22 @@
       if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
   int f2i(float v) { return roundi(v * 1e6f); }
-  float i2f(int v) { return v / 1e6f; }
   [numthreads(numthreads1, 1, 1)] void calc_NodeCosts(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (id.x < g.edgeN)
 	{
-		uint edgeI = id.x;
-		Edge edge = edges[edgeI];
-		if (edge.stage == g.stageI)
-		{
-			if (g.calcMode == CalcMode_Min) InterlockedMin(NodeCosts, edge.node1, f2i(edge.cost + i2f(NodeCosts[edge.node0])));
-			else InterlockedMax(NodeCosts, edge.node1, f2i(edge.cost + i2f(NodeCosts[edge.node0])));
-		}
+		Edge e = edges[id.x];
+		if (e.stage == g.stageI)
+			if (g.calcMode == CalcMode_Min) InterlockedMin(NodeCosts, e.node1, f2i(e.cost) + NodeCosts[e.node0]);
+			else InterlockedMax(NodeCosts, e.node1, f2i(e.cost) + NodeCosts[e.node0]);
 	}
 	
     }
@@ -285,10 +281,10 @@
     {
       if (id.x < g.edgeN)
 	{
-		uint edgeI = id.x;
-		Edge edge = edges[edgeI];
-		if (g.stageI == g.stageN - 1 && edgeI == 0) bestPath[g.stageI] = g.nodeN - 1;
-		else if (edge.stage == g.stageI && edge.node1 == bestPath[g.stageI + 1] && NodeCosts[edge.node1] - f2i(edge.cost) == NodeCosts[edge.node0]) bestPath[g.stageI] = edge.node0;
+		uint eI = id.x;
+		Edge e = edges[eI];
+		if (g.stageI == g.stageN - 1 && eI == 0) bestPath[g.stageI] = g.nodeN - 1;
+		else if (e.stage == g.stageI && e.node1 == bestPath[g.stageI + 1] && NodeCosts[e.node1] - f2i(e.cost) == NodeCosts[e.node0]) bestPath[g.stageI] = e.node0;
 	}
     }
   }
@@ -316,6 +312,6 @@
   #pragma kernel BDraw_AppendBuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
-  #pragma kernel Rand_grp_init_1M
-  #pragma kernel Rand_grp_init_1K
   #pragma kernel Rand_grp_fill_1K
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_init_1M

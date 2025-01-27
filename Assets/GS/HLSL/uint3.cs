@@ -172,7 +172,11 @@ namespace GpuScript
     public override bool Equals(object obj) => base.Equals(obj); 
     public override int GetHashCode() => base.GetHashCode(); 
 
-    public string ToString(string separator) => $"{x}{separator}{y}{separator}{z}";
-    public int CompareTo(object o) => (o is uint3 f) ? x == f.x ? y == f.y ? z == f.z ? 0 : z < f.z ? -1 : 1 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_uint3());
+    //public string ToString(string separator) => $"{x}{separator}{y}{separator}{z}";
+
+		public string ToString(string format, string separator = ", ") => $"{x.ToString(format)}{separator}{y.ToString(format)}{separator}{z.ToString(format)}";
+		public string ToTabString() => ToString("0", "\t");
+
+		public int CompareTo(object o) => (o is uint3 f) ? x == f.x ? y == f.y ? z == f.z ? 0 : z < f.z ? -1 : 1 : y < f.y ? -1 : 1 : x < f.x ? -1 : 1 : CompareTo(o.To_uint3());
   }
 }
