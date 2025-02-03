@@ -31,6 +31,9 @@
   #define ProjectionMode_Automatic	0
   #define ProjectionMode_Perspective	1
   #define ProjectionMode_Orthographic	2
+  #define PlotBackground_White	0
+  #define PlotBackground_WebCam	1
+  #define PlotBackground_Default_Sky	2
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -59,7 +62,7 @@
   #pragma use_dxc
   struct GOCam_Lib
   {
-    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, showWebCam, multiCams, displayLegend, displayLegendPalette, paletteType, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
+    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, plotBackground, multiCams, displayLegend, displayLegendPalette, paletteType, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
     float BDraw_fontSize, BDraw_boxThickness, dist, distSpeed, orthoSize, legendViewWidth;
     float4 BDraw_boxColor;
     float3 center, Default_Center;

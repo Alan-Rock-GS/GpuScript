@@ -42,6 +42,9 @@ Shader "gs/gsOCam_Lib"
   #define ProjectionMode_Automatic	0
   #define ProjectionMode_Perspective	1
   #define ProjectionMode_Orthographic	2
+  #define PlotBackground_White	0
+  #define PlotBackground_WebCam	1
+  #define PlotBackground_Default_Sky	2
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -96,6 +99,9 @@ Shader "gs/gsOCam_Lib"
   #define ProjectionMode_Automatic	0
   #define ProjectionMode_Perspective	1
   #define ProjectionMode_Orthographic	2
+  #define PlotBackground_White	0
+  #define PlotBackground_WebCam	1
+  #define PlotBackground_Default_Sky	2
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -122,7 +128,7 @@ Shader "gs/gsOCam_Lib"
   #define DrawType_Legend 1
   struct GOCam_Lib
   {
-    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, showWebCam, multiCams, displayLegend, displayLegendPalette, paletteType, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
+    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, plotBackground, multiCams, displayLegend, displayLegendPalette, paletteType, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
     float BDraw_fontSize, BDraw_boxThickness, dist, distSpeed, orthoSize, legendViewWidth;
     float4 BDraw_boxColor;
     float3 center, Default_Center;
@@ -181,13 +187,14 @@ Shader "gs/gsOCam_Lib"
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   v2f vert_BDraw_Quad(float3 p0, float3 p1, float3 p2, float3 p3, float4 color, uint i, uint j, v2f o) { float3 p = o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1, n = cross(p1 - p0, p0 - p3); o.color = color; o.pos = UnityObjectToClipPos(p); o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)); o.normal = n; o.ti = float4(i, 0, BDraw_Draw_Texture_2D, 0); return o; }
   v2f vert_Draw_Legend(uint i, uint j, v2f o)
-  {
-    float w = 0.4f, h = 8, y0 = g.legendSphereN * 0.4f - h / 2, y1 = h / 2;
-    float3 c = f110 * 10000, p0 = c + float3(w, y0, 0), p1 = p0 + f100 * w, p2 = p1 + (y1 - y0) * f010, p3 = p0 + (y1 - y0) * f010;
-    o = vert_BDraw_Quad(p0, p1, p2, p3, WHITE, i, j, o);
-    o.tj.z = DrawType_Legend;
-    return o;
-  }
+	{
+		float w = 0.4f, h = 8, y0 = g.legendSphereN * 0.4f - h / 2, y1 = h / 2;
+		float3 c = f110 * 10000, p0 = c + float3(w, y0, 0), p1 = p0 + f100 * w, p2 = p1 + (y1 - y0) * f010, p3 = p0 + (y1 - y0) * f010;
+		o = vert_BDraw_Quad(p0, p1, p2, p3, WHITE, i, j, o);
+		o.tj.z = DrawType_Legend;
+		return o;
+	}
+	
   uint BDraw_SignalSmpN(uint chI) { return 1024; }
   float BDraw_SignalThickness(uint chI) { return 0.004f; }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
@@ -223,27 +230,29 @@ Shader "gs/gsOCam_Lib"
     return color;
   }
   float4 frag_GS(v2f i, float4 color)
-  {
-    color = frag_BDraw_GS(i, color);
-    if (roundu(i.ti.z) == BDraw_Draw_Texture_2D)
-      switch (roundu(i.tj.z)) { case DrawType_Legend: uint drawType = roundu(i.tj.z); if (drawType == 1) color = palette(i.uv.y); break; }
-    return color;
-  }
+	{
+		color = frag_BDraw_GS(i, color);
+		if (roundu(i.ti.z) == BDraw_Draw_Texture_2D)
+			switch (roundu(i.tj.z)) { case DrawType_Legend: uint drawType = roundu(i.tj.z); if (drawType == 1) color = palette(i.uv.y); break; }
+		return color;
+	}
+	
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
   v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
   v2f vert_Legend(uint i, uint j, v2f o)
-  {
-    if (i < g.legendSphereN)
-    {
-      float3 c = f110 * 10000;
-      float v = i / (g.legendSphereN - 1.0f), y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
-      return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, palette(v), i, j, o);
-    }
-    else if (g.legendPaletteN == 1) return vert_Draw_Legend(i, j, o);
-    return o;
-  }
+	{
+		if (i < g.legendSphereN)
+		{
+			float3 c = f110 * 10000;
+			float v = i / (g.legendSphereN - 1.0f), y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
+			return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, palette(v), i, j, o);
+		}
+		else if (g.legendPaletteN == 1) return vert_Draw_Legend(i, j, o);
+		return o;
+	}
+	
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, BDraw_Draw_Line, r); return o; }
