@@ -117,29 +117,35 @@
     }
   }
   TextInfo textInfo(uint i) { return textInfos[i]; }
+	
   void textInfo(uint i, TextInfo t) { textInfos[i] = t; }
+	
   uint2 Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : AppendBuff_Indexes[textI - 1] + 1, textI < g.AppendBuff_IndexN ? AppendBuff_Indexes[textI] : g.textCharN); }
+	
   uint Byte(uint i) { return TextByte(tab_delimeted_text, i); }
+	
   [numthreads(numthreads1, 1, 1)] void getTextInfo(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (id.x < g.textN)
-    {
-      uint i = id.x;
-      TextInfo ti = textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Byte(j); if (byteI >= 32) { byteI -= 32; t.x += fontInfos[byteI].advance; } }
-      t.x /= g.fontSize;
-      ti.uvSize = t;
-      textInfo(i, ti);
-    }
+	{
+		uint i = id.x;
+		TextInfo ti = textInfo(i);
+		ti.textI = i;
+		ti.uvSize = f01;
+		uint2 textIs = Get_text_indexes(i);
+		float2 t = ti.uvSize;
+		for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Byte(j); if (byteI >= 32) { byteI -= 32; t.x += fontInfos[byteI].advance; } }
+		t.x /= g.fontSize;
+		ti.uvSize = t;
+		textInfo(i, ti);
+	}
+	
     }
   }
   bool AppendBuff_IsBitOn(uint i) { uint c = Byte(i); return c == TB || c == LF; }
+	
   uint AppendBuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.AppendBuff_N && AppendBuff_IsBitOn(i)) << (int)j); }
   [numthreads(numthreads1, 1, 1)] void AppendBuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
   {
@@ -180,16 +186,17 @@
     unchecked
     {
       if (id.x < g.textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        TextInfo t = textInfo(0), ti = textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        textInfo(i, ti);
-      }
-    }
+	{
+		uint i = id.x;
+		if (i > 0)
+		{
+			TextInfo t = textInfo(0), ti = textInfo(i);
+			ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+			ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+			textInfo(i, ti);
+		}
+	}
+	
     }
   }
   #pragma kernel setDefaultTextInfo

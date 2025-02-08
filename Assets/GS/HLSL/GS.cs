@@ -2221,6 +2221,7 @@ namespace GpuScript
 		}
 		public static string SerializeWithStringEnum(object obj) => JsonConvert.SerializeObject(obj, new StringEnumConverter());
 		public static StrBldr StrBldr(params object[] items) => new(items);
+		//public static StrBldr StrBldr(IEnumerable<string> s) => new(s.ToArray());
 		public virtual void OnValueChanged_GS() { }
 		public virtual void OnValueChanged() { if (ui_loaded) OnValueChanged_GS(); }
 
