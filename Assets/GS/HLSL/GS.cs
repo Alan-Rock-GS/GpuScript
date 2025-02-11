@@ -3952,6 +3952,9 @@ namespace GpuScript
 		public virtual bool Load_UI() => Load_UI_As(projectPath, GetType().ToString());
 		public virtual bool Save_UI() => Save_UI_As(projectPath, GetType().ToString());
 
+		public static string UserPath => $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace("\\", "/")}/";
+		public static string DownloadPath => $"{UserPath}Downloads/";
+
 		public static string appName => $"{SceneManager.GetActiveScene().name}";
 		public static string appPath => $"{dataPath}{appName}/";
 		public static string assetsPath => $"{dataPath}Assets/";
