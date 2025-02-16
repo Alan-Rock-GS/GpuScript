@@ -170,18 +170,21 @@
     }
   }
   TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; ray.energy = f111; ray.specular = f000; ray.diffuse = 0; return ray; }
+	
   TRay CreateCameraRay(float2 uv) { return CreateRay(mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1) : f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz)); }
   TRayHit CreateRayHit() { TRayHit hit; hit.position = f000; hit.distance = fPosInf; hit.normal = hit.specular = f000; hit.diffuse = 0; return hit; }
+	
   TRayHit IntersectGroundPlane(TRay ray, TRayHit bestHit)
-  {
-    float t = ray.direction.y == 0 ? fPosInf : -ray.origin.y / ray.direction.y;
-    if (t > 0 && t < bestHit.distance)
-    {
-      bestHit.distance = t; bestHit.position = t * ray.direction + ray.origin; bestHit.normal = f010;
-      bestHit.specular = g.objectColor; bestHit.diffuse = g.diffuseLight;
-    }
-    return bestHit;
-  }
+	{
+		float t = ray.direction.y == 0 ? fPosInf : -ray.origin.y / ray.direction.y;
+		if (t > 0 && t < bestHit.distance)
+		{
+			bestHit.distance = t; bestHit.position = t * ray.direction + ray.origin; bestHit.normal = f010;
+			bestHit.specular = g.objectColor; bestHit.diffuse = g.diffuseLight;
+		}
+		return bestHit;
+	}
+	
   void pixDepth_u(uint2 id, uint d) { depthColor[id_to_i(id, g.screenSize)] = d; }
   void pixDepth_f(uint2 id, float d) { pixDepth_u(id, (uint)(d / g.maxDist * uint_max)); }
   bool BDraw_AppendBuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
@@ -224,115 +227,123 @@
   void pix_c32(uint2 id, Color32 c) { pix_u(id, c32_u(c)); }
   void pix_f3(uint2 id, float3 c) { pix_c32(id, f4_c32(float4(c, 1))); }
   TSphere GetSphere(float radius, float3 position, float diffuse, float3 color) { TSphere sphere; sphere.radius = radius; sphere.position = position; sphere.diffuse = diffuse; sphere.color = color; return sphere; }
+	
   TSphere GetSphere(uint i)
-  {
-    uint n = roundu(sqrt(g.sphereN)); uint2 id = i_to_id(i, u11 * n); float2 d = f11 * 3, p1 = n / 2u * d, p0 = -p1, p = p0 + id * d;
-    return GetSphere(g.sphereRadius, float3(p.x, g.sphereRadius, p.y), g.diffuseLight, g.objectColor);
-  }
+	{
+		uint n = roundu(sqrt(g.sphereN)); uint2 id = i_to_id(i, u11 * n); float2 d = f11 * 3, p1 = n / 2u * d, p0 = -p1, p = p0 + id * d;
+		return GetSphere(g.sphereRadius, float3(p.x, g.sphereRadius, p.y), g.diffuseLight, g.objectColor);
+	}
+	
   TRayHit IntersectSphere(TRay ray, TRayHit bestHit, uint sphereI)
-  {
-    TSphere sphere = GetSphere(sphereI);
-    float3 p = sphere.position, d = ray.origin - p;
-    float b = -dot(ray.direction, d), h = b * b - dot(d, d) + sqr(sphere.radius);
-    if (h > 0)
-    {
-      h = sqrt(h); h = b + (b > h ? -h : h);
-      if (h > 0 && h < bestHit.distance)
-      {
-        bestHit.distance = h; bestHit.position = h * ray.direction + ray.origin; bestHit.normal = normalize(bestHit.position - p);
-        bestHit.specular = sphere.color;
-        bestHit.diffuse = sphere.diffuse;
-      }
-    }
-    return bestHit;
-  }
+	{
+		TSphere sphere = GetSphere(sphereI);
+		float3 p = sphere.position, d = ray.origin - p;
+		float b = -dot(ray.direction, d), h = b * b - dot(d, d) + sqr(sphere.radius);
+		if (h > 0)
+		{
+			h = sqrt(h); h = b + (b > h ? -h : h);
+			if (h > 0 && h < bestHit.distance)
+			{
+				bestHit.distance = h; bestHit.position = h * ray.direction + ray.origin; bestHit.normal = normalize(bestHit.position - p);
+				bestHit.specular = sphere.color;
+				bestHit.diffuse = sphere.diffuse;
+			}
+		}
+		return bestHit;
+	}
+	
   TBox GetBox(float3 mx, float3 mn, float diffuse, float3 color) { TBox box; box.mx = mx; box.mn = mn; box.diffuse = diffuse; box.color = color; return box; }
+	
   TBox GetBox(uint i) { return GetBox(float3(4, 6, 4), float3(-4, 0, -4), g.diffuseLight, g.objectColor); }
   TRayHit IntersectBox(TRay ray, TRayHit bestHit, uint i)
-  {
-    TBox box = GetBox(i);
-    float3 t0 = (box.mn - ray.origin) / ray.direction, t1 = (box.mx - ray.origin) / ray.direction;
-    float dstA = cmax(min(t0, t1)), dstB = cmin(max(t0, t1)), dstToBox = max(0, dstA), dstInsideBox = max(0, dstB - dstToBox), eps = 0.00001f;
-    if (dstA >= 0 && dstA <= dstB) 
-    {
-      if (dstToBox < bestHit.distance)
-      {
-        bestHit.distance = dstToBox;
-        float3 p = bestHit.position = dstToBox * ray.direction + ray.origin;
-        bestHit.normal = (abs(p - box.mx) < eps) - (abs(p - box.mn) < eps); bestHit.specular = box.color; bestHit.diffuse = box.diffuse;
-      }
-    }
-    else if (dstA < 0 && dstB > 0) 
-    {
-      if (dstToBox < bestHit.distance)
-      {
-        float3 p = dstToBox * ray.direction + ray.origin, normal = (abs(p - box.mx) < eps) - (abs(p - box.mn) < eps);
-        if (all(normal != f010))
-        {
-          bestHit.distance = dstToBox; bestHit.position = p; bestHit.normal = -normal;
-          bestHit.specular = box.color; bestHit.diffuse = box.diffuse;
-        }
-      }
-    }
-    return bestHit;
-  }
+	{
+		TBox box = GetBox(i);
+		float3 t0 = (box.mn - ray.origin) / ray.direction, t1 = (box.mx - ray.origin) / ray.direction;
+		float dstA = cmax(min(t0, t1)), dstB = cmin(max(t0, t1)), dstToBox = max(0, dstA), dstInsideBox = max(0, dstB - dstToBox), eps = 0.00001f;
+		if (dstA >= 0 && dstA <= dstB) 
+		{
+			if (dstToBox < bestHit.distance)
+			{
+				bestHit.distance = dstToBox;
+				float3 p = bestHit.position = dstToBox * ray.direction + ray.origin;
+				bestHit.normal = (abs(p - box.mx) < eps) - (abs(p - box.mn) < eps); bestHit.specular = box.color; bestHit.diffuse = box.diffuse;
+			}
+		}
+		else if (dstA < 0 && dstB > 0) 
+		{
+			if (dstToBox < bestHit.distance)
+			{
+				float3 p = dstToBox * ray.direction + ray.origin, normal = (abs(p - box.mx) < eps) - (abs(p - box.mn) < eps);
+				if (all(normal != f010))
+				{
+					bestHit.distance = dstToBox; bestHit.position = p; bestHit.normal = -normal;
+					bestHit.specular = box.color; bestHit.diffuse = box.diffuse;
+				}
+			}
+		}
+		return bestHit;
+	}
+	
   TRayHit Trace(TRay ray)
-  {
-    TRayHit bestHit = CreateRayHit();
-    uint i;
-    for (i = 0; i < g.sphereN; i++) bestHit = IntersectSphere(ray, bestHit, i);
-    for (i = 0; i < g.boxN; i++) bestHit = IntersectBox(ray, bestHit, i);
-    if (g.useGroundPlane) bestHit = IntersectGroundPlane(ray, bestHit);
-    return bestHit;
-  }
+	{
+		TRayHit bestHit = CreateRayHit();
+		uint i;
+		for (i = 0; i < g.sphereN; i++) bestHit = IntersectSphere(ray, bestHit, i);
+		for (i = 0; i < g.boxN; i++) bestHit = IntersectBox(ray, bestHit, i);
+		if (g.useGroundPlane) bestHit = IntersectGroundPlane(ray, bestHit);
+		return bestHit;
+	}
+	
   float3 Shade(inout TRay ray, TRayHit hit)
-  {
-    float3 color = f000;
-    if (hit.distance < fPosInf)
-    {
-      float3 specular = hit.specular, albedo = specular * 0.8f;
-      float hit_diffuse = hit.diffuse;
-      ray.origin = hit.position + hit.normal * 0.001f; 
-      ray.direction = reflect(ray.direction, hit.normal);
-      ray.energy *= specular;
-      TRay shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -g.directionalLight.xyz);
-      TRayHit shadowHit = Trace(shadowRay);
-      ray.energy *= (1 - hit_diffuse);
-      if (shadowHit.distance != fPosInf) { albedo *= 1 - g.shadows; ray.energy *= 1 - g.shadows; }
-      color = -dot(hit.normal, g.directionalLight.xyz) * g.directionalLight.w * hit_diffuse * albedo;
-    }
-    else
-    {
-      ray.energy = f000;
-      float phi = atan2(ray.direction.x, -ray.direction.z) * 0.5f, theta = acos(ray.direction.y);
-      float2 p = float2(phi, theta) * -rcp(PI) + 1;
-      int2 pixId = floori(p * g.skyboxSize);
-      uint pixI = id_to_i(pixId, g.skyboxSize);
-      color = c32_f4(skyboxBuffer[pixI]).xyz;
-    }
-    return color;
-  }
+	{
+		float3 color = f000;
+		if (hit.distance < fPosInf)
+		{
+			float3 specular = hit.specular, albedo = specular * 0.8f;
+			float hit_diffuse = hit.diffuse;
+			ray.origin = hit.position + hit.normal * 0.001f; 
+			ray.direction = reflect(ray.direction, hit.normal);
+			ray.energy *= specular;
+			TRay shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -g.directionalLight.xyz);
+			TRayHit shadowHit = Trace(shadowRay);
+			ray.energy *= (1 - hit_diffuse);
+			if (shadowHit.distance != fPosInf) { albedo *= 1 - g.shadows; ray.energy *= 1 - g.shadows; }
+			color = -dot(hit.normal, g.directionalLight.xyz) * g.directionalLight.w * hit_diffuse * albedo;
+		}
+		else
+		{
+			ray.energy = f000;
+			float phi = atan2(ray.direction.x, -ray.direction.z) * 0.5f, theta = acos(ray.direction.y);
+			float2 p = float2(phi, theta) * -rcp(PI) + 1;
+			int2 pixId = floori(p * g.skyboxSize);
+			uint pixI = id_to_i(pixId, g.skyboxSize);
+			color = c32_f4(skyboxBuffer[pixI]).xyz;
+		}
+		return color;
+	}
+	
   [numthreads(numthreads2, numthreads2, 1)] void traceRay(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (all(id.xy < g.screenSize))
-    {
-      float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
-      TRay ray = CreateCameraRay(uv);
-      float3 pixColor = f000;
-      float minDist = g.maxDist;
-      for (uint traceI = 0; traceI < 8; traceI++)
-      {
-        TRayHit hit = Trace(ray);
-        if (traceI == 0) minDist = hit.distance;
-        pixColor += ray.energy * Shade(ray, hit);
-        if (all(ray.energy == 0)) break;
-      }
-      pixColor = max(pixColor, g.objectColor * 0.1f);
-      pix_f3(id.xy, pixColor);
-      pixDepth_f(id.xy, minDist);
-    }
+	{
+		float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
+		TRay ray = CreateCameraRay(uv);
+		float3 pixColor = f000;
+		float minDist = g.maxDist;
+		for (uint traceI = 0; traceI < 8; traceI++)
+		{
+			TRayHit hit = Trace(ray);
+			if (traceI == 0) minDist = hit.distance;
+			pixColor += ray.energy * Shade(ray, hit);
+			if (all(ray.energy == 0)) break;
+		}
+		pixColor = max(pixColor, g.objectColor * 0.1f);
+		pix_f3(id.xy, pixColor);
+		pixDepth_f(id.xy, minDist);
+	}
+	
     }
   }
   #pragma kernel traceRay

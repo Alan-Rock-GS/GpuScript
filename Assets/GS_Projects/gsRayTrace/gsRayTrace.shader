@@ -165,19 +165,20 @@ Shader "gs/gsRayTrace"
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); onRenderObject_LIN(product(g.screenSize), i, index, LIN); return LIN; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; ray.energy = f111; ray.specular = f000; ray.diffuse = 0; return ray; }
+	
   TRay CreateCameraRay(float2 uv) { return CreateRay(mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1) : f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz)); }
   uint pixDepth_u(uint2 id) { return depthColor[id_to_i(id, g.screenSize)]; }
   float pixDepth_f(uint2 id) { return pixDepth_u(id) / (float)uint_max * (g.maxDist - 2); }
   uint pix_u(uint2 id) { return depthColor[id_to_i(id, g.screenSize) + product(g.screenSize)]; }
   Color32 pix_c32(uint2 id) { return u_c32(pix_u(id)); }
   v2f vert_DrawScreen(uint i, uint j, v2f o)
-  {
-    uint2 id = i_to_id(i, g.screenSize);
-    float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
-    TRay ray = CreateCameraRay(uv);
-    o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
-    return o;
-  }
+	{
+		uint2 id = i_to_id(i, g.screenSize);
+		float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
+		TRay ray = CreateCameraRay(uv);
+		o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
+		return o;
+	}
   uint BDraw_SignalSmpN(uint chI) { return 1024; }
   float BDraw_SignalThickness(uint chI) { return 0.004f; }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }

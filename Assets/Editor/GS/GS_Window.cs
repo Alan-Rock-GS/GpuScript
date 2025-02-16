@@ -449,19 +449,40 @@ public class GS_Window : EditorWindow
 			if (gameObject == null) return false;
 			_GS_component = gameObject.GetComponent(_GS_Name);
 
-			if (!_GS_component)
-			{
-				try
-				{
-					Type componentType = GetComponentTypeByName(_GS_Name);
-					_GS_component = gameObject.AddComponent(componentType);
-					if (!_GS_component) return false;
-				}
-				catch (Exception) { AutoRefresh = true; return false; }
-			}
-			_GS_component ??= gameObject.AddComponent(GetComponentTypeByName(gsName));
+			_GS_component ??= FindOrCreate_Script(gameObject, _GS_Name);
+
+			//if (!_GS_component)
+			//{
+			//	try
+			//	{
+			//		//Type componentType = GetComponentTypeByName(_GS_Name);
+			//		//_GS_component = gameObject.AddComponent(componentType);
+			//		//if (!_GS_component) return false;
+
+			//		Type componentType = GetComponentTypeByName(_GS_Name);
+			//		_GS_component = gameObject.GetComponent(componentType);
+			//		if (!_GS_component)
+			//		{
+			//			_GS_component = gameObject.AddComponent(componentType);
+			//			if (!_GS_component) return false;
+			//		}
+
+			//	}
+			//	catch (Exception) { AutoRefresh = true; return false; }
+			//}
+			//_GS_component ??= gameObject.AddComponent(GetComponentTypeByName(gsName));
 			if (_GS_component == null) return false;
 			created_GS_Code = (GS_script = FindOrCreate_Script(gameObject, gsName)) != null;
+
+			//Type componentType = GetComponentTypeByName(gsName);
+			//GS_script = gameObject.GetComponent(componentType);
+			//if (!GS_script)
+			//{
+			//	GS_script = gameObject.AddComponent(componentType);
+			//}
+
+
+
 			return created_GS_Code;
 		}
 
@@ -1114,7 +1135,14 @@ public class GS_Window : EditorWindow
 						bool sync = k.sync;
 
 						string numThreads = dimensionN <= 1 ? "numthreads1, 1, 1" : dimensionN == 2 ? "numthreads2, numthreads2, 1" : "numthreads3, numthreads3, numthreads3";
-						string thread1 = threadN[0], thread2 = threadN[1], thread3 = threadN[2];
+						string thread1 = threadN[0].Replace(".", "_"), thread2 = threadN[1].Replace(".", "_"), thread3 = threadN[2].Replace(".", "_");
+						//if (dimension.x == 1 && thread1.Contains(".")) thread1 = "(uint)" + thread1;
+						//if (dimension.y == 1 && thread2.Contains(".")) thread2 = "(uint)" + thread2;
+						//if (dimension.z == 1 && thread3.Contains(".")) thread3 = "(uint)" + thread3;
+						//if (thread1.Contains("_")) thread1 = thread1.Replace(".","_");
+						//if (thread2.Contains("_")) thread2 = "(uint)" + thread2;
+						//if (thread3.Contains("_")) thread3 = "(uint)" + thread3;
+
 						var (id_less, id_to_i) = StrBldr();
 						if (dimension.z == 1) id_less.Add($"id.z < {thread3} && ");
 						if (dimension.y == 1) id_less.Add($"{(dimension.x == 1 ? "id.y" : "id.z")} < {thread2} && "); else if (dimension.y == 2) id_less.Add($"id.yz < {thread2} && ");
@@ -2194,6 +2222,8 @@ $"\n    {m_name}_To_UI();",
 		}
 		public IEnumerator Build_Coroutine()
 		{
+			gameObject = FindOrCreate_GameObject(gsName);
+
 			StrBldr compileTimeStr = StrBldr();
 			ClockSec();
 			compileTimeStr.Add("Build Times");
@@ -2210,17 +2240,23 @@ $"\n    {m_name}_To_UI();",
 			Create_GS_Code();
 			yield return This.StartCoroutine(attempt(() => gameObject = FindOrCreate_GameObject(gsName)));
 			Component GS_script = FindOrCreate_Script(gameObject, gsName);
+			//if (GS_script == null)
+			//{
+			//	//AssetDatabase.Refresh();
+			//	//yield return null;
+			//	//GS_script = FindOrCreate_Script(gameObject, gsName);
+			//	Type componentType = GetComponentTypeByName(gsName);
+			//	//GS_script = gameObject.AddComponent(componentType);
+			//	GS_script = gameObject.GetComponent(componentType);
+			//	if (!GS_script)
+			//	{
+			//		GS_script = gameObject.AddComponent(componentType);
+			//	}
+			//}
 			if (GS_script == null)
 			{
-				AssetDatabase.Refresh();
-				yield return null;
-				GS_script = FindOrCreate_Script(gameObject, gsName);
-
-				if (GS_script == null)
-				{
-					print($"Abort Build, GS_script == null, gsName = {gsName}");
-					yield break;
-				}
+				print($"Abort Build, GS_script == null, gsName = {gsName}");
+				yield break;
 			}
 			if ((gs = gameObject.GetComponent<GS>()) == null) //Write a simple .cs file
 			{
@@ -2927,6 +2963,19 @@ $"\n    {m_name}_To_UI();",
 		catch (Exception) { AutoRefresh = true; return null; }
 		return o;
 	}
+	//static Component FindOrCreate_Script(GameObject o, string _GS)
+	//{
+	//	if (o == null)
+	//		return null;
+	//	Component GS_script = o.GetComponent(_GS);
+	//	if (!GS_script)
+	//	{
+	//		try { GS_script = o.AddComponent(GetComponentTypeByName(_GS)); } catch (Exception) { }
+	//		AutoRefresh = true;
+	//		return null;
+	//	}
+	//	return GS_script;
+	//}
 	static Component FindOrCreate_Script(GameObject o, string _GS)
 	{
 		if (o == null)
@@ -2934,9 +2983,9 @@ $"\n    {m_name}_To_UI();",
 		Component GS_script = o.GetComponent(_GS);
 		if (!GS_script)
 		{
-			try { GS_script = o.AddComponent(GetComponentTypeByName(_GS)); } catch (Exception) { }
-			AutoRefresh = true;
-			return null;
+			Type componentType = GetComponentTypeByName(_GS);
+			GS_script = o.GetComponent(componentType);
+			GS_script ??= o.AddComponent(componentType);
 		}
 		return GS_script;
 	}
