@@ -1110,6 +1110,7 @@ public class GS_Window : EditorWindow
 			compute_or_material_shader.Add(" return LIN; }");
 		}
 
+		public string Replace_dot_with_underscore(string s) => s.Contains(".") && s.After(".").DoesNotStartWithAny("x", "y", "z") ? s.Replace(".", "_") : s;
 		public StrBldr kernels, kernels_, kernelWrappers, kernelRunMethods;
 		public void Calc_kernels()
 		{
@@ -1135,13 +1136,7 @@ public class GS_Window : EditorWindow
 						bool sync = k.sync;
 
 						string numThreads = dimensionN <= 1 ? "numthreads1, 1, 1" : dimensionN == 2 ? "numthreads2, numthreads2, 1" : "numthreads3, numthreads3, numthreads3";
-						string thread1 = threadN[0].Replace(".", "_"), thread2 = threadN[1].Replace(".", "_"), thread3 = threadN[2].Replace(".", "_");
-						//if (dimension.x == 1 && thread1.Contains(".")) thread1 = "(uint)" + thread1;
-						//if (dimension.y == 1 && thread2.Contains(".")) thread2 = "(uint)" + thread2;
-						//if (dimension.z == 1 && thread3.Contains(".")) thread3 = "(uint)" + thread3;
-						//if (thread1.Contains("_")) thread1 = thread1.Replace(".","_");
-						//if (thread2.Contains("_")) thread2 = "(uint)" + thread2;
-						//if (thread3.Contains("_")) thread3 = "(uint)" + thread3;
+						string thread1 = Replace_dot_with_underscore(threadN[0]), thread2 = Replace_dot_with_underscore(threadN[1]), thread3 = Replace_dot_with_underscore(threadN[2]);
 
 						var (id_less, id_to_i) = StrBldr();
 						if (dimension.z == 1) id_less.Add($"id.z < {thread3} && ");
