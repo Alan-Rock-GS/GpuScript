@@ -4,7 +4,6 @@ public class gsAppendBuff_GS : _GS
 {
   uint IndexN, BitN, N;
   uint[] Bits, Sums, Indexes;
-  //bool useInverseBits;
   void Get_Bits() { Size(BitN); }
   void Get_Existing_Bits() { Size(BitN); }
   void Get_Bits_Sums() { Size(BitN); Sync(); }
