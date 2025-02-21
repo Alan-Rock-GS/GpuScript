@@ -103,7 +103,8 @@ namespace GpuScript
       }
     }
 
-    public float siRange, usRange;
+    //public float siRange, usRange;
+    public float2 range => float2(range_Min, range_Max);
     public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }
 
     public static implicit operator float(UI_float f) => f.si;

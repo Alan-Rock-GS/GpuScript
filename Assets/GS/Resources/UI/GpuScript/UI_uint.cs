@@ -62,6 +62,7 @@ namespace GpuScript
     public override object v_obj { get => v; set => v = value.To_uint(); }
     public override bool hasRange { get => range_Min < range_Max; }
     uint _range_Min, _range_Max;
+    public uint2 range { get => uint2(range_Min, range_Max); set { range_Min = value.x; range_Max = value.y; } }
     public uint range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(value); } }
     public uint range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
     public uint previousValue;
