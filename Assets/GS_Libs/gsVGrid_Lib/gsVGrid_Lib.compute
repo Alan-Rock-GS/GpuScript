@@ -59,7 +59,7 @@
     float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, gridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
     float4 BDraw_boxColor;
     float2 gridX, gridY, gridZ, paletteRange, textSize, meshRange;
-    float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesRangeMin3, axesRangeMax3, axesColor, slices;
+    float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesRangeMin3, axesRangeMax3, axesColor, slices, sliceRotation;
     uint3 nodeN;
     uint2 viewSize;
     uint4 viewRect;
@@ -179,10 +179,12 @@
     }
   }
   TRay CreateRayHit() { TRay hit; hit.origin = f000; hit.dist = fPosInf; hit.direction = f000; hit.color = f0000; return hit; }
+	
   float3 gridMin() { return float3(g.gridX.x, g.gridY.x, g.gridZ.x); }
   float3 NodeLocation3(uint3 id) { return id * g.resolution + gridMin(); }
   float3 gridMax() { return float3(g.gridX.y, g.gridY.y, g.gridZ.y); }
   void Assign(inout TRay hit, float3 position, float3 normal, float4 color, float dist) { hit.origin = position; hit.direction = normal; hit.color = color; hit.dist = dist; }
+	
   void pixDepthColor(uint i, float d, float4 c) { depthColors[i] = uint2((uint)(d / g.maxDist * uint_max), c32_u(f4_c32(c))); }
   void pixDepthColor(uint2 id, float d, float4 c) { pixDepthColor(id_to_i(id, g.viewSize), d, c); }
   uint NodeI(uint3 id) { return id_to_i(id, g.nodeN); }
@@ -192,11 +194,12 @@
     unchecked
     {
       if (all(id < g.nodeN))
-    {
-      float3 p = NodeLocation3(id);
-      float R = 0.3333f, v = sqr(length(p.xz) - R) + sqr(p.y);
-      Val3(id, v * 10);
-    }
+	{
+		float3 p = NodeLocation3(id);
+		float R = 0.3333f, v = sqr(length(p.xz) - R) + sqr(p.y);
+		Val3(id, v * 10);
+	}
+	
     }
   }
   bool BDraw_AppendBuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
@@ -236,16 +239,19 @@
     }
   }
   TRay CreateShaderCameraRay(float2 _uv)
-  {
-    TRay ray;
-    ray.origin = mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * _uv / float2(aspect(g.viewSize), 1), 0, 1) : f0001).xyz;
-    ray.direction = normalize(mul(g.camToWorld, float4(mul(g.cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
-    ray.color = f0000;
-    ray.dist = 0;
-    return ray;
-  }
+	{
+		TRay ray;
+		ray.origin = mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * _uv / float2(aspect(g.viewSize), 1), 0, 1) : f0001).xyz;
+		ray.direction = normalize(mul(g.camToWorld, float4(mul(g.cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
+		ray.color = f0000;
+		ray.dist = 0;
+		return ray;
+	}
+	
   TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; ray.color = f0000; ray.dist = 0; return ray; }
+	
   TRay CreateCameraRay(float2 _uv) { TRay ray = CreateShaderCameraRay(_uv); return CreateRay(ray.origin, ray.direction); }
+	
   float Val(uint i) { return Vals[i] / 100000.0f; }
   float3 GetCorner_q(float3 p) { return clamp((p - gridMin()) / g.resolution, f000, (int3)g.nodeN - f111); }
   uint3 GetCorner_I(float3 q) { return (uint3)q; }
@@ -254,180 +260,180 @@
   float4 paletteBufferColor(float v) { return c32_f4(paletteBuffer[roundu(clamp(v * 255, 0, 255))]); }
   float4 GetPointColor(float3 p, float val) { return paletteBufferColor(lerp1(g.paletteRange, val)); }
   float4 GetNormalColor(TRay ray, float3 normal, float val, float3 p)
-  {
-    float3 lightDirection = _WorldSpaceLightPos0.xyz;
-    float3 h = (lightDirection - ray.direction) / 2;
-    float v = 1, gloss = 0.5f, s = sqr(abs(dot(normal, h))) * gloss, NdotL = abs(dot(normal, lightDirection));
-    if (g.gridLineThickness > 0)
-    {
-      float w = 0.1f / max(0.00001f, g.gridLineThickness);
-      p /= g.resolution;
-      float3 blend = normalize(max((abs(normal) - 0.2f) * 7, 0.0f));
-      v = csum(blend * saturate(0.5f * float3(product((1 - abs(1 - 2 * frac(p.yz))) * w), product((1 - abs(1 - 2 * frac(p.xz))) * w), product((1 - abs(1 - 2 * frac(p.xy))) * w))));
-    }
-    return float4(saturate((GetPointColor(p, val).xyz * (NdotL + 0.5f) + s) * v), g.opacity);
-  }
+	{
+		float3 lightDirection = _WorldSpaceLightPos0.xyz;
+		float3 h = (lightDirection - ray.direction) / 2;
+		float v = 1, gloss = 0.5f, s = sqr(abs(dot(normal, h))) * gloss, NdotL = abs(dot(normal, lightDirection));
+		if (g.gridLineThickness > 0)
+		{
+			float w = 0.1f / max(0.00001f, g.gridLineThickness);
+			p /= g.resolution;
+			float3 blend = normalize(max((abs(normal) - 0.2f) * 7, 0.0f));
+			v = csum(blend * saturate(0.5f * float3(product((1 - abs(1 - 2 * frac(p.yz))) * w), product((1 - abs(1 - 2 * frac(p.xz))) * w), product((1 - abs(1 - 2 * frac(p.xy))) * w))));
+		}
+		return float4(saturate((GetPointColor(p, val).xyz * (NdotL + 0.5f) + s) * v), g.opacity);
+	}
+	
   uint3 nodeN1() { return max(g.nodeN, u111) - u111; }
   uint GridToIndex(int3 _I) { return id_to_i(clamp(_I, u000, nodeN1()), g.nodeN); }
   uint4 GetFaceI(uint3 _I, int3 x, int3 y, int3 z, int3 w) { return new uint4(GridToIndex((int3)_I + x), GridToIndex((int3)_I + y), GridToIndex((int3)_I + z), GridToIndex((int3)_I + w)); }
   uint4 GetFaceI(uint3 _I, int3 d) { return GetFaceI(_I, i000 + d, i001 + d, i010 + d, i011 + d); }
   float Val(float3 p) { float3 q = GetCorner_q(p); uint3 _I = GetCorner_I(q); return Interpolate_Val(frac(q), GetFaceI(_I, i000), GetFaceI(_I, i100)); }
+	
   float setDepth(float depth, TRay ray, inout float3 p, inout float val) { p = depth * ray.direction + ray.origin; val = Val(p); return depth; }
+	
+  void DrawSlice(float3 axis, TRay ray, inout TRay hit, inout float3 p, inout float val, inout float depth, inout bool found, inout float4 color, float3 normal)
+	{
+		float depth_slice;
+		float3 axis2 = rotateZYXDeg(axis, g.sliceRotation), q = PlaneLineIntersectionPoint(axis2, g.slices, ray.origin, ray.direction);
+		if (q.x != fNegInf && IsNotOutside(q, gridMin(), gridMax()))
+		{
+			depth_slice = setDepth(max(distance(q, ray.origin), 0.018f), ray, p, val);
+			if (depth_slice < depth) { found = true; depth = depth_slice; color = GetNormalColor(ray, axis2, val, p); Assign(hit, p, normal, color, depth); }
+		}
+	}
+	
   float3 Val(float3 p, float d) { return float3(Val(p + f100 * d), Val(p + f010 * d), Val(p + f001 * d)); }
   float3 Normal(float3 p)
-  {
-    float r = g.resolution * 0.5f, margin = r * 0.02f;
-    float3 normal = p <= gridMin() + margin;
-    if (all(normal == f000)) normal = p >= gridMax() - margin;
-    if (all(normal == f000)) normal = normalize(Val(p, r) - Val(p, -r));
-    return normal;
-  }
+	{
+		float r = g.resolution * 0.5f, margin = r * 0.02f;
+		float3 normal = p <= gridMin() + margin;
+		if (all(normal == f000)) normal = p >= gridMax() - margin;
+		if (all(normal == f000)) normal = normalize(Val(p, r) - Val(p, -r));
+		return normal;
+	}
+	
   float4 GetColor(TRay ray, inout float3 normal, float val, float3 p) { return GetNormalColor(ray, normal = Normal(p), val, p); }
   void TraceRay(uint3 id, bool isSimple)
+	{
+		TRay ray = CreateCameraRay(2.0f * id.xy / g.viewSize - 1), hit = CreateRayHit();
+		float3 mn = gridMin(), mx = max(mn + 0.001f, gridMax());
+		float2 dst = HitGridBox(mn, mx, ray.origin, ray.direction);
+		bool hitOutside = HitOutsideGrid(dst), hitInside = HitInsideGrid(dst);
+		if (hitOutside || hitInside)
+		{
+			float3 p = f000, normal = f100;
+			float val = 0, depth = setDepth(max(dst.x, 0.018f), ray, p, val), depth2 = dst.y, step = g.resolution, d0, d2;
+			bool found = false;
+			float4 color = f0000;
+			if (g.gridDrawFront && hitOutside) { color = GetColor(ray, normal, val, p); Assign(hit, p, normal, color, depth); }
+			else
+			{
+				float val0 = val;
+				if (isSimple)
+				{
+					float v = g.meshVal;
+					for (uint i = 0, n = csum(g.nodeN); i < n && !found; i++)
+					{
+						if (val0 > v && val <= v)
+						{
+							val0 = val;
+							for (d0 = max(0, depth - step), d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > v) d0 = depth; else d2 = depth; }
+							color = GetColor(ray, normal, val, p);
+							Assign(hit, p, normal, color, depth); found = true;
+						}
+						else if (val0 < v && val >= v)
+						{
+							val0 = val;
+							for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val < v) d0 = depth; else d2 = depth; }
+							if (depth + step < depth2)
+							{
+								color = GetColor(ray, normal, val, p);
+								Assign(hit, p, normal, color, depth); found = true;
+							}
+						}
+						else val0 = val;
+						if (depth + step > depth2) { depth = setDepth(depth2, ray, p, val); break; }
+						depth = setDepth(depth + step, ray, p, val);
+					}
+				}
+				else
+				{
+					for (uint i = 0, n = csum(g.nodeN); i < n && (g.opacity < 0.999f || !found); i++)
+					{
+						if (i == 0 && hitOutside && val <= g.meshRange.y && val >= g.meshRange.x)
+						{
+							val0 = val;
+							color = GetColor(ray, normal, val, p);
+							Assign(hit, p, normal, color, depth);
+							found = true;
+						}
+						else if (val0 > g.meshRange.y && val <= g.meshRange.y)
+						{
+							val0 = val;
+							for (d0 = max(0, depth - step), d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > g.meshRange.y) d0 = depth; else d2 = depth; }
+							color = GetColor(ray, normal, val, p);
+							if (!found) { Assign(hit, p, normal, color, depth); found = true; }
+							else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
+						}
+						else if (val0 < g.meshRange.x && val >= g.meshRange.x)
+						{
+							val0 = val;
+							for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val < g.meshRange.x) d0 = depth; else d2 = depth; }
+							if (depth + step < depth2)
+							{
+								color = GetColor(ray, normal, val, p);
+								if (!found) { Assign(hit, p, normal, color, depth); found = true; }
+								else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
+							}
+						}
+						else if (val0 > g.meshRange.x && val <= g.meshRange.x)
+						{
+							val0 = val;
+							for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > g.meshRange.x) d0 = depth; else d2 = depth; }
+							color = GetColor(ray, normal, val, p);
+							if (!found) { Assign(hit, p, normal, color, depth); found = true; }
+							else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
+						}
+						else if (val0 < g.meshRange.y && val >= g.meshRange.y)
+						{
+							val0 = val;
+							for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val < g.meshRange.y) d0 = depth; else d2 = depth; }
+							color = GetColor(ray, normal, val, p);
+							if (!found) { Assign(hit, p, normal, color, depth); found = true; }
+							else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
+						}
+						else if (hitInside && depth > step / 2 && val0 > g.meshRange.x && val <= g.meshRange.x)
+						{
+							val0 = val;
+							for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > g.meshRange.x) d0 = depth; else d2 = depth; }
+							color = GetColor(ray, normal, val, p);
+							if (!found) { Assign(hit, p, normal, color, depth); found = true; }
+							else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
+						}
+						else val0 = val;
+						if (depth + step > depth2) { depth = setDepth(depth2, ray, p, val); break; }
+						depth = setDepth(depth + step, ray, p, val);
+					}
+				}
+				if (g.show_slices) for (uint i = 0; i < 3; i++) DrawSlice(index(f000, i, 1.0f), ray, hit, p, val, depth, found, color, normal);
+				if (g.gridDrawBack)
+				{
+					color = GetColor(ray, normal, val, p);
+					if (!found) Assign(hit, p, normal, color, depth);
+					else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
+				}
+			}
+		}
+		pixDepthColor(id.xy, hit.dist, hit.color);
+	}
+	
+  [numthreads(numthreads2, numthreads2, 1)] void Grid_TraceRay(uint3 id : SV_DispatchThreadID)
   {
-    TRay ray = CreateCameraRay(2.0f * id.xy / g.viewSize - 1), hit = CreateRayHit();
-    float3 mn = gridMin(), mx = max(mn + 0.001f, gridMax());
-    float2 dst = HitGridBox(mn, mx, ray.origin, ray.direction);
-    bool hitOutside = HitOutsideGrid(dst), hitInside = HitInsideGrid(dst);
-    if (hitOutside || hitInside)
+    unchecked
     {
-      float3 p = f000, normal = f100;
-      float val = 0, depth = setDepth(max(dst.x, 0.018f), ray, p, val), depth2 = dst.y, step = g.resolution, d0, d2;
-      bool found = false;
-      float4 color;
-      if (g.gridDrawFront && hitOutside) { color = GetColor(ray, normal, val, p); Assign(hit, p, normal, color, depth); }
-      else
-      {
-        float val0 = val;
-        if (isSimple)
-        {
-          float v = g.meshVal;
-          for (uint i = 0, n = csum(g.nodeN); i < n && !found; i++)
-          {
-            if (val0 > v && val <= v)
-            {
-              val0 = val;
-              for (d0 = max(0, depth - step), d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > v) d0 = depth; else d2 = depth; }
-              color = GetColor(ray, normal, val, p);
-              Assign(hit, p, normal, color, depth); found = true;
-            }
-            else if (val0 < v && val >= v)
-            {
-              val0 = val;
-              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val < v) d0 = depth; else d2 = depth; }
-              if (depth + step < depth2)
-              {
-                color = GetColor(ray, normal, val, p);
-                Assign(hit, p, normal, color, depth); found = true;
-              }
-            }
-            else val0 = val;
-            if (depth + step > depth2) { depth = setDepth(depth2, ray, p, val); break; }
-            depth = setDepth(depth + step, ray, p, val);
-          }
-        }
-        else
-        {
-          for (uint i = 0, n = csum(g.nodeN); i < n && (g.opacity < 0.999f || !found); i++)
-          {
-            if (i == 0 && hitOutside && val <= g.meshRange.y && val >= g.meshRange.x)
-            {
-              val0 = val;
-              color = GetColor(ray, normal, val, p);
-              Assign(hit, p, normal, color, depth);
-              found = true;
-            }
-            else if (val0 > g.meshRange.y && val <= g.meshRange.y)
-            {
-              val0 = val;
-              for (d0 = max(0, depth - step), d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > g.meshRange.y) d0 = depth; else d2 = depth; }
-              color = GetColor(ray, normal, val, p);
-              if (!found) { Assign(hit, p, normal, color, depth); found = true; }
-              else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
-            }
-            else if (val0 < g.meshRange.x && val >= g.meshRange.x)
-            {
-              val0 = val;
-              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val < g.meshRange.x) d0 = depth; else d2 = depth; }
-              if (depth + step < depth2)
-              {
-                color = GetColor(ray, normal, val, p);
-                if (!found) { Assign(hit, p, normal, color, depth); found = true; }
-                else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
-              }
-            }
-            else if (val0 > g.meshRange.x && val <= g.meshRange.x)
-            {
-              val0 = val;
-              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > g.meshRange.x) d0 = depth; else d2 = depth; }
-              color = GetColor(ray, normal, val, p);
-              if (!found) { Assign(hit, p, normal, color, depth); found = true; }
-              else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
-            }
-            else if (val0 < g.meshRange.y && val >= g.meshRange.y)
-            {
-              val0 = val;
-              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val < g.meshRange.y) d0 = depth; else d2 = depth; }
-              color = GetColor(ray, normal, val, p);
-              if (!found) { Assign(hit, p, normal, color, depth); found = true; }
-              else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
-            }
-            else if (hitInside && depth > step / 2 && val0 > g.meshRange.x && val <= g.meshRange.x)
-            {
-              val0 = val;
-              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = setDepth((d0 + d2) / 2, ray, p, val); if (val > g.meshRange.x) d0 = depth; else d2 = depth; }
-              color = GetColor(ray, normal, val, p);
-              if (!found) { Assign(hit, p, normal, color, depth); found = true; }
-              else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
-            }
-            else val0 = val;
-            if (depth + step > depth2) { depth = setDepth(depth2, ray, p, val); break; }
-            depth = setDepth(depth + step, ray, p, val);
-          }
-        }
-        if (g.show_slices)
-        {
-          float2 dst_slice; float depth_slice;
-          if (IsNotOutside(g.slices.x, g.gridX))
-          {
-            dst_slice = HitGridBox(float3(g.slices.x, gridMin().yz), float3(g.slices.x + 0.001f, gridMax().yz), ray.origin, ray.direction);
-            if (HitOutsideGrid(dst_slice))
-            {
-              depth_slice = setDepth(max(dst_slice.x, 0.018f), ray, p, val);
-              if (depth_slice < depth) { found = true; depth = depth_slice; color = GetNormalColor(ray, f100, val, p); Assign(hit, p, normal, color, depth); }
-            }
-          }
-          if (IsNotOutside(g.slices.y, g.gridY))
-          {
-            dst_slice = HitGridBox(float3(g.slices.y, gridMin().xz).yxz, float3(g.slices.y + 0.001f, gridMax().xz).yxz, ray.origin, ray.direction);
-            if (HitOutsideGrid(dst_slice))
-            {
-              depth_slice = setDepth(max(dst_slice.x, 0.018f), ray, p, val);
-              if (depth_slice < depth) { found = true; depth = depth_slice; color = GetNormalColor(ray, f010, val, p); Assign(hit, p, normal, color, depth); }
-            }
-          }
-          if (IsNotOutside(g.slices.z, g.gridZ))
-          {
-            dst_slice = HitGridBox(float3(g.slices.z, gridMin().xy).yzx, float3(g.slices.z + 0.001f, gridMax().xy).yzx, ray.origin, ray.direction);
-            if (HitOutsideGrid(dst_slice))
-            {
-              depth_slice = setDepth(max(dst_slice.x, 0.018f), ray, p, val);
-              if (depth_slice < depth) { found = true; depth = depth_slice; color = GetNormalColor(ray, f001, val, p); Assign(hit, p, normal, color, depth); }
-            }
-          }
-        }
-        if (g.gridDrawBack)
-        {
-          color = GetColor(ray, normal, val, p);
-          if (!found) Assign(hit, p, normal, color, depth);
-          else hit.color.xyz = g.opacity * hit.color.xyz + (1 - g.opacity) * color.xyz;
-        }
-      }
+      if (all(id.xy < g.viewSize)) { TraceRay(id, false); }
+	
     }
-    pixDepthColor(id.xy, hit.dist, hit.color);
   }
-  [numthreads(numthreads2, numthreads2, 1)] void Grid_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.viewSize)) { TraceRay(id, false); } } }
-  [numthreads(numthreads2, numthreads2, 1)] void Grid_Simple_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.viewSize)) { TraceRay(id, true); } } }
+  [numthreads(numthreads2, numthreads2, 1)] void Grid_Simple_TraceRay(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (all(id.xy < g.viewSize)) { TraceRay(id, true); }
+	
+    }
+  }
   #pragma kernel Grid_Simple_TraceRay
   #pragma kernel Grid_TraceRay
   #pragma kernel Grid_Calc_Vals

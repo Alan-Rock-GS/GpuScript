@@ -118,7 +118,7 @@ Shader "gs/gsVGrid_Lib"
     float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, gridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
     float4 BDraw_boxColor;
     float2 gridX, gridY, gridZ, paletteRange, textSize, meshRange;
-    float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesRangeMin3, axesRangeMax3, axesColor, slices;
+    float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesRangeMin3, axesRangeMax3, axesColor, slices, sliceRotation;
     uint3 nodeN;
     uint2 viewSize;
     uint4 viewRect;
@@ -172,22 +172,22 @@ Shader "gs/gsVGrid_Lib"
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
   float4 frag_GS(v2f i, float4 color)
-  {
-    switch (roundu(i.ti.z))
-    {
-      case uint_max: Discard(0); break;
-      case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
-      case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
-      case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
-      case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
-      case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
-      case BDraw_Draw_Text3D:
-        BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
-        color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
-        break;
-    }
-    return color;
-  }
+	{
+		switch (roundu(i.ti.z))
+		{
+			case uint_max: Discard(0); break;
+			case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
+			case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
+			case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
+			case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
+			case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
+			case BDraw_Draw_Text3D:
+				BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
+				color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
+				break;
+		}
+		return color;
+	}
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.drawBox && g.drawAxes, g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.drawBox, 12, i, index, LIN); onRenderObject_LIN(g.drawGrid && g.showSurface, product(g.viewSize), i, index, LIN); return LIN; }
   float3 gridMin() { return float3(g.gridX.x, g.gridY.x, g.gridZ.x); }
@@ -195,24 +195,26 @@ Shader "gs/gsVGrid_Lib"
   uint2 pixDepthColor(uint i) { return depthColors[i]; }
   uint2 pixDepthColor(uint2 id) { return pixDepthColor(id_to_i(id, g.viewSize)); }
   TRay CreateShaderCameraRay(float2 _uv)
-  {
-    TRay ray;
-    ray.origin = mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * _uv / float2(aspect(g.viewSize), 1), 0, 1) : f0001).xyz;
-    ray.direction = normalize(mul(g.camToWorld, float4(mul(g.cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
-    ray.color = f0000;
-    ray.dist = 0;
-    return ray;
-  }
+	{
+		TRay ray;
+		ray.origin = mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * _uv / float2(aspect(g.viewSize), 1), 0, 1) : f0001).xyz;
+		ray.direction = normalize(mul(g.camToWorld, float4(mul(g.cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
+		ray.color = f0000;
+		ray.dist = 0;
+		return ray;
+	}
+	
   v2f vert_BDraw_Point(float3 p, float4 color, uint i, v2f o) { o.pos = UnityObjectToClipPos(float4(p, 1)); o.ti = float4(i, 0, BDraw_Draw_Point, 0); o.color = color; return o; }
   float pixDepth(uint2 dc) { return dc.x / (float)uint_max * (g.maxDist - 2); }
   float4 pixColor(uint2 dc) { return c32_f4(u_c32(dc.y)); }
   v2f vert_DrawScreen(uint i, uint j, v2f o)
-  {
-    uint2 id = i_to_id(i, g.viewSize), dc = pixDepthColor(i);
-    float2 uv = (id + f11 * 0.5f) / g.viewSize * 2 - 1;
-    TRay ray = CreateShaderCameraRay(uv);
-    return vert_BDraw_Point(ray.origin + pixDepth(dc) * ray.direction, pixColor(dc), i, o);
-  }
+	{
+		uint2 id = i_to_id(i, g.viewSize), dc = pixDepthColor(i);
+		float2 uv = (id + f11 * 0.5f) / g.viewSize * 2 - 1;
+		TRay ray = CreateShaderCameraRay(uv);
+		return vert_BDraw_Point(ray.origin + pixDepth(dc) * ray.direction, pixColor(dc), i, o);
+	}
+	
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }

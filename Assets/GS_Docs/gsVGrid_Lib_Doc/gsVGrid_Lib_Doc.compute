@@ -62,7 +62,7 @@
     uint VGrid_Lib_BDraw_AppendBuff_IndexN, VGrid_Lib_BDraw_AppendBuff_BitN, VGrid_Lib_BDraw_AppendBuff_N, VGrid_Lib_BDraw_AppendBuff_BitN1, VGrid_Lib_BDraw_AppendBuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_paletteType, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_gridDrawFront, VGrid_Lib_gridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
     float4 VGrid_Lib_BDraw_boxColor;
     float2 VGrid_Lib_gridX, VGrid_Lib_gridY, VGrid_Lib_gridZ, VGrid_Lib_paletteRange, VGrid_Lib_textSize, VGrid_Lib_meshRange;
-    float3 VGrid_Lib_axesRangeMin, VGrid_Lib_axesRangeMax, VGrid_Lib_axesRangeMin1, VGrid_Lib_axesRangeMax1, VGrid_Lib_axesRangeMin2, VGrid_Lib_axesRangeMax2, VGrid_Lib_axesRangeMin3, VGrid_Lib_axesRangeMax3, VGrid_Lib_axesColor, VGrid_Lib_slices;
+    float3 VGrid_Lib_axesRangeMin, VGrid_Lib_axesRangeMax, VGrid_Lib_axesRangeMin1, VGrid_Lib_axesRangeMax1, VGrid_Lib_axesRangeMin2, VGrid_Lib_axesRangeMax2, VGrid_Lib_axesRangeMin3, VGrid_Lib_axesRangeMax3, VGrid_Lib_axesColor, VGrid_Lib_slices, VGrid_Lib_sliceRotation;
     uint3 VGrid_Lib_nodeN;
     uint2 VGrid_Lib_viewSize;
     uint4 VGrid_Lib_viewRect;

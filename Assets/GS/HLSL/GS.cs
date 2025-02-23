@@ -1374,6 +1374,13 @@ namespace GpuScript
 			return lineP0 + u * p10;
 		}
 
+		public static float3 PlaneLineIntersectionPoint(float3 planeNormal, float3 planePnt, float3 lineOrigin, float3 lineDirection)
+		{
+			float denominator = dot(planeNormal, lineDirection);
+			return abs(denominator) < EPS ? fNegInf3 : lineOrigin + dot(planeNormal, planePnt - lineOrigin) / denominator * lineDirection;
+		}
+
+
 		public static float2 HitGridBox(float3 mn, float3 mx, float3 rayOrigin, float3 rayDirection) { float3 rd = rcp(rayDirection), t0 = (mn - rayOrigin) * rd, t1 = (mx - rayOrigin) * rd; return float2(cmax(min(t0, t1)), cmin(max(t0, t1))); }
 
 		public static bool HitOutsideGrid(float2 dst) { return dst.x > 0 && dst.x < dst.y; }
