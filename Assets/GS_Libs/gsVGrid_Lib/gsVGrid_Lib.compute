@@ -253,6 +253,7 @@
   TRay CreateCameraRay(float2 _uv) { TRay ray = CreateShaderCameraRay(_uv); return CreateRay(ray.origin, ray.direction); }
 	
   float Val(uint i) { return Vals[i] / 100000.0f; }
+  float4 DrawSliceColor(float4 color, float3 q) { return color; }
   float3 GetCorner_q(float3 p) { return clamp((p - gridMin()) / g.resolution, f000, (int3)g.nodeN - f111); }
   uint3 GetCorner_I(float3 q) { return (uint3)q; }
   float Interpolate_Val(float3 fq, uint4 c0, uint4 c1) { return Interpolate(Val(c0.x), Val(c0.y), Val(c0.z), Val(c0.w), Val(c1.x), Val(c1.y), Val(c1.z), Val(c1.w), fq); }
@@ -289,7 +290,7 @@
 		if (q.x != fNegInf && IsNotOutside(q, gridMin(), gridMax()))
 		{
 			depth_slice = setDepth(max(distance(q, ray.origin), 0.018f), ray, p, val);
-			if (depth_slice < depth) { found = true; depth = depth_slice; color = GetNormalColor(ray, axis2, val, p); Assign(hit, p, normal, color, depth); }
+			if (depth_slice < depth) { found = true; depth = depth_slice; color = DrawSliceColor(GetNormalColor(ray, axis2, val, p), q); Assign(hit, p, normal, color, depth); }
 		}
 	}
 	
