@@ -1339,6 +1339,8 @@ public class GS_Window : EditorWindow
 
 			var (ui_to_data, Load_UI, data_to_ui, data_to_ui_Defaults, gridWrapper, OnGrid, onMethodClicked, clickedMethods, colSort) = StrBldr();
 
+			data_to_ui.Add("\n    if (!data.siUnits) { siUnits = false; OnUnitsChanged(); }");
+
 			ui_to_data.Add($"\n    data.siUnits = siUnits;");
 			if (_gs_members != null)
 				foreach (var gs_member in _gs_members)
@@ -1819,7 +1821,8 @@ $"\n    {m_name}_To_UI();",
 				}
 
 			tData.Add("\n  }");
-			data_to_ui.Add("\n    if (!data.siUnits) { for (int i = 0; i < 3; i++) siUnits = !siUnits; OnUnitsChanged(); }");
+			////data_to_ui.Add("\n    if (!data.siUnits) { for (int i = 0; i < 3; i++) siUnits = !siUnits; OnUnitsChanged(); }");
+			//data_to_ui.Add("\n    if (!data.siUnits) { siUnits = false; OnUnitsChanged(); }");
 			OnGrid.Add(clickedMethods);
 
 			var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();
@@ -1873,7 +1876,7 @@ $"\n    {m_name}_To_UI();",
 			"\n    projectPaths = path;",
 			"\n    $\"{projectPath}{projectName}.txt\".WriteAllText(JsonConvert.SerializeObject(data, Formatting.Indented));",
 			"\n    foreach (var lib in GetComponents<GS>()) if (lib != this) lib.Save_UI();",
-			"\n    $\"{projectPath}{name}_Data.txt\".WriteAllText(JsonConvert.SerializeObject(data, Formatting.Indented));",
+			//"\n    $\"{projectPath}{name}_Data.txt\".WriteAllText(JsonConvert.SerializeObject(data, Formatting.Indented));",
 			"\n  }",
 			"\n  public override bool Save_UI_As(string path, string projectName)",
 			"\n  {",

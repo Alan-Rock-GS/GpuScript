@@ -2089,7 +2089,7 @@ namespace GpuScript
 		//public static PGA3 torus3(float s, float t, float r1, PGA3 l1, float r2, PGA3 l2) { return Mul3(circle3(s, r2, l2), circle3(t, r1, l1)); }
 		//public static PGA3 point_on_torus3(float s, float t) { PGA3 to = torus3(s, t, 0.25f, pga3_e12, 0.6f, pga3_e31); return Mul3(to, pga3_e123, Reverse3(to)); }
 
-	
+
 
 
 
@@ -3041,13 +3041,27 @@ namespace GpuScript
 		//region C#
 
 		static bool _siUnits = true;
+		//public static bool siUnits
+		//{
+		//	get => _siUnits;
+		//	set
+		//	{
+		//		if (_siUnits != value)
+		//			_siUnits = value;
+		//	}
+		//	//set { _siUnits = true; }
+		//}
 		public static bool siUnits
 		{
 			get => _siUnits;
-			//set { if (_siUnits != value) _siUnits = value; }
-			set { _siUnits = true; }
+			set => _siUnits = value;
 		}
-		public bool si_Units { get => siUnits; set => siUnits = value; }
+
+		public bool si_Units
+		{
+			get => siUnits;
+			set => siUnits = value;
+		}
 		public virtual void OnUnitsChanged()
 		{
 			//var flds = GetType().GetFields(GetBindingFlags);
@@ -4208,7 +4222,11 @@ namespace GpuScript
 			MouseMiddleButtonUp = _MouseMiddleButtonUp;
 		}
 
-		public virtual void onLoaded() { siUnits = true; OnValueChanged(); }
+		public virtual void onLoaded()
+		{
+			//siUnits = true;
+			OnValueChanged();
+		}
 		public void SkipLoad(string[][] lines, ref int lineI, int tabLevel)
 		{
 			tabLevel++;
