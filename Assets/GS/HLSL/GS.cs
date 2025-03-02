@@ -3041,37 +3041,15 @@ namespace GpuScript
 		//region C#
 
 		static bool _siUnits = true;
-		//public static bool siUnits
-		//{
-		//	get => _siUnits;
-		//	set
-		//	{
-		//		if (_siUnits != value)
-		//			_siUnits = value;
-		//	}
-		//	//set { _siUnits = true; }
-		//}
-		public static bool siUnits
-		{
-			get => _siUnits;
-			set => _siUnits = value;
-		}
+		public static bool siUnits { get => _siUnits; set => _siUnits = value; }
+		public bool si_Units { get => siUnits; set => siUnits = value; }
 
-		public bool si_Units
+		public virtual void OnUnitsChanged() => base_OnUnitsChanged(GetType().Name); 
+		public void base_OnUnitsChanged(string caller_name)
 		{
-			get => siUnits;
-			set => siUnits = value;
-		}
-		public virtual void OnUnitsChanged()
-		{
-			//var flds = GetType().GetFields(GetBindingFlags);
-			//foreach (var fld in flds) { var ve = fld.GetValue(this) as UI_VisualElement; ve?.OnUnitsChanged(); }
-			base_OnUnitsChanged();
-		}
-		public void base_OnUnitsChanged()
-		{
-			var flds = GetType().GetFields(GetBindingFlags);
-			foreach (var fld in flds) { var ve = fld.GetValue(this) as UI_VisualElement; ve?.OnUnitsChanged(); }
+			foreach (var fld in GetType().GetFields(GetBindingFlags)) (fld.GetValue(this) as UI_VisualElement)?.OnUnitsChanged();
+			if (GetType().Name == "gs" + appName) { foreach (var script in GetComponents<GS>()) if (script != this) script.base_OnUnitsChanged(caller_name); }
+			else if (caller_name != "gs" + appName) (GetComponent(lib_parent_gs.name) as GS)?.OnUnitsChanged();
 		}
 
 		public static bool usUnits { get => !siUnits; set => siUnits = !value; }
@@ -4222,11 +4200,7 @@ namespace GpuScript
 			MouseMiddleButtonUp = _MouseMiddleButtonUp;
 		}
 
-		public virtual void onLoaded()
-		{
-			//siUnits = true;
-			OnValueChanged();
-		}
+		public virtual void onLoaded() => OnValueChanged();
 		public void SkipLoad(string[][] lines, ref int lineI, int tabLevel)
 		{
 			tabLevel++;

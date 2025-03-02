@@ -118,7 +118,7 @@ Shader "gs/gsVGrid_Lib"
     float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, gridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
     float4 BDraw_boxColor;
     float2 gridX, gridY, gridZ, paletteRange, textSize, meshRange;
-    float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesRangeMin3, axesRangeMax3, axesColor, slices, sliceRotation;
+    float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesColor, slices, sliceRotation;
     uint3 nodeN;
     uint2 viewSize;
     uint4 viewRect;
@@ -133,7 +133,7 @@ Shader "gs/gsVGrid_Lib"
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<uint2> depthColors;
   RWStructuredBuffer<Color32> paletteBuffer;
-  RWStructuredBuffer<int> Vals;
+  RWStructuredBuffer<float> Vals;
 
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;

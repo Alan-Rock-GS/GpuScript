@@ -1819,10 +1819,7 @@ $"\n    {m_name}_To_UI();",
 					lateUpdate_ValuesChanged.Add($"\n    {lib_fld.Name}_LateUpdate1_GS();");
 					update.Add($"\n    {lib_fld.Name}_Update1_GS();");
 				}
-
 			tData.Add("\n  }");
-			////data_to_ui.Add("\n    if (!data.siUnits) { for (int i = 0; i < 3; i++) siUnits = !siUnits; OnUnitsChanged(); }");
-			//data_to_ui.Add("\n    if (!data.siUnits) { siUnits = false; OnUnitsChanged(); }");
 			OnGrid.Add(clickedMethods);
 
 			var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();

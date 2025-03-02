@@ -56,39 +56,25 @@ namespace GpuScript
 		//public override void OnUnitsChanged()
 		//{
 		//	base.OnUnitsChanged();
-		//	if (siUnit != siUnit.Null && usUnit != usUnit.Null)
-		//	{
-		//		if (hasRange)
-		//			if (siUnits) { siUnits = false; range_Min = iconvert(range_Min); range_Max = iconvert(range_Max); siUnits = true; }
-		//			else { range_Min = convert(range_Min); range_Max = convert(range_Max); }
-		//		v = convert(si);
-		//	}
+		//	if (siUnit != siUnit.Null && usUnit != usUnit.Null && hasRange)
+		//		if (siUnits) { siUnits = false; range_Min = iconvert(range_Min); range_Max = iconvert(range_Max); siUnits = true; v = convert(si); }
+		//		else { range_Min = convert(range_Min); range_Max = convert(range_Max); v = convert(si); }
 		//}
+
 		public override void OnUnitsChanged()
 		{
 			base.OnUnitsChanged();
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
 			{
 				if (hasRange)
-					if (siUnits)
-					{
-						siUnits = false;
-						range_Min = iconvert(range_Min);
-						range_Max = iconvert(range_Max);
-						siUnits = true;
-						v = convert(si);
-					}
-					else
-					{
-						//siUnits = true;
-						//siUnits = false;
-						range_Min = convert(range_Min);
-						range_Max = convert(range_Max);
-						v = convert(si);
-					}
-				//v = convert(si);
+				{
+					if (siUnits) { siUnits = false; range_Min = iconvert(range_Min); range_Max = iconvert(range_Max); siUnits = true; }
+					else { range_Min = convert(range_Min); range_Max = convert(range_Max); }
+				}
+				v = convert(si);
 			}
 		}
+
 
 		public override bool hasRange { get => range_Min < range_Max; }
 		float _range_Min; public float range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(value); } }

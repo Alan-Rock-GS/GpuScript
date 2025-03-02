@@ -993,6 +993,16 @@ namespace GpuScript
 			try { v = Convert.ToInt32(o); } catch (Exception) { try { v = floori(Convert.ToSingle(o)); } catch (Exception) { v = 0; } }
 			return v;
 		}
+
+		//public static int To_int(this byte[] bytes, int startIndex)
+		//{
+		//	return (int)bitSwap16((uint)BitConverter.ToInt32(bytes, startIndex));
+		//}
+		//public static int To_short(this byte[] bytes, int startIndex)
+		//{
+		//	return (int)BitConverter.ToInt16(bytes, startIndex);
+		//}
+
 		public static uint To_uint(this object o)
 		{
 			if (o == null) return 0;
@@ -2321,8 +2331,8 @@ namespace GpuScript
 		public static void Zip(this string folder, string zipFile)
 		{
 #if Rock_Debug
-      zipFile.DeleteFile();
-      ZipFile.CreateFromDirectory(folder, zipFile);
+			zipFile.DeleteFile();
+			ZipFile.CreateFromDirectory(folder, zipFile);
 #endif
 		}
 
