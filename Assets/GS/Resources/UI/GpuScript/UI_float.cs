@@ -9,8 +9,6 @@ namespace GpuScript
 	{
 		public float Slider_Pow_Val(float v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
 		public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
-		//public float Slider_Pow_Val(float v) => clamp(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, range_Min, range_Max);
-		//public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(v) * 0.999f + 1) : v;
 		public float SliderV { get => sliders[0] == null ? default : Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) { sliders[0].value = Slider_Log_Val(value); } } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
 		public UI_float() : base() { }
@@ -22,9 +20,7 @@ namespace GpuScript
 		public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged, StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
 		{
 			StackFields(tData, typeStr, name);
-			string si = UI_VisualElement.GetUnitConversion(attGS);
-			if (si == "Null") si = "_si";
-			lateUpdate.Add($"\n    if (UI_{name}.Changed || {name} != UI_{name}.{si}) {name} = UI_{name}.{si};");
+			lateUpdate.Add($"\n    if (UI_{name}.Changed || {name} != UI_{name}.v) {name} = UI_{name}.v;");
 			UI_VisualElement._cs_Write(gs, tData, lateUpdate, lateUpdate_ValuesChanged, showIfs, onValueChanged, attGS, typeStr, name);
 		}
 		public static string className => MethodBase.GetCurrentMethod().DeclaringType.ToString().After("GpuScript.");
@@ -37,51 +33,37 @@ namespace GpuScript
 			e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
 		}
 		public float _v0 = default;
-		public float _si; public float si { get => _si; set => v = convert(_si = value); }
+		public float _si; public float si { get => _si; set => v = value; }
+		public void Text(float val)
+		{
+			if (siUnit != siUnit.Null && usUnit != usUnit.Null) textField.value = (siUnits ? val : convert(val)).ToString(format);
+			else textField.value = val.ToString(format);
+		}
 		public float v
 		{
-			get => textField != null ? _si = siUnits ? textField.value.To_float() : iconvert(textField.value.To_float()) : _si;
+			get => _si;
 			set
 			{
 				if (any(isnan(value)) || any(isinf(value))) return;
-				var val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
+				var val = is_Pow10 ? round(pow10(round(log10(value)))) : is_Pow2 ? round(pow2(round(log2(value)))) : value;
 				if (Nearest > 0) val = round(val, Nearest);
-				if (textField != null) textField.value = val.ToString(format);
-				_si = hasRange ? iconvert(SliderV = val) : iconvert(val);
+				Text(val);
+				_si = val;
+				if (hasRange) SliderV = val;
 			}
 		}
 
 		public override string textString => v.ToString(format);
 		public override object v_obj { get => v; set => v = value.To_float(); }
-		//public override void OnUnitsChanged()
-		//{
-		//	base.OnUnitsChanged();
-		//	if (siUnit != siUnit.Null && usUnit != usUnit.Null && hasRange)
-		//		if (siUnits) { siUnits = false; range_Min = iconvert(range_Min); range_Max = iconvert(range_Max); siUnits = true; v = convert(si); }
-		//		else { range_Min = convert(range_Min); range_Max = convert(range_Max); v = convert(si); }
-		//}
-
-		public override void OnUnitsChanged()
-		{
-			base.OnUnitsChanged();
-			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
-			{
-				if (hasRange)
-				{
-					if (siUnits) { siUnits = false; range_Min = iconvert(range_Min); range_Max = iconvert(range_Max); siUnits = true; }
-					else { range_Min = convert(range_Min); range_Max = convert(range_Max); }
-				}
-				v = convert(si);
-			}
-		}
-
+		public override void OnUnitsChanged() { base.OnUnitsChanged(); if (siUnit != siUnit.Null && usUnit != usUnit.Null && textField != null) textField.value = (siUnits ? iconvert(si) : convert(si)).ToString(format); }
 
 		public override bool hasRange { get => range_Min < range_Max; }
-		float _range_Min; public float range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(value); } }
-		float _range_Max; public float range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
+		float _range_Min; public float range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(_range_Min); } }
+		float _range_Max; public float range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(_range_Max); } }
+
 		public float previousValue;
-		public override void OnValueChanged(ChangeEvent<float> evt) { if (evt.currentTarget is Slider && textField != null) { float val = SliderV; textField.value = val.ToString(format); SetPropertyValue(val); } }
-		public override void OnTextFieldChanged(TextField o) { float val = o.value.To_float(); SliderV = val; SetPropertyValue(val); }
+		public override void OnValueChanged(ChangeEvent<float> evt) { if (evt.currentTarget is Slider && textField != null) { float val = SliderV; Text(val); SetPropertyValue(val); } }
+		public override void OnTextFieldChanged(TextField o) { float val = o.value.To_float(); if (siUnit != siUnit.Null && usUnit != usUnit.Null && !siUnits) val = iconvert(val); SetPropertyValue(SliderV = val); }
 
 		public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,
 			string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, string treeGroup_parent)

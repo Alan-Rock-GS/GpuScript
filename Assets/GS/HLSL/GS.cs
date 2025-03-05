@@ -3041,11 +3041,15 @@ namespace GpuScript
 		//region C#
 
 		static bool _siUnits = true;
-		public static bool siUnits { get => _siUnits; set => _siUnits = value; }
+		public static bool siUnits
+		{
+			get => _siUnits;
+			set => _siUnits = value;
+		}
 		public bool si_Units { get => siUnits; set => siUnits = value; }
 
-		public virtual void OnUnitsChanged() => base_OnUnitsChanged(GetType().Name); 
-		public void base_OnUnitsChanged(string caller_name)
+		public virtual void OnUnitsChanged() => base_OnUnitsChanged(GetType().Name);
+		public virtual void base_OnUnitsChanged(string caller_name)
 		{
 			foreach (var fld in GetType().GetFields(GetBindingFlags)) (fld.GetValue(this) as UI_VisualElement)?.OnUnitsChanged();
 			if (GetType().Name == "gs" + appName) { foreach (var script in GetComponents<GS>()) if (script != this) script.base_OnUnitsChanged(caller_name); }

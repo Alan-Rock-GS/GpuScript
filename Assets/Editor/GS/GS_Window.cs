@@ -1297,7 +1297,8 @@ public class GS_Window : EditorWindow
 					else if (isUI)
 					{
 						if (typ == "bool") assignFld = $"g.{n} = Is(UI_{n}.v = {assignFld}); ";
-						else if (typ.StartsWith("float")) assignFld = $"g.{n} = UI_{n}.{si} = {assignFld}; ";
+						//else if (typ.StartsWith("float")) assignFld = $"g.{n} = UI_{n}.{si} = {assignFld}; ";
+						else if (typ.StartsWith("float")) assignFld = $"g.{n} = UI_{n}.v = {assignFld}; ";
 						else if (isEnum) assignFld = $"g.{n} = UI_{n}.v = {assignFld}; ";
 						else assignFld = $"g.{n} = UI_{n}.v = {assignFld}; ";
 					}
@@ -1312,7 +1313,8 @@ public class GS_Window : EditorWindow
 					if (isUI)
 					{
 						if (isEnum) compare += $" || ({typ})UI_{n}.v != value";
-						else if (typ.StartsWith("float")) compare += $" || any(UI_{n}.{si} != value)";
+						//else if (typ.StartsWith("float")) compare += $" || any(UI_{n}.{si} != value)";
+						else if (typ.StartsWith("float")) compare += $" || any(UI_{n}.v != value)";
 						else if (typ.EndsWithAny("2", "3", "4")) compare += $" || any(UI_{n}.v != value)";
 						else if (typ == "bool") compare += $" || UI_{n}.v != value";
 						else compare += $" || UI_{n}.v != value";
@@ -1339,7 +1341,8 @@ public class GS_Window : EditorWindow
 
 			var (ui_to_data, Load_UI, data_to_ui, data_to_ui_Defaults, gridWrapper, OnGrid, onMethodClicked, clickedMethods, colSort) = StrBldr();
 
-			data_to_ui.Add("\n    if (!data.siUnits) { siUnits = false; OnUnitsChanged(); }");
+			////data_to_ui.Add("\n    if (!data.siUnits) { siUnits = false; OnUnitsChanged(); }");
+			//data_to_ui.Add("\n    if (!data.siUnits && siUnits) { siUnits = false; OnUnitsChanged(); }");
 
 			ui_to_data.Add($"\n    data.siUnits = siUnits;");
 			if (_gs_members != null)
@@ -1873,6 +1876,10 @@ $"\n    {m_name}_To_UI();",
 			"\n    projectPaths = path;",
 			"\n    $\"{projectPath}{projectName}.txt\".WriteAllText(JsonConvert.SerializeObject(data, Formatting.Indented));",
 			"\n    foreach (var lib in GetComponents<GS>()) if (lib != this) lib.Save_UI();",
+			"\n    string usFile = $\"{projectPath}usUnits.txt\";",
+			"\n    if (siUnits) usFile.DeleteFile();",
+			"\n    else usFile.WriteAllText(\"usUnits\");",
+
 			//"\n    $\"{projectPath}{name}_Data.txt\".WriteAllText(JsonConvert.SerializeObject(data, Formatting.Indented));",
 			"\n  }",
 			"\n  public override bool Save_UI_As(string path, string projectName)",
@@ -1911,6 +1918,9 @@ $"\n    {m_name}_To_UI();",
 			"\n  public virtual void LateUpdate()",
 			"\n  {",
 			"\n    if (!ui_loaded) return;",
+			"\n    string usFile = $\"{projectPath}usUnits.txt\";",
+			"\n    if (lateUpdateI == 5 && usFile.Exists()) { usFile.DeleteFile(); siUnits = false; OnUnitsChanged(); }",
+
 			"\n    LateUpdate0_GS();", lateUpdate, lateUpdate_keys, lateUpdate_ValuesChanged,
 			"\n    LateUpdate1_GS();",
 			//"\n    lateUpdateI += Is(lateUpdateI < 100);",
@@ -2543,7 +2553,7 @@ $"\n    {m_name}_To_UI();",
 #if UNITY_STANDALONE_WIN
 		[HideInInspector] public bool SM6 = true;
 #else
-    [HideInInspector] public bool SM6 = false;
+		[HideInInspector] public bool SM6 = false;
 #endif //UNITY_STANDALONE_WIN
 
 		StrBldr shaderCode;

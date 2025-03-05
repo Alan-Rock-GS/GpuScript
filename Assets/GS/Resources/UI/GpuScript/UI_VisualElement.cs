@@ -47,10 +47,10 @@ namespace GpuScript
 
     public virtual object v_obj { get; set; }
 
-    protected void SetPropertyValue(float val) { property?.SetValue(gs, iconvert(val) * convert(siUnit, GetUnitConversion(siUnit))); gs?.OnValueChanged(); }
-    protected void SetPropertyValue(float2 val) { property?.SetValue(gs, iconvert(val) * convert(siUnit, GetUnitConversion(siUnit))); gs?.OnValueChanged(); }
-    protected void SetPropertyValue(float3 val) { property?.SetValue(gs, iconvert(val) * convert(siUnit, GetUnitConversion(siUnit))); gs?.OnValueChanged(); }
-    protected void SetPropertyValue(float4 val) { property?.SetValue(gs, iconvert(val) * convert(siUnit, GetUnitConversion(siUnit))); gs?.OnValueChanged(); }
+		protected void SetPropertyValue(float val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
+		protected void SetPropertyValue(float2 val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
+    protected void SetPropertyValue(float3 val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
+    protected void SetPropertyValue(float4 val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
 
     protected Color _BackgroundColor = WHITE;
     public virtual Color BackgroundColor { get => _BackgroundColor; set => _BackgroundColor = value; }
