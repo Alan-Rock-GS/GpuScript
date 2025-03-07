@@ -186,20 +186,23 @@ Shader "gs/gsRand_Doc"
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, BDraw_Draw_Line, r); return o; }
   v2f vert_Draw_Calc_Avg(uint i, uint j, v2f o) { float3 p = signal_panel_width() * float3(0, g.Avg_Val, -2); return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o); }
+	
   v2f vert_Draw_Avg(uint i, uint j, v2f o) { float3 p = -signal_panel_width() * f001; return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o); }
+	
   v2f vert_Draw_Star_Path(uint i, uint j, v2f o)
-  {
-    float3 p0 = stars[bestPath(i)], p1 = stars[bestPath((i + 1) % g.starN)];
-    float t = (i - ((_Time.y * 100) % g.starN) + g.starN) % g.starN, n = 100, r = g.lineThickness * (t < n ? 4 * t / n + 1 : 1);
-    return vert_BDraw_Line(p0, p1, r, t < n ? palette(t / n / 2 + 0.5f) : palette(lerp1(-1, 1, p0.x * p1.x < 0 ? g.starBorderReward : 0)), i, j, o);
-  }
+	{
+		float3 p0 = stars[bestPath(i)], p1 = stars[bestPath((i + 1) % g.starN)];
+		float t = (i - ((_Time.y * 100) % g.starN) + g.starN) % g.starN, n = 100, r = g.lineThickness * (t < n ? 4 * t / n + 1 : 1);
+		return vert_BDraw_Line(p0, p1, r, t < n ? palette(t / n / 2 + 0.5f) : palette(lerp1(-1, 1, p0.x * p1.x < 0 ? g.starBorderReward : 0)), i, j, o);
+	}
   v2f vert_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
   v2f vert_Draw_Stars_Border(uint i, uint j, v2f o)
-  {
-    float r = 0.01f;
-    if (i < 12) return vert_BDraw_BoxFrame(f___, f111, r, BLACK, i, j, o);
-    else return vert_BDraw_Quad(f0__, f0_1, f011, f01_, float4(0, 0, 1, 0.25f), i, j, o);
-  }
+	{
+		float r = 0.01f;
+		if (i < 12) return vert_BDraw_BoxFrame(f___, f111, r, BLACK, i, j, o);
+		else return vert_BDraw_Quad(f0__, f0_1, f011, f01_, float4(0, 0, 1, 0.25f), i, j, o);
+	}
+	
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(BDraw_gridMin(), BDraw_gridMax(), g.BDraw_boxThickness, g.BDraw_boxColor, i, j, o); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
   v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
@@ -211,11 +214,12 @@ Shader "gs/gsRand_Doc"
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
   float Rand_rFloat(uint i) { return Rand_FV(Rand_rUInt4(i)); }
   v2f vert_Draw_Pnts(uint i, uint j, v2f o)
-  {
-    if (g.drawGroup == DrawGroup_Average) return vert_BDraw_Sphere(float3(i / (g.pntN - 1.0f) * 2 - 1, Rand_rFloat(i) * 2 - 1, 0), 0.01f, Rand_rFloat(i) > 0.5f ? BLUE : RED, i, j, o);
-    if (g.drawGroup == DrawGroup_PI_Area) return vert_BDraw_Sphere(float3(Rand_rFloat(i * 2) * 2 - 1, Rand_rFloat(i * 2 + 1) * 2 - 1, 0), 0.01f, length(float2(Rand_rFloat(i * 2), Rand_rFloat(i * 2 + 1))) < 1 ? BLUE : RED, i, j, o);
-    return vert_BDraw_Sphere(float3(Rand_rFloat(i), sqrt(1 - sqr(Rand_rFloat(i))), 0) * 2 - 1, 0.01f, Rand_rFloat(i) > PIo4 ? BLUE : RED, i, j, o);
-  }
+	{
+		if (g.drawGroup == DrawGroup_Average) return vert_BDraw_Sphere(float3(i / (g.pntN - 1.0f) * 2 - 1, Rand_rFloat(i) * 2 - 1, 0), 0.01f, Rand_rFloat(i) > 0.5f ? BLUE : RED, i, j, o);
+		if (g.drawGroup == DrawGroup_PI_Area) return vert_BDraw_Sphere(float3(Rand_rFloat(i * 2) * 2 - 1, Rand_rFloat(i * 2 + 1) * 2 - 1, 0), 0.01f, length(float2(Rand_rFloat(i * 2), Rand_rFloat(i * 2 + 1))) < 1 ? BLUE : RED, i, j, o);
+		return vert_BDraw_Sphere(float3(Rand_rFloat(i), sqrt(1 - sqr(Rand_rFloat(i))), 0) * 2 - 1, 0.01f, Rand_rFloat(i) > PIo4 ? BLUE : RED, i, j, o);
+	}
+	
   float Rand_rFloat(uint i, float a, float b) { return lerp(a, b, Rand_rFloat(i)); }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return Rand_rFloat(smpI, -1, 1); }
   float4 frag_BDraw_Signal(v2f i)
