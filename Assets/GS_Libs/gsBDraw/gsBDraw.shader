@@ -174,13 +174,13 @@ Shader "gs/gsBDraw"
 			case Draw_Sphere: color = frag_Sphere(i); break;
 			case Draw_Line: color = frag_Line(i); break;
 			case Draw_Arrow: color = frag_Arrow(i); break;
+			case Draw_Signal: color = frag_Signal(i); break;
 			case Draw_LineSegment: color = frag_LineSegment(i); break;
 			case Draw_Mesh: color = frag_Mesh(i); break;
 			case Draw_Text3D:
 				TextInfo t = textInfo(roundu(i.ti.x));
 				color = frag_Text(fontTexture, tab_delimeted_text, fontInfos, g.fontSize, t.quadType, t.backColor, Get_text_indexes(t.textI), i);
 				break;
-			case Draw_Signal: color = frag_Signal(i); break;
 		}
 		return color;
 	}
