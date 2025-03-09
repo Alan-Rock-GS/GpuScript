@@ -219,13 +219,13 @@ Shader "gs/gsOCam_Lib"
       case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
       case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
       case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
+      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
       case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
       case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
       case BDraw_Draw_Text3D:
         BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
         color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
         break;
-      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
     }
     return color;
   }

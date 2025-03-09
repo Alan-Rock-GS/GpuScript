@@ -114,10 +114,10 @@ Shader "gs/gsVGrid_Lib"
   #define BDraw_SPACE 32
   struct GVGrid_Lib
   {
-    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, drawGrid, paletteType, drawBox, drawAxes, customAxesRangeN, zeroOrigin, drawSurface, gridDrawFront, gridDrawBack, show_slices, twoSided, reCalc, buildText, isOrtho, showMeshVal, showMeshRange, showOutline, showSurface, showAxes, showNormalizedAxes, retrace;
-    float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, gridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
+    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, drawGrid, drawBox, drawAxes, customAxesRangeN, zeroOrigin, drawSurface, GridDrawFront, GridDrawBack, show_slices, paletteType, twoSided, reCalc, buildText, isOrtho, showMeshVal, showMeshRange, showOutline, showSurface, showAxes, showNormalizedAxes, retrace;
+    float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, GridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
     float4 BDraw_boxColor;
-    float2 gridX, gridY, gridZ, paletteRange, textSize, meshRange;
+    float2 GridX, GridY, GridZ, textSize, paletteRange, meshRange;
     float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesColor, slices, sliceRotation;
     uint3 nodeN;
     uint2 viewSize;
@@ -173,8 +173,8 @@ Shader "gs/gsVGrid_Lib"
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.drawBox && g.drawAxes, g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.drawBox, 12, i, index, LIN); onRenderObject_LIN(g.drawGrid && g.showSurface, product(g.viewSize), i, index, LIN); return LIN; }
-  float3 gridMin() { return float3(g.gridX.x, g.gridY.x, g.gridZ.x); }
-  float3 gridMax() { return float3(g.gridX.y, g.gridY.y, g.gridZ.y); }
+  float3 gridMin() { return float3(g.GridX.x, g.GridY.x, g.GridZ.x); }
+  float3 gridMax() { return float3(g.GridX.y, g.GridY.y, g.GridZ.y); }
   uint2 pixDepthColor(uint i) { return depthColors[i]; }
   uint2 pixDepthColor(uint2 id) { return pixDepthColor(id_to_i(id, g.viewSize)); }
   TRay CreateShaderCameraRay(float2 _uv)

@@ -62,6 +62,7 @@ namespace GpuScript
 		public void OnSliderFocusIn(FocusInEvent evt) { sliderHasFocus = true; }
 		public void OnSliderFocusOut(FocusOutEvent evt) { if (hasRange && !mouseInside) ShowSliders = false; sliderHasFocus = mouseInUI = false; }
 
+		public float siConvert => siUnit != siUnit.Null ? convert(siUnit) : 1;
 		public override void OnUnitsChanged() { if (unitLabel != null) unitLabel.text = unit; ShowSliders = false; }
 		void On_unitLabel_click(ClickEvent evt) { siUnits = !siUnits; gs.OnUnitsChanged(); }
 

@@ -55,10 +55,10 @@
   #pragma use_dxc
   struct GVGrid_Lib
   {
-    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, drawGrid, paletteType, drawBox, drawAxes, customAxesRangeN, zeroOrigin, drawSurface, gridDrawFront, gridDrawBack, show_slices, twoSided, reCalc, buildText, isOrtho, showMeshVal, showMeshRange, showOutline, showSurface, showAxes, showNormalizedAxes, retrace;
-    float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, gridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
+    uint BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, drawGrid, drawBox, drawAxes, customAxesRangeN, zeroOrigin, drawSurface, GridDrawFront, GridDrawBack, show_slices, paletteType, twoSided, reCalc, buildText, isOrtho, showMeshVal, showMeshRange, showOutline, showSurface, showAxes, showNormalizedAxes, retrace;
+    float BDraw_fontSize, BDraw_boxThickness, resolution, boxLineThickness, axesOpacity, GridLineThickness, opacity, meshVal, orthoSize, maxDist, minResolution;
     float4 BDraw_boxColor;
-    float2 gridX, gridY, gridZ, paletteRange, textSize, meshRange;
+    float2 GridX, GridY, GridZ, textSize, paletteRange, meshRange;
     float3 axesRangeMin, axesRangeMax, axesRangeMin1, axesRangeMax1, axesRangeMin2, axesRangeMax2, axesColor, slices, sliceRotation;
     uint3 nodeN;
     uint2 viewSize;
@@ -170,9 +170,9 @@
   }
   TRay CreateRayHit() { TRay hit; hit.origin = f000; hit.dist = fPosInf; hit.direction = f000; hit.color = f0000; return hit; }
 	
-  float3 gridMin() { return float3(g.gridX.x, g.gridY.x, g.gridZ.x); }
+  float3 gridMin() { return float3(g.GridX.x, g.GridY.x, g.GridZ.x); }
   float3 NodeLocation3(uint3 id) { return id * g.resolution + gridMin(); }
-  float3 gridMax() { return float3(g.gridX.y, g.gridY.y, g.gridZ.y); }
+  float3 gridMax() { return float3(g.GridX.y, g.GridY.y, g.GridZ.y); }
   void Assign(inout TRay hit, float3 position, float3 normal, float4 color, float dist) { hit.origin = position; hit.direction = normal; hit.color = color; hit.dist = dist; }
 	
   void pixDepthColor(uint i, float d, float4 c) { depthColors[i] = uint2((uint)(d / g.maxDist * uint_max), c32_u(f4_c32(c))); }
@@ -221,9 +221,9 @@
 		float3 lightDirection = _WorldSpaceLightPos0.xyz;
 		float3 h = (lightDirection - ray.direction) / 2;
 		float v = 1, gloss = 0.5f, s = sqr(abs(dot(normal, h))) * gloss, NdotL = abs(dot(normal, lightDirection));
-		if (g.gridLineThickness > 0)
+		if (g.GridLineThickness > 0)
 		{
-			float w = 0.1f / max(0.00001f, g.gridLineThickness);
+			float w = 1 / max(0.00001f, g.GridLineThickness);
 			p /= g.resolution;
 			float3 blend = normalize(max((abs(normal) - 0.2f) * 7, 0.0f));
 			v = csum(blend * saturate(0.5f * float3(product((1 - abs(1 - 2 * frac(p.yz))) * w), product((1 - abs(1 - 2 * frac(p.xz))) * w), product((1 - abs(1 - 2 * frac(p.xy))) * w))));
@@ -287,7 +287,7 @@
 			float val = 0, depth = setDepth(max(dst.x, 0.018f), ray, p, val), depth2 = dst.y, step = g.resolution, d0, d2;
 			bool found = false;
 			float4 color = f0000;
-			if (g.gridDrawFront && hitOutside) { color = GetColor(ray, normal, val, p); Assign(hit, p, normal, color, depth); }
+			if (g.GridDrawFront && hitOutside) { color = GetColor(ray, normal, val, p); Assign(hit, p, normal, color, depth); }
 			else
 			{
 				float val0 = val;
@@ -378,7 +378,7 @@
 					}
 				}
 				if (g.show_slices) for (uint i = 0; i < 3; i++) DrawSlice(index(f000, i, 1.0f), ray, hit, p, val, depth, found, color, normal);
-				if (g.gridDrawBack)
+				if (g.GridDrawBack)
 				{
 					color = GetColor(ray, normal, val, p);
 					if (!found) Assign(hit, p, normal, color, depth);

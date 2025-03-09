@@ -120,11 +120,11 @@ Shader "gs/gsVGrid_Lib_Doc"
   #define VGrid_Lib_BDraw_SPACE 32
   struct GVGrid_Lib_Doc
   {
-    float sphere, cube, torus, box, roundBox, boxFrame, VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_gridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
-    uint VGrid_Lib_BDraw_AppendBuff_IndexN, VGrid_Lib_BDraw_AppendBuff_BitN, VGrid_Lib_BDraw_AppendBuff_N, VGrid_Lib_BDraw_AppendBuff_BitN1, VGrid_Lib_BDraw_AppendBuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_paletteType, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_gridDrawFront, VGrid_Lib_gridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
+    float sphere, cube, torus, box, roundBox, boxFrame, VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
+    uint VGrid_Lib_BDraw_AppendBuff_IndexN, VGrid_Lib_BDraw_AppendBuff_BitN, VGrid_Lib_BDraw_AppendBuff_N, VGrid_Lib_BDraw_AppendBuff_BitN1, VGrid_Lib_BDraw_AppendBuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
     float4 VGrid_Lib_BDraw_boxColor;
-    float2 VGrid_Lib_gridX, VGrid_Lib_gridY, VGrid_Lib_gridZ, VGrid_Lib_paletteRange, VGrid_Lib_textSize, VGrid_Lib_meshRange;
-    float3 VGrid_Lib_axesRangeMin, VGrid_Lib_axesRangeMax, VGrid_Lib_axesRangeMin1, VGrid_Lib_axesRangeMax1, VGrid_Lib_axesRangeMin2, VGrid_Lib_axesRangeMax2, VGrid_Lib_axesRangeMin3, VGrid_Lib_axesRangeMax3, VGrid_Lib_axesColor, VGrid_Lib_slices, VGrid_Lib_sliceRotation;
+    float2 VGrid_Lib_GridX, VGrid_Lib_GridY, VGrid_Lib_GridZ, VGrid_Lib_textSize, VGrid_Lib_paletteRange, VGrid_Lib_meshRange;
+    float3 VGrid_Lib_axesRangeMin, VGrid_Lib_axesRangeMax, VGrid_Lib_axesRangeMin1, VGrid_Lib_axesRangeMax1, VGrid_Lib_axesRangeMin2, VGrid_Lib_axesRangeMax2, VGrid_Lib_axesColor, VGrid_Lib_slices, VGrid_Lib_sliceRotation;
     uint3 VGrid_Lib_nodeN;
     uint2 VGrid_Lib_viewSize;
     uint4 VGrid_Lib_viewRect;
@@ -140,7 +140,7 @@ Shader "gs/gsVGrid_Lib_Doc"
   RWStructuredBuffer<VGrid_Lib_BDraw_FontInfo> VGrid_Lib_BDraw_fontInfos;
   RWStructuredBuffer<uint2> VGrid_Lib_depthColors;
   RWStructuredBuffer<Color32> VGrid_Lib_paletteBuffer;
-  RWStructuredBuffer<int> VGrid_Lib_Vals;
+  RWStructuredBuffer<float> VGrid_Lib_Vals;
 
   public Texture2D VGrid_Lib_BDraw_fontTexture;
   Texture2D _PaletteTex;
@@ -152,8 +152,8 @@ Shader "gs/gsVGrid_Lib_Doc"
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.VGrid_Lib_drawBox && g.VGrid_Lib_drawAxes, g.VGrid_Lib_BDraw_textN, i, index, LIN); onRenderObject_LIN(g.VGrid_Lib_drawBox, 12, i, index, LIN); onRenderObject_LIN(g.VGrid_Lib_drawGrid && g.VGrid_Lib_showSurface, product(g.VGrid_Lib_viewSize), i, index, LIN); return LIN; }
   VGrid_Lib_BDraw_TextInfo VGrid_Lib_BDraw_textInfo(uint i) { return VGrid_Lib_BDraw_textInfos[i]; }
-  float3 VGrid_Lib_gridMin() { return float3(g.VGrid_Lib_gridX.x, g.VGrid_Lib_gridY.x, g.VGrid_Lib_gridZ.x); }
-  float3 VGrid_Lib_gridMax() { return float3(g.VGrid_Lib_gridX.y, g.VGrid_Lib_gridY.y, g.VGrid_Lib_gridZ.y); }
+  float3 VGrid_Lib_gridMin() { return float3(g.VGrid_Lib_GridX.x, g.VGrid_Lib_GridY.x, g.VGrid_Lib_GridZ.x); }
+  float3 VGrid_Lib_gridMax() { return float3(g.VGrid_Lib_GridX.y, g.VGrid_Lib_GridY.y, g.VGrid_Lib_GridZ.y); }
   uint2 VGrid_Lib_pixDepthColor(uint i) { return VGrid_Lib_depthColors[i]; }
   uint2 VGrid_Lib_pixDepthColor(uint2 id) { return VGrid_Lib_pixDepthColor(id_to_i(id, g.VGrid_Lib_viewSize)); }
   VGrid_Lib_TRay VGrid_Lib_CreateShaderCameraRay(float2 _uv)
@@ -207,6 +207,23 @@ Shader "gs/gsVGrid_Lib_Doc"
     return color;
   }
   uint2 VGrid_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : VGrid_Lib_BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.VGrid_Lib_BDraw_AppendBuff_IndexN ? VGrid_Lib_BDraw_AppendBuff_Indexes[textI] : g.VGrid_Lib_BDraw_textCharN); }
+  float VGrid_Lib_BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
+  uint VGrid_Lib_BDraw_SignalSmpN(uint chI) { return 1024; }
+  float VGrid_Lib_BDraw_SignalThickness(uint chI) { return 0.004f; }
+  float VGrid_Lib_BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
+  float4 VGrid_Lib_BDraw_SignalColor(uint chI) { return YELLOW; }
+  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
+  float4 frag_VGrid_Lib_BDraw_Signal(v2f i)
+  {
+    uint chI = roundu(i.ti.x);
+    uint SmpN = VGrid_Lib_BDraw_SignalSmpN(chI);
+    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = VGrid_Lib_BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
+    float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * VGrid_Lib_BDraw_SignalSmpV(chI, SmpI0)), q1;
+    for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * VGrid_Lib_BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
+    return d < thick ? float4(VGrid_Lib_BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : VGrid_Lib_BDraw_SignalBackColor(chI);
+  }
   float4 frag_VGrid_Lib_GS(v2f i, float4 color)
   {
     switch (roundu(i.ti.z))
@@ -215,6 +232,7 @@ Shader "gs/gsVGrid_Lib_Doc"
       case VGrid_Lib_BDraw_Draw_Sphere: color = frag_VGrid_Lib_BDraw_Sphere(i); break;
       case VGrid_Lib_BDraw_Draw_Line: color = frag_VGrid_Lib_BDraw_Line(i); break;
       case VGrid_Lib_BDraw_Draw_Arrow: color = frag_VGrid_Lib_BDraw_Arrow(i); break;
+      case VGrid_Lib_BDraw_Draw_Signal: color = frag_VGrid_Lib_BDraw_Signal(i); break;
       case VGrid_Lib_BDraw_Draw_LineSegment: color = frag_VGrid_Lib_BDraw_LineSegment(i); break;
       case VGrid_Lib_BDraw_Draw_Mesh: color = frag_VGrid_Lib_BDraw_Mesh(i); break;
       case VGrid_Lib_BDraw_Draw_Text3D:
@@ -231,7 +249,6 @@ Shader "gs/gsVGrid_Lib_Doc"
     if (libI == 1) return frag_Views_Lib_GS(i, color);
     return color;
   }
-  float VGrid_Lib_BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint2 VGrid_Lib_BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 VGrid_Lib_BDraw_JQuadf(uint j) { return (float2)VGrid_Lib_BDraw_JQuadu(j); }
   float2 VGrid_Lib_BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = VGrid_Lib_BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
