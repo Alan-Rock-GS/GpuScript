@@ -35,15 +35,11 @@ namespace GpuScript
 		}
 		float3 _v0 = default;
 		public float3 _si; public float3 si { get => _si; set => v = value; }
-		//public void Text(float3 val)
-		//{
-		//	if (siUnit != siUnit.Null && usUnit != usUnit.Null) textField.value = (siUnits ? val : convert(val)).ToString(format);
-		//	else textField.value = val.ToString(format);
-		//}
 		public void Text(float3 val)
 		{
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
 				textField.value = (siUnits ? convert(val / siConvert) : val * convert(GetUnitConversion(siUnit), usUnit)).ToString(format);
+			else if (Unit != Unit.Null) textField.value = (val * convert(GetUnitConversion(Unit), Unit)).ToString(format);
 			else textField.value = val.ToString(format);
 		}
 		public float3 v
@@ -56,13 +52,11 @@ namespace GpuScript
 				if (Nearest > 0) val = round(val, Nearest);
 				Text(val);
 				_si = val;
-				if (hasRange)
-					SliderV = val;
+				if (hasRange)					SliderV = val;
 			}
 		}
 		public override string textString => v.ToString(format);
 		public override object v_obj { get => v; set => v = value.To_float3(); }
-		//public override void OnUnitsChanged() { base.OnUnitsChanged(); if (siUnit != siUnit.Null && usUnit != usUnit.Null && textField != null) textField.value = (siUnits ? iconvert(si) : convert(si)).ToString(format); }
 		public override void OnUnitsChanged() { base.OnUnitsChanged(); if (siUnit != siUnit.Null && usUnit != usUnit.Null && textField != null) textField.value = (siUnits ? iconvert(si / siConvert) : convert(si / siConvert)).ToString(format); }
 
 		public override bool hasRange { get => any(range_Min < range_Max); }
@@ -70,19 +64,23 @@ namespace GpuScript
 		float3 _range_Max; public float3 range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) { var v = Slider_Log_Val(value); for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = v[i]; } } }
 
 		public float3 previousValue;
-		public override void OnValueChanged(ChangeEvent<float> evt) { if (evt.currentTarget is Slider && textField != null) { float3 val = SliderV; Text(val); SetPropertyValue(val); } }
-		//public override void OnTextFieldChanged(TextField o)
-		//{
-		//	float3 val = o.value.To_float3();
-		//	if (siUnit != siUnit.Null && usUnit != usUnit.Null && !siUnits)
-		//		val = iconvert(val);
-		//	SetPropertyValue(SliderV = val);
-		//}
+		public override void OnValueChanged(ChangeEvent<float> evt)
+		{
+			if (evt.currentTarget is Slider && textField != null)
+			{
+				float3 val = SliderV;
+				Text(val);
+				_si = val;
+				if (!GS.isGridVScroll && !GS.isGridBuilding)					SetPropertyValue(val);
+			}
+		}
 		public override void OnTextFieldChanged(TextField o)
 		{
 			float3 val = o.value.To_float3();
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
-			SetPropertyValue(SliderV = val);
+			else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
+			_si = val;
+			SliderV = val;
 		}
 
 		public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,

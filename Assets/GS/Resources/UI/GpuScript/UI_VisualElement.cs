@@ -47,7 +47,13 @@ namespace GpuScript
 
 		public virtual object v_obj { get; set; }
 
-		protected void SetPropertyValue(float val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
+		//protected void SetPropertyValue(float val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
+		protected void SetPropertyValue(float val)
+		{
+			if (property != null) property.SetValue(gs, val);
+			else if (isGrid && gs != null) grid_OnValueChanged();
+			gs?.OnValueChanged();
+		}
 		protected void SetPropertyValue(float2 val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
 		protected void SetPropertyValue(float3 val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
 		protected void SetPropertyValue(float4 val) { property?.SetValue(gs, val); gs?.OnValueChanged(); }
@@ -109,7 +115,12 @@ namespace GpuScript
 
 		public UI_grid grid;
 		public int gridRow, gridCol;
-		public void grid_OnValueChanged() => $"{grid.name}_OnValueChanged".InvokeMethod(gs, gridRow, gridCol);
+		//public void grid_OnValueChanged() => $"{grid.name}_OnValueChanged".InvokeMethod(gs, gridRow, gridCol);
+		public void grid_OnValueChanged()
+		{
+			if (!GS.isGridVScroll && !GS.isGridBuilding)
+				$"{grid.name}_OnValueChanged".InvokeMethod(gs, gridRow, gridCol);
+		}
 		//public virtual void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
 		//{
 		//  this.gs = gs;

@@ -19,7 +19,12 @@ namespace GpuScript
 			base.RegisterGridCallbacks(gs, grid, gridRow, gridCol);
 			textField.RegisterValueChangedCallback(OnTextFieldChanged);
 		}
-		void OnTextFieldChanged(ChangeEvent<string> evt) => grid_OnValueChanged();
+		//void OnTextFieldChanged(ChangeEvent<string> evt) => grid_OnValueChanged();
+		void OnTextFieldChanged(ChangeEvent<string> evt)
+		{
+			//if (!GS.sliderHasFocus && !GS.isGridBuilding)
+			//	grid_OnValueChanged();
+		}
 		public override float ui_width { get => UI_TextWidth(textString); set => style.width = textField.style.width = value; }
 
 		public override Color BackgroundColor { get => base.BackgroundColor; set => textField.Q<TextElement>().style.backgroundColor = new StyleColor(_BackgroundColor = value); }
@@ -106,6 +111,8 @@ namespace GpuScript
 				for (int i = 0; i < sliders.Length; i++) val = sliders[i].value;
 				textField.value = val.ToString(format);
 				property?.SetValue(gs, val);
+				if (isGrid)
+					grid.grid_OnValueChanged();
 				gs?.OnValueChanged();
 			}
 		}

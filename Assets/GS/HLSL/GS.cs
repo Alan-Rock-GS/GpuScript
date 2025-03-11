@@ -28,6 +28,93 @@ namespace GpuScript
 {
 	public class GS : MonoBehaviour
 	{
+		//Interprets the bit pattern of x as a floating-point number.
+		public static float asfloat(int v) => BitConverter.ToSingle(BitConverter.GetBytes(v));
+		public static float2 asfloat(int2 v) => float2(asfloat(v.x), asfloat(v.y));
+		public static float3 asfloat(int3 v) => float3(asfloat(v.x), asfloat(v.y), asfloat(v.z));
+		public static float4 asfloat(int4 v) => float4(asfloat(v.x), asfloat(v.y), asfloat(v.z), asfloat(v.w));
+		public static float asfloat(uint v) => BitConverter.ToSingle(BitConverter.GetBytes(v));
+		public static float2 asfloat(uint2 v) => float2(asfloat(v.x), asfloat(v.y));
+		public static float3 asfloat(uint3 v) => float3(asfloat(v.x), asfloat(v.y), asfloat(v.z));
+		public static float4 asfloat(uint4 v) => float4(asfloat(v.x), asfloat(v.y), asfloat(v.z), asfloat(v.w));
+		public static float asfloat(float v) => v;
+		public static float2 asfloat(float2 v) => v;
+		public static float3 asfloat(float3 v) => v;
+		public static float4 asfloat(float4 v) => v;
+		//public static float asfloat(uint v)
+		//{
+		//	union { uint asUInt; float asFloat; }
+		//	converter;
+		//	converter.asUInt = v;
+		//	return converter.asFloat;
+		//}
+		public float asfloat(uint lowbits, uint highbits)
+		{
+			//byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
+			//return BitConverter.ToSingle(b2, 0);
+			return 0;
+		}
+
+		public void asuint(double value, out uint lowbits, out uint highbits)
+		{
+			byte[] bytes = BitConverter.GetBytes(value);
+			lowbits = (uint)((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]);
+			highbits = (uint)((bytes[7] << 24) | (bytes[6] << 16) | (bytes[5] << 8) | bytes[4]);
+		}
+
+		public double asdouble(uint lowbits, uint highbits)
+		{
+			byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
+			return BitConverter.ToDouble(b2, 0);
+		}
+
+		//[StructLayout(LayoutKind.Explicit)] internal struct IntFloatUnion { [FieldOffset(0)] public int intValue; [FieldOffset(0)] public float floatValue; }
+		//public static int asint(uint x) => (int)x;
+		//public static int2 asint(uint2 x) => int2((int)x.x, (int)x.y);
+		//public static int3 asint(uint3 x) => int3((int)x.x, (int)x.y, (int)x.z);
+		//public static int4 asint(uint4 x) => int4((int)x.x, (int)x.y, (int)x.z, (int)x.w);
+		//public static int asint(float x) { IntFloatUnion u; u.intValue = 0; u.floatValue = x; return u.intValue; }
+		//public static int2 asint(float2 x) => int2(asint(x.x), asint(x.y));
+		//public static int3 asint(float3 x) => int3(asint(x.x), asint(x.y), asint(x.z));
+		//public static int4 asint(float4 x) => int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w));
+		//public static uint asuint(int x) => (uint)x;
+		//public static uint2 asuint(int2 x) => uint2((uint)x.x, (uint)x.y);
+		//public static uint3 asuint(int3 x) => uint3((uint)x.x, (uint)x.y, (uint)x.z);
+		//public static uint4 asuint(int4 x) => uint4((uint)x.x, (uint)x.y, (uint)x.z, (uint)x.w);
+		//public static uint asuint(float x) => (uint)asint(x);
+		//public static uint2 asuint(float2 x) => uint2(asuint(x.x), asuint(x.y));
+		//public static uint3 asuint(float3 x) => uint3(asuint(x.x), asuint(x.y), asuint(x.z));
+		//public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
+
+		//Interprets the bit pattern of x as an integer.
+		public static int asint(float v) => BitConverter.ToInt32(BitConverter.GetBytes(v));
+		public static int2 asint(float2 v) => int2(asint(v.x), asint(v.y));
+		public static int3 asint(float3 v) => int3(asint(v.x), asint(v.y), asint(v.z));
+		public static int4 asint(float4 v) => int4(asint(v.x), asint(v.y), asint(v.z), asint(v.w));
+		public static int asint(uint v) => (int)v;
+		public static int2 asint(uint2 v) => (int2)v;
+		public static int3 asint(uint3 v) => (int3)v;
+		public static int4 asint(uint4 v) => (int4)v;
+		public static int asint(int v) => v;
+		public static int2 asint(int2 v) => v;
+		public static int3 asint(int3 v) => v;
+		public static int4 asint(int4 v) => v;
+
+		//Interprets the bit pattern of x as an unsigned integer.
+		public static uint  asuint(float v) => BitConverter.ToUInt32(BitConverter.GetBytes(v));
+		public static uint2 asuint(float2 v) => uint2(asuint(v.x), asuint(v.y));
+		public static uint3 asuint(float3 v) => uint3(asuint(v.x), asuint(v.y), asuint(v.z));
+		public static uint4 asuint(float4 v) => uint4(asuint(v.x), asuint(v.y), asuint(v.z), asuint(v.w));
+		public static uint  asuint(int v) =>  (uint)v;
+		public static uint2 asuint(int2 v) => (uint2)v;
+		public static uint3 asuint(int3 v) => (uint3)v;
+		public static uint4 asuint(int4 v) => (uint4)v;
+		public static uint  asuint(uint v) => v;
+		public static uint2 asuint(uint2 v) => v;
+		public static uint3 asuint(uint3 v) => v;
+		public static uint4 asuint(uint4 v) => v;
+
+
 		// abs - returns absolute value of scalars and vectors.
 		public static int abs(int v) => v < 0 ? -v : v;
 		public static int2 abs(int2 v) => int2(abs(v.x), abs(v.y));
@@ -700,12 +787,12 @@ namespace GpuScript
 		public static void swap(ref float3 a, ref float3 b) { float3 t = a; a = b; b = t; }
 		public static void swap(ref float4 a, ref float4 b) { float4 t = a; a = b; b = t; }
 
-		public float asfloat(uint lowbits, uint highbits)
-		{
-			//byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
-			//return BitConverter.ToSingle(b2, 0);
-			return 0;
-		}
+		//public float asfloat(uint lowbits, uint highbits)
+		//{
+		//	//byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
+		//	//return BitConverter.ToSingle(b2, 0);
+		//	return 0;
+		//}
 
 		public static float aspect(float2 a) { return a.y / a.x; }
 		public static float aspect(uint2 a) { return a.y / (float)a.x; }
@@ -3697,37 +3784,37 @@ namespace GpuScript
 		public static float distance(float4 a, float4 b) { float4 v = a - b; return sqrt(dot(v, v)); }
 		public static double distance(double a, double b) => abs(a - b);
 
-		public void asuint(double value, out uint lowbits, out uint highbits)
-		{
-			byte[] bytes = BitConverter.GetBytes(value);
-			lowbits = (uint)((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]);
-			highbits = (uint)((bytes[7] << 24) | (bytes[6] << 16) | (bytes[5] << 8) | bytes[4]);
-		}
+		//public void asuint(double value, out uint lowbits, out uint highbits)
+		//{
+		//	byte[] bytes = BitConverter.GetBytes(value);
+		//	lowbits = (uint)((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]);
+		//	highbits = (uint)((bytes[7] << 24) | (bytes[6] << 16) | (bytes[5] << 8) | bytes[4]);
+		//}
 
-		public double asdouble(uint lowbits, uint highbits)
-		{
-			byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
-			return BitConverter.ToDouble(b2, 0);
-		}
+		//public double asdouble(uint lowbits, uint highbits)
+		//{
+		//	byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
+		//	return BitConverter.ToDouble(b2, 0);
+		//}
 
-		[StructLayout(LayoutKind.Explicit)] internal struct IntFloatUnion { [FieldOffset(0)] public int intValue; [FieldOffset(0)] public float floatValue; }
+		//[StructLayout(LayoutKind.Explicit)] internal struct IntFloatUnion { [FieldOffset(0)] public int intValue; [FieldOffset(0)] public float floatValue; }
 
-		public static int asint(uint x) => (int)x;
-		public static int2 asint(uint2 x) => int2((int)x.x, (int)x.y);
-		public static int3 asint(uint3 x) => int3((int)x.x, (int)x.y, (int)x.z);
-		public static int4 asint(uint4 x) => int4((int)x.x, (int)x.y, (int)x.z, (int)x.w);
-		public static int asint(float x) { IntFloatUnion u; u.intValue = 0; u.floatValue = x; return u.intValue; }
-		public static int2 asint(float2 x) => int2(asint(x.x), asint(x.y));
-		public static int3 asint(float3 x) => int3(asint(x.x), asint(x.y), asint(x.z));
-		public static int4 asint(float4 x) => int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w));
-		public static uint asuint(int x) => (uint)x;
-		public static uint2 asuint(int2 x) => uint2((uint)x.x, (uint)x.y);
-		public static uint3 asuint(int3 x) => uint3((uint)x.x, (uint)x.y, (uint)x.z);
-		public static uint4 asuint(int4 x) => uint4((uint)x.x, (uint)x.y, (uint)x.z, (uint)x.w);
-		public static uint asuint(float x) => (uint)asint(x);
-		public static uint2 asuint(float2 x) => uint2(asuint(x.x), asuint(x.y));
-		public static uint3 asuint(float3 x) => uint3(asuint(x.x), asuint(x.y), asuint(x.z));
-		public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
+		//public static int asint(uint x) => (int)x;
+		//public static int2 asint(uint2 x) => int2((int)x.x, (int)x.y);
+		//public static int3 asint(uint3 x) => int3((int)x.x, (int)x.y, (int)x.z);
+		//public static int4 asint(uint4 x) => int4((int)x.x, (int)x.y, (int)x.z, (int)x.w);
+		//public static int asint(float x) { IntFloatUnion u; u.intValue = 0; u.floatValue = x; return u.intValue; }
+		//public static int2 asint(float2 x) => int2(asint(x.x), asint(x.y));
+		//public static int3 asint(float3 x) => int3(asint(x.x), asint(x.y), asint(x.z));
+		//public static int4 asint(float4 x) => int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w));
+		//public static uint asuint(int x) => (uint)x;
+		//public static uint2 asuint(int2 x) => uint2((uint)x.x, (uint)x.y);
+		//public static uint3 asuint(int3 x) => uint3((uint)x.x, (uint)x.y, (uint)x.z);
+		//public static uint4 asuint(int4 x) => uint4((uint)x.x, (uint)x.y, (uint)x.z, (uint)x.w);
+		//public static uint asuint(float x) => (uint)asint(x);
+		//public static uint2 asuint(float2 x) => uint2(asuint(x.x), asuint(x.y));
+		//public static uint3 asuint(float3 x) => uint3(asuint(x.x), asuint(x.y), asuint(x.z));
+		//public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
 
 		//allow structs to be declared without new keyword, prevents Non-invocable member ... cannot be used like a method
 		public static bool2 bool2(bool x) => new bool2(x, x);
@@ -4046,7 +4133,7 @@ namespace GpuScript
 
 		public RenderTexture newRenderTexture(int w = 1920, int h = 1048) { RenderTexture r = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32); r.Create(); return r; }
 
-		public static bool mouseInUI, sliderHasFocus;
+		public static bool mouseInUI, sliderHasFocus, isGridVScroll, isGridBuilding;
 		public bool _mouseInUI { get => mouseInUI; set => mouseInUI = value; }
 		public bool _sliderHasFocus { get => sliderHasFocus; set => sliderHasFocus = value; }
 		public static uint2 ScreenSize() => uint2(Screen.width, Screen.height);
@@ -5081,7 +5168,6 @@ namespace GpuScript
 
 		public bool IsOnly(uint i, params bool[] vs) { vs[i] = !vs[i]; bool r = !vs.Any(v => v); vs[i] = !vs[i]; return r; }
 		//public bool IsOnly(params bool[] vs) => IsOnly(0, vs);
-
 	}
 }
 //namespace System.Runtime.CompilerServices { [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)] internal class IsExternalInit { } }
