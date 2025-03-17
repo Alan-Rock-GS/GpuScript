@@ -101,15 +101,15 @@ namespace GpuScript
 		public static int4 asint(int4 v) => v;
 
 		//Interprets the bit pattern of x as an unsigned integer.
-		public static uint  asuint(float v) => BitConverter.ToUInt32(BitConverter.GetBytes(v));
+		public static uint asuint(float v) => BitConverter.ToUInt32(BitConverter.GetBytes(v));
 		public static uint2 asuint(float2 v) => uint2(asuint(v.x), asuint(v.y));
 		public static uint3 asuint(float3 v) => uint3(asuint(v.x), asuint(v.y), asuint(v.z));
 		public static uint4 asuint(float4 v) => uint4(asuint(v.x), asuint(v.y), asuint(v.z), asuint(v.w));
-		public static uint  asuint(int v) =>  (uint)v;
+		public static uint asuint(int v) => (uint)v;
 		public static uint2 asuint(int2 v) => (uint2)v;
 		public static uint3 asuint(int3 v) => (uint3)v;
 		public static uint4 asuint(int4 v) => (uint4)v;
-		public static uint  asuint(uint v) => v;
+		public static uint asuint(uint v) => v;
 		public static uint2 asuint(uint2 v) => v;
 		public static uint3 asuint(uint3 v) => v;
 		public static uint4 asuint(uint4 v) => v;
@@ -786,13 +786,6 @@ namespace GpuScript
 		public static void swap(ref float2 a, ref float2 b) { float2 t = a; a = b; b = t; }
 		public static void swap(ref float3 a, ref float3 b) { float3 t = a; a = b; b = t; }
 		public static void swap(ref float4 a, ref float4 b) { float4 t = a; a = b; b = t; }
-
-		//public float asfloat(uint lowbits, uint highbits)
-		//{
-		//	//byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
-		//	//return BitConverter.ToSingle(b2, 0);
-		//	return 0;
-		//}
 
 		public static float aspect(float2 a) { return a.y / a.x; }
 		public static float aspect(uint2 a) { return a.y / (float)a.x; }

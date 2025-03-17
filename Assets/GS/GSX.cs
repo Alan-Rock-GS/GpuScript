@@ -1373,6 +1373,7 @@ namespace GpuScript
 			return bytes;
 		}
 
+		public static byte[] ToBytes<T>(this List<T> a) => ToBytes(a.ToArray());
 
 		public static void Save<T>(this string file, T[] a) { file.WriteAllBytes(a.ToBytes()); }
 		public static void Save<T>(this string file, RWStructuredBuffer<T> a) { file.WriteAllBytes(a.ToBytes()); }

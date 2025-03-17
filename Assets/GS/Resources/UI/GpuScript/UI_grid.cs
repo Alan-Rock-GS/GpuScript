@@ -218,11 +218,9 @@ namespace GpuScript
 		{
 			int n = arrayLength;
 			if (n == 0) return;
-			//GS.sliderHasFocus = true;
 			GS.isGridBuilding = true;
 			int newStartRow = GS.roundi(VScroll.value / VScroll.highValue * GS.max(0, n - DisplayRowN));
 			if (StartRow != newStartRow) { StartRow = newStartRow; $"{name}_OnStartRowChanged".InvokeMethod(gs); $"{name}_To_UI".InvokeMethod(gs); }
-			//GS.sliderHasFocus = false;
 			GS.isGridBuilding = false;
 		}
 		void addRowButton_Clicked(ClickEvent evt)
