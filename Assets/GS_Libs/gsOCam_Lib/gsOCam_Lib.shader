@@ -141,6 +141,7 @@ Shader "gs/gsOCam_Lib"
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<Color32> paletteBuffer;
+  RWStructuredBuffer<float4> legendSphereColors;
 
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
@@ -246,8 +247,8 @@ Shader "gs/gsOCam_Lib"
 		if (i < g.legendSphereN)
 		{
 			float3 c = f110 * 10000;
-			float v = i / (g.legendSphereN - 1.0f), y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
-			return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, palette(v), i, j, o);
+			float y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
+			return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, legendSphereColors[i], i, j, o);
 		}
 		else if (g.legendPaletteN == 1) return vert_Draw_Legend(i, j, o);
 		return o;

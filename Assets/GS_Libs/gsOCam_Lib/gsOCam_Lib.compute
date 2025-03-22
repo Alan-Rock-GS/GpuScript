@@ -77,6 +77,7 @@
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<Color32> paletteBuffer;
+  RWStructuredBuffer<float4> legendSphereColors;
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_AppendBuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : BDraw_AppendBuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = BDraw_AppendBuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); BDraw_AppendBuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_AppendBuff_BitN1) { uint i = id.x; if (i >= numthreads1) BDraw_AppendBuff_Fills1[i] += BDraw_AppendBuff_Fills2[i / numthreads1 - 1]; } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
