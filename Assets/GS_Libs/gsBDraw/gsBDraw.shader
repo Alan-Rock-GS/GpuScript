@@ -152,6 +152,7 @@ Shader "gs/gsBDraw"
   uint SignalSmpN(uint chI) { return 1024; }
   float SignalThickness(uint chI) { return 0.004f; }
   float SignalSmpV(uint chI, uint smpI) { return 0; }
+  float SignalFillCrest(uint chI) { return 1; }
   float4 SignalColor(uint chI) { return YELLOW; }
   float4 SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
   float4 frag_Signal(v2f i)
@@ -162,8 +163,12 @@ Shader "gs/gsBDraw"
 		float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
 		uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
 		float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * SignalSmpV(chI, SmpI0)), q1;
-		for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
-		return d < thick ? float4(SignalColor(chI).xyz * (1 - d / thick), 1) : SignalBackColor(chI);
+		bool fill = q0.y > 0;
+		float crest = SignalFillCrest(chI);
+		for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; fill = fill || q0.y > crest; }
+		if (fill) fill = y > crest && y < SignalSmpV(chI, SmpI);
+		float4 c = SignalColor(chI);
+		return fill ? c : d < thick ? float4(c.xyz * (1 - d / thick), 1) : SignalBackColor(chI);
 	}
 	
   float4 frag_GS(v2f i, float4 color)

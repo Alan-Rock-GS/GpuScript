@@ -44,7 +44,21 @@ namespace GpuScript
         if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
       }
     }
-    public override string textString => v.ToString(format);
+		//public int v
+		//{
+		//	get => textField != null ? val = textField_int : val;
+		//	set
+		//	{
+		//		val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
+		//		if (Nearest > 0) val = roundu(val, Nearest);
+		//		//if (textField != null) textField.value = val.ToString(format);
+		//		Text(val);
+		//		if (hasRange) SliderV = val;
+		//	}
+		//}
+		public void Text(float val) => textField.value = val.ToString(format);
+
+		public override string textString => v.ToString(format);
     public override object v_obj { get => v; set => v = value.To_int(); }
     public override bool hasRange { get => range_Min < range_Max; }
     int _range_Min, _range_Max;
@@ -52,23 +66,39 @@ namespace GpuScript
     public int range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
 
     int previousValue;
-    public override void OnValueChanged(ChangeEvent<float> evt)
-    {
-      if (evt.currentTarget is Slider && textField != null) { var val = SliderV; textField.value = val.ToString(format); property?.SetValue(gs, val); gs?.OnValueChanged(); }
-    }
-    public override void OnTextFieldChanged(TextField o)
-    {
-      if (hasRange) SliderV = o.value.To_int();
-      else
-      {
-        if (property == null) print("property == null");
-        if (textField == null) print("textField == null");
-        if (gs == null) print("gs == null");
-        property.SetValue(gs, textField.value.To_int());
-        gs.OnValueChanged();
-      }
-    }
-    public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
+    //public override void OnValueChanged(ChangeEvent<float> evt)
+    //{
+    //  if (evt.currentTarget is Slider && textField != null) { var val = SliderV; textField.value = val.ToString(format); property?.SetValue(gs, val); gs?.OnValueChanged(); }
+    //}
+		//  public override void OnTextFieldChanged(TextField o)
+		//  {
+		//    if (hasRange) SliderV = o.value.To_int();
+		//    else
+		//    {
+		//      if (property == null) print("property == null");
+		//      if (textField == null) print("textField == null");
+		//      if (gs == null) print("gs == null");
+		//      property.SetValue(gs, textField.value.To_int());
+		//      gs.OnValueChanged();
+		//    }
+		//}
+		public override void OnValueChanged(ChangeEvent<float> evt)
+		{
+			if (evt.currentTarget is Slider && textField != null)
+			{
+				var val = SliderV;
+				Text(val);
+				if (!GS.isGridVScroll && !GS.isGridBuilding)
+					SetPropertyValue(val);
+			}
+		}
+
+		public override void OnTextFieldChanged(TextField o)
+		{
+			SliderV = o.value.To_int();
+		}
+
+		public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
     public static implicit operator int(UI_int f) => f.v;
     public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider,
       bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
