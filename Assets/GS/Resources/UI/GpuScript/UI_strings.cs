@@ -117,7 +117,8 @@ namespace GpuScript
 		public override float ui_width { get => (dropdownField?.choices?.Max(a => a.ui_width()) ?? 100) + 60; set => style.width = dropdownField.style.width = value; }
 		public override object v_obj { get => v; set => v = value.ToString(); }
 		public string previousValue;
-		void OnValueChanged(ChangeEvent<string> evt) { previousValue = evt.previousValue; dropdownField.value = evt.newValue; if (property != null) property.SetValue(gs, dropdownField.value); }
+		//void OnValueChanged(ChangeEvent<string> evt) { previousValue = evt.previousValue; dropdownField.value = evt.newValue; if (property != null) property.SetValue(gs, dropdownField.value); }
+		void OnValueChanged(ChangeEvent<string> evt) { previousValue = evt.previousValue; dropdownField.value = evt.newValue; SetPropertyValue(dropdownField.value); }
 		public override bool Changed { get => dropdownField != null ? dropdownField.value != previousValue : false; set => previousValue = dropdownField != null && !value ? dropdownField.value : null; }
 
 		public void Build(string title, string description, string choices, string val, bool isReadOnly, bool isGrid, string treeGroup_parent)

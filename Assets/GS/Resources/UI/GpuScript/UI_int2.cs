@@ -85,9 +85,10 @@ namespace GpuScript
 
     public override void OnTextFieldChanged(TextField o)
     {
-      if (hasRange) SliderV = o.value.To_int2(); else { property.SetValue(gs, textField.value.To_int2()); gs.OnValueChanged(); }
-    }
-    public override bool Changed { get => any(v != _v); set => _v = value ? v - 1 : v; }
+			//if (hasRange) SliderV = o.value.To_int2(); else { property.SetValue(gs, textField.value.To_int2()); gs.OnValueChanged(); }
+			if (hasRange) SliderV = o.value.To_int2(); else SetPropertyValue(textField.value.To_int2());
+		}
+		public override bool Changed { get => any(v != _v); set => _v = value ? v - 1 : v; }
     public static implicit operator int2(UI_int2 f) => f.v; 
 
     public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider,

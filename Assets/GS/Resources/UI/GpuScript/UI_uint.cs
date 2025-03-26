@@ -2,7 +2,6 @@ using System;
 using System.Reflection;
 using UnityEngine.UIElements;
 using static GpuScript.GS;
-using static GpuScript.GSX;
 
 namespace GpuScript
 {
@@ -69,39 +68,51 @@ namespace GpuScript
 		public uint range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(value); } }
 		public uint range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
 		public uint previousValue;
+		//public override void OnValueChanged(ChangeEvent<float> evt)
+		//{
+		//	if (evt.currentTarget is Slider && textField != null)
+		//	{
+		//		var val = SliderV;
+		//		//textField.value = val.ToString(format);
+		//		//property?.SetValue(gs, val);
+		//		//gs?.OnValueChanged();
+		//		Text(val);
+		//		if (!GS.isGridVScroll && !GS.isGridBuilding)
+		//		{
+		//			SetPropertyValue(val);
+		//			//print($"OnValueChanged {val}");
+		//		}
+
+		//	}
+		//}
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
 			if (evt.currentTarget is Slider && textField != null)
 			{
 				var val = SliderV;
-				//textField.value = val.ToString(format);
-				//property?.SetValue(gs, val);
-				//gs?.OnValueChanged();
 				Text(val);
-				if (!GS.isGridVScroll && !GS.isGridBuilding)
-				{
-					SetPropertyValue(val);
-					//print($"OnValueChanged {val}");
-				}
-
+				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
 			}
 		}
-		public override void OnTextFieldChanged(TextField o)
-		{
-			//if (hasRange)
-			//	SliderV = o.value.To_uint();
-			//else
-			//{
-			//	//property?.SetValue(gs, textField.value.To_uint());
-			//	property?.SetValue(gs, textField_uint);
-			//	gs.OnValueChanged();
-			//}
 
-			SliderV = o.value.To_uint();
-			//SetPropertyValue(val);
-			//print($"OnTextFieldChanged {val}");
+		//public override void OnTextFieldChanged(TextField o)
+		//{
+		//	//if (hasRange)
+		//	//	SliderV = o.value.To_uint();
+		//	//else
+		//	//{
+		//	//	//property?.SetValue(gs, textField.value.To_uint());
+		//	//	property?.SetValue(gs, textField_uint);
+		//	//	gs.OnValueChanged();
+		//	//}
 
-		}
+		//	SliderV = o.value.To_uint();
+		//	//SetPropertyValue(val);
+		//	//print($"OnTextFieldChanged {val}");
+
+		//}
+		public override void OnTextFieldChanged(TextField o) { if (hasRange) SliderV = o.value.To_uint(); else SetPropertyValue(o.value.To_uint()); }
+
 		public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
 		public static implicit operator uint(UI_uint f) => f.v;
 		public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly,
