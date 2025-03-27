@@ -212,10 +212,10 @@ Shader "gs/gsVGrid_Lib"
     float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
     uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
     float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
-    bool fill = q0.y > 0;
     float crest = BDraw_SignalFillCrest(chI);
+    bool fill = crest >= 0 ? q0.y > 0 : q0.y < 0;
     for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; fill = fill || q0.y > crest; }
-    if (fill) fill = y > crest && y < BDraw_SignalSmpV(chI, SmpI);
+    if (fill) { if (crest >= 0) fill = y > crest && y < BDraw_SignalSmpV(chI, SmpI); else fill = y < crest && y > BDraw_SignalSmpV(chI, SmpI); }
     float4 c = BDraw_SignalColor(chI);
     return fill ? c : d < thick ? float4(c.xyz * (1 - d / thick), 1) : BDraw_SignalBackColor(chI);
   }
