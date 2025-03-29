@@ -68,22 +68,6 @@ namespace GpuScript
 		public int range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
 
 		int previousValue;
-		//public override void OnValueChanged(ChangeEvent<float> evt)
-		//{
-		//  if (evt.currentTarget is Slider && textField != null) { var val = SliderV; textField.value = val.ToString(format); property?.SetValue(gs, val); gs?.OnValueChanged(); }
-		//}
-		//  public override void OnTextFieldChanged(TextField o)
-		//  {
-		//    if (hasRange) SliderV = o.value.To_int();
-		//    else
-		//    {
-		//      if (property == null) print("property == null");
-		//      if (textField == null) print("textField == null");
-		//      if (gs == null) print("gs == null");
-		//      property.SetValue(gs, textField.value.To_int());
-		//      gs.OnValueChanged();
-		//    }
-		//}
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
 			if (evt.currentTarget is Slider && textField != null)
@@ -94,11 +78,7 @@ namespace GpuScript
 			}
 		}
 
-		//public override void OnTextFieldChanged(TextField o)
-		//{
-		//	SliderV = o.value.To_int();
-		//}
-		public override void OnTextFieldChanged(TextField o) { if (hasRange) SliderV = o.value.To_int(); else SetPropertyValue(o.value.To_int()); }
+		public override void OnTextFieldChanged(TextField o) { if (hasRange) SliderV = o.value.To_int(); SetPropertyValue(o.value.To_int()); }
 
 		public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
 		public static implicit operator int(UI_int f) => f.v;

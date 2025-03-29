@@ -16,7 +16,6 @@ namespace GpuScript
 		public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_uint())) { OnTextFieldChanged(o); previousValue = o.value.To_uint(); changed = false; } } }
 		public static Type Get_Base_Type() => typeof(uint);
 		public static bool IsType(Type type) => type == typeof(uint);
-		//public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_uint(); return true; }
 		public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField_uint; return true; }
 		public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged, StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
 		{
@@ -36,16 +35,6 @@ namespace GpuScript
 		public string textField_value => textField.value.ReplaceAll("/", "");
 		public uint textField_uint => textField_value.To_uint();
 		uint _v = default, val = default;
-		//public uint v
-		//{
-		//  get => textField != null ? val = textField.value.To_uint() : val;
-		//  set
-		//  {
-		//    val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
-		//    if (Nearest > 0) val = roundu(val, Nearest);
-		//    if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
-		//  }
-		//}
 		public uint v
 		{
 			get => textField != null ? val = textField_uint : val;
@@ -53,7 +42,6 @@ namespace GpuScript
 			{
 				val = is_Pow10 ? roundu(pow10(round(log10(value)))) : is_Pow2 ? roundu(pow2(round(log2(value)))) : value;
 				if (Nearest > 0) val = roundu(val, Nearest);
-				//if (textField != null) textField.value = val.ToString(format);
 				Text(val);
 				if (hasRange) SliderV = val;
 			}
@@ -68,23 +56,6 @@ namespace GpuScript
 		public uint range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(value); } }
 		public uint range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
 		public uint previousValue;
-		//public override void OnValueChanged(ChangeEvent<float> evt)
-		//{
-		//	if (evt.currentTarget is Slider && textField != null)
-		//	{
-		//		var val = SliderV;
-		//		//textField.value = val.ToString(format);
-		//		//property?.SetValue(gs, val);
-		//		//gs?.OnValueChanged();
-		//		Text(val);
-		//		if (!GS.isGridVScroll && !GS.isGridBuilding)
-		//		{
-		//			SetPropertyValue(val);
-		//			//print($"OnValueChanged {val}");
-		//		}
-
-		//	}
-		//}
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
 			if (evt.currentTarget is Slider && textField != null)
@@ -94,24 +65,7 @@ namespace GpuScript
 				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
 			}
 		}
-
-		//public override void OnTextFieldChanged(TextField o)
-		//{
-		//	//if (hasRange)
-		//	//	SliderV = o.value.To_uint();
-		//	//else
-		//	//{
-		//	//	//property?.SetValue(gs, textField.value.To_uint());
-		//	//	property?.SetValue(gs, textField_uint);
-		//	//	gs.OnValueChanged();
-		//	//}
-
-		//	SliderV = o.value.To_uint();
-		//	//SetPropertyValue(val);
-		//	//print($"OnTextFieldChanged {val}");
-
-		//}
-		public override void OnTextFieldChanged(TextField o) { if (hasRange) SliderV = o.value.To_uint(); else SetPropertyValue(o.value.To_uint()); }
+		public override void OnTextFieldChanged(TextField o) { if (hasRange) SliderV = o.value.To_uint(); SetPropertyValue(o.value.To_uint()); }
 
 		public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
 		public static implicit operator uint(UI_uint f) => f.v;

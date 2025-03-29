@@ -77,8 +77,7 @@ namespace GpuScript
     }
     public override void OnTextFieldChanged(TextField o)
     {
-      //if (hasRange) SliderV = o.value.To_uint2(); else { property.SetValue(gs, textField.value.To_uint2()); gs.OnValueChanged(); }
-			if (hasRange) SliderV = o.value.To_uint2(); else SetPropertyValue(textField.value.To_uint2());
+			if (hasRange) SliderV = o.value.To_uint2(); SetPropertyValue(textField.value.To_uint2());
 		}
 		public override bool Changed { get => any(v != _v); set => _v = value ? v - 1 : v; }
     public static implicit operator uint2(UI_uint2 f) => f.v; 

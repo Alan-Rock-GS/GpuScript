@@ -755,6 +755,8 @@ public class GS_Window : EditorWindow
 					Type itemType = fld.FieldType;
 					string itemName = fld.Name, itemTypeStr = fld.GetTypeName();
 					if (itemTypeStr == "strings") itemTypeStr = "string";
+					else if (itemType.IsEnum) itemTypeStr = "uint";
+					else if (itemType == typeof(bool)) itemTypeStr = "uint";
 					structValues.Add(itemType0 != itemType ? $"{(structValues == "" ? "" : "; ")}public {itemTypeStr} " : ", ", itemName);
 					itemType0 = itemType;
 				}
@@ -775,7 +777,7 @@ public class GS_Window : EditorWindow
 					Type itemType = fld.FieldType;
 					string itemName = fld.Name, itemTypeStr = fld.GetTypeName(), separator = classValues == "" ? "" : "; ";
 					if (itemTypeStr == "strings") itemTypeStr = "string";
-					if (itemType.IsEnum) classValues.Add(itemType0 != itemType ? $"{separator}public uint " : ", ", itemName);
+					if (itemType.IsEnum || itemType == typeof(bool)) classValues.Add(itemType0 != itemType ? $"{separator}public uint " : ", ", itemName);
 					else classValues.Add(itemType0 != itemType ? $"{separator}public {itemTypeStr} " : ", ", itemName);
 					itemType0 = itemType;
 				}
@@ -1502,7 +1504,12 @@ $"\n    {m_name} = label switch",
 												Type fldTyp = classMember.Fld().FieldType;
 												string fldName = classMember.Name;
 												string v = "", arrayFldType = fldTyp.SimplifyType();
-												array_to_ui.Add($"\n      ui.{fldName} = {(fldTyp.IsEnum ? $"({arrayFldType})" : "")}row.{fldName}{v};");
+												//if (fldTyp == typeof(bool) && arrayFldType != "bool")
+												if (fldTyp == typeof(bool))
+													//array_to_ui.Add($"\n      ui.{fldName} = Is(row.{fldName}{v});");
+													array_to_ui.Add($"\n      ui.{fldName} = row.{fldName}{v}.To_bool();");
+												else
+													array_to_ui.Add($"\n      ui.{fldName} = {(fldTyp.IsEnum ? $"({arrayFldType})" : "")}row.{fldName}{v};");
 
 												bool isEnum = fldTyp.IsEnum;
 												string typ = arrayFldType, n = fldName;
@@ -1511,13 +1518,28 @@ $"\n    {m_name} = label switch",
 												string compare = $"data.{n} != ui.{n}";
 												if (typ.StartsWith("float") || typ.EndsWithAny("2", "3", "4")) compare = $"any({compare})";
 												else if (isEnum) compare = $"({typ}){compare}";
+												//else if (fldTyp == typeof(bool) && arrayFldType != "bool")
+												//	compare = $"Is({compare})";
+												else if (fldTyp == typeof(bool))
+													compare = $"{compare}.To_uint()";
 
 												string enumCast = isEnum ? "(uint)" : "";
 												string enumTypeCast = isEnum ? $"({typ})" : "";
+												string enumCast2 = "";
+												//if (fldTyp == typeof(bool) && arrayFldType != "bool")
+												//{
+												//	enumCast = "Is(";
+												//	enumCast2 = ")";
+												//}
+												if (fldTyp == typeof(bool))// && arrayFldType != "bool")
+													enumCast2 = ".To_uint()";
+												//string enumCast = isEnum ? enumTypeCast : "";
 												grid_OnValueChanged.Add(
 			$"\n    {(grid_OnValueChanged.ToString().Contains("(col == ") ? "else " : "")}",
-			$"if (col == {m_name}_{fldName}_Col && {compare}) {{ var v = {enumTypeCast}data.{fldName}; data.{fldName} = {enumCast}ui.{fldName}; ",
-			$"{m_name}[row + startRow] = data; {m_name}_{fldName}_OnValueChanged(row + startRow, v); }}");
+			$"if (col == {m_name}_{fldName}_Col && {compare}) {{ var v = {enumTypeCast}data.{fldName}; data.{fldName} = {enumCast}ui.{fldName}{enumCast2}; ",
+			//$"{m_name}[row + startRow] = data; {m_name}_{fldName}_OnValueChanged(row + startRow, v); }}");
+			//$"{m_name}[row + startRow] = data; {m_name}_{fldName}_OnValueChanged(row + startRow, {(fldTyp == typeof(bool) && arrayFldType != "bool" ? "Is(v)" : "v")}); }}");
+			$"{m_name}[row + startRow] = data; {m_name}_{fldName}_OnValueChanged(row + startRow, {(fldTyp == typeof(bool) ? "v.To_bool()" : "v")}); }}");
 
 												if (grid_Cols.IsEmpty()) grid_Cols.Add($"\n  public const int {m_name}_{fldName}_Col = {gridCol}");
 												else grid_Cols.Add($", {m_name}_{fldName}_Col = {gridCol}");
@@ -1525,7 +1547,13 @@ $"\n    {m_name} = label switch",
 												var att = classMember.AttGS();
 												if (att.ShowIf != null)
 													grid_ShowIf.Add($"\n    if (col == {m_name}_{fldName}_Col) return {att.ShowIf.ToString().ReplaceAll("False", "false", "True", "true")};");
-												ui_to_array.Add($"\n      row.{fldName}{v} = {enumCast}ui.{fldName};");
+												//ui_to_array.Add($"\n      row.{fldName}{v} = {enumCast}ui.{fldName};");
+												//if (fldTyp == typeof(bool) && arrayFldType != "bool")
+												//	ui_to_array.Add($"\n      row.{fldName}{v} = Is(ui.{fldName});");
+												if (fldTyp == typeof(bool))
+													ui_to_array.Add($"\n      row.{fldName}{v} = ui.{fldName}.To_uint();");
+												else
+													ui_to_array.Add($"\n      row.{fldName}{v} = {enumCast}ui.{fldName};");
 												grid_item_OnValueChanged.Add($"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue) {{ }}");
 
 												if (attGS.ColumnSorting)
