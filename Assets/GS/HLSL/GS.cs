@@ -114,7 +114,6 @@ namespace GpuScript
 		public static uint3 asuint(uint3 v) => v;
 		public static uint4 asuint(uint4 v) => v;
 
-
 		// abs - returns absolute value of scalars and vectors.
 		public static int abs(int v) => v < 0 ? -v : v;
 		public static int2 abs(int2 v) => int2(abs(v.x), abs(v.y));
@@ -1568,6 +1567,15 @@ namespace GpuScript
 		public static float length2(float3 v) { return dot(v, v); }
 		public static float length2(float4 v) { return dot(v, v); }
 
+		public static float4 GetSkewRayNearestIntersectionDist(float3 p1, float3 v1, float3 p2, float3 v2)
+		{
+			float3 c = cross(v1, v2); float d2 = length2(c); if (d2 < 1e-6f) return fNegInf4;
+			float t = determinant(float3x3(p2 - p1, v2, c)) / d2, s = determinant(float3x3(p2 - p1, v1, c)) / d2;
+			float3 a = p1 + t * v1, b = p2 + s * v2;
+			return float4(b, distance(a, b));
+		}
+
+
 		//public static int extent(uint2 v) { return (int)(v.y - v.x); }
 		public static uint extent(uint2 v) { return v.y - v.x; }
 		public static int extent(int2 v) { return v.y - v.x; }
@@ -1593,41 +1601,6 @@ namespace GpuScript
 			return k;
 		}
 
-		//public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
-		//{
-		//  int v = int_min, _sign = 1;
-		//  for (uint i = i0; i < i1; i++)
-		//  {
-		//    uint c = TextByte(a, i);
-		//    if (c == ASCII_Plus) _sign = 1;
-		//    else if (c == ASCII_Dash) _sign = -1;
-		//    else if (c >= ASCII_0 && c <= ASCII_9) { if (v == int_min) v = 0; v = v * 10 + (int)(c - ASCII_0); }
-		//    else if (c == ASCII_Period) break;
-		//    else if (IsNotNegInf(v) && (c == 0x45 || c == 0x65)) //E or e
-		//    {
-		//      int exponent = 0, exponent_sign = 1;
-		//      for (i++; i < i1; i++)
-		//      {
-		//        c = TextByte(a, i);
-		//        if (c == ASCII_Plus) exponent_sign = 1; else if (c == ASCII_Dash) exponent_sign = -1; else if (c >= ASCII_0 && c <= ASCII_9) exponent = (int)(exponent * 10 + c - ASCII_0);
-		//      }
-		//      v *= pow10(exponent_sign * exponent);
-		//    }
-		//    else if (c != ASCII_Space) break;
-		//  }
-		//  return v * _sign;
-		//}
-		//public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
-		//{
-		//  int v = 0, _sign = 1;
-		//  for (uint i = i0; i < i1; i++)
-		//  {
-		//    int c = (int)TextByte(a, i);
-		//    if (c >= ASCII_0 && c <= ASCII_9) v = v * 10 + c - (int)ASCII_0;
-		//    else if (c == ASCII_Dash) _sign = -1;
-		//  }
-		//  return v * _sign;
-		//}
 		public static int ToInt(RWStructuredBuffer<uint> a, uint i0, uint i1)
 		{
 			int v = 0, _sign = 1;

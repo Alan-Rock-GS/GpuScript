@@ -454,7 +454,8 @@ namespace GpuScript
 			$"{name}_OnRowNumberKeyDown".InvokeMethod(gs, row, evt);
 			if (evt.isCut()) $"{name}_OnCut".InvokeMethod(gs);
 			else if (evt.keyCode == KeyCode.Insert) $"{name}_OnInsert".InvokeMethod(gs);
-			else if (evt.keyCode == KeyCode.Delete) $"{name}_OnDelete".InvokeMethod(gs);
+			else if (evt.keyCode == KeyCode.Delete) 
+				$"{name}_OnDelete".InvokeMethod(gs);
 			else if (evt.isCopy()) $"{name}_OnCopy".InvokeMethod(gs);
 			else if (evt.isPaste()) $"{name}_OnPaste".InvokeMethod(gs);
 			else if (evt.isUpArrow()) $"{name}_OnUpArrow".InvokeMethod(gs);

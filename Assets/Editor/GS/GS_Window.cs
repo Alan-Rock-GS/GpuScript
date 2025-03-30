@@ -1812,34 +1812,37 @@ $"\n    {m_name}_To_UI();",
 					else if (gs_member.IsProp()) { }
 					else if (gs_member.IsMethod())
 					{
-						if (attGS.isSync)
+						if (m_name.DoesNotStartWith("vert_"))
 						{
-							dataWrappers.Add(
-					$"\n  public UI_method UI_{m_name};",
-					$"\n  [HideInInspector] public bool in_{m_name} = false; public IEnumerator {m_name}() {{ if (in_{m_name}) {{ in_{m_name} = false; yield break; }} in_{m_name} = true; yield return StartCoroutine({m_name}_Sync()); in_{m_name} = false; }}");
+							if (attGS.isSync)
+							{
+								dataWrappers.Add(
+						$"\n  public UI_method UI_{m_name};",
+						$"\n  [HideInInspector] public bool in_{m_name} = false; public IEnumerator {m_name}() {{ if (in_{m_name}) {{ in_{m_name} = false; yield break; }} in_{m_name} = true; yield return StartCoroutine({m_name}_Sync()); in_{m_name} = false; }}");
 
-							if (attGS.OnClicked.IsEmpty()) dataWrappers.Add($"\n  public virtual IEnumerator {m_name}_Sync() {{ yield return null; }}");
-							else if (attGS.OnClicked.Contains("\n"))
+								if (attGS.OnClicked.IsEmpty()) dataWrappers.Add($"\n  public virtual IEnumerator {m_name}_Sync() {{ yield return null; }}");
+								else if (attGS.OnClicked.Contains("\n"))
+									dataWrappers.Add(
+										$"\n  public virtual IEnumerator {m_name}_Sync()",
+										 "\n  {",
+										$"\n    {attGS.OnClicked.Trim()}",
+										 "\n    yield return null;",
+										 "\n  }");
+								else dataWrappers.Add($"\n  public virtual IEnumerator {m_name}_Sync() {{ {attGS.OnClicked.Trim()} yield return null; }}");
+							}
+							else
+							{
 								dataWrappers.Add(
-									$"\n  public virtual IEnumerator {m_name}_Sync()",
-									 "\n  {",
-									$"\n    {attGS.OnClicked.Trim()}",
-									 "\n    yield return null;",
-									 "\n  }");
-							else dataWrappers.Add($"\n  public virtual IEnumerator {m_name}_Sync() {{ {attGS.OnClicked.Trim()} yield return null; }}");
-						}
-						else
-						{
-							dataWrappers.Add(
-				 $"\n  public UI_method UI_{m_name};");
-							if (attGS.OnClicked.IsEmpty()) dataWrappers.Add($"\n  public virtual void {m_name}() {{ }}");
-							else if (attGS.OnClicked.Contains("\n"))
-								dataWrappers.Add(
-									$"\n  public virtual void {m_name}()",
-									 "\n  {",
-									$"\n    {attGS.OnClicked.Trim()}",
-									 "\n  }");
-							else dataWrappers.Add($"\n  public virtual void {m_name}() {{ {attGS.OnClicked.Trim()} }}");
+					 $"\n  public UI_method UI_{m_name};");
+								if (attGS.OnClicked.IsEmpty()) dataWrappers.Add($"\n  public virtual void {m_name}() {{ }}");
+								else if (attGS.OnClicked.Contains("\n"))
+									dataWrappers.Add(
+										$"\n  public virtual void {m_name}()",
+										 "\n  {",
+										$"\n    {attGS.OnClicked.Trim()}",
+										 "\n  }");
+								else dataWrappers.Add($"\n  public virtual void {m_name}() {{ {attGS.OnClicked.Trim()} }}");
+							}
 						}
 					}
 				}
