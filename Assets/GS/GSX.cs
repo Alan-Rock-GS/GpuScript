@@ -587,34 +587,34 @@ namespace GpuScript
 					case "empty":
 					case "clear": return Color.clear;
 					case "black": return Color.black;
-					case "darkgray": return new Color(0.25f, 0.25f, 0.25f);
+					case "darkgray": case "dark_gray": return new Color(0.25f, 0.25f, 0.25f);
 					case "gray": return Color.gray;
-					case "lightgray": return new Color(0.75f, 0.75f, 0.75f);
+					case "lightgray": case "light_gray": return new Color(0.75f, 0.75f, 0.75f);
 					case "white": return Color.white;
 
-					case "darkmagenta": return new Color(0.5f, 0, 0.5f);
+					case "darkmagenta": case "dark_magenta": return new Color(0.5f, 0, 0.5f);
 					case "magenta": return Color.magenta;
-					case "lightmagenta": return new Color(1, 0.5f, 1);
+					case "lightmagenta": case "light_magenta": return new Color(1, 0.5f, 1);
 
-					case "darkblue": return new Color(0, 0, 0.5f);
+					case "darkblue": case "dark_blue": return new Color(0, 0, 0.5f);
 					case "blue": return Color.blue;
-					case "lightblue": return new Color(0.5f, 0.5f, 1);
+					case "lightblue": case "light_blue": return new Color(0.5f, 0.5f, 1);
 
-					case "darkcyan": return new Color(0, 0.5f, 0.5f);
+					case "darkcyan": case "dark_cyan": return new Color(0, 0.5f, 0.5f);
 					case "cyan": return Color.cyan;
-					case "lightcyan": return new Color(0.5f, 1, 1);
+					case "lightcyan": case "light_cyan": return new Color(0.5f, 1, 1);
 
-					case "darkgreen": return new Color(0, 0.5f, 0);
+					case "darkgreen": case "dark_green": return new Color(0, 0.5f, 0);
 					case "green": return Color.green;
-					case "lightgreen": return new Color(0.5f, 1, 0.5f);
+					case "lightgreen": case "light_green": return new Color(0.5f, 1, 0.5f);
 
-					case "darkyellow": return new Color(0.5f, 0.5f, 0);
+					case "darkyellow": case "dark_yellow": return new Color(0.5f, 0.5f, 0);
 					case "yellow": return Color.yellow;
-					case "lightyellow": return new Color(1, 1, 0.5f);
+					case "lightyellow": case "light_yellow": return new Color(1, 1, 0.5f);
 
-					case "darkred": return new Color(0.5f, 0, 0);
+					case "darkred": case "dark_red": return new Color(0.5f, 0, 0);
 					case "red": return Color.red;
-					case "lightred": return new Color(1, 0.5f, 0.5f);
+					case "lightred": case "light_red": return new Color(1, 0.5f, 0.5f);
 
 					default:
 						try
