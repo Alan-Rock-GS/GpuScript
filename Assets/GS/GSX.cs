@@ -523,22 +523,6 @@ namespace GpuScript
 			return null;
 		}
 
-		public static string ToName(this Color c)
-		{
-			if (c == Color.black) return "black";
-			else if (c == Color.blue) return "blue";
-			else if (c == Color.green) return "green";
-			else if (c == Color.cyan) return "cyan";
-			else if (c == Color.red) return "red";
-			else if (c == Color.magenta) return "magenta";
-			else if (c == Color.yellow) return "yellow";
-			else if (c == new Color(1, 1, 0)) return "yellow";
-			else if (c == Color.white) return "white";
-			else if (c == Color.clear) return "clear";
-			else if (c == Color.grey) return "grey";
-			return c.ToString();
-		}
-
 		static void _gpu_scale(this Texture2D src, int width, int height, FilterMode fmode)
 		{
 			src.filterMode = fmode;
@@ -631,6 +615,53 @@ namespace GpuScript
 			}
 			return Color.clear;
 		}
+		public static string ToName(this float4 c) => ToName((Color)c);
+		public static string ToName(this Color c)
+		{
+			if (c == Color.black) return "BLACK";
+			else if (c == Color.blue) return "BLUE";
+			else if (c == Color.green) return "GREEN";
+			else if (c == Color.cyan) return "CYAN";
+			else if (c == Color.red) return "RED";
+			else if (c == Color.magenta) return "MAGENTA";
+			else if (c == Color.yellow) return "YELLOW";
+			else if (c == new Color(1, 1, 0)) return "yellow";
+			else if (c == Color.white) return "WHITE";
+			else if (c == Color.clear) return "CLEAR";
+			else if (c == Color.grey) return "GREY";
+			else if (c == new Color(0.25f, 0.25f, 0.25f)) return "DARK_GRAY";
+			else if (c == Color.gray) return "GRAY";
+			else if (c == new Color(0.75f, 0.75f, 0.75f)) return "LIGHT_GRAY";
+			else if (c == new Color(0.5f, 0, 0.5f)) return "DARK_MAGENTA";
+			else if (c == new Color(1, 0.5f, 1)) return "LIGHT_MAGENTA";
+			else if (c == new Color(0, 0, 0.5f)) return "DARK_BLUE";
+			else if (c == new Color(0.5f, 0.5f, 1)) return "LIGHT_BLUE";
+			else if (c == new Color(0, 0.5f, 0.5f)) return "DARK_CYAN";
+			else if (c == new Color(0.5f, 1, 1)) return "LIGHT_CYAN";
+			else if (c == new Color(0, 0.5f, 0)) return "DARK_GREEN";
+			else if (c == new Color(0.5f, 1, 0.5f)) return "LIGHT_GREEN";
+			else if (c == new Color(0.5f, 0.5f, 0)) return "DARK_YELLOW";
+			else if (c == new Color(1, 1, 0.5f)) return "LIGHT_YELLOW";
+			else if (c == new Color(0.5f, 0, 0)) return "DARK_RED";
+			else if (c == new Color(1, 0.5f, 0.5f)) return "LIGHT_RED";
+			return c.ToString();
+		}
+
+		//public static string ToName(this Color c)
+		//{
+		//	if (c == Color.black) return "black";
+		//	else if (c == Color.blue) return "blue";
+		//	else if (c == Color.green) return "green";
+		//	else if (c == Color.cyan) return "cyan";
+		//	else if (c == Color.red) return "red";
+		//	else if (c == Color.magenta) return "magenta";
+		//	else if (c == Color.yellow) return "yellow";
+		//	else if (c == new Color(1, 1, 0)) return "yellow";
+		//	else if (c == Color.white) return "white";
+		//	else if (c == Color.clear) return "clear";
+		//	else if (c == Color.grey) return "grey";
+		//	return c.ToString();
+		//}
 
 		public static object print(this object o, string prefix = "") { GS.print($"{prefix}{o}"); return o; }
 
