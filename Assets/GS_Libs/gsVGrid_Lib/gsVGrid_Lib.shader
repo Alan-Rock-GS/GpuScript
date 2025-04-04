@@ -199,27 +199,27 @@ Shader "gs/gsVGrid_Lib"
 	}
 	
   uint BDraw_SignalSmpN(uint chI) { return 1024; }
-  float BDraw_SignalThickness(uint chI) { return 0.004f; }
+  float BDraw_SignalThickness(uint chI, uint smpI) { return 0.004f; }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
-  float4 BDraw_SignalColor(uint chI) { return YELLOW; }
-  float BDraw_SignalFillCrest(uint chI) { return 1; }
+  float4 BDraw_SignalColor(uint chI, uint smpI) { return YELLOW; }
+  float BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
   float4 BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
-  float4 BDraw_SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
+  float4 BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
   float4 frag_BDraw_Signal(v2f i)
   {
     uint chI = roundu(i.ti.x), SmpN = BDraw_SignalSmpN(chI);
     float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
-    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI, (uint)smpI) * SmpN, d = float_PositiveInfinity;
     uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
     float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
     for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
-    float4 c = BDraw_SignalColor(chI);
-    float v = 0.9f * lerp(BDraw_SignalSmpV(chI, SmpI), BDraw_SignalSmpV(chI, SmpI + 1), frac(smpI)), crest = BDraw_SignalFillCrest(chI);
+    float4 c = BDraw_SignalColor(chI, SmpI);
+    float v = 0.9f * lerp(BDraw_SignalSmpV(chI, SmpI), BDraw_SignalSmpV(chI, SmpI + 1), frac(smpI)), crest = BDraw_SignalFillCrest(chI, SmpI);
     float4 marker = BDraw_SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
     if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
-    return BDraw_SignalBackColor(chI);
+    return BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_GS(v2f i, float4 color)
 	{
