@@ -1,4 +1,34 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 * linguist-vendored
-*.cs linguist-vendored=false
+*.cs linguist-detectable=true  
+*.csproj linguist-detectable=false  
+*.txt linguist-detectable=false  
+*.png linguist-detectable=false  
+*.html linguist-detectable=false 
+*.csv linguist-detectable=false 
+*.exe linguist-detectable=false 
+*.dll linguist-detectable=false 
+*.csv linguist-detectable=false 
+*.jpg linguist-detectable=false 
+*.asmdef linguist-detectable=false 
+*.asset linguist-detectable=false 
+*.bhc linguist-detectable=false 
+*.bin linguist-detectable=false 
+*.gbc linguist-detectable=false 
+*.json linguist-detectable=false 
+*.md linguist-detectable=false 
+*.meta linguist-detectable=false 
+*.mat linguist-detectable=false 
+*.obj linguist-detectable=false 
+*.log linguist-detectable=false 
+*.mat linguist-detectable=false 
+*.tt linguist-detectable=false 
+*.unitypackage linguist-detectable=false 
+*.unity linguist-detectable=false 
+*.unitypackage linguist-detectable=false 
+*.uss linguist-detectable=false 
+*.uxml linguist-detectable=false 
+*.yml linguist-detectable=false 
+
+
