@@ -1161,11 +1161,9 @@ public class GS_Window : EditorWindow
 						string kernel_return = sync ? "IEnumerator" : "void";
 						string kernel_coroutine = sync ? "yield return StartCoroutine(" : "";
 						id_less.Set($"if ({id_less}) ");
-						//kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }}");
 						kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ unchecked {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }} }}");
 						if (libKernels.DoesNotContain(k.methodName + "_GS"))
 							kernels_.Add($"\n  public virtual {kernel_return} {k.methodName}_GS({args}) {{{(sync ? " yield return null;" : "")} }}");
-
 						kernels.Add($"  public override {kernel_return} {k.methodName}_GS({args}) {{ {kernel_coroutine}base.{k.methodName}_GS({pass_args});}}\n");
 
 						kernelWrappers.Add($"\n  public virtual void Gpu_{k.methodName}() {{ g_SetData();");

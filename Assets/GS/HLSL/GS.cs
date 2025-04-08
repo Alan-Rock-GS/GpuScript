@@ -3281,7 +3281,8 @@ namespace GpuScript
 		public static float4 fPosInf4 = float4(fPosInf, fPosInf, fPosInf, fPosInf);
 
 
-		public static float2 initRange = float2(float_PositiveInfinity, float_NegativeInfinity);
+		//public static float2 initRange = float2(float_PositiveInfinity, float_NegativeInfinity);
+		public static float2 initRange = float2(fPosInf, fNegInf);
 		public static int2 initRangei = int2(int_max, int_min);
 		public static uint2 initRangeu = uint2(uint_max, uint_min);
 
