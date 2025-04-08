@@ -1,5 +1,2 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-* linguist-vendored
-*.cs linguist-detectable=true
-*.meta linguist-detectable=false
