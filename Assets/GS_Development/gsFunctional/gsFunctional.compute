@@ -1,0 +1,113 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define Ints_Min	0
+  #define Ints_Max	1
+  #define Ints_Sum	2
+  #define Ints_N	3
+  #define g gFunctional[0]
+  #pragma use_dxc
+  struct GFunctional
+  {
+    float units_length, units_width;
+    uint BillionN, ListN, NumberN, MatN, MatRowN;
+  };
+  RWStructuredBuffer<GFunctional> gFunctional;
+  RWStructuredBuffer<int> ints, Mat_b;
+  RWStructuredBuffer<float> Numbers, Mat_A, Mat_x;
+  RWStructuredBuffer<uint> B_Ints;
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Calc_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.z < Ints_N && id.y < g.NumberN && id.x < g.ListN)
+	{
+		uint listI = id.x, numberI = id.y, operationI = id.z;
+		float v = Numbers[listI * g.NumberN + numberI];
+		int V = roundi(v * 1e6f);
+		if (operationI == Ints_Min) InterlockedMin(ints, listI * Ints_N + operationI, V);
+		else if (operationI == Ints_Max) InterlockedMax(ints, listI * Ints_N + operationI, V);
+		else InterlockedAdd(ints, listI * Ints_N + operationI, V);
+	}
+	
+    }
+  }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_ints(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < Ints_N && id.x < g.ListN)
+	{
+		uint listI = id.x, operationI = id.y;
+		ints[listI * Ints_N + operationI] = operationI == Ints_Min ? int_max : operationI == Ints_Max ? int_min : 0;
+	}
+	
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void RunBillion(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.BillionN * 10) { for (uint i = 0; i < 10000; i++) InterlockedAdd(B_Ints, id.x, i); }
+	
+    }
+  }
+  uint Mat_Index(uint matI, uint i) { return id_to_i(matI, i, g.MatN, g.MatRowN); }
+  float Matx(uint matI, uint i) { return Mat_x[Mat_Index(matI, i)]; }
+  void Matx(uint matI, uint i, float v) { Mat_x[Mat_Index(matI, i)] = v; }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_b(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 0); }
+	
+    }
+  }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_x(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 1); }
+	
+    }
+  }
+  uint MatA_Index(uint matI, uint i, uint colI) { return id_to_i(matI, i, colI, g.MatN, g.MatRowN); }
+  float MatA(uint matI, uint i, uint j) { return Mat_A[MatA_Index(matI, i, j)]; }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Mat_A_x(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN)
+	{
+		uint matI = id.x, i = id.y, j = id.z;
+		InterlockedAdd(Mat_b, Mat_Index(matI, j), roundi(MatA(matI, i, j) * Matx(matI, j)));
+	}
+	
+    }
+  }
+  void MatA(uint matI, uint i, uint j, float v) { Mat_A[MatA_Index(matI, i, j)] = v; }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Init_Mat_A(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y, j = id.z; MatA(matI, i, j, 1); }
+	
+    }
+  }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Lists(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.NumberN && id.x < g.ListN) { uint listI = id.x, numberI = id.y; Numbers[listI * g.NumberN + numberI] = numberI / (float)g.NumberN; }
+	
+    }
+  }
+  #pragma kernel Calc_Min_Max_Sum
+  #pragma kernel Init_Lists
+  #pragma kernel Init_ints
+  #pragma kernel RunBillion
+  #pragma kernel Multiply_Mat_A_x
+  #pragma kernel Init_Mat_b
+  #pragma kernel Init_Mat_x
+  #pragma kernel Init_Mat_A
