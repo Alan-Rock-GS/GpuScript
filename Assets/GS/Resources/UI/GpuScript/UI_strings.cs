@@ -11,6 +11,16 @@ namespace GpuScript
 	{
 		public Label headerLabel;
 		public DropdownField dropdownField;
+		//public uint index => (uint)dropdownField.index;
+		public uint index
+		{
+			get => (uint)dropdownField.index;
+			set
+			{
+				dropdownField.index = (int)value;
+				v = dropdownField.text;
+			}
+		}
 		public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
 		{
 			base.RegisterGridCallbacks(gs, grid, gridRow, gridCol);
@@ -105,7 +115,8 @@ namespace GpuScript
 		public string[] strings;
 		public string v
 		{
-			get => dropdownField.value; set
+			get => dropdownField.value;
+			set
 			{
 				if (dropdownField != null)
 				{
