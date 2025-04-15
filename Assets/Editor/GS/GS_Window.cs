@@ -1533,8 +1533,9 @@ $"\n    {m_name} = label switch",
 
 												if (attGS.ColumnSorting)
 												{
+													string writeBuffer = arrayType.IsStruct() ? ".writeBuffer" : "";
 													colSort.Add(
-$"\n      \"{att.Name}\" => {m_name}[0].{fldName}.CompareTo({m_name}[^1].{fldName}) < 0 ? {m_name}.OrderByDescending(a => a.{fldName}).ToArray() : {m_name}.OrderBy(a => a.{fldName}).ToArray(),",
+$"\n      \"{att.Name}\" => {m_name}[0].{fldName}.CompareTo({m_name}[^1].{fldName}) < 0 ? {m_name}{writeBuffer}.OrderByDescending(a => a.{fldName}).ToArray() : {m_name}{writeBuffer}.OrderBy(a => a.{fldName}).ToArray(),",
 "");
 												}
 											}
