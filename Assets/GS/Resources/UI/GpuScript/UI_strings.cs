@@ -39,11 +39,6 @@ namespace GpuScript
 			//dropdownField.index = 1; // Option 2
 			//dropdownField.value = "Option3";
 			////Assert.IsTrue(myDropdown.index == 2);
-
-
-
-
-
 			dropdownField.RegisterCallback<MouseEnterEvent>(OnMouseEnter); dropdownField.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
 			dropdownField.RegisterValueChangedCallback(OnValueChanged);
 			RegisterCallback<MouseEnterEvent>(OnMouseEnter); RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
