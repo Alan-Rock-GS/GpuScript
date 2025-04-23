@@ -14,9 +14,11 @@
     uint BillionN, ListN, NumberN, MatN, MatRowN;
   };
   RWStructuredBuffer<GFunctional> gFunctional;
-  RWStructuredBuffer<int> ints, Mat_b;
+  RWStructuredBuffer<int> ints, intNums, MaxInt, Mat_b;
   RWStructuredBuffer<float> Numbers, Mat_A, Mat_x;
   RWStructuredBuffer<uint> B_Ints;
+  [numthreads(numthreads1, 1, 1)] void Calc_Max(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.NumberN) { InterlockedMax(MaxInt, 0, intNums[id.x]); } } }
+  [numthreads(numthreads1, 1, 1)] void Init_MaxInt(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 1) { MaxInt[id.x] = int_min; } } }
   [numthreads(numthreads3, numthreads3, numthreads3)] void Calc_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -30,6 +32,14 @@
 		else if (operationI == Ints_Max) InterlockedMax(ints, listI * Ints_N + operationI, V);
 		else InterlockedAdd(ints, listI * Ints_N + operationI, V);
 	}
+	
+    }
+  }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Lists(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.y < g.NumberN && id.x < g.ListN) { uint listI = id.x, numberI = id.y; Numbers[listI * g.NumberN + numberI] = numberI / (float)g.NumberN; }
 	
     }
   }
@@ -95,14 +105,10 @@
 	
     }
   }
-  [numthreads(numthreads2, numthreads2, 1)] void Init_Lists(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.NumberN && id.x < g.ListN) { uint listI = id.x, numberI = id.y; Numbers[listI * g.NumberN + numberI] = numberI / (float)g.NumberN; }
-	
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void Init_intNums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.NumberN) { intNums[id.x] = (int)id.x; } } }
+  #pragma kernel Calc_Max
+  #pragma kernel Init_intNums
+  #pragma kernel Init_MaxInt
   #pragma kernel Calc_Min_Max_Sum
   #pragma kernel Init_Lists
   #pragma kernel Init_ints

@@ -235,27 +235,27 @@ namespace GpuScript
   }
   public class RWStructuredBuffer<T> : IComputeBuffer
   {
-    public T[] writeBuffer;
+    public T[] Data;
     public uint N;
     public ComputeBuffer computeBuffer;
     public bool release = true;
     public int bufferId = -1;
-    //public T[] vals { get { GetData(); return writeBuffer.Take(N).ToArray(); } set { writeBuffer = value; SetData(); } }
-    //public T[] vals(int len) { GetData(); return writeBuffer.Take(len).ToArray(); }
-    //public T[] vals(uint len) { GetData(); return writeBuffer.Take(len).ToArray(); }
-    public static implicit operator T[](RWStructuredBuffer<T> a) { a.AllocWriteBuffer(); if (a.gpuWrite) { a.GetData(); a.gpuWrite = false; } return a.writeBuffer.Take((int)a.N).ToArray(); }
-    public void AllocWriteBuffer() { if (writeBuffer == null || writeBuffer.Length != N) { writeBuffer = new T[N]; reallocated = true; } }
+    //public T[] vals { get { GetData(); return Data.Take(N).ToArray(); } set { Data = value; SetData(); } }
+    //public T[] vals(int len) { GetData(); return Data.Take(len).ToArray(); }
+    //public T[] vals(uint len) { GetData(); return Data.Take(len).ToArray(); }
+    public static implicit operator T[](RWStructuredBuffer<T> a) { a.AllocWriteBuffer(); if (a.gpuWrite) { a.GetData(); a.gpuWrite = false; } return a.Data.Take((int)a.N).ToArray(); }
+    public void AllocWriteBuffer() { if (Data == null || Data.Length != N) { Data = new T[N]; reallocated = true; } }
     public bool cpuWrite, gpuWrite, reallocated = true;
     public bool isCpuWrite { get => cpuWrite; set => cpuWrite = value; }
 
-    public List<T> ToList() => new List<T>(writeBuffer);
+    public List<T> ToList() => new List<T>(Data);
     public static implicit operator List<T>(RWStructuredBuffer<T> a) { return a.ToList(); }
     public static implicit operator RWStructuredBuffer<T>(T []a) { return new RWStructuredBuffer<T>(a); }
 
     public T this[uint i]
     {
-      get { AllocWriteBuffer(); if (cpuWrite) { SetData(); cpuWrite = false; } if (gpuWrite) { GetData(); gpuWrite = false; } return writeBuffer[i]; }
-      set { AllocWriteBuffer(); if (i < writeBuffer.Length) { writeBuffer[i] = value; cpuWrite = true; } }
+      get { AllocWriteBuffer(); if (cpuWrite) { SetData(); cpuWrite = false; } if (gpuWrite) { GetData(); gpuWrite = false; } return Data[i]; }
+      set { AllocWriteBuffer(); if (i < Data.Length) { Data[i] = value; cpuWrite = true; } }
     }
     public T this[int i] { get => this[(uint)i]; set => this[(uint)i] = value; }
     public ComputeBuffer GetComputeBuffer() => computeBuffer;
@@ -265,7 +265,7 @@ namespace GpuScript
     public RWStructuredBuffer() { }
     public RWStructuredBuffer(int length) => SetLength(length);
     public RWStructuredBuffer(uint length) => SetLength(length);
-    public RWStructuredBuffer(params T[] data) : this() { writeBuffer = data; reallocated = true; N = (uint)writeBuffer.Length; }
+    public RWStructuredBuffer(params T[] data) : this() { Data = data; reallocated = true; N = (uint)Data.Length; }
     public int Length { get => (int)N; set => SetLength(value); }
     public uint uLength { get => N; set => SetLength(value); }
     public RWStructuredBuffer<T> SetLength(int length) => SetLength((uint)length);
@@ -275,7 +275,7 @@ namespace GpuScript
     {
       if (N == 0) return null;
       Release();
-      if (writeBuffer == null) writeBuffer = new T[0];
+      if (Data == null) Data = new T[0];
       int size = Marshal.SizeOf(default(T));
       if (size > 0) computeBuffer = new ComputeBuffer((int)GS.max(1, N), size, computeBufferType);
       return this;
@@ -285,12 +285,12 @@ namespace GpuScript
     //public bool isThreadReading = false; //true while another thread is reading from this buffer. Wait before calling GetData()
     public bool inGetData, inSetData, isThreadReading;
     public static implicit operator ComputeBuffer(RWStructuredBuffer<T> a) => a.computeBuffer;
-    public void TransferData() { if (GS.useGpGpu && computeBuffer != null) { while (isThreadReading) { } inGetData = true; computeBuffer.GetData(writeBuffer, 0, 0, 1); inGetData = false; } }
+    public void TransferData() { if (GS.useGpGpu && computeBuffer != null) { while (isThreadReading) { } inGetData = true; computeBuffer.GetData(Data, 0, 0, 1); inGetData = false; } }
     public void GetGpu() { if (gpuWrite) { GetData(); gpuWrite = false; } }
     public void SetCpu() { if (cpuWrite) { SetData(); cpuWrite = false; } }
     public void ResetWrite() { cpuWrite = false; gpuWrite = true; }
-    public void GetData() { if (computeBuffer != null) { AllocWriteBuffer(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(writeBuffer); inGetData = false; } }
-    //public RWStructuredBuffer<T> GetData() { if (computeBuffer != null) { AllocWriteBuffer(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(writeBuffer); inGetData = false; } return this; }
+    public void GetData() { if (computeBuffer != null) { AllocWriteBuffer(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(Data); inGetData = false; } }
+    //public RWStructuredBuffer<T> GetData() { if (computeBuffer != null) { AllocWriteBuffer(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(Data); inGetData = false; } return this; }
     public void SetData()
     {
       if (computeBuffer != null && GS.useGpGpu)
@@ -298,14 +298,14 @@ namespace GpuScript
         AllocWriteBuffer();
         while (isThreadReading) { }
         inSetData = true;
-        try { computeBuffer.SetData(writeBuffer); } catch (Exception e) { GS.print($"SetData() {e.ToString()}"); }
+        try { computeBuffer.SetData(Data); } catch (Exception e) { GS.print($"SetData() {e.ToString()}"); }
         inSetData = false;
       }
     }
-    public void SetData(T[] a) { writeBuffer = a; N = (uint)a.Length; reallocated = true; SetData(); }
-    public void SetData(T[] a, uint i) { AllocWriteBuffer(); a.CopyTo(writeBuffer, i * a.Length); SetData(); }
-    public void Release() { if (computeBuffer != null && release) { computeBuffer.Release(); computeBuffer.Dispose(); computeBuffer = null; writeBuffer = null; } }
-    public void Swap(int i, int j) { AllocWriteBuffer(); var s = writeBuffer[i]; writeBuffer[i] = writeBuffer[j]; writeBuffer[j] = s; }
+    public void SetData(T[] a) { Data = a; N = (uint)a.Length; reallocated = true; SetData(); }
+    public void SetData(T[] a, uint i) { AllocWriteBuffer(); a.CopyTo(Data, i * a.Length); SetData(); }
+    public void Release() { if (computeBuffer != null && release) { computeBuffer.Release(); computeBuffer.Dispose(); computeBuffer = null; Data = null; } }
+    public void Swap(int i, int j) { AllocWriteBuffer(); var s = Data[i]; Data[i] = Data[j]; Data[j] = s; }
 
     /// <summary>
     /// Always call Swap an even number of times when using buffer Transfer()
@@ -315,24 +315,24 @@ namespace GpuScript
     {
       ComputeBuffer t = computeBuffer; computeBuffer = b.computeBuffer; b.computeBuffer = t;
       int len = Length; Length = b.Length; b.Length = len;
-      if (writeBuffer != null && b.writeBuffer != null) { T[] w = writeBuffer; writeBuffer = b.writeBuffer; reallocated = b.reallocated = true; b.writeBuffer = w; }
+      if (Data != null && b.Data != null) { T[] w = Data; Data = b.Data; reallocated = b.reallocated = true; b.Data = w; }
     }
-    public RWStructuredBuffer<T> Copy() { var a = new RWStructuredBuffer<T>(Length); if (writeBuffer != null && a.writeBuffer != null) GS.ArrayCopy(writeBuffer, a.writeBuffer); return a; }
+    public RWStructuredBuffer<T> Copy() { var a = new RWStructuredBuffer<T>(Length); if (Data != null && a.Data != null) GS.ArrayCopy(Data, a.Data); return a; }
 
     public byte[] toBytes()
     {
       Type type = typeof(T);
-      byte[] bytes = new byte[writeBuffer.Length * Marshal.SizeOf(type)];
-      if (type.IsPrimitive) return (byte[])GS.BlockCopy(writeBuffer, bytes);
-      GCHandle handle = GCHandle.Alloc(writeBuffer, GCHandleType.Pinned);
+      byte[] bytes = new byte[Data.Length * Marshal.SizeOf(type)];
+      if (type.IsPrimitive) return (byte[])GS.BlockCopy(Data, bytes);
+      GCHandle handle = GCHandle.Alloc(Data, GCHandleType.Pinned);
       try { Marshal.Copy(handle.AddrOfPinnedObject(), bytes, 0, bytes.Length); return bytes; }
       finally { if (handle.IsAllocated) handle.Free(); }
     }
     public byte[] ToBytes() { GetData(); return toBytes(); }
-    public byte[] ToBytes(byte[] b) { GetData(); int n = Length * Marshal.SizeOf(writeBuffer[0]); if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(writeBuffer, b); }
-    public byte[] ToBytes(byte[] b, uint N) { GetData(); int n = (int)N * Marshal.SizeOf(writeBuffer[0]); if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(writeBuffer, b, n); }
-    public byte[] ToBytes(byte[] b, uint I, uint N) { GetData(); int size = Marshal.SizeOf(writeBuffer[0]), n = (int)N * size; if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(writeBuffer, I, b, 0, N); }
-    public byte[] toBytes(ref byte[] b, uint N) { int n = (int)N * Marshal.SizeOf(writeBuffer[0]); if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(writeBuffer, b, n); }
+    public byte[] ToBytes(byte[] b) { GetData(); int n = Length * Marshal.SizeOf(Data[0]); if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(Data, b); }
+    public byte[] ToBytes(byte[] b, uint N) { GetData(); int n = (int)N * Marshal.SizeOf(Data[0]); if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(Data, b, n); }
+    public byte[] ToBytes(byte[] b, uint I, uint N) { GetData(); int size = Marshal.SizeOf(Data[0]), n = (int)N * size; if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(Data, I, b, 0, N); }
+    public byte[] toBytes(ref byte[] b, uint N) { int n = (int)N * Marshal.SizeOf(Data[0]); if (b == null || b.Length < n) b = new byte[n]; return (byte[])GS.BlockCopy(Data, b, n); }
     public byte[] toBytes(ref byte[] b) => toBytes(ref b, (uint)Length);
   }
 }

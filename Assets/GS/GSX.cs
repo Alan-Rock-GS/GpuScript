@@ -1412,8 +1412,8 @@ namespace GpuScript
 		public static bool isNull<T>(this RWStructuredBuffer<T> a) => a == null || a.computeBuffer == null;
 		public static bool isNotNull<T>(this RWStructuredBuffer<T> a) => !isNull(a);
 
-		public static T[] vals<T>(this RWStructuredBuffer<T> a, int N) { if (a == null) return new T[0]; a.GetData(); return a.writeBuffer.Take(N).ToArray(); }
-		public static T[] vals<T>(this RWStructuredBuffer<T> a, uint N) { if (a == null) return new T[0]; a.GetData(); return a.writeBuffer.Take(N).ToArray(); }
+		public static T[] vals<T>(this RWStructuredBuffer<T> a, int N) { if (a == null) return new T[0]; a.GetData(); return a.Data.Take(N).ToArray(); }
+		public static T[] vals<T>(this RWStructuredBuffer<T> a, uint N) { if (a == null) return new T[0]; a.GetData(); return a.Data.Take(N).ToArray(); }
 
 		public static IEnumerable<T> Linq<T>(this RWStructuredBuffer<T> b) { for (uint i = 0; i < b.N; i++) yield return b[i]; }
 

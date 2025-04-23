@@ -1533,9 +1533,9 @@ $"\n    {m_name} = label switch",
 
 												if (attGS.ColumnSorting)
 												{
-													string writeBuffer = arrayType.IsStruct() ? ".writeBuffer" : "";
+													string Data = arrayType.IsStruct() ? ".Data" : "";
 													colSort.Add(
-$"\n      \"{att.Name}\" => {m_name}[0].{fldName}.CompareTo({m_name}[^1].{fldName}) < 0 ? {m_name}{writeBuffer}.OrderByDescending(a => a.{fldName}).ToArray() : {m_name}{writeBuffer}.OrderBy(a => a.{fldName}).ToArray(),",
+$"\n      \"{att.Name}\" => {m_name}[0].{fldName}.CompareTo({m_name}[^1].{fldName}) < 0 ? {m_name}{Data}.OrderByDescending(a => a.{fldName}).ToArray() : {m_name}{Data}.OrderBy(a => a.{fldName}).ToArray(),",
 "");
 												}
 											}
@@ -1650,12 +1650,12 @@ $"\n    {m_name}_To_UI();",
 		$"\n  public virtual void {m_name}_OnCut()",
 		"\n  {",
 		$"\n    {m_name}_OnCopy();",
-		$"\n    {m_name} = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".writeBuffer" : "")}.Except({m_name}_CopyPaste).ToArray();",
+		$"\n    {m_name} = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".Data" : "")}.Except({m_name}_CopyPaste).ToArray();",
 		$"\n    UI_grid_{m_name}.StartRow = min(UI_grid_{m_name}.StartRow, max(0, {m_name}_CopyPaste.Count - UI_grid_{m_name}.DisplayRowN));",
 		$"\n    UI_grid_{m_name}.isRowSelected = new bool[{m_name}_CopyPaste.Count];",
 		$"\n    UI_grid_{m_name}.DrawGrid();",
 		"\n  }",
-		$"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".writeBuffer" : "")}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
+		$"\n  public virtual void {m_name}_OnCopy() {{ {m_name}_CopyPaste = {m_name}{(_GS_fieldType.GetElementType().IsStruct() ? ".Data" : "")}.Where((a, i) => UI_grid_{m_name}.isRowSelected[i]).Select(a => a).ToList(); }}",
 		$"\n  public virtual void {m_name}_OnPaste()",
 		"\n  {",
 		$"\n    var list = {m_name}.ToList();",

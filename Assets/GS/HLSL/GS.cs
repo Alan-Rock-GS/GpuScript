@@ -2648,7 +2648,7 @@ namespace GpuScript
 				else AddComputeBuffer(buffer = new RWStructuredBuffer<T>(1));
 				buffer.reallocated = true;
 			}
-			else { if (buffer != null && buffer.writeBuffer.Length != buffer.Length && data != null) buffer.GetData(); ArrayCopy(data, buffer.writeBuffer); }
+			else { if (buffer != null && buffer.Data.Length != buffer.Length && data != null) buffer.GetData(); ArrayCopy(data, buffer.Data); }
 			if (buffer != null) buffer.SetData();
 		}
 		public void AddComputeBufferData<T>(ref RWStructuredBuffer<T> buffer, string bufferName, params T[] data)
@@ -2664,7 +2664,7 @@ namespace GpuScript
 		{
 			if (buffer != null && buffer.Length != data.Length) { buffer.Release(); buffer = null; }
 			if (buffer == null && data.Length > 0) { AddComputeBuffer(buffer = new RWStructuredBuffer<T>(data), computeBufferType); buffer.reallocated = true; }
-			else { if (buffer != null && buffer.writeBuffer.Length != buffer.Length) buffer.GetData(); ArrayCopy(data, buffer.writeBuffer); }
+			else { if (buffer != null && buffer.Data.Length != buffer.Length) buffer.GetData(); ArrayCopy(data, buffer.Data); }
 			if (buffer != null) buffer.SetData();
 		}
 		public void AddComputeBuffer<T>(ComputeBufferType computeBufferType, ref RWStructuredBuffer<T> buffer, uint n) => AddComputeBuffer(computeBufferType, ref buffer, n);
@@ -2680,7 +2680,7 @@ namespace GpuScript
 			if (fromBuffer == null) return;
 			toBuffer ??= new RWStructuredBuffer<T>();
 			toBuffer.computeBuffer = fromBuffer.computeBuffer;
-			if (fromBuffer.writeBuffer != null) { toBuffer.writeBuffer = fromBuffer.writeBuffer; toBuffer.reallocated = true; }
+			if (fromBuffer.Data != null) { toBuffer.Data = fromBuffer.Data; toBuffer.reallocated = true; }
 			toBuffer.N = fromBuffer.N;
 			toBuffer.release = false;
 		}
@@ -3049,11 +3049,11 @@ namespace GpuScript
 			if (bytes == null || bytes.Length == 0) { AddComputeBuffer_ExactN(ref a, 1); return 0; }
 			Type type = typeof(T);
 			AddComputeBuffer_ExactN(ref a, (bytes.Length - 1) / Marshal.SizeOf(type) + 1);
-			if (type.IsPrimitive) { a.AllocWriteBuffer(); BlockCopy(bytes, a.writeBuffer); }
+			if (type.IsPrimitive) { a.AllocWriteBuffer(); BlockCopy(bytes, a.Data); }
 			else
 			{
 				a.AllocWriteBuffer();
-				GCHandle handle = GCHandle.Alloc(a.writeBuffer, GCHandleType.Pinned);
+				GCHandle handle = GCHandle.Alloc(a.Data, GCHandleType.Pinned);
 				try { Marshal.Copy(bytes, 0, handle.AddrOfPinnedObject(), bytes.Length); }
 				finally { if (handle.IsAllocated) handle.Free(); }
 			}
@@ -3065,11 +3065,11 @@ namespace GpuScript
 		{
 			int sz = sizeof(int);
 			if (a != null && a.Length > 0) sz = Marshal.SizeOf(a[0]);
-			uint uintN = (uint)((byteN - 1) / sz + 1); AddComputeBuffer(ref a, uintN); a.AllocWriteBuffer(); if (bytes.Length > 0) { BlockCopy(bytes, a.writeBuffer, (int)byteN); a.SetData(); }
+			uint uintN = (uint)((byteN - 1) / sz + 1); AddComputeBuffer(ref a, uintN); a.AllocWriteBuffer(); if (bytes.Length > 0) { BlockCopy(bytes, a.Data, (int)byteN); a.SetData(); }
 			return a.N;
 		}
 
-		public void CopyBytes<T>(ref RWStructuredBuffer<T> a, uint aI, byte[] bytes, uint bI, uint N) => BlockCopy(bytes, bI, a.writeBuffer, aI, N);
+		public void CopyBytes<T>(ref RWStructuredBuffer<T> a, uint aI, byte[] bytes, uint bI, uint N) => BlockCopy(bytes, bI, a.Data, aI, N);
 
 		public uint AddComputeBufferDataFromFile<T>(ref RWStructuredBuffer<T> a, string file) => SetBytes(ref a, file.ReadAllBytes());
 
@@ -3355,10 +3355,10 @@ namespace GpuScript
 		public static void ArrayCopy(Array a, Array b) => Array.Copy(a, b, a.Length);
 		public static void ArrayCopy(Array a, int aOffset, Array b, int bOffset) => Array.Copy(a, aOffset, b, bOffset, a.Length);
 		public static void ArrayCopy(Array a, int aOffset, Array b, int bOffset, int length) => Array.Copy(a, aOffset, b, bOffset, length);
-		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, RWStructuredBuffer<T> b) => ArrayCopy(a.writeBuffer, b.writeBuffer);
-		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, int aOffset, RWStructuredBuffer<T> b, int bOffset, int length) => Array.Copy(a.writeBuffer, aOffset, b.writeBuffer, bOffset, length);
-		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, RWStructuredBuffer<T> b, uint bOffset, uint length) => Array.Copy(a.writeBuffer, aOffset, b.writeBuffer, bOffset, length);
-		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, Array b, uint bOffset, uint length) => Array.Copy(a.writeBuffer, aOffset, b, bOffset, length);
+		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, RWStructuredBuffer<T> b) => ArrayCopy(a.Data, b.Data);
+		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, int aOffset, RWStructuredBuffer<T> b, int bOffset, int length) => Array.Copy(a.Data, aOffset, b.Data, bOffset, length);
+		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, RWStructuredBuffer<T> b, uint bOffset, uint length) => Array.Copy(a.Data, aOffset, b.Data, bOffset, length);
+		public static void ArrayCopy<T>(RWStructuredBuffer<T> a, uint aOffset, Array b, uint bOffset, uint length) => Array.Copy(a.Data, aOffset, b, bOffset, length);
 		public static void ArrayCopy<T>(T[] a, byte[] b) => a.CopyTo(b, 0);
 
 		public static bool GetKey(char c) { if (char.IsUpper(c)) return Shift && Input.GetKey((KeyCode)char.ToLower(c)); return Input.GetKey((KeyCode)char.ToLower(c)); }
@@ -4162,8 +4162,8 @@ namespace GpuScript
 			audioSource.clip.SetData(audio_samples, 0); audioSource.volume = 1; audioSource.loop = true; audioSource.Play();
 		}
 		public static void Spk_Start(float[] data, uint spkN, uint smpN) { Spk_Start(data, (int)spkN, (int)smpN); }
-		public static void Spk_Start(RWStructuredBuffer<float> spks, int spkN, int smpN) { spks.GetData(); Spk_Start(spks.writeBuffer, spkN, smpN); }
-		public static void Spk_Start(RWStructuredBuffer<float> spks, uint spkN, uint smpN) { spks.GetData(); Spk_Start(spks.writeBuffer, (int)spkN, (int)smpN); }
+		public static void Spk_Start(RWStructuredBuffer<float> spks, int spkN, int smpN) { spks.GetData(); Spk_Start(spks.Data, spkN, smpN); }
+		public static void Spk_Start(RWStructuredBuffer<float> spks, uint spkN, uint smpN) { spks.GetData(); Spk_Start(spks.Data, (int)spkN, (int)smpN); }
 		public static void Spk_Stop() { audioSource.Stop(); AudioClip.Destroy(audioSource.clip); audioSource.clip = null; }
 
 		public static float[] audio_samples;

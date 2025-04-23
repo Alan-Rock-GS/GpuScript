@@ -847,7 +847,7 @@ namespace GpuScript
       //else if (v is ui_int) w((uint)((ui_int)v).v);
       //else if (v is ui_uint) w((uint)((ui_uint)v).v);
       else if (v is Stopwatch) w(((Stopwatch)v).ToTimeString());
-      else if (v is RWStructuredBuffer<uint>) { var a = (RWStructuredBuffer<uint>)v; w(a.writeBuffer.Take(a.Length).ToArray()); }
+      else if (v is RWStructuredBuffer<uint>) { var a = (RWStructuredBuffer<uint>)v; w(a.Data.Take(a.Length).ToArray()); }
       else if (v is Type)
       {
         //Type t = (Type)v;
