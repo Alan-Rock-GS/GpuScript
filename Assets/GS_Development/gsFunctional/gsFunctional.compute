@@ -59,7 +59,7 @@
   {
     unchecked
     {
-      if (id.x < g.BillionN * 10) { for (uint i = 0; i < 10000; i++) InterlockedAdd(B_Ints, id.x, i); }
+      if (id.x < 1000) { for (uint i = 0; i < 10000; i++) InterlockedAdd(B_Ints, id.x, i); }
 	
     }
   }
