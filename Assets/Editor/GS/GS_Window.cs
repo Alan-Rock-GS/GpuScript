@@ -1559,7 +1559,8 @@ $"\n    {m_name}_To_UI();",
 
 										ui_to_array.Add($"\n      {m_name}[i + startRow] = row;");
 
-										grid_Cols.Add(";");
+										if (grid_Cols.IsNotEmpty())
+											grid_Cols.Add(";");
 										if (grid_ShowIf.IsNotEmpty()) grid_ShowIf.Set(
 											$"\n    if (row >= 0) row += UI_grid_{m_name}.StartRow;",
 											$"\n    {className} gridRow = {m_name} == null || row < 0 || row >= {m_name}.Length ? new {className}() : {m_name}[row];{grid_ShowIf}");
