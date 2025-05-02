@@ -17,8 +17,8 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using static GpuScript.GS;
 using UnityEditor.Compilation;
-using PuppeteerSharp.Input;
-using Newtonsoft.Json.Linq;
+//using PuppeteerSharp.Input;
+//using Newtonsoft.Json.Linq;
 
 //https://www.youtube.com/watch?v=Xy_jvBg1vS0
 
@@ -2979,19 +2979,6 @@ $"\n    {m_name}_To_UI();",
     catch (Exception) { AutoRefresh = true; return null; }
     return o;
   }
-  //static Component FindOrCreate_Script(GameObject o, string _GS)
-  //{
-  //	if (o == null)
-  //		return null;
-  //	Component GS_script = o.GetComponent(_GS);
-  //	if (!GS_script)
-  //	{
-  //		try { GS_script = o.AddComponent(GetComponentTypeByName(_GS)); } catch (Exception) { }
-  //		AutoRefresh = true;
-  //		return null;
-  //	}
-  //	return GS_script;
-  //}
   static Component FindOrCreate_Script(GameObject o, string _GS)
   {
     if (o == null)
@@ -3000,8 +2987,11 @@ $"\n    {m_name}_To_UI();",
     if (!GS_script)
     {
       Type componentType = GetComponentTypeByName(_GS);
-      GS_script = o.GetComponent(componentType);
-      GS_script ??= o.AddComponent(componentType);
+      if (componentType != null)
+      {
+        GS_script = o.GetComponent(componentType);
+        GS_script ??= o.AddComponent(componentType);
+      }
     }
     return GS_script;
   }
