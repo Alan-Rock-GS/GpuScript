@@ -63,7 +63,7 @@ public class gsAppendBuff : gsAppendBuff_
 		uint i = id.x;
 		if (i < BitN)
 		{
-			uint s, j, k, bits = Bits[i], c = countbits(bits);
+			uint s, bits = Bits[i], c = countbits(bits);
 			grp0[grpI] = c; grp[grpI] = c; yield return GroupMemoryBarrierWithGroupSync();
 			for (s = 1; s < numthreads1; s *= 2)
 			{

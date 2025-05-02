@@ -29,7 +29,6 @@
   #define Text_QuadType_Arrow	3
   #define Text_QuadType_Billboard	4
   #define Draw_Text3D 12
-  #define maxByteN 2097152
   #define LF 10
   #define TB 9
   #define ZERO 48
@@ -96,7 +95,7 @@
     uint i = id.x;
     if (i < g.AppendBuff_BitN)
     {
-      uint s, j, k, bits = AppendBuff_Bits[i], c = countbits(bits);
+      uint s, bits = AppendBuff_Bits[i], c = countbits(bits);
       AppendBuff_grp0[grpI] = c; AppendBuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
       for (s = 1; s < numthreads1; s *= 2)
       {

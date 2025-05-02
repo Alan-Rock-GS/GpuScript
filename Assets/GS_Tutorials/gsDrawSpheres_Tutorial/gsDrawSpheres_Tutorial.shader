@@ -139,6 +139,26 @@ Shader "gs/gsDrawSpheres_Tutorial"
     return color;
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
+  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
+  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
+  float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
+  uint BDraw_SignalSmpN(uint chI) { return 1024; }
+  float BDraw_SignalThickness(uint chI) { return 0.004f; }
+  float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
+  float4 BDraw_SignalColor(uint chI) { return YELLOW; }
+  float4 BDraw_SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
+  float4 frag_BDraw_Signal(v2f i)
+  {
+    uint chI = roundu(i.ti.x);
+    uint SmpN = BDraw_SignalSmpN(chI);
+    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
+    float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
+    for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
+    return d < thick ? float4(BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : BDraw_SignalBackColor(chI);
+  }
   float4 frag_BDraw_GS(v2f i, float4 color)
   {
     switch (roundu(i.ti.z))
@@ -153,6 +173,7 @@ Shader "gs/gsDrawSpheres_Tutorial"
         BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
         color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
         break;
+      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
     }
     return color;
   }
@@ -162,10 +183,6 @@ Shader "gs/gsDrawSpheres_Tutorial"
     if (libI == 0) return frag_BDraw_GS(i, color);
     return color;
   }
-  void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
-  void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
-  float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }

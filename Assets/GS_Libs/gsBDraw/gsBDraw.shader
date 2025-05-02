@@ -40,7 +40,6 @@ Shader "gs/gsBDraw"
   #define Text_QuadType_Arrow	3
   #define Text_QuadType_Billboard	4
   #define Draw_Text3D 12
-  #define maxByteN 2097152
   #define LF 10
   #define TB 9
   #define ZERO 48
@@ -78,7 +77,6 @@ Shader "gs/gsBDraw"
   #define Text_QuadType_Arrow	3
   #define Text_QuadType_Billboard	4
   #define Draw_Text3D 12
-  #define maxByteN 2097152
   #define LF 10
   #define TB 9
   #define ZERO 48

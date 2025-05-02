@@ -1,7 +1,10 @@
+#pragma warning disable 0649
 using GpuScript;
 
+//[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CS0649:Rethrow to preserve stack details", Justification = "Not production code.")]
 public class gsAppendBuff_GS : _GS
 {
+  //#pragma warning disable CS0649
   uint IndexN, BitN, N;
   uint[] Bits, Sums, Indexes;
   void Get_Bits() { Size(BitN); }
