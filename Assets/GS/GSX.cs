@@ -127,9 +127,37 @@ namespace GpuScript
 		public static PropertyInfo GetProperty(this string propertyName, object o) => GetProperty(propertyName, o.GetType());
 
 		public static bool IsStruct(this Type t) => t.IsValueType && !t.IsEnum;
-		//public static bool IsClass(this Type t) => t.IsClass;
+        //public static bool IsClass(this Type t) => t.IsClass;
 
-		public static MemberInfo[] GetOrderedMembers(this Type t)
+        //public static T SetValue<T>(this T o, FieldInfo f, object v)
+        //{
+        //	Type t = o.GetType();
+        //	if (t.IsStruct())
+        //	{
+        //		object box = o;
+        //		f.SetValue(box, v);
+        //		o = (T)box;
+        //	}
+        //	else
+        //		f.SetValue(o, v);
+        //	return o;
+        //}
+        public static T SetValue<T>(this ref T o, FieldInfo f, object v) where T : struct
+        {
+            Type t = o.GetType();
+            if (t.IsStruct())
+            {
+                object box = o;
+                f.SetValue(box, v);
+                o = (T)box;
+            }
+            else
+                f.SetValue(o, v);
+            return o;
+        }
+
+
+        public static MemberInfo[] GetOrderedMembers(this Type t)
 		{
 			return t.GetMembers(bindings).Select(a => new
 			{
