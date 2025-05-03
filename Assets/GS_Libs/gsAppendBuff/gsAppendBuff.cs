@@ -30,10 +30,10 @@ public class gsAppendBuff : gsAppendBuff_
 	{
 		if (n > 2147450880) throw new Exception("gsAppendBuff: N > 2,147,450,880");
 		N = n; BitN = CeilU(N, 32); BitN1 = CeilU(BitN, numthreads1); BitN2 = CeilU(BitN1, numthreads1);
-		AllocateBuffer_Bits(BitN); AllocateBuffer_Fills1(BitN1); AllocateBuffer_Fills2(BitN2); AllocateBuffer_Sums(BitN);
+		AllocData_Bits(BitN); AllocData_Fills1(BitN1); AllocData_Fills2(BitN2); AllocData_Sums(BitN);
 	}
 	public void FillPrefixes() { Gpu_GetFills1(); Gpu_GetFills2(); Gpu_IncFills1(); Gpu_IncSums(); }
-	public void getIndexes() { AllocateBuffer_Indexes(IndexN); Gpu_GetIndexes(); }
+	public void getIndexes() { AllocData_Indexes(IndexN); Gpu_GetIndexes(); }
 	public void FillIndexes() { FillPrefixes(); getIndexes(); }
 	public virtual uint Run(uint n) { SetN(n); Gpu_GetSums(); FillIndexes(); return IndexN; }
 	public uint Run(int n) => Run((uint)n);

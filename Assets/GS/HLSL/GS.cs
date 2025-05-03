@@ -3049,10 +3049,10 @@ namespace GpuScript
 			if (bytes == null || bytes.Length == 0) { AddComputeBuffer_ExactN(ref a, 1); return 0; }
 			Type type = typeof(T);
 			AddComputeBuffer_ExactN(ref a, (bytes.Length - 1) / Marshal.SizeOf(type) + 1);
-			if (type.IsPrimitive) { a.AllocWriteBuffer(); BlockCopy(bytes, a.Data); }
+			if (type.IsPrimitive) { a.AllocData(); BlockCopy(bytes, a.Data); }
 			else
 			{
-				a.AllocWriteBuffer();
+				a.AllocData();
 				GCHandle handle = GCHandle.Alloc(a.Data, GCHandleType.Pinned);
 				try { Marshal.Copy(bytes, 0, handle.AddrOfPinnedObject(), bytes.Length); }
 				finally { if (handle.IsAllocated) handle.Free(); }
@@ -3065,7 +3065,7 @@ namespace GpuScript
 		{
 			int sz = sizeof(int);
 			if (a != null && a.Length > 0) sz = Marshal.SizeOf(a[0]);
-			uint uintN = (uint)((byteN - 1) / sz + 1); AddComputeBuffer(ref a, uintN); a.AllocWriteBuffer(); if (bytes.Length > 0) { BlockCopy(bytes, a.Data, (int)byteN); a.SetData(); }
+			uint uintN = (uint)((byteN - 1) / sz + 1); AddComputeBuffer(ref a, uintN); a.AllocData(); if (bytes.Length > 0) { BlockCopy(bytes, a.Data, (int)byteN); a.SetData(); }
 			return a.N;
 		}
 

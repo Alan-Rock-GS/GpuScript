@@ -906,7 +906,7 @@ public class GS_Window : EditorWindow
     }
 
     public List<FieldInfo> texture_flds;
-    public StrBldr drawSphere, RWStructuredBuffers, AllocateBuffers, classArrays, compute_groupshared, base_groupshared, addComputeBuffers, initBuffers,
+    public StrBldr drawSphere, RWStructuredBuffers, AllocDatas, classArrays, compute_groupshared, base_groupshared, addComputeBuffers, initBuffers,
       renderObject, RenderSetValues, Texture2Ds;
 
     public class buffer_data
@@ -930,7 +930,7 @@ public class GS_Window : EditorWindow
     {
       texture_flds = _GS_fields.Where(a => a.FieldType == typeof(Texture2D)).Select(a => a).ToList();
 
-      (drawSphere, Texture2Ds, RWStructuredBuffers, AllocateBuffers, compute_groupshared, base_groupshared, addComputeBuffers, RenderSetValues, renderObject) = StrBldr();
+      (drawSphere, Texture2Ds, RWStructuredBuffers, AllocDatas, compute_groupshared, base_groupshared, addComputeBuffers, RenderSetValues, renderObject) = StrBldr();
 
       foreach (var fld in texture_flds) Texture2Ds.Add($"\n  public Texture2D {fld.Name};");
       var (s, gParams) = StrBldr();
@@ -963,8 +963,8 @@ public class GS_Window : EditorWindow
         {
           if (drawSphere == "") drawSphere.Set("\n    if (i < (n = 1)) o = vert_DrawSphere(f000, 1, palette(0.5f), i, j, o); i -= n;// *********** green sphere test ************");
           StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{bufferType}>", bufferName, "  ");
-          AllocateBuffers.Add($"\n  public virtual void AllocateBuffer_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
-          AllocateBuffers.Add($"\n  public virtual void AssignBuffer_{bufferName}(params {bufferType}[] data) => AddComputeBufferData(ref {bufferName}, nameof({bufferName}), data);");
+          AllocDatas.Add($"\n  public virtual void AllocData_{bufferName}(uint n) => AddComputeBuffer(ref {bufferName}, nameof({bufferName}), n);");
+          AllocDatas.Add($"\n  public virtual void AssignData_{bufferName}(params {bufferType}[] data) => AddComputeBufferData(ref {bufferName}, nameof({bufferName}), data);");
           if (buff.member.IsProp())
           {
             string bufferN = buff.sizeInfo.sizeN;
@@ -996,7 +996,7 @@ public class GS_Window : EditorWindow
           else
           {
             StackFields(RWStructuredBuffers, $"RWStructuredBuffer<{fldType.Before("[]")}>", fName, "  ");
-            AllocateBuffers.Add($"\n  public void AllocateBuffer_{fName}(uint n) => AddComputeBuffer(ref {fName}, nameof({fName}), n);");
+            AllocDatas.Add($"\n  public void AllocData_{fName}(uint n) => AddComputeBuffer(ref {fName}, nameof({fName}), n);");
           }
         }
         else StackFields(classArrays, fldType, fName, "  ");
@@ -1092,7 +1092,7 @@ public class GS_Window : EditorWindow
 
       compute_or_material_shader = StrBldr(
         "\n  [Serializable]", gStruct,
-       $"\n  public RWStructuredBuffer<G{Name}> g{Name};", declare_structs, RWStructuredBuffers, AllocateBuffers,
+       $"\n  public RWStructuredBuffer<G{Name}> g{Name};", declare_structs, RWStructuredBuffers, AllocDatas,
         "\n  public Texture2D _PaletteTex;",
         "\n  public float4 palette(float v) => paletteColor(_PaletteTex, v);",
         "\n  public float4 palette(float v, float w) => float4(palette(v).xyz, w);",
@@ -2756,7 +2756,7 @@ $"\n    {m_name}_To_UI();",
 
       cs_Code = cs_Code.ReplaceAll("public virtual string ToString()", "public override string ToString()",
         $"GS_{Name}.{Name}_onLoaded(this);", $"GS_{Name}.onLoaded(this);",
-        "AllocateBuffer_", $"AllocateBuffer_{Name}_", "AssignBuffer_", $"AssignBuffer_{Name}_");
+        "AllocData_", $"AllocData_{Name}_", "AssignData_", $"AssignData_{Name}_");
 
       $"{path}{gsName}_cs_lib.txt".WriteAllText(cs_Code);
 
@@ -2918,7 +2918,9 @@ $"\n    {m_name}_To_UI();",
   public static string AssemblyPath(string name)
   {
     string AssetsPath = $"{dataPath}Assets/";
-    foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/"; if (f.Exists()) return f; }
+    //foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/"; if (f.Exists()) return f; }
+    //foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/{name}_GS.cs"; if (f.Exists()) return $"{AssetsPath}{p}/{name}/"; }
+    foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/"; if ($"{f}{name}_GS.cs".Exists()) return f; }
     return $"{AssetsPath}{name}/";
   }
 
