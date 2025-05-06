@@ -15,13 +15,19 @@ namespace GpuScript
 		public uint index
 		{
 			get => (uint)dropdownField.index;
-			set
-			{
-				dropdownField.index = (int)value;
-				v = dropdownField.text;
-			}
-		}
-		public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
+      set
+      {
+        dropdownField.index = (int)value;
+        v = dropdownField.text;
+        //VisualElement ve = dropdownField.Children().ElementAt(1);
+        //var popup = dropdownField.Children().ElementAt(1).Children().ElementAt(0) as BasePopupField<System.String, System.String>;
+        ////dropdownField.value = dropdownField.text;
+        //dropdownField.label = v;
+        //dropdownField.labelElement.text = v;
+        //    print($"v = {v}, {ve.Children().ElementAt(0).GetType()}, {ve.Children().ElementAt(1).GetType()}, {popup.check()}");
+      }
+    }
+    public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
 		{
 			base.RegisterGridCallbacks(gs, grid, gridRow, gridCol);
 			dropdownField.RegisterValueChangedCallback(OnDropdownFieldChanged);

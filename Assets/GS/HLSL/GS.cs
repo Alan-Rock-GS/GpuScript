@@ -20,6 +20,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 using GSharp;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -4442,9 +4443,38 @@ namespace GpuScript
 #endif
 		}
 
-		//endregion C#
+    //endregion C#
 
-		[DllImport("ole32.dll")]
+
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();  //https://stackoverflow.com/questions/1163761/capture-screenshot-of-active-window
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)] public static extern IntPtr GetDesktopWindow();
+    [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll")] private static extern IntPtr GetWindowRect(IntPtr hWnd, ref Rect rect);
+    public static System.Drawing.Image CaptureDesktop() => CaptureWindow(GetDesktopWindow());
+    public static System.Drawing.Bitmap CaptureActiveWindow() => CaptureWindow(GetForegroundWindow());
+    public static System.Drawing.Bitmap CaptureWindow(IntPtr handle)
+    {
+      var rect = new Rect();
+      GetWindowRect(handle, ref rect);
+      var bounds = new System.Drawing.Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
+      var result = new System.Drawing.Bitmap(bounds.Width, bounds.Height);
+      using (var graphics = System.Drawing.Graphics.FromImage(result)) { graphics.CopyFromScreen(new System.Drawing.Point(bounds.Left, bounds.Top), System.Drawing.Point.Empty, bounds.Size); }
+      return result;
+    }
+    public static void Save(System.Drawing.Image image, string filename) => image.Save(filename, System.Drawing.Imaging.ImageFormat.Jpeg);
+    public static void SaveWholeScreen(string filename) => Save(CaptureDesktop(), filename);
+    public static void SaveActiveWindow(string filename) => Save(CaptureActiveWindow(), filename);
+
+
+
+    //globalKeyboardHook gkh = new globalKeyboardHook();
+    //[DllImport("user32.dll")] //Used for sending keystrokes to new window.
+    //public static extern IntPtr PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+    //[DllImport("user32.dll", EntryPoint = "FindWindow", CharSet = CharSet.Ansi)] //Used to find the window to send keystrokes to.
+    //public static extern IntPtr FindWindow(string className, string windowName);
+
+
+    [DllImport("ole32.dll")]
 		internal static extern int CoCreateGuid(out Guid guid);
 
 		public static Guid new_guid() { Guid guid; Marshal.ThrowExceptionForHR(CoCreateGuid(out guid), new IntPtr(-1)); return guid; }

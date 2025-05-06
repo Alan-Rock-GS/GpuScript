@@ -109,7 +109,7 @@ namespace GpuScript
 		//public void grid_OnValueChanged() => $"{grid.name}_OnValueChanged".InvokeMethod(gs, gridRow, gridCol);
 		public void grid_OnValueChanged()
 		{
-			if (!GS.isGridVScroll && !GS.isGridBuilding)
+			if (grid != null && !GS.isGridVScroll && !GS.isGridBuilding)
 				$"{grid.name}_OnValueChanged".InvokeMethod(gs, gridRow, gridCol);
 		}
 		//public virtual void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
