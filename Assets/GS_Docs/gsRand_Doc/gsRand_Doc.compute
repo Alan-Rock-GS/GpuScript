@@ -127,7 +127,7 @@
     uint i = id.x;
     if (i < g.BDraw_AppendBuff_BitN)
     {
-      uint s, j, k, bits = BDraw_AppendBuff_Bits[i], c = countbits(bits);
+      uint s, bits = BDraw_AppendBuff_Bits[i], c = countbits(bits);
       BDraw_AppendBuff_grp0[grpI] = c; BDraw_AppendBuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
       for (s = 1; s < numthreads1; s *= 2)
       {

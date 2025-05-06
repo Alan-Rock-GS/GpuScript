@@ -133,7 +133,7 @@ Shader "gs/gsVGrid_Lib_Doc"
   struct VGrid_Lib_BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct VGrid_Lib_BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
   struct VGrid_Lib_TRay { float3 origin, direction; float4 color; float dist; };
-  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; float view_sphere, view_cube, view_torus, view_box, view_roundBox, view_boxFrame; bool view_twoSided; float view_meshVal; float2 view_meshRange; };
+  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; float view_sphere, view_cube, view_torus, view_box, view_roundBox, view_boxFrame; uint view_twoSided; float view_meshVal; float2 view_meshRange; };
   RWStructuredBuffer<GVGrid_Lib_Doc> gVGrid_Lib_Doc;
   RWStructuredBuffer<uint> VGrid_Lib_BDraw_tab_delimeted_text, VGrid_Lib_BDraw_AppendBuff_Bits, VGrid_Lib_BDraw_AppendBuff_Sums, VGrid_Lib_BDraw_AppendBuff_Indexes, VGrid_Lib_BDraw_AppendBuff_Fills1, VGrid_Lib_BDraw_AppendBuff_Fills2;
   RWStructuredBuffer<VGrid_Lib_BDraw_TextInfo> VGrid_Lib_BDraw_textInfos;
@@ -209,20 +209,27 @@ Shader "gs/gsVGrid_Lib_Doc"
   uint2 VGrid_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : VGrid_Lib_BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.VGrid_Lib_BDraw_AppendBuff_IndexN ? VGrid_Lib_BDraw_AppendBuff_Indexes[textI] : g.VGrid_Lib_BDraw_textCharN); }
   float VGrid_Lib_BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint VGrid_Lib_BDraw_SignalSmpN(uint chI) { return 1024; }
-  float VGrid_Lib_BDraw_SignalThickness(uint chI) { return 0.004f; }
+  float VGrid_Lib_BDraw_SignalThickness(uint chI, uint smpI) { return 0.004f; }
   float VGrid_Lib_BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
-  float4 VGrid_Lib_BDraw_SignalColor(uint chI) { return YELLOW; }
-  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
+  float4 VGrid_Lib_BDraw_SignalColor(uint chI, uint smpI) { return YELLOW; }
+  float VGrid_Lib_BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
+  float4 VGrid_Lib_BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
+  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
   float4 frag_VGrid_Lib_BDraw_Signal(v2f i)
   {
-    uint chI = roundu(i.ti.x);
-    uint SmpN = VGrid_Lib_BDraw_SignalSmpN(chI);
+    uint chI = roundu(i.ti.x), SmpN = VGrid_Lib_BDraw_SignalSmpN(chI);
     float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
-    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = VGrid_Lib_BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = VGrid_Lib_BDraw_SignalThickness(chI, (uint)smpI) * SmpN, d = float_PositiveInfinity;
     uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
     float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * VGrid_Lib_BDraw_SignalSmpV(chI, SmpI0)), q1;
     for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * VGrid_Lib_BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
-    return d < thick ? float4(VGrid_Lib_BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : VGrid_Lib_BDraw_SignalBackColor(chI);
+    float4 c = VGrid_Lib_BDraw_SignalColor(chI, SmpI);
+    float v = 0.9f * lerp(VGrid_Lib_BDraw_SignalSmpV(chI, SmpI), VGrid_Lib_BDraw_SignalSmpV(chI, SmpI + 1), frac(smpI)), crest = VGrid_Lib_BDraw_SignalFillCrest(chI, SmpI);
+    float4 marker = VGrid_Lib_BDraw_SignalMarker(chI, smpI);
+    if (marker.w > 0) return marker;
+    if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
+    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    return VGrid_Lib_BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_VGrid_Lib_GS(v2f i, float4 color)
   {

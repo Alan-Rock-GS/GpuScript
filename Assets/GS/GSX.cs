@@ -2150,16 +2150,6 @@ namespace GpuScript
       return s;
     }
 
-    //public static string[] GetAllFiles(this string path, string searchPattern = "*.*")
-    //{
-    //  try
-    //  {
-    //    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-    //    var files = FastDirectory.GetFiles(path, searchPattern, SearchOption.AllDirectories);
-    //    return files;
-    //  }
-    //  catch (Exception) { return null; }
-    //}
     public static string[] GetAllFiles(this string path, params string[] searchPatterns)
     {
       if (searchPatterns == null) searchPatterns = new string[] { "*.*" };

@@ -71,7 +71,7 @@
   struct VGrid_Lib_BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct VGrid_Lib_BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
   struct VGrid_Lib_TRay { float3 origin, direction; float4 color; float dist; };
-  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; float view_sphere, view_cube, view_torus, view_box, view_roundBox, view_boxFrame; bool view_twoSided; float view_meshVal; float2 view_meshRange; };
+  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; float view_sphere, view_cube, view_torus, view_box, view_roundBox, view_boxFrame; uint view_twoSided; float view_meshVal; float2 view_meshRange; };
   groupshared uint VGrid_Lib_BDraw_AppendBuff_grp[1024];
   groupshared uint VGrid_Lib_BDraw_AppendBuff_grp0[1024];
   RWStructuredBuffer<GVGrid_Lib_Doc> gVGrid_Lib_Doc;
@@ -122,7 +122,7 @@
     uint i = id.x;
     if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN)
     {
-      uint s, j, k, bits = VGrid_Lib_BDraw_AppendBuff_Bits[i], c = countbits(bits);
+      uint s, bits = VGrid_Lib_BDraw_AppendBuff_Bits[i], c = countbits(bits);
       VGrid_Lib_BDraw_AppendBuff_grp0[grpI] = c; VGrid_Lib_BDraw_AppendBuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
       for (s = 1; s < numthreads1; s *= 2)
       {

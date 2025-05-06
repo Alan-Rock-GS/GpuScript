@@ -436,53 +436,19 @@ public class GS_Window : EditorWindow
           "  [GS_UI, AttGS(\"UI|User Interface\")] TreeGroup group_UI;",
           "  [GS_UI, AttGS(\"UI|User Interface\")] TreeGroupEnd groupEnd_UI;",
         "}}");
-        //_GS_filename.WriteAllText(s);
         _GS_filename.WriteAllText(s.ToString().ReplaceTabsWithSpaces());
         AssetDatabase.Refresh();
-
         return false;
       }
 
-      gameObject = FindOrCreate_GameObject(gsName); //this should be inserted at the top
+      gameObject = FindOrCreate_GameObject(gsName); 
       gameObject.transform.SetAsFirstSibling();
 
       if (gameObject == null) return false;
       _GS_component = gameObject.GetComponent(_GS_Name);
-
       _GS_component ??= FindOrCreate_Script(gameObject, _GS_Name);
-
-      //if (!_GS_component)
-      //{
-      //	try
-      //	{
-      //		//Type componentType = GetComponentTypeByName(_GS_Name);
-      //		//_GS_component = gameObject.AddComponent(componentType);
-      //		//if (!_GS_component) return false;
-
-      //		Type componentType = GetComponentTypeByName(_GS_Name);
-      //		_GS_component = gameObject.GetComponent(componentType);
-      //		if (!_GS_component)
-      //		{
-      //			_GS_component = gameObject.AddComponent(componentType);
-      //			if (!_GS_component) return false;
-      //		}
-
-      //	}
-      //	catch (Exception) { AutoRefresh = true; return false; }
-      //}
-      //_GS_component ??= gameObject.AddComponent(GetComponentTypeByName(gsName));
       if (_GS_component == null) return false;
       created_GS_Code = (GS_script = FindOrCreate_Script(gameObject, gsName)) != null;
-
-      //Type componentType = GetComponentTypeByName(gsName);
-      //GS_script = gameObject.GetComponent(componentType);
-      //if (!GS_script)
-      //{
-      //	GS_script = gameObject.AddComponent(componentType);
-      //}
-
-
-
       return created_GS_Code;
     }
 
