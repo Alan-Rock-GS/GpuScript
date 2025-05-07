@@ -32,8 +32,10 @@ namespace GpuScript
 			container = this.Q<VisualElement>("container");
 			headerLabel = container.Q<Label>(nameof(headerLabel));
 			textField = container.Q<TextField>();
-			textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
-			textField.RegisterValueChangedCallback(OnValueChanged);
+#if UNITY_STANDALONE_WIN
+      textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
+#endif //UNITY_STANDALONE_WIN
+      textField.RegisterValueChangedCallback(OnValueChanged);
 			textField.RegisterCallback<FocusOutEvent>(OnFocusOut);
 			textField.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
 			textField.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOutEvent);

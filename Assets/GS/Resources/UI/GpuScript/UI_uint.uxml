@@ -1,9 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS" />
+    <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS%201.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS 1" />
     <ui:VisualElement name="UI_uint" style="flex-grow: 0;">
         <ui:VisualElement name="container" style="flex-grow: 0; flex-direction: row; width: auto; display: flex; height: 20px; flex-shrink: 0;">
-            <ui:Label text="UI_uint" name="headerLabel" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; flex-grow: 0; flex-shrink: 1; padding-left: 2px; padding-right: 2px;" />
-            <ui:TextField picking-mode="Ignore" value="1000000000" style="width: auto; flex-grow: 0; flex-shrink: 1; max-width: none;" />
+            <ui:Label text="UI_uint" name="headerLabel" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; flex-grow: 0; flex-shrink: 1; padding-left: 2px; padding-right: 2px; min-width: 100px; -unity-text-align: lower-right;" />
+            <ui:TextField picking-mode="Ignore" value="1000000000" style="width: auto; flex-grow: 0; flex-shrink: 1; max-width: none; min-width: 100px;" />
         </ui:VisualElement>
         <ui:Slider high-value="100" name="slider_x" style="width: auto; display: none; flex-grow: 0; flex-shrink: 1;" />
     </ui:VisualElement>

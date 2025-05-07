@@ -4445,7 +4445,14 @@ namespace GpuScript
 
     //endregion C#
 
+    public static void SaveWholeScreen(string filename)
+    {
+#if UNITY_STANDALONE_WIN
+     Save(CaptureDesktop(), filename);
+#endif //UNITY_STANDALONE_WIN
+    }
 
+#if UNITY_STANDALONE_WIN
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();  //https://stackoverflow.com/questions/1163761/capture-screenshot-of-active-window
     [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)] public static extern IntPtr GetDesktopWindow();
     [StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; }
@@ -4462,7 +4469,6 @@ namespace GpuScript
       return result;
     }
     public static void Save(System.Drawing.Image image, string filename) => image.Save(filename, System.Drawing.Imaging.ImageFormat.Jpeg);
-    public static void SaveWholeScreen(string filename) => Save(CaptureDesktop(), filename);
     public static void SaveActiveWindow(string filename) => Save(CaptureActiveWindow(), filename);
     public static byte[] ImageToByteArray(System.Drawing.Image image)
     {
@@ -4483,6 +4489,7 @@ namespace GpuScript
       texture.Apply(); 
       return texture;
     }
+#endif //UNITY_STANDALONE_WIN
 
     //globalKeyboardHook gkh = new globalKeyboardHook();
     //[DllImport("user32.dll")] //Used for sending keystrokes to new window.
@@ -5149,7 +5156,7 @@ namespace GpuScript
     public Sync Start_Sync(IEnumerator routine) => syncs.Add(new Sync(routine));
     //endregion Sync
 
-    public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials" };
+    public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GS_Android" };
     public T Add_Component_to_gameObject<T>() where T : Component => gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
     public List<string> NewStrList => new();
     public string[] NewStrArray => new string[0];

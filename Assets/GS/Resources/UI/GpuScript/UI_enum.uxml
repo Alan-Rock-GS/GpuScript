@@ -1,8 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/GS/Resources/UI/GpuScript/UI.uss?fileID=7433441132597879392&amp;guid=e149ed659645c9045a8e7c05b6855c40&amp;type=3#UI" />
     <ui:VisualElement name="UI_enum" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; width: auto; display: flex; height: 20px;">
-        <ui:Label text="enum" name="Label" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; flex-grow: 0; flex-shrink: 1; display: flex; padding-left: 2px; padding-right: 2px;" />
+        <ui:Label text="enum" name="Label" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; flex-grow: 0; flex-shrink: 1; display: flex; padding-left: 2px; padding-right: 2px; min-width: 100px; -unity-text-align: middle-right;" />
         <ui:EnumField name="EnumField" type="UnityEngine.TextAlignment, UnityEngine.TextRenderingModule" value="Center" style="width: auto; height: auto; display: none;" />
-        <ui:DropdownField index="-1" choices="System.Collections.Generic.List`1[System.String]" style="width: auto; flex-shrink: 0; flex-grow: 0;" />
+        <ui:DropdownField index="-1" choices="System.Collections.Generic.List`1[System.String]" style="width: auto; flex-shrink: 0; flex-grow: 0; min-width: 100px;" />
     </ui:VisualElement>
 </ui:UXML>

@@ -7,9 +7,6 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using System.Collections;
 using System.Linq;
-using System.Data;
-using Unity.Android.Gradle.Manifest;
-
 
 #if UNITY_EDITOR
 using UnityEditor;

@@ -14,30 +14,26 @@ namespace GpuScript
       base.RegisterGridCallbacks(gs, grid, gridRow, gridCol);
       textField.RegisterValueChangedCallback(OnTextFieldChanged);
     }
-    //void OnTextFieldChanged(ChangeEvent<string> evt) { gs.OnValueChanged(grid, gridRow, gridCol); }
     void OnTextFieldChanged(ChangeEvent<string> evt) => grid_OnValueChanged();
     public UI_string() : base()
     {
       headerLabel = this.Q<Label>();
       headerLabel.RegisterCallback<MouseEnterEvent>(OnMouseEnter); headerLabel.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
       textField = this.Q<TextField>();
-      textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
+#if UNITY_STANDALONE_WIN
+      textField.isDelayed = true;
+#endif //UNITY_STANDALONE_WIN
       textField.RegisterValueChangedCallback(OnValueChanged);
       textField.RegisterCallback<MouseEnterEvent>(OnMouseEnter); textField.RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
       textField.RegisterCallback<KeyDownEvent>(OnKeyDown); textField.RegisterCallback<KeyUpEvent>(OnKeyUp);
       RegisterCallback<MouseEnterEvent>(OnMouseEnter); RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
     }
 
-    //void OnKeyDown(KeyDownEvent evt) { if (evt.ctrlKey && evt.keyCode == KeyCode.V) textField.value = GS.Clipboard.Replace("\t", ",").TrimEnd(); }
-    //void OnKeyUp(KeyUpEvent evt) { if (evt.ctrlKey && evt.keyCode == KeyCode.C) GS.Clipboard = GS.Clipboard.Replace(",", "\t"); }
     void OnKeyDown(KeyDownEvent evt) { if (evt.ctrlKey && evt.keyCode == KeyCode.V) textField.value = GS.Clipboard.TrimEnd(); }
-    void OnKeyUp(KeyUpEvent evt)
-    {
-      //if (evt.ctrlKey && evt.keyCode == KeyCode.C) GS.Clipboard = textField.value; //this happens automatically
-    }
+    void OnKeyUp(KeyUpEvent evt) { }
 
-    public static Type Get_Base_Type() => typeof(string); 
-    public static bool IsType(Type type) => type == typeof(string); 
+    public static Type Get_Base_Type() => typeof(string);
+    public static bool IsType(Type type) => type == typeof(string);
     public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged,
       StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
     {
@@ -66,7 +62,7 @@ namespace GpuScript
     public override string label { get => base.label; set { base.label = value; if (headerLabel != null) headerLabel.text = value; } }
     public string previousValue;
 
-    public static implicit operator string(UI_string f) => f.v; 
+    public static implicit operator string(UI_string f) => f.v;
 
     string _v = ""; public string v { get => textField != null ? _v = textField.value : _v; set { _v = value; if (textField != null) textField.value = value; } }
     public override string textString => v;
@@ -80,13 +76,6 @@ namespace GpuScript
     }
     public override bool Changed { get => textField != null ? textField.value != previousValue : false; set => previousValue = textField != null && !value ? textField.value : ""; }
 
-    //public void Build(string title, string description, string val, bool isReadOnly, bool isGrid, string treeGroup_parent)
-    //{
-    //  base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
-    //  textField.value = val;
-    //  textField.isReadOnly = isReadOnly;
-    //  headerLabel?.HideIf(label.IsEmpty() || isGrid);
-    //}
     public void Build(string title, string description, string val, bool isReadOnly, bool isPassword, bool isGrid, string treeGroup_parent)
     {
       base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
@@ -99,16 +88,13 @@ namespace GpuScript
     public new class UxmlFactory : UxmlFactory<UI_string, UxmlTraits> { }
     public new class UxmlTraits : UI_VisualElement.UxmlTraits
     {
-      //UxmlStringAttributeDescription m_string_Val = new UxmlStringAttributeDescription { name = "UI_string_value", defaultValue = "text" }; //or throws Ambiguous error
       UxmlStringAttributeDescription m_string_Val = new UxmlStringAttributeDescription { name = "UI_string_value", defaultValue = "" };
       UxmlBoolAttributeDescription m_string_isPassword = new UxmlBoolAttributeDescription { name = "UI_string_is_password", defaultValue = false };
       public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
       {
         base.Init(ve, bag, cc);
-        //((UI_string)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc), m_string_Val.GetValueFromBag(bag, cc),
-        //  m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
         ((UI_string)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc), m_string_Val.GetValueFromBag(bag, cc),
-          m_isReadOnly.GetValueFromBag(bag, cc), m_string_isPassword.GetValueFromBag(bag,cc), 
+          m_isReadOnly.GetValueFromBag(bag, cc), m_string_isPassword.GetValueFromBag(bag, cc),
           m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
       }
     }

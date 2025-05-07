@@ -9,8 +9,8 @@
             <ui:Button text="Lib" display-tooltip-when-elided="true" tooltip="Build pre-compiled library files" name="gsClass_Lib" style="height: 20px; width: 30px;" />
         </ui:VisualElement>
         <ui:VisualElement name="Lib" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px;">
-            <ui:Button text="Paste" display-tooltip-when-elided="true" tooltip="Paste library information from email" name="Lib_Paste" style="height: 20px; width: 60px;" />
-            <ui:TextField picking-mode="Ignore" name="Lib_Info" value="OCam,you@gmail.com,2024/11/28,123456" tooltip="Library name, email, expires, key" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1;" />
+            <ui:Button text="Paste" display-tooltip-when-elided="true" tooltip="Paste library information from email" name="Lib_Paste" style="height: 20px; width: 40px;" />
+            <ui:TextField picking-mode="Ignore" name="Lib_Info" value="OCam,you@gmail.com,2024/11/28,123456" tooltip="Library name, email, expires, key" style="height: 20px; min-width: 100px; width: 150px; flex-grow: 1;" />
             <ui:Button text="Update" display-tooltip-when-elided="true" tooltip="Update Library" name="Lib_Update" style="height: 20px; width: 60px;" />
         </ui:VisualElement>
         <ui:VisualElement name="package" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; display: none;">
@@ -26,14 +26,13 @@
             <ui:Button text="Restore" display-tooltip-when-elided="true" tooltip="Restore GpuScript project" name="backup_Restore" style="height: 20px; width: 55px;" />
         </ui:VisualElement>
         <ui:VisualElement name="info" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
-            <ui:TextField picking-mode="Ignore" name="info_Android_dirs" readonly="false" value="Swarm,Rand,Gps" tooltip="Folders to include in Android" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1; flex-shrink: 1;" />
+            <ui:TextField picking-mode="Ignore" name="info_Android_dirs" readonly="false" value="Swarm,Rand,Gps" tooltip="Folders to include in Android" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1; flex-shrink: 1; display: none;" />
             <ui:DropdownField index="0" choices="Windows,Android" tooltip="Platform" name="info_platform" />
+            <ui:Button text="Project" display-tooltip-when-elided="true" name="android_projectPath" tooltip="Show Project Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
+            <ui:Button text="Persistent" display-tooltip-when-elided="true" name="android_persistentPath" tooltip="Show Persistent Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
+            <ui:Button text="Phone&#10;" display-tooltip-when-elided="true" name="android_phonePath" tooltip="Show Phone Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
         </ui:VisualElement>
-        <ui:VisualElement name="android" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
-            <ui:Button text="Project Path" display-tooltip-when-elided="true" name="android_projectPath" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
-            <ui:Button text="Persistent Path" display-tooltip-when-elided="true" name="android_persistentPath" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
-            <ui:Button text="Phone Path" display-tooltip-when-elided="true" name="android_phonePath" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
-        </ui:VisualElement>
+        <ui:VisualElement name="android" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap; display: none;" />
         <ui:VisualElement name="exe" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
             <ui:Toggle name="exe_Parent" text="Parent" tooltip="Run under parent folder" style="flex-shrink: 1; flex-grow: 1; height: 20px; display: flex;" />
             <ui:Toggle name="exe_Build" text="Build" tooltip="Build exe" style="flex-shrink: 1; flex-grow: 1; height: 20px; display: flex;" />

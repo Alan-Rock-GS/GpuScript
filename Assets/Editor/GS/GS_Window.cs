@@ -93,7 +93,7 @@ public class GS_Window : EditorWindow
   [SerializeField] string gsClass_name_val, Lib_info_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val;
   [SerializeField] bool gsClass_Run_Val, exe_Parent_val, exe_Build_val, exe_Debug_val, exe_Run_val;
 
-  TextField gsClass_name, Lib_Info, package_name, backup_description, backup_omitFolders, info_Android_dirs, CodeCount, exe_Version;
+  TextField gsClass_name, Lib_Info, package_name, backup_description, backup_omitFolders, CodeCount, exe_Version; //info_Android_dirs
   Button gsClass_Build, gsClass_Fix, gsClass_Lib, Lib_Paste, Lib_Update, package_Create, backup_Backup, backup_Restore,
     android_projectPath, android_persistentPath, android_phonePath, exe_Exe, exe_Setup, exe_Apk, exe_Apk_CMake;
   Toggle gsClass_Run, exe_Parent, exe_Build, exe_Debug, exe_Run;
@@ -441,7 +441,7 @@ public class GS_Window : EditorWindow
         return false;
       }
 
-      gameObject = FindOrCreate_GameObject(gsName); 
+      gameObject = FindOrCreate_GameObject(gsName);
       gameObject.transform.SetAsFirstSibling();
 
       if (gameObject == null) return false;
@@ -2886,7 +2886,12 @@ $"\n    {m_name}_To_UI();",
     string AssetsPath = $"{dataPath}Assets/";
     //foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/"; if (f.Exists()) return f; }
     //foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/{name}_GS.cs"; if (f.Exists()) return $"{AssetsPath}{p}/{name}/"; }
-    foreach (var p in GS_Assemblies) { string f = $"{AssetsPath}{p}/{name}/"; if ($"{f}{name}_GS.cs".Exists()) return f; }
+    foreach (var p in GS_Assemblies)
+    {
+      string f = $"{AssetsPath}{p}/{name}/";
+      if ($"{f}{name}_GS.cs".Exists())
+        return f;
+    }
     return $"{AssetsPath}{name}/";
   }
 
@@ -3036,45 +3041,224 @@ $"\n    {m_name}_To_UI();",
 
   #endregion Package
 
+  //void SwitchPlatform() //if in Android mode, automatically "~remove" all unnecessary folders when generating APK.
+  //{
+  //  var android_folders = new string[] { "Editor", "GS" }.ToList();
+  //  var android_dirs = info_Android_dirs.value.Split(',');
+  //  foreach (var dir in android_dirs) if (dir.StartsWith("gs")) android_folders.Add(dir); else android_folders.Add("gs" + dir);
+  //  var dirs = AssetsPath.GetDirectories();
+  //  if (info_platform.index == 0 && isAndroid)
+  //  {
+  //    var s = StrBldr("Windows");
+  //    foreach (var dir in dirs)
+  //    {
+  //      if (dir.EndsWith("~"))
+  //      {
+  //        string d = $"{dir.Replace("\\", "/")}/", d2 = $"{d.BeforeLast("~/")}/";
+  //        if (android_folders.FirstOrDefault(a => d.Contains($"/{a}~/")) == null && d.Exists())
+  //          s.Add(" ", d2.After("Assets/"));
+  //      }
+  //    }
+  //    print(s);
+  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+  //  }
+  //  else if (info_platform.index == 1 && !isAndroid)
+  //  {
+  //    var s = StrBldr("Android");
+  //    foreach (var dir in dirs)
+  //    {
+  //      string d = $"{dir.Replace("\\", "/")}/";
+  //      if (d.DoesNotEndWith("~/"))
+  //      {
+  //        if (android_folders.FirstOrDefault(a => d.Contains($"/{a}/")) == null && d.Exists())
+  //        {
+  //          string d2 = $"{d.BeforeLast("/")}~/";
+  //          if (d2.DoesNotExist())
+  //            s.Add(" ", d2.After("Assets/"));
+  //        }
+  //      }
+  //    }
+  //    print(s);
+  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+  //  }
+  //  bool isPhone = info_platform.index == 1;
+
+  //  exe_Apk.style.display = DisplayIf(isPhone);
+  //  exe_Apk_CMake.style.display = DisplayIf(isPhone && Show_exe_Apk_CMake);
+  //  exe_Parent.style.display = HideIf(isPhone);
+  //  exe_Build.style.display = HideIf(isPhone);
+  //  exe_Debug.style.display = HideIf(isPhone && !exe_Build.value);
+  //  exe_Run.style.display = HideIf(isPhone);
+  //  exe_Exe.style.display = HideIf(isPhone);
+  //  exe_Setup.style.display = HideIf(isPhone);
+  //}
+
+  //void SwitchPlatform() //if in Android mode, automatically "~remove" all unnecessary folders when generating APK.
+  //{
+  //  var android_folders = new List<string> { "Editor", "GS" };
+
+  //  //StrBldr s = new();
+  //  if (info_platform.index == 0 && isAndroid)
+  //  {
+  //    foreach (var p in GS_Assemblies)
+  //    {
+  //      string f = $"{AssetsPath}{p}/{name}";
+  //      if (f.Exists())
+  //      {
+  //        foreach (var dir in f.GetDirectories())
+  //        {
+  //          if (f.DoesNotContainAny("~", "/GS_Libs/gsRand", "/GS_Libs/gsBDraw", "Android"))
+  //          {
+  //            //s.Add($"\n Rename {dir} to {dir}~");
+  //            dir.Rename($"{dir}~");
+  //          }
+  //        }
+  //      }
+  //    }
+  //    //s.Add($"\n Rename {AssetsPath}Models to {AssetsPath}Models~");
+  //    //s.Add($"\n Rename {AssetsPath}Plugins/Chrome to {AssetsPath}Plugins/Chrome~");
+  //    $"{AssetsPath}Models".Rename($"{AssetsPath}Models~");
+  //    $"{AssetsPath}Plugins/Chrome".Rename($"{AssetsPath}Plugins/Chrome~");
+  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+  //  }
+  //  else if (info_platform.index == 1 && !isAndroid)
+  //  {
+  //    foreach (var p in GS_Assemblies)
+  //    {
+  //      string f = $"{AssetsPath}{p}/{name}";
+  //      if (f.Exists())
+  //      {
+  //        foreach (var dir in f.GetDirectories())
+  //        {
+  //          if (f.Contains("~"))
+  //          {
+  //            //s.Add($"\n Rename {dir} to {dir.Replace("~", "")}");
+  //            $"{dir}~".Rename(dir);
+  //          }
+  //        }
+  //      }
+  //      //print(f);
+  //      //foreach (var dir in f.GetDirectories())
+  //      //{
+  //      //  if (f.Contains("~"))
+  //      //    print($"\t Rename {dir} to {dir.Replace("~", "")}");
+  //      //}
+  //    }
+  //    //s.Add($"\n Rename {AssetsPath}Models~ to {AssetsPath}Models");
+  //    //s.Add($"\n Rename {AssetsPath}Plugins/Chrome~ to {AssetsPath}Plugins/Chrome");
+  //    $"{AssetsPath}Models~".Rename($"{AssetsPath}Models");
+  //    $"{AssetsPath}Plugins/Chrome~".Rename($"{AssetsPath}Plugins/Chrome");
+  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+  //  }
+  //  //if (s.IsNotEmpty())
+  //  //  print(s);
+  //  //s = new();
+  //  //if (info_platform.index == 0)// && isAndroid)
+  //  //{
+  //  //  s.Add($"\n Rename {AssetsPath}Models to {AssetsPath}Models~");
+  //  //  s.Add($"\n Rename {AssetsPath}Plugins/Chrome to {AssetsPath}Plugins/Chrome~");
+  //  //}
+  //  //if (s.IsNotEmpty())
+  //  //  print(s);
+
+
+  //  //var android_folders = new string[] { "Editor", "GS" }.ToList();
+  //  //var android_dirs = info_Android_dirs.value.Split(',');
+  //  //foreach (var dir in android_dirs) if (dir.StartsWith("gs")) android_folders.Add(dir); else android_folders.Add("gs" + dir);
+  //  //var dirs = AssetsPath.GetDirectories();
+  //  //if (info_platform.index == 0 && isAndroid)
+  //  //{
+  //  //  var s = StrBldr("Windows");
+  //  //  foreach (var dir in dirs)
+  //  //  {
+  //  //    if (dir.EndsWith("~"))
+  //  //    {
+  //  //      string d = $"{dir.Replace("\\", "/")}/", d2 = $"{d.BeforeLast("~/")}/";
+  //  //      if (android_folders.FirstOrDefault(a => d.Contains($"/{a}~/")) == null && d.Exists())
+  //  //        s.Add(" ", d2.After("Assets/"));
+  //  //    }
+  //  //  }
+  //  //  print(s);
+  //  //  EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+  //  //}
+  //  //else if (info_platform.index == 1 && !isAndroid)
+  //  //{
+  //  //  var s = StrBldr("Android");
+  //  //  foreach (var dir in dirs)
+  //  //  {
+  //  //    string d = $"{dir.Replace("\\", "/")}/";
+  //  //    if (d.DoesNotEndWith("~/"))
+  //  //    {
+  //  //      if (android_folders.FirstOrDefault(a => d.Contains($"/{a}/")) == null && d.Exists())
+  //  //      {
+  //  //        string d2 = $"{d.BeforeLast("/")}~/";
+  //  //        if (d2.DoesNotExist())
+  //  //          s.Add(" ", d2.After("Assets/"));
+  //  //      }
+  //  //    }
+  //  //  }
+  //  //  print(s);
+  //  //  EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+  //  //}
+  //  bool isPhone = info_platform.index == 1;
+
+  //  exe_Apk.style.display = DisplayIf(isPhone);
+  //  exe_Apk_CMake.style.display = DisplayIf(isPhone && Show_exe_Apk_CMake);
+  //  exe_Parent.style.display = HideIf(isPhone);
+  //  exe_Build.style.display = HideIf(isPhone);
+  //  exe_Debug.style.display = HideIf(isPhone && !exe_Build.value);
+  //  exe_Run.style.display = HideIf(isPhone);
+  //  exe_Exe.style.display = HideIf(isPhone);
+  //  exe_Setup.style.display = HideIf(isPhone);
+  //}
+
   void SwitchPlatform() //if in Android mode, automatically "~remove" all unnecessary folders when generating APK.
   {
-    var android_folders = new string[] { "Editor", "GS" }.ToList();
-    var android_dirs = info_Android_dirs.value.Split(',');
-    foreach (var dir in android_dirs) if (dir.StartsWith("gs")) android_folders.Add(dir); else android_folders.Add("gs" + dir);
-    var dirs = AssetsPath.GetDirectories();
-    if (info_platform.index == 0 && isAndroid)
+    var android_folders = new List<string> { "Editor", "GS" };
+
+    if (info_platform.index == 1 && !isAndroid)
     {
-      var s = StrBldr("Windows");
-      foreach (var dir in dirs)
+      foreach (var p in GS_Assemblies)
       {
-        if (dir.EndsWith("~"))
+        string f = $"{AssetsPath}{p}/{name}";
+        if (f.Exists())
         {
-          string d = $"{dir.Replace("\\", "/")}/", d2 = $"{d.BeforeLast("~/")}/";
-          if (android_folders.FirstOrDefault(a => d.Contains($"/{a}~/")) == null && d.Exists())
-            s.Add(" ", d2.After("Assets/"));
-        }
-      }
-      print(s);
-      EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
-    }
-    else if (info_platform.index == 1 && !isAndroid)
-    {
-      var s = StrBldr("Android");
-      foreach (var dir in dirs)
-      {
-        string d = $"{dir.Replace("\\", "/")}/";
-        if (d.DoesNotEndWith("~/"))
-        {
-          if (android_folders.FirstOrDefault(a => d.Contains($"/{a}/")) == null && d.Exists())
+          foreach (var dir in f.GetDirectories())
           {
-            string d2 = $"{d.BeforeLast("/")}~/";
-            if (d2.DoesNotExist())
-              s.Add(" ", d2.After("Assets/"));
+            //if (dir.DoesNotContainAny("~", "/GS_Libs/gsRand", "/GS_Libs/gsBDraw", "/GS_Libs/gsAppendBuff", "Android"))
+            if (dir.DoesNotContainAny("~", "Android"))
+            {
+              $"{dir}/".Rename($"{dir}~/");
+              $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
+              //return;
+            }
           }
         }
       }
-      print(s);
+      $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
+      $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+    }
+    else if (info_platform.index == 0 && isAndroid)
+    {
+      foreach (var p in GS_Assemblies)
+      {
+        string f = $"{AssetsPath}{p}/{name}";
+        if (f.Exists())
+        {
+          foreach (var dir in f.GetDirectories())
+          {
+            if (dir.Contains("~"))
+            {
+              $"{dir}/".Rename($"{dir.Replace("~", "")}/");
+              //return;
+            }
+          }
+        }
+      }
+      $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
+      $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
+      EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
     }
     bool isPhone = info_platform.index == 1;
 

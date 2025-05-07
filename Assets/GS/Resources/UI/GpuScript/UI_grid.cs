@@ -178,8 +178,10 @@ namespace GpuScript
 			dispRowN = footer_Container.Query<UI_uint>();
 			dispRowN.gs = gs;
 			dispRowN.textField.RegisterValueChangedCallback(dispRowN_OnTextFieldChanged);// On_dispRowN_Changed);
-			dispRowN.textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
-			dispRowN.textField.RegisterValueChangedCallback(dispRowN.OnValueChanged);
+#if UNITY_STANDALONE_WIN
+      dispRowN.textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
+#endif //UNITY_STANDALONE_WIN
+      dispRowN.textField.RegisterValueChangedCallback(dispRowN.OnValueChanged);
 			dispRowN.textField.RegisterCallback<FocusOutEvent>(dispRowN.OnFocusOut);
 			dispRowN.textField.RegisterCallback<MouseCaptureEvent>(dispRowN.OnMouseCaptureEvent);
 			dispRowN.textField.RegisterCallback<MouseCaptureOutEvent>(dispRowN.OnMouseCaptureOutEvent);

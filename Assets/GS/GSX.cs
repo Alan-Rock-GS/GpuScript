@@ -416,8 +416,16 @@ namespace GpuScript
     {
       if (f0.Exists())
       {
-        if (f1.Exists()) f1.DeleteFile();
-        if (f0.isPath()) Directory.Move(f0.ToPath(), f1.ToPath()); else File.Move(f0, f1);
+        if (f1.Exists()) 
+          f1.DeleteFile();
+        if (f0.isPath())
+        {
+          Directory.Move(f0.ToPath(), f1.ToPath());
+          if (f0.Exists())
+            f0.DeleteFile();
+        }
+        else
+          File.Move(f0, f1);
       }
     }
     public static void RemoveEmptyFolders(this string path)
