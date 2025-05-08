@@ -2835,7 +2835,7 @@ $"\n    {m_name}_To_UI();",
 
   public void gsClass_Lib_clicked(ClickEvent evt = null)
   {
-    ClearConsole();
+    //ClearConsole();
     var project = new ProjectData(Name);
     project.Build_Precompiled_Lib();
     AssetDatabase.Refresh();

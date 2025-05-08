@@ -1,0 +1,26 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define g gCompute[0]
+  struct GCompute
+  {
+    float2 accuracy, gpsPosition, gpsError;
+    uint activate, input, output, uintN;
+    float gpsAltitude, input3;
+    int input2;
+  };
+  RWStructuredBuffer<GCompute> gCompute;
+  RWStructuredBuffer<uint> uints;
+  [numthreads(numthreads1, 1, 1)] void calc_uints(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.uintN)
+    {
+      uint i = id.x;
+      uints[i] = g.input + 1 + i;
+    }
+    }
+  }
+  #pragma kernel calc_uints
