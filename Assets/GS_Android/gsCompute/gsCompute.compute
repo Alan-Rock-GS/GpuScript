@@ -3,15 +3,18 @@
   #include "Lighting.cginc"
   #include "../../GS/GS_Compute.cginc"
   #define g gCompute[0]
+  #pragma use_dxc
   struct GCompute
   {
     float2 accuracy, gpsPosition, gpsError;
-    uint activate, input, output, uintN;
+    uint activate, input, output, uintN, A_AppendBuff_IndexN, A_AppendBuff_BitN, A_AppendBuff_N, A_AppendBuff_BitN1, A_AppendBuff_BitN2;
     float gpsAltitude, input3;
     int input2;
   };
+  groupshared uint A_AppendBuff_grp[1024];
+  groupshared uint A_AppendBuff_grp0[1024];
   RWStructuredBuffer<GCompute> gCompute;
-  RWStructuredBuffer<uint> uints;
+  RWStructuredBuffer<uint> uints, A_AppendBuff_Bits, A_AppendBuff_Sums, A_AppendBuff_Indexes, A_AppendBuff_Fills1, A_AppendBuff_Fills2;
   [numthreads(numthreads1, 1, 1)] void calc_uints(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -23,4 +26,24 @@
     }
     }
   }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.A_AppendBuff_BitN) { } } }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.A_AppendBuff_BitN1) { } } }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_Get_Existing_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_Get_Existing_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.A_AppendBuff_BitN) { } } }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.A_AppendBuff_BitN) { } } }
+  [numthreads(numthreads1, 1, 1)] void A_AppendBuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.A_AppendBuff_BitN) { } } }
   #pragma kernel calc_uints
+  #pragma kernel A_AppendBuff_GetIndexes
+  #pragma kernel A_AppendBuff_IncSums
+  #pragma kernel A_AppendBuff_IncFills1
+  #pragma kernel A_AppendBuff_GetFills2
+  #pragma kernel A_AppendBuff_GetFills1
+  #pragma kernel A_AppendBuff_Get_Existing_Sums
+  #pragma kernel A_AppendBuff_GetSums
+  #pragma kernel A_AppendBuff_Get_Bits_Sums
+  #pragma kernel A_AppendBuff_Get_Existing_Bits
+  #pragma kernel A_AppendBuff_Get_Bits
