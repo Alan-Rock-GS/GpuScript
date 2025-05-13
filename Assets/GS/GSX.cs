@@ -416,7 +416,7 @@ namespace GpuScript
     {
       if (f0.Exists())
       {
-        if (f1.Exists()) 
+        if (f1.Exists())
           f1.DeleteFile();
         if (f0.isPath())
         {
@@ -2064,17 +2064,35 @@ namespace GpuScript
     /// <param name="path0"></param>
     /// <param name="path1"></param>
     /// <returns>The number of copied or deleted files</returns>
-    public static int DuplicateFolder(this string path0, string path1)
+    public static int DuplicateFolder(this string path0, string path1, params string[] omitStrs)
     {
-      var files0 = path0.GetAllFiles().Select(a => a.After(path0).Replace("\\", "/"));
-      var files1 = path1.GetAllFiles().Select(a => a.After(path1).Replace("\\", "/"));
-      var newFiles = files0.Except(files1);
-      var sameFiles = files0.Intersect(files1);
-      var changedFiles = sameFiles.Where(a => (path0 + a).FileDate() != (path1 + a).FileDate());
+      path0 = path0.Replace("\\", "/");
+      path1 = path1.Replace("\\", "/");
+      var files0 = path0.GetAllFiles().Select(a => a.After(path0).Replace("\\", "/")).ToArray();
+      var files1 = path1.GetAllFiles().Select(a => a.After(path1).Replace("\\", "/")).ToArray();
+      //var oDirs = omitDirs.Select(a => $"/{a}/").ToArray();
+      var newFiles = files0.Except(files1).ToArray();
+      var sameFiles = files0.Intersect(files1).ToArray();
+      var changedFiles = sameFiles.Where(a => (path0 + a).FileDate() != (path1 + a).FileDate()).ToArray();
       string[] deletedFiles = files1.Except(files0).ToArray(), copyFiles = newFiles.Union(changedFiles).ToArray();
-      foreach (var f in deletedFiles) (path1 + f).DeleteFile();
-      foreach (var f in copyFiles) (path0 + f).CopyFile(path1 + f);
+      foreach (var f in deletedFiles) 
+        (path1 + f).DeleteFile();
+      foreach (var f in copyFiles)
+        if ((path0 + f).DoesNotContainAny(omitStrs))
+          (path0 + f).CopyFile(path1 + f);
       return deletedFiles.Length + copyFiles.Length;
+    }
+    public static void DuplicateFolders(this string path0, string path1, params string[] omitStrs)
+    {
+      path0 = path0.Replace("\\", "/");
+      path1 = path1.Replace("\\", "/");
+      path0.DuplicateFolder(path1, omitStrs);
+      var dirs0 = path0.GetDirectories();
+      foreach (var dir in dirs0)
+      {
+        var dir1 = dir.Replace(path0, path1);
+        DuplicateFolders(dir, dir1, omitStrs);
+      }
     }
 
 
@@ -2160,7 +2178,7 @@ namespace GpuScript
 
     public static string[] GetAllFiles(this string path, params string[] searchPatterns)
     {
-      if (searchPatterns == null) searchPatterns = new string[] { "*.*" };
+      if (searchPatterns == null || searchPatterns.Length == 0) searchPatterns = new string[] { "*.*" };
       var files = new string[0];
       if (path.Exists()) foreach (var p in searchPatterns) files = files.Concat(FastDirectory.GetFiles(path, p, SearchOption.AllDirectories)).ToArray();
       return files.Select(a => a.Replace("\\", "/")).ToArray();
