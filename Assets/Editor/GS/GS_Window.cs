@@ -17,6 +17,10 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using static GpuScript.GS;
 using UnityEditor.Compilation;
+using UnityEditor.Android;
+using PuppeteerSharp;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
 //https://www.youtube.com/watch?v=Xy_jvBg1vS0
 [InitializeOnLoad]
@@ -3285,18 +3289,22 @@ $"\n    {m_name}_To_UI();",
     PlayerSettings.Android.keystorePass = PlayerSettings.Android.keyaliasPass = password.text;
     string appName = appPath.BeforeLast("/").AfterLast("/");
     PlayerSettings.productName = $"{appName} {exe_Version.text}";
+    
     string scenePath = SceneManager.GetActiveScene().path;
     string assemblyName = scenePath.Between("Assets/", "/");
 
     string appIcon = $"{Application.dataPath}/{assemblyName}/{gsName}/Icon.png", icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
     (appIcon.Exists() ? appIcon : defaultIcon).CopyFile(icon);
     icon.ImportAsset();
+    AssetDatabase.SaveAssets();
+    AssetDatabase.Refresh();
 
-    var iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Android, IconKind.Any);
-    int iconN = iconSizes.Length;
-    var texture = icon.LoadImage();
-    var icons = Enumerable.Repeat(texture, iconN).ToArray();
-    PlayerSettings.SetIcons(NamedBuildTarget.Android, icons, IconKind.Any);
+    //var iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Android, IconKind.Any);
+    //int iconN = iconSizes.Length;
+    //var texture = icon.LoadImage();
+    //var icons = Enumerable.Repeat(texture, iconN).ToArray();
+    //PlayerSettings.SetIcons(NamedBuildTarget.Android, icons, IconKind.Any);
+    //PlayerSettings.SetPlatformIcons(BuildTargetGroup.Android, AndroidPlatformIconKind.Adaptive, icons);
 
     PlayerSettings.bundleVersion = $"{DateTime.Now:yyyy.MM.dd.HH.mm}";
     BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
@@ -3341,9 +3349,26 @@ $"\n    {m_name}_To_UI();",
     BuildPlayerOptions buildPlayerOptions = BuildSettings();
     PlayerSettings.SetIl2CppCompilerConfiguration(NamedBuildTarget.Android, Il2CppCompilerConfiguration.Release);
     PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, Il2CppCodeGeneration.OptimizeSpeed);
+    string packageName = "com." + $"{company.text}.{appName}_{exe_Version.text}".ReplaceAll(".", "_", " ", "_");
+    PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, packageName);
     buildPlayerOptions.locationPathName = $"{appName}/{appName}.apk";
     buildPlayerOptions.target = BuildTarget.Android;
     buildPlayerOptions.options = BuildOptions.AutoRunPlayer;
+
+    string icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
+
+    //PlatformIcon[] icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive);
+    //var texture = icon.LoadImage();
+    //for (int i = 0; i < icons.Length; i++)
+    //  icons[i].SetTextures(texture);
+    //var iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Android, IconKind.Any);
+    //int iconN = iconSizes.Length;
+    //var texture = icon.LoadImage();
+    //var textures = Enumerable.Repeat(texture, iconN).ToArray();
+
+    //PlayerSettings.SetIcons(NamedBuildTarget.Android, textures, IconKind.Any);
+
+
     yield return null;
     Build_Report(buildPlayerOptions);
   }

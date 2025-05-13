@@ -1,0 +1,37 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define g gAAppendBuff_Doc[0]
+  #pragma use_dxc
+  struct GAAppendBuff_Doc
+  {
+    uint AppendBuff_N, Runtime_N, runOnGpu, AppendBuffTest_IndexN, uintN, AAppendBuff_IndexN, AAppendBuff_BitN, AAppendBuff_N, AAppendBuff_BitRowN, AAppendBuff_BitColN;
+    float AppendBuffTest_Time_us;
+  };
+  RWStructuredBuffer<GAAppendBuff_Doc> gAAppendBuff_Doc;
+  RWStructuredBuffer<uint> uints, AAppendBuff_Bits, AAppendBuff_Sums, AAppendBuff_Indexes, AAppendBuff_ColN_Sums;
+  [numthreads(numthreads1, 1, 1)] void AAppendBuff_CalcIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.AAppendBuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : AAppendBuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = AAppendBuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); AAppendBuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads2, numthreads2, 1)] void AAppendBuff_CalcSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.AAppendBuff_BitColN * (g.AAppendBuff_BitColN - 1) / 2 && id.x < g.AAppendBuff_BitRowN) { uint i = id.x, k = id.y, j = i * g.AAppendBuff_BitColN; uint2 u = upperTriangularIndex(k, g.AAppendBuff_BitColN) + u11 * j; if (u.x < g.AAppendBuff_BitN && u.y < g.AAppendBuff_BitN) InterlockedAdd(AAppendBuff_Sums, u.y, countbits(AAppendBuff_Bits[u.x])); } } }
+  [numthreads(numthreads1, 1, 1)] void AAppendBuff_InitSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.AAppendBuff_BitN) { AAppendBuff_Sums[id.x] = countbits(AAppendBuff_Bits[id.x]); } } }
+  [numthreads(numthreads1, 1, 1)] void AAppendBuff_Init_Bits_32(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.AAppendBuff_BitN) { AAppendBuff_Bits[id.x] = 0; } } }
+  [numthreads(numthreads1, 1, 1)] void calc_uints(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { } } }
+  uint AAppendBuff_SumI(uint rowI, uint colJ) { return rowI * g.AAppendBuff_BitColN + colJ; }
+  [numthreads(numthreads1, 1, 1)] void AAppendBuff_Calc_ColN_Sums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.AAppendBuff_BitRowN * (g.AAppendBuff_BitRowN - 1) / 2) { uint2 u = upperTriangularIndex(id.x, g.AAppendBuff_BitColN); if (u.x < g.AAppendBuff_BitRowN) InterlockedAdd(AAppendBuff_ColN_Sums, u.y, AAppendBuff_Sums[min(AAppendBuff_SumI(u.x, g.AAppendBuff_BitColN - 1), g.AAppendBuff_BitN - 1)]); } } }
+  [numthreads(numthreads1, 1, 1)] void AAppendBuff_Init_ColN_Sums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.AAppendBuff_BitRowN) { AAppendBuff_ColN_Sums[id.x] = AAppendBuff_Sums[min(AAppendBuff_SumI(id.x, g.AAppendBuff_BitColN - 1), g.AAppendBuff_BitN - 1)]; } } }
+  bool AAppendBuff_IsBitOn(uint i) { return i % 32 == 0; }
+  uint AAppendBuff_Assign_Bit(uint i, uint j) { return Is(i < g.AAppendBuff_N && AAppendBuff_IsBitOn(i)) << (int)j; }
+  [numthreads(numthreads2, numthreads2, 1)] void AAppendBuff_Get_Bits_32(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < 32 && id.x < g.AAppendBuff_BitN) { uint i = id.x, j = id.y, k = i * 32 + j, bits; if (i < g.AAppendBuff_BitN && (bits = AAppendBuff_Assign_Bit(k, j)) != 0) InterlockedOr(AAppendBuff_Bits, i, bits); } } }
+  uint AAppendBuff_Assign_Bits(uint i, uint j, uint bits) { return bits | AAppendBuff_Assign_Bit(i, j); }
+  [numthreads(numthreads1, 1, 1)] void AAppendBuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.AAppendBuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.AAppendBuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = AAppendBuff_Assign_Bits(k + j, j, bits); AAppendBuff_Bits[i] = bits; } } } }
+  [numthreads(numthreads2, numthreads2, 1)] void AAppendBuff_Add_ColN_Sums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.AAppendBuff_BitColN && id.x < g.AAppendBuff_BitRowN - 1) { uint rowI = id.x + 1, i = AAppendBuff_SumI(rowI, id.y); if (i < g.AAppendBuff_BitN) InterlockedAdd(AAppendBuff_Sums, i, AAppendBuff_ColN_Sums[rowI - 1]); } } }
+  #pragma kernel AAppendBuff_CalcIndexes
+  #pragma kernel AAppendBuff_Add_ColN_Sums
+  #pragma kernel AAppendBuff_Calc_ColN_Sums
+  #pragma kernel AAppendBuff_Init_ColN_Sums
+  #pragma kernel AAppendBuff_CalcSums
+  #pragma kernel AAppendBuff_InitSums
+  #pragma kernel AAppendBuff_Get_Bits_32
+  #pragma kernel AAppendBuff_Init_Bits_32
+  #pragma kernel AAppendBuff_Get_Bits
+  #pragma kernel calc_uints
