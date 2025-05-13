@@ -28,9 +28,11 @@
         <ui:VisualElement name="info" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
             <ui:TextField picking-mode="Ignore" name="info_Android_dirs" readonly="false" value="Swarm,Rand,Gps" tooltip="Folders to include in Android" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1; flex-shrink: 1; display: none;" />
             <ui:DropdownField index="0" choices="Windows,Android" tooltip="Platform" name="info_platform" />
-            <ui:Button text="Project" display-tooltip-when-elided="true" name="android_projectPath" tooltip="Show Project Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
-            <ui:Button text="Persistent" display-tooltip-when-elided="true" name="android_persistentPath" tooltip="Show Persistent Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
-            <ui:Button text="Phone&#10;" display-tooltip-when-elided="true" name="android_phonePath" tooltip="Show Phone Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px;" />
+            <ui:TextField placeholder-text="company" name="company" tooltip="Company name" style="flex-grow: 1; min-width: auto; max-width: none; height: 20px;" />
+            <ui:TextField placeholder-text="password" name="password" password="true" tooltip="keystore password" style="flex-grow: 1; height: 20px;" />
+            <ui:Button text="Project" display-tooltip-when-elided="true" name="android_projectPath" tooltip="Show Project Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />
+            <ui:Button text="Persistent" display-tooltip-when-elided="true" name="android_persistentPath" tooltip="Show Persistent Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />
+            <ui:Button text="Phone&#10;" display-tooltip-when-elided="true" name="android_phonePath" tooltip="Show Phone Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />
         </ui:VisualElement>
         <ui:VisualElement name="android" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap; display: none;" />
         <ui:VisualElement name="exe" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
@@ -38,7 +40,7 @@
             <ui:Toggle name="exe_Build" text="Build" tooltip="Build exe" style="flex-shrink: 1; flex-grow: 1; height: 20px; display: flex;" />
             <ui:Toggle name="exe_Debug" text="Debug" tooltip="Development build with script debugging" style="flex-shrink: 1; flex-grow: 1; height: 20px; display: flex;" />
             <ui:Toggle name="exe_Run" text="Run" tooltip="Run exe" style="flex-shrink: 1; flex-grow: 1; height: 20px; display: flex;" />
-            <ui:TextField value="1.0" name="exe_Version" tooltip="Version" style="flex-shrink: 1; flex-grow: 1; flex-direction: column; height: 20px;" />
+            <ui:TextField value="1.0" name="exe_Version" tooltip="Version" placeholder-text="Version" style="flex-shrink: 1; flex-grow: 1; flex-direction: column; height: 20px;" />
             <ui:Button text="Exe" display-tooltip-when-elided="true" name="exe_Exe" tooltip="Build and/or run exe" style="width: auto; flex-grow: 1; flex-shrink: 1; display: flex;" />
             <ui:Button text="Setup" display-tooltip-when-elided="true" name="exe_Setup" tooltip="Build Setup.exe for distribution, install inno installation package from internet" style="width: auto; flex-grow: 1; flex-shrink: 1; display: flex;" />
             <ui:Button text="Apk" display-tooltip-when-elided="true" name="exe_Apk" tooltip="Build Apk file and run on Android, connect phone to USB and enable Developer Options" style="width: auto; flex-grow: 1; flex-shrink: 1; display: flex;" />

@@ -11,52 +11,44 @@
   RWStructuredBuffer<GA_AppendBuff> gA_AppendBuff;
   RWStructuredBuffer<uint> Bits, Sums, Indexes, ColN_Sums;
   [numthreads(numthreads1, 1, 1)] void CalcIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { uint i = id.x, j, sum = i == 0 ? 0 : Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = Bits[i]; b > 0; k++) { j = (uint)findLSB(b); Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads2, numthreads2, 1)] void CalcSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.BitColN * (g.BitColN - 1) / 2 && id.x < g.BitRowN) { uint i = id.x, k = id.y, j = i * g.BitColN; uint2 u = upperTriangularIndex(k, g.BitColN) + u11 * j; if (u.x < g.BitN && u.y < g.BitN) InterlockedAdd(Sums, u.y, countbits(Bits[u.x])); } } }
+  [numthreads(numthreads1, 1, 1)] void InitSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { Sums[id.x] = countbits(Bits[id.x]); } } }
+  [numthreads(numthreads1, 1, 1)] void Init_Bits_32(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { Bits[id.x] = 0; } } }
+  uint SumI(uint rowI, uint colJ) { return rowI * g.BitColN + colJ; }
   [numthreads(numthreads1, 1, 1)] void Calc_ColN_Sums(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (id.x < g.BitRowN * (g.BitRowN - 1) / 2)
     {
-      uint i = id.x, j = i * g.BitRowN; uint2 u = upperTriangularIndex(i, g.BitRowN) + u11 * j;
-      if (u.x < g.BitRowN)
-        InterlockedAdd(ColN_Sums, u.y, ColN_Sums[u.x]);
+      uint2 u = upperTriangularIndex(id.x, g.BitColN);
+      if (u.x < g.BitRowN) InterlockedAdd(ColN_Sums, u.y, Sums[min(SumI(u.x, g.BitColN - 1), g.BitN - 1)]);
     }
     }
   }
-  [numthreads(numthreads2, numthreads2, 1)] void CalcSums(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.BitColN * (g.BitColN - 1) / 2 && id.x < g.BitRowN)
-    {
-      uint i = id.x, k = id.y, j = i * g.BitColN; uint2 u = upperTriangularIndex(k, g.BitColN) + u11 * j;
-      if (u.x < g.BitN)
-        InterlockedAdd(Sums, u.y, countbits(Bits[u.x]));
-    }
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void InitSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { Sums[id.x] = countbits(Bits[id.x]); } } }
-  [numthreads(numthreads1, 1, 1)] void Init_Bits_32(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { Bits[id.x] = 0; } } }
-  uint SumI(uint rowI, uint colJ) { return rowI * g.BitColN + colJ; }
-  uint Sum(uint rowI, uint colJ) { return Sums[SumI(rowI, colJ)]; }
-  [numthreads(numthreads1, 1, 1)] void Init_ColN_Sums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitRowN) { ColN_Sums[id.x] = Sum(id.x, g.BitColN - 1); } } }
+  [numthreads(numthreads1, 1, 1)] void Init_ColN_Sums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitRowN) { ColN_Sums[id.x] = Sums[min(SumI(id.x, g.BitColN - 1), g.BitN - 1)]; } } }
   bool IsBitOn(uint i) { return i % 32 == 0; }
   uint Assign_Bit(uint i, uint j) { return Is(i < g.N && IsBitOn(i)) << (int)j; }
   [numthreads(numthreads2, numthreads2, 1)] void Get_Bits_32(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < 32 && id.x < g.BitN) { uint i = id.x, j = id.y, k = i * 32 + j, bits; if (i < g.BitN && (bits = Assign_Bit(k, j)) != 0) InterlockedOr(Bits, i, bits); } } }
   uint Assign_Bits(uint i, uint j, uint bits) { return bits | Assign_Bit(i, j); }
   [numthreads(numthreads1, 1, 1)] void Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = Assign_Bits(k + j, j, bits); Bits[i] = bits; } } } }
-  [numthreads(numthreads2, numthreads2, 1)] void Add_ColN_Sums(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Get_Bits_Init(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.y < g.BitColN && id.x < g.BitRowN - 1)
+      if (id.x < g.BitN)
     {
-      uint rowI = id.x + 1, colJ = id.y, i = SumI(rowI, colJ);
+      uint i = id.x, j, k, bits = 0;
       if (i < g.BitN)
-        InterlockedAdd(Sums, i, Sum(rowI - 1, g.BitColN - 1));
+      {
+        for (j = 0, k = i * 32; j < 32; j++) bits = Assign_Bits(k + j, j, bits);
+        Bits[i] = bits;
+        Sums[i] = countbits(bits);
+      }
     }
     }
   }
+  [numthreads(numthreads2, numthreads2, 1)] void Add_ColN_Sums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.BitColN && id.x < g.BitRowN - 1) { uint rowI = id.x + 1, i = SumI(rowI, id.y); if (i < g.BitN) InterlockedAdd(Sums, i, ColN_Sums[rowI - 1]); } } }
   #pragma kernel CalcIndexes
   #pragma kernel Add_ColN_Sums
   #pragma kernel Calc_ColN_Sums
@@ -66,3 +58,4 @@
   #pragma kernel Get_Bits_32
   #pragma kernel Init_Bits_32
   #pragma kernel Get_Bits
+  #pragma kernel Get_Bits_Init

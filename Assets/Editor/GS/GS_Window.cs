@@ -73,10 +73,10 @@ public class GS_Window : EditorWindow
 
   [MenuItem("Window/GpuScript")] public static void ShowWindow() { var w = GetWindow<GS_Window>("GpuScript"); w.minSize = new Vector2(200, 50); }
 
-  [SerializeField] string gsClass_name_val, Lib_info_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val;
+  [SerializeField] string gsClass_name_val, Lib_info_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val, company_val, password_val;
   [SerializeField] bool gsClass_Run_Val, exe_Parent_val, exe_Build_val, exe_Debug_val, exe_Run_val;
 
-  TextField gsClass_name, Lib_Info, package_name, backup_description, backup_omitFolders, CodeCount, exe_Version; //info_Android_dirs
+  TextField gsClass_name, Lib_Info, package_name, backup_description, backup_omitFolders, CodeCount, exe_Version, company, password; //info_Android_dirs
   Button gsClass_Build, gsClass_Fix, gsClass_Lib, Lib_Paste, Lib_Update, package_Create, backup_Backup, backup_Restore,
     android_projectPath, android_persistentPath, android_phonePath, exe_Exe, exe_Setup, exe_Apk, exe_Apk_CMake;
   Toggle gsClass_Run, exe_Parent, exe_Build, exe_Debug, exe_Run;
@@ -2138,6 +2138,9 @@ $"\n    {m_name}_To_UI();",
     }
     public IEnumerator Build_Coroutine()
     {
+      print($"{new { SceneName }}");
+      if (SceneName.IsEmpty()) yield break;
+
       gameObject = FindOrCreate_GameObject(gsName);
 
       StrBldr compileTimeStr = StrBldr();
@@ -2188,8 +2191,10 @@ $"\n    {m_name}_To_UI();",
       build_UI = Name == SceneManager.GetActiveScene().name;
 
       bool changed = _GS_Build_Libs();
+      //print($"changed = {changed}");
       if (changed)
       {
+        //yield break;
         AssetDatabase.ImportAsset(_GS_filename.ToAsset(), ImportAssetOptions.ForceUpdate);
         yield return null;
         ForceRecompile();
@@ -2446,7 +2451,9 @@ $"\n    {m_name}_To_UI();",
       string matchStr;
       var classList = new List<string>();
 
-      if (_gs_members == null) _gs_members ??= (gsName + "_GS").GetOrderedMembers();
+      //if (_gs_members == null) _gs_members ??= (gsName + "_GS").GetOrderedMembers();
+      _gs_members ??= (gsName + "_GS").GetOrderedMembers();
+
       foreach (var mem in _gs_members)
         if (mem.AttGS() != null && mem.IsArray() && mem.GetMemberType().GetElementType().IsClass)
           if (classList.DoesNotContain(mem.Name))
@@ -2455,11 +2462,15 @@ $"\n    {m_name}_To_UI();",
       string[] cs_includes = cs_Text.Before("public").Split("\n").Select(a => a.Trim()).Where(a => a.IsNotEmpty()).Distinct().ToArray();
       matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override))\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|\[Serializable\]|#region|#endregion|\r\n}|\n})";
       MatchCollection cs_method_matches = cs_Code.RegexMatch(matchStr), _cs_method_matches = _cs_Code.RegexMatch(matchStr);
-      if (_GS_Code.Contains("\r\n")) _GS_Code = _GS_Code.BeforeLast("\r\n"); else _GS_Code = _GS_Code.BeforeLast("\n");
+      //if (_GS_Code.Contains("\r\n")) _GS_Code = _GS_Code.BeforeLast("\r\n"); else _GS_Code = _GS_Code.BeforeLast("\n");
+      //if (_GS_Code.Contains("\n")) _GS_Code = _GS_Code.BeforeLast("\n");
 
-      MatchCollection lib_matches = _GS_Code.RegexMatch(@$"  gs(.*) (.*);(((?s).*?)\#region \<(\w+)\>(?s).*?\#endregion \<(\w+)\>)?");
+      //MatchCollection lib_matches = _GS_Code.RegexMatch(@$"  gs(.*) (.*);(((?s).*?)\#region \<(\w+)\>(?s).*?\#endregion \<(\w+)\>)?");
+      MatchCollection lib_matches = _GS_Code.RegexMatch(@$"(.*) gs(.*) (.*);(((?s).*?)\#region \<(\w+)\>(?s).*?\#endregion \<(\w+)\>)?");
 
-      _GS_Code = _GS_Code.RegexReplace(@$"  #region(.*)\n", "", @$"  #endregion(.*)\n", "", @$"  gs(.*)\n", "");
+
+      //_GS_Code = _GS_Code.RegexReplace(@$"  #region(.*)\n", "", @$"  #endregion(.*)\n", "", @$"  gs(.*)\n", "");
+      _GS_Code = _GS_Code.RegexReplace(@$"  #region(.*)\n", "", @$"  #endregion(.*)\n", "", @$"(.*) gs(.*)\n", "");
       _GS_Type = $"{gsName}_GS".ToType();
       var _GS_Members = _GS_Type?.GetMembers(_GS_bindings);
       foreach (var p in _GS_Members)
@@ -2483,11 +2494,17 @@ $"\n    {m_name}_To_UI();",
       foreach (Match match in cs_method_matches) methods.Add(new method_data(Name, match));
       foreach (Match match in _cs_method_matches) _methods.Add(new method_data(Name, match));
 
+      //var vMeths = _methods.Where(_m => _m.name.DoesNotStartWithAny("Cpu_", "Gpu_", "onRenderObject_", "vert_", "frag_", "base_")
+      //  && _m.inheritance.IsNotEmpty() && _m.return_type == "void" && _m.inheritance.IsNotEmpty()
+      //  && _m.name.IsNotAny("Awake", "Start", "LateUpdate", "Update", "OnValueChanged", "InitBuffers", " OnApplicationQuit",
+      //    "ui_to_data", "data_to_ui", "Load_UI", "Save_UI", "onRenderObject")
+      //  && _m.code.Between("{", "}").Trim().IsNotEmpty() && methods.FirstOrDefault(m => m.name == _m.name && m.argN == _m.argN) == null).ToArray();
       var vMeths = _methods.Where(_m => _m.name.DoesNotStartWithAny("Cpu_", "Gpu_", "onRenderObject_", "vert_", "frag_", "base_")
-        && _m.inheritance.IsNotEmpty() && _m.return_type == "void" && _m.inheritance.IsNotEmpty()
+        && _m.inheritance.IsNotEmpty()
         && _m.name.IsNotAny("Awake", "Start", "LateUpdate", "Update", "OnValueChanged", "InitBuffers", " OnApplicationQuit",
-          "ui_to_data", "data_to_ui", "Load_UI", "Save_UI", "onRenderObject")
-        && _m.code.Between("{", "}").Trim().IsNotEmpty() && methods.FirstOrDefault(m => m.name == _m.name && m.argN == _m.argN) == null);
+          "ui_to_data", "data_to_ui", "Load_UI", "Save_UI", "onRenderObject", "Load_UI_As", "Save_UI_As")
+        && _m.code.Between("{", "}").Trim().IsNotEmpty() && methods.FirstOrDefault(m => m.name == _m.name && m.argN == _m.argN) == null).ToArray();
+
       var s = StrBldr($"Built Precompiled Lib: Assets/GS_Libs/{gsName}/{path.BeforeLast("/").AfterLast("/")}/");
       foreach (var m in vMeths)
       {
@@ -2528,8 +2545,11 @@ $"\n    {m_name}_To_UI();",
 
       foreach (Match lib_m in lib_matches)
       {
-        string libName = lib_m.Groups[1].Value, libTypeName = "gs" + libName, libPath = $"{AssemblyPath(libTypeName)}Lib/{libTypeName}";
-        string libVarName = lib_m.Groups[2].Value;
+        //string libName = lib_m.Groups[1].Value, libTypeName = "gs" + libName, libPath = $"{AssemblyPath(libTypeName)}Lib/{libTypeName}";
+        //string libVarName = lib_m.Groups[2].Value;
+        string libName = lib_m.Groups[2].Value, libTypeName = "gs" + libName, libPath = $"{AssemblyPath(libTypeName)}Lib/{libTypeName}";
+        string libVarName = lib_m.Groups[3].Value;
+
         string _GS_lib_Code = $"{libPath}_GS_lib.txt".ReadAllText();
         string cs_lib_Code = $"{libPath}_cs_lib.txt".ReadAllText();
         string cs_lib_kernels_str = $"{libPath}_cs_lib_kernels.txt".ReadAllText();
@@ -2940,7 +2960,8 @@ $"\n    {m_name}_To_UI();",
           foreach (var dir in f.GetDirectories())
           {
             //if (dir.DoesNotContainAny("~", "/GS_Libs/gsRand", "/GS_Libs/gsBDraw", "/GS_Libs/gsAppendBuff", "Android"))
-            if (dir.DoesNotContainAny("~", "Android"))
+            //if (dir.DoesNotContainAny("~", "Android"))
+            if (dir.DoesNotContainAny("~", "GSA_"))
             {
               $"{dir}/".Rename($"{dir}~/");
               $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
@@ -2976,6 +2997,8 @@ $"\n    {m_name}_To_UI();",
     exe_Run.style.display = HideIf(isPhone);
     exe_Exe.style.display = HideIf(isPhone);
     exe_Setup.style.display = HideIf(isPhone);
+    company.style.display = DisplayIf(isPhone);
+    password.style.display = DisplayIf(isPhone);
   }
 
   #region Count Lines
@@ -3257,12 +3280,24 @@ $"\n    {m_name}_To_UI();",
   public void exe_Setup_clicked(ClickEvent evt = null) { Generate_GS_Setup(exe_Build.value); }
   public BuildPlayerOptions BuildSettings()
   {
-    PlayerSettings.companyName = "SummitPeak";
+    //PlayerSettings.companyName = "SummitPeak";
+    PlayerSettings.companyName = company.text;
+    PlayerSettings.Android.keystorePass = PlayerSettings.Android.keyaliasPass = password.text;
     string appName = appPath.BeforeLast("/").AfterLast("/");
     PlayerSettings.productName = $"{appName} {exe_Version.text}";
-    string appIcon = $"{Application.dataPath}/{gsName}/Icon.png", icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
+    string scenePath = SceneManager.GetActiveScene().path;
+    string assemblyName = scenePath.Between("Assets/", "/");
+
+    string appIcon = $"{Application.dataPath}/{assemblyName}/{gsName}/Icon.png", icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
     (appIcon.Exists() ? appIcon : defaultIcon).CopyFile(icon);
     icon.ImportAsset();
+
+    var iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Android, IconKind.Any);
+    int iconN = iconSizes.Length;
+    var texture = icon.LoadImage();
+    var icons = Enumerable.Repeat(texture, iconN).ToArray();
+    PlayerSettings.SetIcons(NamedBuildTarget.Android, icons, IconKind.Any);
+
     PlayerSettings.bundleVersion = $"{DateTime.Now:yyyy.MM.dd.HH.mm}";
     BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
     buildPlayerOptions.scenes = new[] { SceneManager.GetActiveScene().path };

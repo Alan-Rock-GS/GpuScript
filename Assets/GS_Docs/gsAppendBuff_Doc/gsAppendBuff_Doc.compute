@@ -2,11 +2,14 @@
   #include "UnityCG.cginc"
   #include "Lighting.cginc"
   #include "../../GS/GS_Compute.cginc"
+  #define ProcessorType_CPU	0
+  #define ProcessorType_GPU	1
   #define g gAppendBuff_Doc[0]
   #pragma use_dxc
   struct GAppendBuff_Doc
   {
-    uint maxPrimeN, primeFactor, pN, piN, pjN, AppendBuff_IndexN, AppendBuff_BitN, AppendBuff_N, AppendBuff_BitN1, AppendBuff_BitN2;
+    uint maxPrimeN, AppendBuffTest_N, AppendBuffTest_Runtime_N, processorType, AppendBuffTest_IndexN, primeFactor, pN, piN, pjN, AppendBuff_IndexN, AppendBuff_BitN, AppendBuff_N, AppendBuff_BitN1, AppendBuff_BitN2;
+    float AppendBuffTest_Time_us;
   };
   groupshared uint AppendBuff_grp[1024];
   groupshared uint AppendBuff_grp0[1024];

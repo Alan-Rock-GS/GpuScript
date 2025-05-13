@@ -594,7 +594,9 @@ MonoBehaviour:
   data:
     siUnits: 0
     group_UI: 0
+    group_GPS: 0
     activate: 0
+    group_AppendBuff: 0
     accuracy:
       x: 0
       y: 0
@@ -605,12 +607,10 @@ MonoBehaviour:
       x: 0
       y: 0
     gpsAltitude: 0
-    input3: 0
     date_time: 
-    input4: 
-    input: 0
-    output: 0
-    input2: 0
+    AppendBuff_Output: 
+    AppendBuff_Time_us: 
+    AppendBuff_N: 0
   g:
     accuracy:
       x: 0
@@ -622,17 +622,29 @@ MonoBehaviour:
       x: 0
       y: 0
     activate: 0
-    input: 0
-    output: 0
+    AppendBuff_N: 0
     uintN: 0
+    A_AppendBuff_IndexN: 0
+    A_AppendBuff_BitN: 0
+    A_AppendBuff_N: 0
+    A_AppendBuff_BitRowN: 0
+    A_AppendBuff_BitColN: 0
     gpsAltitude: 0
-    input3: 0
-    input2: 0
   ValuesChanged: 0
   gChanged: 0
   already_quited: 0
   lateUpdateI: 0
   _PaletteTex: {fileID: 0}
+  kernel_A_AppendBuff_CalcIndexes: 0
+  kernel_A_AppendBuff_Add_ColN_Sums: 0
+  kernel_A_AppendBuff_Calc_ColN_Sums: 0
+  kernel_A_AppendBuff_Init_ColN_Sums: 0
+  kernel_A_AppendBuff_CalcSums: 0
+  kernel_A_AppendBuff_InitSums: 0
+  kernel_A_AppendBuff_Get_Bits_32: 0
+  kernel_A_AppendBuff_Init_Bits_32: 0
+  kernel_A_AppendBuff_Get_Bits: 0
+  kernel_A_AppendBuff_Get_Bits_Init: 0
   kernel_calc_uints: 0
   Avg_Earth_Radius_m: 6371000
 --- !u!114 &944927276
@@ -755,6 +767,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1930839744
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1930839745}
+  m_Layer: 0
+  m_Name: gsA_AppendBuff_Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1930839745
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930839744}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -763,3 +806,4 @@ SceneRoots:
   - {fileID: 705507995}
   - {fileID: 221817174}
   - {fileID: 1624650108}
+  - {fileID: 1930839745}

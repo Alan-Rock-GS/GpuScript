@@ -1,4 +1,4 @@
-// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 306
+// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 341
 
 
 #define _gs_shader

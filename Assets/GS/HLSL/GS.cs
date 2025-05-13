@@ -822,10 +822,14 @@ namespace GpuScript
     public static uint2 ceilu(float2 v) { return int2(ceil(v.x), ceil(v.y)); }
     public static uint3 ceilu(float3 v) { return int3(ceil(v.x), ceil(v.y), ceil(v.z)); }
     public static uint4 ceilu(float4 v) { return int4(ceil(v.x), ceil(v.y), ceil(v.z), ceil(v.w)); }
-    public static uint ceilu(uint numerator, uint denominator) { return (uint)(numerator / denominator + ((numerator % denominator) > 0 ? 1 : 0)); }
-    public static uint2 ceilu(uint2 numerator, uint2 denominator) { return int2(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y)); }
-    public static uint3 ceilu(uint3 numerator, uint3 denominator) { return int3(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y), ceilu(numerator.z, denominator.z)); }
-    public static uint4 ceilu(uint4 numerator, uint4 denominator) { return int4(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y), ceilu(numerator.z, denominator.z), ceilu(numerator.w, denominator.w)); }
+    //public static uint ceilu(uint numerator, uint denominator) { return (uint)(numerator / denominator + ((numerator % denominator) > 0 ? 1 : 0)); }
+    //public static uint2 ceilu(uint2 numerator, uint2 denominator) { return int2(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y)); }
+    //public static uint3 ceilu(uint3 numerator, uint3 denominator) { return int3(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y), ceilu(numerator.z, denominator.z)); }
+    //public static uint4 ceilu(uint4 numerator, uint4 denominator) { return int4(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y), ceilu(numerator.z, denominator.z), ceilu(numerator.w, denominator.w)); }
+    public static uint ceilu(uint v, uint nearest) { return v / nearest + min(1, v % nearest); }
+    public static uint2 ceilu(uint2 v, uint2 nearest) { return int2(ceilu(v.x, nearest.x), ceilu(v.y, nearest.y)); }
+    public static uint3 ceilu(uint3 v, uint3 nearest) { return int3(ceilu(v.x, nearest.x), ceilu(v.y, nearest.y), ceilu(v.z, nearest.z)); }
+    public static uint4 ceilu(uint4 v, uint4 nearest) { return int4(ceilu(v.x, v.x), ceilu(v.y, nearest.y), ceilu(v.z, nearest.z), ceilu(v.w, nearest.w)); }
 
     public static int floori(float v) { return (int)floor(v); }
     public static int2 floori(float2 v) { return int2(floor(v.x), floor(v.y)); }
@@ -2224,6 +2228,14 @@ namespace GpuScript
     //<<<<< GpuScript Code Extensions. This section contains code that runs on both compute shaders and material shaders, but is not in HLSL
 
     public static float Secs(Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
+    //public float TimeAction(uint n, Action a, float t) => (0, n).For().Select(i => Secs(a)).Min() * t;
+    //public float us(Action a) => TimeAction(100, a, 1e6f);
+    //public string us(string s, Action a) => $"{s}\t {us(a):#,###} μs";
+    //public float TimeAction(uint n, Action a, float secs) => (0, n).For().Select(i => Secs(a)).Min() * secs;
+    //public string TimeAction_Str(uint n, Action a, float secs) => $"{TimeAction(n, a, secs):#,###} {(secs == 1e-3f ? "ms" : secs == 1e-6f ? "μs" : secs == 1e-9f ? "ηs" : "s")}";
+    //public string TimeAction_Str(uint n, Action a, Unit unit) => $"{TimeAction(n, a, UI_VisualElement.convert(Unit.s, unit)):#,###} {unit.ToLabel()}";
+    public float TimeAction(uint n, Action a, Unit unit) => (0, n).For().Select(i => Secs(a)).Min() * UI_VisualElement.convert(Unit.s, unit);
+    public string TimeAction_Str(uint n, Action a, Unit unit) => $"{TimeAction(n, a, unit):#,##0} {unit.ToLabel()}";
 
     public static void swap<T>(ref T a, ref T b) { T t = a; a = b; b = t; }
 
@@ -4448,7 +4460,7 @@ namespace GpuScript
     public static void SaveWholeScreen(string filename)
     {
 #if UNITY_STANDALONE_WIN
-     Save(CaptureDesktop(), filename);
+      Save(CaptureDesktop(), filename);
 #endif //UNITY_STANDALONE_WIN
     }
 
@@ -4486,7 +4498,7 @@ namespace GpuScript
       byte[] imageBytes = ImageToByteArray(image);
       Texture2D texture = new Texture2D(image.Width, image.Height);
       texture.LoadImage(imageBytes);  // or texture.LoadRawTextureData(imageBytes); if raw data
-      texture.Apply(); 
+      texture.Apply();
       return texture;
     }
 #endif //UNITY_STANDALONE_WIN
@@ -5156,7 +5168,8 @@ namespace GpuScript
     public Sync Start_Sync(IEnumerator routine) => syncs.Add(new Sync(routine));
     //endregion Sync
 
-    public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GS_Android" };
+    //public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GS_Android" };
+    public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GSA_Libs", "GSA_Docs", "GSA_Projects" };
     public T Add_Component_to_gameObject<T>() where T : Component => gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
     public List<string> NewStrList => new();
     public string[] NewStrArray => new string[0];

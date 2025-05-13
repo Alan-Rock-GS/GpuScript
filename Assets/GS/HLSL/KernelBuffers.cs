@@ -302,6 +302,17 @@ namespace GpuScript
         inSetData = false;
       }
     }
+    //public void SetData()
+    //{
+    //  if (computeBuffer != null && GS.useGpGpu && !cpuWrite)
+    //  {
+    //    AllocData();
+    //    while (isThreadReading) { }
+    //    inSetData = true;
+    //    try { computeBuffer.SetData(Data); } catch (Exception e) { GS.print($"SetData() {e.ToString()}"); }
+    //    inSetData = false;
+    //  }
+    //}
     public void SetData(T[] a) { Data = a; N = (uint)a.Length; reallocated = true; SetData(); }
     public void SetData(T[] a, uint i) { AllocData(); a.CopyTo(Data, i * a.Length); SetData(); }
     public void Release() { if (computeBuffer != null && release) { computeBuffer.Release(); computeBuffer.Dispose(); computeBuffer = null; Data = null; } }
