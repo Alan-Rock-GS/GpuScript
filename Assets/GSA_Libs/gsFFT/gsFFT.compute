@@ -1,0 +1,268 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define g gFFT[0]
+  #pragma use_dxc
+  struct GFFT
+  {
+    uint chN, smpN, smpPerSec, level, isFT;
+    uint3 gridN;
+    int transformDirection;
+  };
+  groupshared float2 grp_f2_4[4];
+  groupshared float2 grp_f2_8[8];
+  groupshared float2 grp_f2_16[16];
+  groupshared float2 grp_f2_32[32];
+  groupshared float2 grp_f2_64[64];
+  groupshared float2 grp_f2_128[128];
+  groupshared float2 grp_f2_256[256];
+  groupshared float2 grp_f2_512[512];
+  groupshared float2 grp_f2_1024[1024];
+  groupshared float2 grp_f2_2048[2048];
+  groupshared float2 grp_f2_4096[4096];
+  RWStructuredBuffer<GFFT> gFFT;
+  RWStructuredBuffer<float2> fs;
+  void sample(uint i, float2 v) { fs[i] = v; }
+  float2 sample(uint i) { return fs[i]; }
+  uint sample_index(uint chI, uint smpI) { return smpI * g.chN + chI; }
+  uint sample_index(uint2 ij) { return sample_index(ij.x, ij.y); }
+  float2 sample(uint2 ij) { return sample(sample_index(ij)); }
+  float2 sample(uint chI, uint smpI) { return sample(sample_index(chI, smpI)); }
+  void sample(uint i, float v) { sample(i, float2(v, 0)); }
+  void sample(uint2 ij, float2 v) { sample(sample_index(ij), v); }
+  void sample(uint2 ij, float v) { sample(ij, float2(v, 0)); }
+  void ft_chI_smpI_level(uint chI, uint smpI, uint _level)
+  {
+    uint m = smpI % _level, i = smpI * 2 - m, j = i + _level;
+    float theta = g.transformDirection * PI / _level, f = sin(theta / 2);
+    float2 f2 = float2(-2 * sqr(f), sin(theta)), w = f10;
+    for (uint k = 0; k < m; k++) w += ComplexMultiply(w, f2);
+    uint si = sample_index(chI, i), sj = sample_index(chI, j);
+    w = ComplexMultiply(w, sample(sj)); sample(sj, sample(si) - w); sample(si, sample(si) + w);
+    if (_level == g.smpN / 2 && g.transformDirection == 1) { si = sample_index(chI, smpI); sample(si, sample(si) / g.smpN); smpI += g.smpN / 2; si = sample_index(chI, smpI); sample(si, sample(si) / g.smpN); }
+  }
+  [numthreads(numthreads2, numthreads2, 1)] void ft(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.smpN / 2 && id.x < g.chN) { uint chI = id.x, smpI = id.y; ft_chI_smpI_level(chI, smpI, g.level); } } }
+  void sample(uint chI, uint smpI, float2 v) { sample(sample_index(chI, smpI), v); }
+  void sample(uint chI, uint smpI, float v) { sample(chI, smpI, float2(v, 0)); }
+  [numthreads(numthreads1, 1, 1)] void ft4096(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_4096[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_4096[smpI]; grp_f2_4096[smpI] = grp_f2_4096[smpJ]; grp_f2_4096[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.2045437948e-3f, g.transformDirection * 4.9067674327e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-3.0118130380e-4f, g.transformDirection * 2.4541228523e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.5298160855e-5f, g.transformDirection * 1.2271538286e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.8824717399e-5f, g.transformDirection * 6.1358846492e-3f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.7061904238e-6f, g.transformDirection * 3.0679567630e-3f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); grp_f2_4096[j] = grp_f2_4096[i] - w; grp_f2_4096[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.1765482981e-6f, g.transformDirection * 1.5339801863e-3f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4096[j]); sample(chI, j, (grp_f2_4096[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_4096[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft2048(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_2048[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_2048[smpI]; grp_f2_2048[smpI] = grp_f2_2048[smpJ]; grp_f2_2048[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.2045437948e-3f, g.transformDirection * 4.9067674327e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-3.0118130380e-4f, g.transformDirection * 2.4541228523e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.5298160855e-5f, g.transformDirection * 1.2271538286e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.8824717399e-5f, g.transformDirection * 6.1358846492e-3f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); grp_f2_2048[j] = grp_f2_2048[i] - w; grp_f2_2048[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.7061904238e-6f, g.transformDirection * 3.0679567630e-3f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_2048[j]); sample(chI, j, (grp_f2_2048[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_2048[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft1024(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    grp_f2_1024[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_1024[smpI]; grp_f2_1024[smpI] = grp_f2_1024[smpJ]; grp_f2_1024[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.2045437948e-3f, g.transformDirection * 4.9067674327e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-3.0118130380e-4f, g.transformDirection * 2.4541228523e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.5298160855e-5f, g.transformDirection * 1.2271538286e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); grp_f2_1024[j] = grp_f2_1024[i] - w; grp_f2_1024[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.8824717399e-5f, g.transformDirection * 6.1358846492e-3f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_1024[j]); sample(chI, j, (grp_f2_1024[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_1024[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft512(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_512[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_512[smpI]; grp_f2_512[smpI] = grp_f2_512[smpJ]; grp_f2_512[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.2045437948e-3f, g.transformDirection * 4.9067674327e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-3.0118130380e-4f, g.transformDirection * 2.4541228523e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); grp_f2_512[j] = grp_f2_512[i] - w; grp_f2_512[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.5298160855e-5f, g.transformDirection * 1.2271538286e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_512[j]); sample(chI, j, (grp_f2_512[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_512[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft256(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_256[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_256[smpI]; grp_f2_256[smpI] = grp_f2_256[smpJ]; grp_f2_256[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.2045437948e-3f, g.transformDirection * 4.9067674327e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); grp_f2_256[j] = grp_f2_256[i] - w; grp_f2_256[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-3.0118130380e-4f, g.transformDirection * 2.4541228523e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_256[j]); sample(chI, j, (grp_f2_256[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_256[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft128(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_128[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_128[smpI]; grp_f2_128[smpI] = grp_f2_128[smpJ]; grp_f2_128[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_128[j]); grp_f2_128[j] = grp_f2_128[i] - w; grp_f2_128[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_128[j]); grp_f2_128[j] = grp_f2_128[i] - w; grp_f2_128[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_128[j]); grp_f2_128[j] = grp_f2_128[i] - w; grp_f2_128[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_128[j]); grp_f2_128[j] = grp_f2_128[i] - w; grp_f2_128[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_128[j]); grp_f2_128[j] = grp_f2_128[i] - w; grp_f2_128[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_128[j]); grp_f2_128[j] = grp_f2_128[i] - w; grp_f2_128[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.2045437948e-3f, g.transformDirection * 4.9067674327e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_128[j]); sample(chI, j, (grp_f2_128[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_128[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft64(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_64[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_64[smpI]; grp_f2_64[smpI] = grp_f2_64[smpJ]; grp_f2_64[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_64[j]); grp_f2_64[j] = grp_f2_64[i] - w; grp_f2_64[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_64[j]); grp_f2_64[j] = grp_f2_64[i] - w; grp_f2_64[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_64[j]); grp_f2_64[j] = grp_f2_64[i] - w; grp_f2_64[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_64[j]); grp_f2_64[j] = grp_f2_64[i] - w; grp_f2_64[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_64[j]); grp_f2_64[j] = grp_f2_64[i] - w; grp_f2_64[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-4.8152733278e-3f, g.transformDirection * 9.8017140330e-2f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_64[j]); sample(chI, j, (grp_f2_64[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_64[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft32(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_32[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_32[smpI]; grp_f2_32[smpI] = grp_f2_32[smpJ]; grp_f2_32[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_32[j]); grp_f2_32[j] = grp_f2_32[i] - w; grp_f2_32[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_32[j]); grp_f2_32[j] = grp_f2_32[i] - w; grp_f2_32[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_32[j]); grp_f2_32[j] = grp_f2_32[i] - w; grp_f2_32[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_32[j]); grp_f2_32[j] = grp_f2_32[i] - w; grp_f2_32[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1.9214719597e-2f, g.transformDirection * 1.9509032202e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_32[j]); sample(chI, j, (grp_f2_32[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_32[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft16(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_16[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_16[smpI]; grp_f2_16[smpI] = grp_f2_16[smpJ]; grp_f2_16[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_16[j]); grp_f2_16[j] = grp_f2_16[i] - w; grp_f2_16[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_16[j]); grp_f2_16[j] = grp_f2_16[i] - w; grp_f2_16[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_16[j]); grp_f2_16[j] = grp_f2_16[i] - w; grp_f2_16[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-7.6120467489e-2f, g.transformDirection * 3.8268343237e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_16[j]); sample(chI, j, (grp_f2_16[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_16[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft8(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_8[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_8[smpI]; grp_f2_8[smpI] = grp_f2_8[smpJ]; grp_f2_8[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_8[j]); grp_f2_8[j] = grp_f2_8[i] - w; grp_f2_8[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_8[j]); grp_f2_8[j] = grp_f2_8[i] - w; grp_f2_8[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-2.9289321881e-1f, g.transformDirection * 7.0710678119e-1f); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_8[j]); sample(chI, j, (grp_f2_8[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_8[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft4(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint N = g.smpN, N2 = N >> 1, chI = id.x / N, smpI = id.x % N, smpI2 = smpI << 1, smpJ = reversebits(smpI) >> (32 - findMSB(N)), L = 1, m, i, j, k;
+    float2 f, w; bool chI_chN = chI < g.chN, ok = chI_chN && smpI < N2;
+    if (chI_chN) grp_f2_4[smpI] = sample(chI, smpI);
+    GroupMemoryBarrierWithGroupSync(); if (chI_chN && smpI < smpJ) { float2 t = grp_f2_4[smpI]; grp_f2_4[smpI] = grp_f2_4[smpJ]; grp_f2_4[smpJ] = t; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { i = smpI2; j = i + 1; w = ComplexMultiply(f10, grp_f2_4[j]); grp_f2_4[j] = grp_f2_4[i] - w; grp_f2_4[i] += w; }
+    GroupMemoryBarrierWithGroupSync(); if (ok) { L <<= 1; m = smpI % L; i = smpI2 - m; j = i + L; f = float2(-1, g.transformDirection); w = f10; for (k = 0; k < m; k++) w += ComplexMultiply(w, f); w = ComplexMultiply(w, grp_f2_4[j]); sample(chI, j, (grp_f2_4[i] - w) * (g.transformDirection == 1 ? rcp(N) : 1)); sample(chI, i, (grp_f2_4[i] + w) * (g.transformDirection == 1 ? rcp(N) : 1)); }
+  }
+  void swap_ij(uint i, uint j) { float2 t = sample(i); sample(i, sample(j)); sample(j, t); }
+  void swap_ij(uint2 ij) { swap_ij(sample_index(ij), sample_index(ij.yx)); }
+  void swap_ij_gridI_ij(uint3 gridI, uint2 ij) { uint i = id_to_i(gridI, g.gridN); swap_ij(i + sample_index(ij), i + sample_index(ij.yx)); }
+  void swap_chI_smpI_smpJ(uint chI, uint smpI, uint smpJ) { swap_ij(sample_index(chI, smpI), sample_index(chI, smpJ)); }
+  void swap_chI_smpI(uint chI, uint smpI) { uint smpJ = reversebits(smpI) >> (32 - findMSB(g.smpN)); if (smpI < smpJ) swap_chI_smpI_smpJ(chI, smpI, smpJ); }
+  [numthreads(numthreads2, numthreads2, 1)] void ft_swap(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.smpN && id.x < g.chN) { uint chI = id.x, smpI = id.y; swap_chI_smpI(chI, smpI); } } }
+  void ft_chI(uint chI)
+  {
+    uint no2 = g.smpN / 2;
+    for (uint smpI = 0; smpI < no2; smpI++) swap_chI_smpI(chI, smpI);
+    for (uint _level = 1; _level < g.smpN; _level <<= 1) for (uint smpI = 0; smpI < no2; smpI++) ft_chI_smpI_level(chI, smpI, _level);
+  }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void ft_ch_3D(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (all(id < g.gridN))
+    {
+      uint n = g.smpN * (g.smpN - 1) / 2;
+      for (uint chJ = 0; chJ < g.chN; chJ++) for (uint chI = 0; chI < g.chN; chI++) ft_chI(chI + chJ * g.chN);
+      for (uint chI = 0; chI < g.chN; chI++) for (uint i = 0, j = chI * g.chN; i < n; i++) swap_ij(u10 * j + upperTriangularIndex(i, g.chN));
+      for (uint chJ = 0; chJ < g.chN; chJ++) for (uint chI = 0; chI < g.chN; chI++) ft_chI(chI + chJ * g.chN);
+      for (uint chI = 0; chI < g.chN; chI++) for (uint i = 0, j = chI * g.chN; i < n; i++) swap_ij(u10 * j + upperTriangularIndex(i, g.chN));
+      for (uint chJ = 0; chJ < g.chN; chJ++) for (uint chI = 0; chI < g.chN; chI++) ft_chI(chI + chJ * g.chN);
+      for (uint chI = 0; chI < g.chN; chI++) for (uint i = 0, j = chI * g.chN; i < n; i++) swap_ij(u10 * j + upperTriangularIndex(i, g.chN));
+    }
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void ft_ch(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.chN) { ft_chI(id.x); } } }
+  void ft_gridI_chI(uint3 gridI, uint chI)
+  {
+    uint i = id_to_i(gridI, g.gridN), no2 = g.smpN / 2;
+    chI += i / g.chN;
+    for (uint smpI = 0; smpI < no2; smpI++) swap_chI_smpI(chI, smpI);
+    for (uint _level = 1; _level < g.smpN; _level <<= 1) for (uint smpI = 0; smpI < no2; smpI++) ft_chI_smpI_level(chI, smpI, _level);
+  }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void ft_ch_2D(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (all(id < g.gridN))
+    {
+      uint3 gridI = id;
+      uint n = g.chN * (g.chN - 1) / 2;
+      for (uint chI = 0; chI < g.chN; chI++) ft_gridI_chI(gridI, chI); for (uint i = 0; i < n; i++) swap_ij_gridI_ij(gridI, upperTriangularIndex(i, g.chN));
+      for (uint chI = 0; chI < g.chN; chI++) ft_gridI_chI(gridI, chI); for (uint i = 0; i < n; i++) swap_ij_gridI_ij(gridI, upperTriangularIndex(i, g.chN));
+    }
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void Rcp(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.chN * g.smpN) { uint i = id.x; sample(i, ComplexRecriprocal(sample(i))); } } }
+  #pragma kernel Rcp
+  #pragma kernel ft_ch_3D
+  #pragma kernel ft_ch_2D
+  #pragma kernel ft_ch
+  #pragma kernel ft
+  #pragma kernel ft_swap
+  #pragma kernel ft4096
+  #pragma kernel ft2048
+  #pragma kernel ft1024
+  #pragma kernel ft512
+  #pragma kernel ft256
+  #pragma kernel ft128
+  #pragma kernel ft64
+  #pragma kernel ft32
+  #pragma kernel ft16
+  #pragma kernel ft8
+  #pragma kernel ft4

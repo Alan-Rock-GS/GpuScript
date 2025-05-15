@@ -42,7 +42,6 @@ Shader "gs/gsSort"
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -82,7 +81,6 @@ Shader "gs/gsSort"
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -111,10 +109,6 @@ Shader "gs/gsSort"
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
-  float4 frag_Rand_GS(v2f i, float4 color)
-  {
-    return color;
-  }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.node_size > 1, g.vsN, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
@@ -157,6 +151,8 @@ Shader "gs/gsSort"
     return color;
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
+  v2f vert_BDraw_index(uint i, v2f o) { o.ti.x = i; return o; }
+  v2f vert_BDraw_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint BDraw_SignalSmpN(uint chI) { return 1024; }
   float BDraw_SignalThickness(uint chI, uint smpI) { return 0.004f; }
@@ -199,17 +195,19 @@ Shader "gs/gsSort"
     }
     return color;
   }
-  float4 frag_GS(v2f i, float4 color)
-  {
-    uint libI = roundu(i.tj.x);
-    if (libI == 0) return frag_BDraw_GS(i, color);
-    if (libI == 1) return frag_Rand_GS(i, color);
-    return color;
-  }
+  float4 frag_GS(v2f i, float4 color) { return frag_BDraw_GS(i, color); }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
-  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
+  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o)
+  {
+    float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j);
+    o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p;
+    o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color;
+    o.ti = float4(i, 0, BDraw_Draw_Sphere, 0);
+    o = vert_BDraw_index(i, vert_BDraw_drawType(BDraw_Draw_Sphere, o));
+    return o;
+  }
   v2f vert_vs0(uint i, uint j, v2f o) { return vert_BDraw_Sphere(get_p0(i), get_r(), palette(vs[i]), i, j, o); }
   v2f vert_vs1(uint i, uint j, v2f o) { return vert_BDraw_Sphere(get_p1(i), get_r(), palette(vs[i]), i, j, o); }
   float2 BDraw_LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }

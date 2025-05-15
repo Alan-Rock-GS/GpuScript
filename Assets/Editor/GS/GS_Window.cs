@@ -75,7 +75,12 @@ public class GS_Window : EditorWindow
 
   [SerializeField] VisualTreeAsset visualTreeAsset;
 
-  [MenuItem("Window/GpuScript")] public static void ShowWindow() { var w = GetWindow<GS_Window>("GpuScript"); w.minSize = new Vector2(200, 50); }
+  [MenuItem("Window/GpuScript")]
+  public static void ShowWindow()
+  {
+    var w = GetWindow<GS_Window>("GpuScript");
+    w.minSize = new Vector2(200, 50);
+  }
 
   [SerializeField] string gsClass_name_val, Lib_info_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val, company_val, password_val;
   [SerializeField] bool gsClass_Run_Val, exe_Parent_val, exe_Build_val, exe_Debug_val, exe_Run_val;
@@ -136,6 +141,11 @@ public class GS_Window : EditorWindow
     CodeCount_clicked(null);
     info_platform.index = isAndroid ? 1 : 0;
     SwitchPlatform();
+
+    //gsClass_name_val = gsClass_name.value = "gs" + newScene.name;
+    //print($"CreateGUI(), scene = {SceneName}, gsClass_name = {gsClass_name.value}");
+    if($"gs{SceneName}".DoesNotEqual(gsClass_name.value)) 
+      gsClass_name_val = gsClass_name.value = $"gs{SceneName}";
   }
 
   bool ignoreTextFieldChange = false;
@@ -1182,21 +1192,34 @@ public class GS_Window : EditorWindow
 "\n    return vert_GS(i, j, o);",
 "\n  }");
 
+      //libI = 0;
+      //foreach (var lib_fld in lib_flds)
+      //  if (lib_fld.isInternal_Lib())
+      //  {
+      //    string path = $"{AssetsPath}GS_Libs/{lib_fld.FieldType}/Lib/";
+      //    if (path.Exists()) s_frag.Add($"\n    if (libI == {libI}) return frag_{lib_fld.Name}_GS(i, color);");
+      //    libI++;
+      //  }
+
+      s_frag.Set("color;");
       libI = 0;
       foreach (var lib_fld in lib_flds)
         if (lib_fld.isInternal_Lib())
         {
-          string path = $"{AssetsPath}GS_Libs/{lib_fld.FieldType}/Lib/";
-          if (path.Exists()) s_frag.Add($"\n    if (libI == {libI}) return frag_{lib_fld.Name}_GS(i, color);");
-          libI++;
+          if (lib_fld.Name == "VGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+          else if (lib_fld.Name == "BDraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
         }
 
+
+
       fragCode.Add(
-"\n  public virtual float4 frag_GS(v2f i, float4 color)",
-"\n  {",
-"\n    uint libI = roundu(i.tj.x);", s_frag,
-"\n    return color;",
-"\n  }",
+//"\n  public virtual float4 frag_GS(v2f i, float4 color)",
+//"\n  {",
+//"\n    uint libI = roundu(i.tj.x);", s_frag,
+//"\n    return color;",
+//"\n  }",
+"\n  public virtual float4 frag_GS(v2f i, float4 color) => ", s_frag,
+
 "\n  public virtual float4 frag(v2f i)",
 "\n  {",
 "\n    float4 color = i.color;",
@@ -1859,8 +1882,8 @@ $"\n    {m_name}_To_UI();",
       "\n  }", s_Update0, s_Update1,
       "\n  public override void OnValueChanged()",
       "\n  {",
-      "\n    if (!ui_loaded) return;", onValueChanged,
-      "\n    OnValueChanged_GS();",
+      "\n    if (!ui_loaded) return;",
+      "\n    OnValueChanged_GS();", onValueChanged,
       "\n  }", s_onValueChanged, Scenes_in_Build,
       "", showIfs, dataWrappers, uiWrappers, tData, initBuffers, base_groupshared, declare_classes, classArrays,
       compute_or_material_shader, kernels_,
@@ -2142,11 +2165,8 @@ $"\n    {m_name}_To_UI();",
     }
     public IEnumerator Build_Coroutine()
     {
-      print($"{new { SceneName }}");
+      //print($"{new { SceneName }}");
       if (SceneName.IsEmpty()) yield break;
-
-      gameObject = FindOrCreate_GameObject(gsName);
-
       StrBldr compileTimeStr = StrBldr();
       ClockSec();
       compileTimeStr.Add("Build Times");
@@ -2216,13 +2236,18 @@ $"\n    {m_name}_To_UI();",
             if (gs_script == null)
             {
               try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
-              if (gs_script != null)
+              if (gs_script == null)
               {
-                string f = $"{AssemblyPath(scriptName)}{scriptName}";
-                gs_script.material = $"{f}.mat".LoadAssetAtPath<Material>();
-                gs_script.computeShader = $"{f}.compute".LoadAssetAtPath<ComputeShader>();
+                try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GSA_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
+                if (gs_script != null)
+                {
+                  string f = $"{AssemblyPath(scriptName)}{scriptName}";
+                  gs_script.material = $"{f}.mat".LoadAssetAtPath<Material>();
+                  gs_script.computeShader = $"{f}.compute".LoadAssetAtPath<ComputeShader>();
+                }
+                added_scripts = true;
               }
-              added_scripts = true;
+              else if (!gs_script.enabled) gs_script.enabled = true;
             }
             else if (!gs_script.enabled) gs_script.enabled = true;
           }
@@ -2330,6 +2355,9 @@ $"\n    {m_name}_To_UI();",
         m.code = AddG(m.code);
         vert_frag_sb.Add("\n  ", m.return_type, " ", m.name, "(", m.args, ")", m.name == "frag" ? " : SV_Target" : "", m.code);
       }
+      if (vert_frag_sb.IsEmpty())
+        vert_frag_sb.Add("\n  v2f vert_GS(uint i, uint j, v2f o) { return o; }",
+          "\n  float4 frag(v2f i) : SV_Target { return i.color; }");
       StrBldr vert_frag_Code = StrBldr(
     "\n  struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };",
     vert_frag_sb,
@@ -2433,11 +2461,12 @@ $"\n    {m_name}_To_UI();",
       if (AssignConsts.IsNotEmpty() && AssignConsts.ToString().DoesNotEndWith(";")) AssignConsts.Add(";");
     }
 
-#if UNITY_STANDALONE_WIN
+    //#if UNITY_STANDALONE_WIN
+    //    [HideInInspector] public bool SM6 = true;
+    //#else
+    //		[HideInInspector] public bool SM6 = true;
+    //#endif //UNITY_STANDALONE_WIN
     [HideInInspector] public bool SM6 = true;
-#else
-		[HideInInspector] public bool SM6 = false;
-#endif //UNITY_STANDALONE_WIN
 
     StrBldr shaderCode;
 
@@ -2466,14 +2495,7 @@ $"\n    {m_name}_To_UI();",
       string[] cs_includes = cs_Text.Before("public").Split("\n").Select(a => a.Trim()).Where(a => a.IsNotEmpty()).Distinct().ToArray();
       matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override))\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|\[Serializable\]|#region|#endregion|\r\n}|\n})";
       MatchCollection cs_method_matches = cs_Code.RegexMatch(matchStr), _cs_method_matches = _cs_Code.RegexMatch(matchStr);
-      //if (_GS_Code.Contains("\r\n")) _GS_Code = _GS_Code.BeforeLast("\r\n"); else _GS_Code = _GS_Code.BeforeLast("\n");
-      //if (_GS_Code.Contains("\n")) _GS_Code = _GS_Code.BeforeLast("\n");
-
-      //MatchCollection lib_matches = _GS_Code.RegexMatch(@$"  gs(.*) (.*);(((?s).*?)\#region \<(\w+)\>(?s).*?\#endregion \<(\w+)\>)?");
       MatchCollection lib_matches = _GS_Code.RegexMatch(@$"(.*) gs(.*) (.*);(((?s).*?)\#region \<(\w+)\>(?s).*?\#endregion \<(\w+)\>)?");
-
-
-      //_GS_Code = _GS_Code.RegexReplace(@$"  #region(.*)\n", "", @$"  #endregion(.*)\n", "", @$"  gs(.*)\n", "");
       _GS_Code = _GS_Code.RegexReplace(@$"  #region(.*)\n", "", @$"  #endregion(.*)\n", "", @$"(.*) gs(.*)\n", "");
       _GS_Type = $"{gsName}_GS".ToType();
       var _GS_Members = _GS_Type?.GetMembers(_GS_bindings);
@@ -2498,11 +2520,6 @@ $"\n    {m_name}_To_UI();",
       foreach (Match match in cs_method_matches) methods.Add(new method_data(Name, match));
       foreach (Match match in _cs_method_matches) _methods.Add(new method_data(Name, match));
 
-      //var vMeths = _methods.Where(_m => _m.name.DoesNotStartWithAny("Cpu_", "Gpu_", "onRenderObject_", "vert_", "frag_", "base_")
-      //  && _m.inheritance.IsNotEmpty() && _m.return_type == "void" && _m.inheritance.IsNotEmpty()
-      //  && _m.name.IsNotAny("Awake", "Start", "LateUpdate", "Update", "OnValueChanged", "InitBuffers", " OnApplicationQuit",
-      //    "ui_to_data", "data_to_ui", "Load_UI", "Save_UI", "onRenderObject")
-      //  && _m.code.Between("{", "}").Trim().IsNotEmpty() && methods.FirstOrDefault(m => m.name == _m.name && m.argN == _m.argN) == null).ToArray();
       var vMeths = _methods.Where(_m => _m.name.DoesNotStartWithAny("Cpu_", "Gpu_", "onRenderObject_", "vert_", "frag_", "base_")
         && _m.inheritance.IsNotEmpty()
         && _m.name.IsNotAny("Awake", "Start", "LateUpdate", "Update", "OnValueChanged", "InitBuffers", " OnApplicationQuit",
@@ -2963,9 +2980,7 @@ $"\n    {m_name}_To_UI();",
         {
           foreach (var dir in f.GetDirectories())
           {
-            //if (dir.DoesNotContainAny("~", "/GS_Libs/gsRand", "/GS_Libs/gsBDraw", "/GS_Libs/gsAppendBuff", "Android"))
-            //if (dir.DoesNotContainAny("~", "Android"))
-            if (dir.DoesNotContainAny("~", "GSA_"))
+            if (dir.DoesNotContainAny("~", "/GSA_"))
             {
               $"{dir}/".Rename($"{dir}~/");
               $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
@@ -3289,7 +3304,7 @@ $"\n    {m_name}_To_UI();",
     PlayerSettings.Android.keystorePass = PlayerSettings.Android.keyaliasPass = password.text;
     string appName = appPath.BeforeLast("/").AfterLast("/");
     PlayerSettings.productName = $"{appName} {exe_Version.text}";
-    
+
     string scenePath = SceneManager.GetActiveScene().path;
     string assemblyName = scenePath.Between("Assets/", "/");
 
@@ -3355,7 +3370,7 @@ $"\n    {m_name}_To_UI();",
     buildPlayerOptions.target = BuildTarget.Android;
     buildPlayerOptions.options = BuildOptions.AutoRunPlayer;
 
-    string icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
+    //string icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
 
     //PlatformIcon[] icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive);
     //var texture = icon.LoadImage();

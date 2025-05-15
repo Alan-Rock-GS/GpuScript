@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{A0C6C78B-59E2-B29F-C0E9-F3C5D05A04B5}</ProjectGuid>
+    <ProjectGuid>{0FEAFB1C-E0EF-958E-27E7-5A0D14E5B718}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Projects_Assembly</AssemblyName>
@@ -66,17 +66,13 @@
     <Compile Include="Assets\GS_Projects\gsSort\gsSort_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsFR_Smart\gsFR_Smart_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses_.cs" />
-    <Compile Include="Assets\GS_Projects\gsRain\gsRain.cs" />
     <Compile Include="Assets\GS_Projects\gsVGrid_CT\gsVGrid_CT_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsTolo\gsTolo.cs" />
     <Compile Include="Assets\GS_Projects\gsSwarm\gsSwarm_.cs" />
     <Compile Include="Assets\GS_Projects\gsRayTrace\gsRayTrace.cs" />
     <Compile Include="Assets\GS_Projects\gsQuandl\gsQuandl_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup.cs" />
-    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsVGrid_CT\gsVGrid_CT.cs" />
-    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal_.cs" />
-    <Compile Include="Assets\GS_Projects\gsRain\gsRain_.cs" />
     <Compile Include="Assets\GS_Projects\gsGDM\gsGDM_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsRayTrace\gsRayTrace_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsSort\gsSort_.cs" />
@@ -84,10 +80,8 @@
     <Compile Include="Assets\GS_Projects\gsQuandl\gsQuandl.cs" />
     <Compile Include="Assets\GS_Projects\gsQuantrade\gsQuantrade_.cs" />
     <Compile Include="Assets\GS_Projects\gsGDM\gsGDM_.cs" />
-    <Compile Include="Assets\GS_Projects\gsFractal\gsFractal.cs" />
     <Compile Include="Assets\GS_Projects\gsTolo\gsTolo_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_GS.cs" />
-    <Compile Include="Assets\GS_Projects\gsRain\gsRain_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsDirectedGraph\gsDirectedGraph_GS.cs" />
     <Compile Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses.cs" />
     <Compile Include="Assets\GS_Projects\gsRayTrace\gsRayTrace_.cs" />
@@ -110,17 +104,13 @@
     <None Include="Assets\GS_Projects\gsQuandl\gsQuandl.compute" />
     <None Include="Assets\GS_Projects\gsVGrid_CT\gsVGrid_CT_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsFR_Smart\gsFR_Smart_GS before interlock.cs.txt" />
-    <None Include="Assets\GS_Projects\gsRain\gsRain_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsSort\gsSort.compute" />
     <None Include="Assets\GS_Projects\gsFR_Smart\gsFR_Smart.compute" />
     <None Include="Assets\GS_Projects\gsGDM\gsGDM_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsDirectedGraph\gsDirectedGraph_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsRayTrace\gsRayTrace_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsVGrid_CT\gsVGrid_CT.compute" />
-    <None Include="Assets\GS_Projects\gsFractal\gsFractal.shader" />
-    <None Include="Assets\GS_Projects\gsRain\gsRain.compute" />
     <None Include="Assets\GS_Projects\gsFR_Smart\gsFR_Smart before interlock.cs.txt" />
-    <None Include="Assets\GS_Projects\gsRain\gsRain.shader" />
     <None Include="Assets\GS_Projects\GS_Projects_Assembly.asmdef" />
     <None Include="Assets\GS_Projects\gsDirectedGraph\gsDirectedGraph.shader" />
     <None Include="Assets\GS_Projects\gsSwarm\gsSwarm.compute" />
@@ -137,10 +127,8 @@
     <None Include="Assets\GS_Projects\gsTolo\gsTolo.compute" />
     <None Include="Assets\GS_Projects\gsVGrid_CT\gsVGrid_CT.shader" />
     <None Include="Assets\GS_Projects\gsClientLicenses\gsClientLicenses_UXML.uxml" />
-    <None Include="Assets\GS_Projects\gsFractal\gsFractal_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsSort\gsSort_UXML.uxml" />
     <None Include="Assets\GS_Projects\gsTolo\gsTolo.shader" />
-    <None Include="Assets\GS_Projects\gsFractal\gsFractal.compute" />
     <None Include="Assets\GS_Projects\gsGDM\gsGDM.compute" />
     <None Include="Assets\GS_Projects\gsSwarm\gsSwarm.shader" />
     <None Include="Assets\GS_Projects\gsCodeBackup\gsCodeBackup_UXML.uxml" />
@@ -1233,12 +1221,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="GS_Assembly.csproj">
-      <Project>{0DA1B493-7738-F8F7-9585-19E5418496E3}</Project>
+      <Project>{173397DD-25B3-F707-36C6-1678BB67676C}</Project>
       <Name>GS_Assembly</Name>
     </ProjectReference>
     <ProjectReference Include="GS_Libs_Assembly.csproj">
-      <Project>{9AF67EA9-3284-8B3E-0C28-72E8B7EDEA80}</Project>
+      <Project>{1CB58885-9521-7475-BFDB-6AB6470D5033}</Project>
       <Name>GS_Libs_Assembly</Name>
+    </ProjectReference>
+    <ProjectReference Include="GSA_Libs_Assembly.csproj">
+      <Project>{6821BB7B-00CD-E5B8-B642-2266C58BC912}</Project>
+      <Name>GSA_Libs_Assembly</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

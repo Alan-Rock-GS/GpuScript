@@ -4129,7 +4129,8 @@ namespace GpuScript
     [HideInInspector] public float touch2Dist0 = 0, maxTouch2Dist = 210;
     [HideInInspector] public float2 mousePosition0;
     [HideInInspector] public bool leftButton, rightButton, middleButton;
-    [HideInInspector] public bool MouseLeftButton; bool _MouseLeftButton { get => MouseLeftButton = isTouch ? touchN == 1 : Input.GetMouseButton(0); }
+    //[HideInInspector] public bool MouseLeftButton; bool _MouseLeftButton { get => MouseLeftButton = isTouch ? touchN == 1 : Input.GetMouseButton(0); }
+    [HideInInspector] public bool MouseLeftButton; bool _MouseLeftButton { get => MouseLeftButton = isTouch ? touchN == 3 : Input.GetMouseButton(0); }
     [HideInInspector] public bool MouseRightButton; bool _MouseRightButton { get => MouseRightButton = isTouch ? touchN == 3 : Input.GetMouseButton(1); }
     [HideInInspector] public bool MouseMiddleButton; bool _MouseMiddleButton { get => MouseMiddleButton = isTouch ? touchN == 4 : Input.GetMouseButton(2); }
     [HideInInspector] public bool MouseLeftButtonDown; bool _MouseLeftButtonDown { get => MouseLeftButtonDown = touchN == 1 && !leftButton ? leftButton = true : Input.GetMouseButtonDown(0); }

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 0
+    path: Assets/GSA_Docs/gsCompute/Compute.unity
+    guid: 0e0e4f789412a6241a0dcfc8429f5f11
+  - enabled: 0
+    path: Assets/GSA_Projects/gsGps/Gps.unity
+    guid: f9dd02f590643e240bb0f550446b9bfe
+  - enabled: 0
+    path: Assets/GS_Android/gsUITest/UITest.unity
+    guid: a8fa87688c6eca9418c7be9d98407acf
+  m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

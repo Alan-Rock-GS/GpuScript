@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{22B1E146-CD15-3693-DDFD-6359DF2AE28D}</ProjectGuid>
+    <ProjectGuid>{7C5F3D7F-8CF2-7279-6643-F134BB2BA6DB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Tutorials_Assembly</AssemblyName>
@@ -1222,12 +1222,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="GS_Assembly.csproj">
-      <Project>{0DA1B493-7738-F8F7-9585-19E5418496E3}</Project>
+      <Project>{173397DD-25B3-F707-36C6-1678BB67676C}</Project>
       <Name>GS_Assembly</Name>
     </ProjectReference>
     <ProjectReference Include="GS_Libs_Assembly.csproj">
-      <Project>{9AF67EA9-3284-8B3E-0C28-72E8B7EDEA80}</Project>
+      <Project>{1CB58885-9521-7475-BFDB-6AB6470D5033}</Project>
       <Name>GS_Libs_Assembly</Name>
+    </ProjectReference>
+    <ProjectReference Include="GSA_Libs_Assembly.csproj">
+      <Project>{6821BB7B-00CD-E5B8-B642-2266C58BC912}</Project>
+      <Name>GSA_Libs_Assembly</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

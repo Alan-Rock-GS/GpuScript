@@ -40,7 +40,6 @@ Shader "gs/gsFloat_Tutorial"
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -78,7 +77,6 @@ Shader "gs/gsFloat_Tutorial"
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -143,22 +141,31 @@ Shader "gs/gsFloat_Tutorial"
     return color;
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
+  v2f vert_BDraw_index(uint i, v2f o) { o.ti.x = i; return o; }
+  v2f vert_BDraw_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint BDraw_SignalSmpN(uint chI) { return 1024; }
-  float BDraw_SignalThickness(uint chI) { return 0.004f; }
+  float BDraw_SignalThickness(uint chI, uint smpI) { return 0.004f; }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }
-  float4 BDraw_SignalColor(uint chI) { return YELLOW; }
-  float4 BDraw_SignalBackColor(uint chI) { return float4(1, 1, 1, 0.2f); }
+  float4 BDraw_SignalColor(uint chI, uint smpI) { return YELLOW; }
+  float BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
+  float4 BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
+  float4 BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
   float4 frag_BDraw_Signal(v2f i)
   {
-    uint chI = roundu(i.ti.x);
-    uint SmpN = BDraw_SignalSmpN(chI);
+    uint chI = roundu(i.ti.x), SmpN = BDraw_SignalSmpN(chI);
     float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
-    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI) * SmpN, d = float_PositiveInfinity;
+    float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = BDraw_SignalThickness(chI, (uint)smpI) * SmpN, d = float_PositiveInfinity;
     uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
     float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * BDraw_SignalSmpV(chI, SmpI0)), q1;
     for (uint sI = SmpI0; sI < SmpI1; sI++) { q1 = float2(sI + 1, (h - thick) * BDraw_SignalSmpV(chI, sI + 1)); d = min(d, LineSegDist(q0, q1, p0)); q0 = q1; }
-    return d < thick ? float4(BDraw_SignalColor(chI).xyz * (1 - d / thick), 1) : BDraw_SignalBackColor(chI);
+    float4 c = BDraw_SignalColor(chI, SmpI);
+    float v = 0.9f * lerp(BDraw_SignalSmpV(chI, SmpI), BDraw_SignalSmpV(chI, SmpI + 1), frac(smpI)), crest = BDraw_SignalFillCrest(chI, SmpI);
+    float4 marker = BDraw_SignalMarker(chI, smpI);
+    if (marker.w > 0) return marker;
+    if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
+    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    return BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_BDraw_GS(v2f i, float4 color)
   {
@@ -168,31 +175,30 @@ Shader "gs/gsFloat_Tutorial"
       case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
       case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
       case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
+      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
       case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
       case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
       case BDraw_Draw_Text3D:
         BDraw_TextInfo t = BDraw_textInfo(roundu(i.ti.x));
         color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
         break;
-      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
     }
     return color;
   }
-  float4 frag_GS(v2f i, float4 color)
-  {
-    uint libI = roundu(i.tj.x);
-    if (libI == 0) return frag_BDraw_GS(i, color);
-    return color;
-  }
+  float4 frag_GS(v2f i, float4 color) { return frag_BDraw_GS(i, color); }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
-  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
-  v2f vert_Spheres(uint i, uint j, v2f o)
+  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o)
   {
-    float r = g.sphereRadius;
-    return vert_BDraw_Sphere(i * r * 2 * f010, r, palette(i / (max(g.sphereN, 2) - 1.0f)), i, j, o);
+    float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j);
+    o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p;
+    o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color;
+    o.ti = float4(i, 0, BDraw_Draw_Sphere, 0);
+    o = vert_BDraw_index(i, vert_BDraw_drawType(BDraw_Draw_Sphere, o));
+    return o;
   }
+  v2f vert_Spheres(uint i, uint j, v2f o) { return vert_BDraw_Sphere(i * g.sphereRadius * 2 * f010, g.sphereRadius, palette(i / (max(g.sphereN, 2) - 1.0f)), i, j, o); }
   float2 BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, BDraw_Draw_Line, r); return o; }

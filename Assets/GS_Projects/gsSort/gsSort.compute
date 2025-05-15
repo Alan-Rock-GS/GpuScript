@@ -31,7 +31,6 @@
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -112,21 +111,6 @@
     }
     if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_Get_Existing_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
-  {
-    uint i = id.x;
-    if (i < g.BDraw_AppendBuff_BitN)
-    {
-      uint s, j, k, bits = BDraw_AppendBuff_Bits[i], c = countbits(bits);
-      BDraw_AppendBuff_grp0[grpI] = c; BDraw_AppendBuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
-      for (s = 1; s < numthreads1; s *= 2)
-      {
-        if (grpI >= s && i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_grp[grpI] = BDraw_AppendBuff_grp0[grpI] + BDraw_AppendBuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
-        BDraw_AppendBuff_grp0[grpI] = BDraw_AppendBuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
-      }
-      if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
-    }
-  }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
@@ -186,7 +170,6 @@
     }
     if (i < g.BDraw_AppendBuff_BitN) BDraw_AppendBuff_Sums[i] = BDraw_AppendBuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_Get_Existing_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_AppendBuff_BitN) { uint i = id.x, j, k, bits = BDraw_AppendBuff_Bits[i]; if (i < g.BDraw_AppendBuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_AppendBuff_Assign_Bits(k + j, j, bits); BDraw_AppendBuff_Bits[i] = bits; } } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_AppendBuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_AppendBuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BDraw_AppendBuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_AppendBuff_Assign_Bits(k + j, j, bits); BDraw_AppendBuff_Bits[i] = bits; } } } }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
@@ -199,17 +182,7 @@
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads3, numthreads3, numthreads3)] void add_counts(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.z < g.arrayLength && id.y < g.arrayLength && id.x < g.numberOfArrays)
-    {
-      uint i = id.x * g.arrayLength, i0 = i + id.y, i1 = i + id.z;
-      if (vs[i0] > vs[i1]) InterlockedAdd(counts, i0, 1);
-    }
-    }
-  }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void add_counts(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.arrayLength && id.y < g.arrayLength && id.x < g.numberOfArrays) { uint i = id.x * g.arrayLength, i0 = i + id.y, i1 = i + id.z; if (vs[i0] > vs[i1]) InterlockedAdd(counts, i0, 1); } } }
   #pragma kernel set_sorts
   #pragma kernel add_counts
   #pragma kernel add_counts_triangle
@@ -223,9 +196,7 @@
   #pragma kernel BDraw_AppendBuff_GetFills2
   #pragma kernel BDraw_AppendBuff_GetFills1
   #pragma kernel BDraw_AppendBuff_Get_Bits_Sums
-  #pragma kernel BDraw_AppendBuff_Get_Existing_Sums
   #pragma kernel BDraw_AppendBuff_GetSums
-  #pragma kernel BDraw_AppendBuff_Get_Existing_Bits
   #pragma kernel BDraw_AppendBuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo

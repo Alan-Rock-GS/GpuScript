@@ -1,0 +1,48 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define ConnectStatus_Undefined	0
+  #define ConnectStatus_Ok	1
+  #define ConnectStatus_Licenses_Full	2
+  #define ConnectStatus_Invalid_Password	3
+  #define ConnectStatus_Expired_Date	4
+  #define ConnectStatus_Disconnected	5
+  #define ConnectStatus_Server_Down	6
+  #define ConnectStatus_Attempting	7
+  #define HostIP_Name_SummitPeak	0
+  #define HostIP_Name_Local	1
+  #define HostIP_Name_Custom	2
+  #define MapType_Plane	0
+  #define MapType_Sphere	1
+  #define MapImage_Countries	0
+  #define MapImage_Day	1
+  #define MapImage_Night	2
+  #define Draw_Point	0
+  #define Draw_Sphere	1
+  #define Draw_Line	2
+  #define Draw_Arrow	3
+  #define Draw_Signal	4
+  #define Draw_LineSegment	5
+  #define Draw_Texture_2D	6
+  #define Draw_SphereTexture	7
+  #define Draw_Quad	8
+  #define Draw_WebCam	9
+  #define Draw_Mesh	10
+  #define Draw_Number	11
+  #define Draw_N	12
+  #define g gTCloud[0]
+  #pragma use_dxc
+  struct GTCloud
+  {
+    uint connectStatus, hostIP_Name, clientId, Is_Host, open_client_accounts, open_online_clients, open_client_logs, notepad, excel, visual_studio, Is_MultiUser, is_OCam_MultiUser, are_TreeGroups_MultiUser, showMap, mapType, mapImage, showInactiveClients, useLatLon, activeClientN, inactiveClientN, lineSegmentN, EarthSphereSegments;
+    int App_Port;
+    float clientPointSize, connectionSize, Latitude, Longitude, min_Lat, max_Lat, dLon, mapScale;
+    uint2 earthColorsSize;
+  };
+  struct client_info { uint client_clientId; string client_Username, client_Email, client_License, client_ExpireDate, client_App, client_App_Version, client_Project, client_startTime, client_duration, client_inactive_time; float client_latency; string client_device; float client_cpu_memory, client_gpu_memory; string client_lat_long; };
+  struct account_info { string account_Username, account_Email, account_App, account_Key; uint account_LicenseN; string account_ExpireDate; };
+  RWStructuredBuffer<GTCloud> gTCloud;
+  RWStructuredBuffer<float3> clientPoints;
+  RWStructuredBuffer<float4> lineSegments;
+  RWStructuredBuffer<Color32> earthColors;

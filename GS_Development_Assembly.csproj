@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{E2B71C64-3894-DE04-FA2E-1800A7573533}</ProjectGuid>
+    <ProjectGuid>{BF3F944B-3074-0249-48AF-0BFCF5C01DAB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Development_Assembly</AssemblyName>
@@ -1158,11 +1158,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="GS_Assembly.csproj">
-      <Project>{0DA1B493-7738-F8F7-9585-19E5418496E3}</Project>
+      <Project>{173397DD-25B3-F707-36C6-1678BB67676C}</Project>
       <Name>GS_Assembly</Name>
     </ProjectReference>
     <ProjectReference Include="GS_Libs_Assembly.csproj">
-      <Project>{9AF67EA9-3284-8B3E-0C28-72E8B7EDEA80}</Project>
+      <Project>{1CB58885-9521-7475-BFDB-6AB6470D5033}</Project>
       <Name>GS_Libs_Assembly</Name>
     </ProjectReference>
   </ItemGroup>

@@ -44,7 +44,6 @@
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
   #define VGrid_Lib_BDraw_Draw_Text3D 12
-  #define VGrid_Lib_BDraw_maxByteN 2097152
   #define VGrid_Lib_BDraw_LF 10
   #define VGrid_Lib_BDraw_TB 9
   #define VGrid_Lib_BDraw_ZERO 48
@@ -117,21 +116,6 @@
     }
     if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN) VGrid_Lib_BDraw_AppendBuff_Sums[i] = VGrid_Lib_BDraw_AppendBuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_AppendBuff_Get_Existing_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
-  {
-    uint i = id.x;
-    if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN)
-    {
-      uint s, bits = VGrid_Lib_BDraw_AppendBuff_Bits[i], c = countbits(bits);
-      VGrid_Lib_BDraw_AppendBuff_grp0[grpI] = c; VGrid_Lib_BDraw_AppendBuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
-      for (s = 1; s < numthreads1; s *= 2)
-      {
-        if (grpI >= s && i < g.VGrid_Lib_BDraw_AppendBuff_BitN) VGrid_Lib_BDraw_AppendBuff_grp[grpI] = VGrid_Lib_BDraw_AppendBuff_grp0[grpI] + VGrid_Lib_BDraw_AppendBuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
-        VGrid_Lib_BDraw_AppendBuff_grp0[grpI] = VGrid_Lib_BDraw_AppendBuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
-      }
-      if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN) VGrid_Lib_BDraw_AppendBuff_Sums[i] = VGrid_Lib_BDraw_AppendBuff_grp[grpI];
-    }
-  }
   float sdTorus(float3 p, float R, float r) { return (length(float2(length(p.xz) - R, p.y)) - r) / 0.606f; }
   float sdCube(float3 p) { return cmax(abs(p)) * 2; }
   float sdBox(float3 p, float3 b) { float3 q = abs(p) - b; return length(max(q, f000)) + min(cmax(q), 0); }
@@ -202,7 +186,6 @@
     }
     if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN) VGrid_Lib_BDraw_AppendBuff_Sums[i] = VGrid_Lib_BDraw_AppendBuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_AppendBuff_Get_Existing_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_AppendBuff_BitN) { uint i = id.x, j, k, bits = VGrid_Lib_BDraw_AppendBuff_Bits[i]; if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = VGrid_Lib_BDraw_AppendBuff_Assign_Bits(k + j, j, bits); VGrid_Lib_BDraw_AppendBuff_Bits[i] = bits; } } } }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_AppendBuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_AppendBuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.VGrid_Lib_BDraw_AppendBuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = VGrid_Lib_BDraw_AppendBuff_Assign_Bits(k + j, j, bits); VGrid_Lib_BDraw_AppendBuff_Bits[i] = bits; } } } }
   VGrid_Lib_TRay VGrid_Lib_CreateRayHit() { VGrid_Lib_TRay hit; hit.origin = f000; hit.dist = fPosInf; hit.direction = f000; hit.color = f0000; return hit; }
   float3 VGrid_Lib_gridMax() { return float3(g.VGrid_Lib_GridX.y, g.VGrid_Lib_GridY.y, g.VGrid_Lib_GridZ.y); }
@@ -405,9 +388,7 @@
   #pragma kernel VGrid_Lib_BDraw_AppendBuff_GetFills2
   #pragma kernel VGrid_Lib_BDraw_AppendBuff_GetFills1
   #pragma kernel VGrid_Lib_BDraw_AppendBuff_Get_Bits_Sums
-  #pragma kernel VGrid_Lib_BDraw_AppendBuff_Get_Existing_Sums
   #pragma kernel VGrid_Lib_BDraw_AppendBuff_GetSums
-  #pragma kernel VGrid_Lib_BDraw_AppendBuff_Get_Existing_Bits
   #pragma kernel VGrid_Lib_BDraw_AppendBuff_Get_Bits
   #pragma kernel VGrid_Lib_BDraw_setDefaultTextInfo
   #pragma kernel VGrid_Lib_BDraw_getTextInfo

@@ -40,7 +40,6 @@ Shader "gs/gsRand_Tutorial"
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -78,7 +77,6 @@ Shader "gs/gsRand_Tutorial"
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -107,10 +105,6 @@ Shader "gs/gsRand_Tutorial"
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
-  float4 frag_Rand_GS(v2f i, float4 color)
-  {
-    return color;
-  }
   float signal_panel_width() { return 0.1f; }
   float avg() { return ints[0] / 1e6f / g.randomNumberN; }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
@@ -151,6 +145,8 @@ Shader "gs/gsRand_Tutorial"
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(1, i, index, LIN); onRenderObject_LIN(g.randomNumberN, i, index, LIN); onRenderObject_LIN(12, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
+  v2f vert_BDraw_index(uint i, v2f o) { o.ti.x = i; return o; }
+  v2f vert_BDraw_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint BDraw_SignalSmpN(uint chI) { return g.randomNumberN; }
   float BDraw_SignalThickness(uint chI, uint smpI) { return g.lineThickness; }
@@ -180,7 +176,15 @@ Shader "gs/gsRand_Tutorial"
   v2f vert_Draw_Border(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(f___, f111, 0.01f, BLACK, i, j, o); }
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(BDraw_gridMin(), BDraw_gridMax(), g.BDraw_boxThickness, g.BDraw_boxColor, i, j, o); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
-  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j); o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p; o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color; o.ti = float4(i, 0, BDraw_Draw_Sphere, 0); return o; }
+  v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o)
+  {
+    float4 p4 = float4(p, 1), quadPoint = BDraw_Sphere_quadPoint(r, j);
+    o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + quadPoint); o.wPos = p;
+    o.uv = quadPoint.xy / r; o.normal = -f001; o.color = color;
+    o.ti = float4(i, 0, BDraw_Draw_Sphere, 0);
+    o = vert_BDraw_index(i, vert_BDraw_drawType(BDraw_Draw_Sphere, o));
+    return o;
+  }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
@@ -228,13 +232,7 @@ Shader "gs/gsRand_Tutorial"
     }
     return color;
   }
-  float4 frag_GS(v2f i, float4 color)
-  {
-    uint libI = roundu(i.tj.x);
-    if (libI == 0) return frag_BDraw_GS(i, color);
-    if (libI == 1) return frag_Rand_GS(i, color);
-    return color;
-  }
+  float4 frag_GS(v2f i, float4 color) { return frag_BDraw_GS(i, color); }
   float2 BDraw_LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }
   v2f vert_BDraw_LineArrow(float dpf, float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = BDraw_LineArrow_uv(dpf, p0, p1, r, j); o.pos = UnityObjectToClipPos(BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, dpf == 1 ? BDraw_Draw_Line : BDraw_Draw_Arrow, r); return o; }
   v2f vert_BDraw_Arrow(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return vert_BDraw_LineArrow(3, p0, p1, r, color, i, j, o); }

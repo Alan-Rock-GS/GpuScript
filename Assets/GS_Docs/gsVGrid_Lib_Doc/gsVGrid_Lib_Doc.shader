@@ -55,7 +55,6 @@ Shader "gs/gsVGrid_Lib_Doc"
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
   #define VGrid_Lib_BDraw_Draw_Text3D 12
-  #define VGrid_Lib_BDraw_maxByteN 2097152
   #define VGrid_Lib_BDraw_LF 10
   #define VGrid_Lib_BDraw_TB 9
   #define VGrid_Lib_BDraw_ZERO 48
@@ -108,7 +107,6 @@ Shader "gs/gsVGrid_Lib_Doc"
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
   #define VGrid_Lib_BDraw_Draw_Text3D 12
-  #define VGrid_Lib_BDraw_maxByteN 2097152
   #define VGrid_Lib_BDraw_LF 10
   #define VGrid_Lib_BDraw_TB 9
   #define VGrid_Lib_BDraw_ZERO 48
@@ -145,10 +143,6 @@ Shader "gs/gsVGrid_Lib_Doc"
   public Texture2D VGrid_Lib_BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
-  float4 frag_Views_Lib_GS(v2f i, float4 color)
-  {
-    return color;
-  }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.VGrid_Lib_drawBox && g.VGrid_Lib_drawAxes, g.VGrid_Lib_BDraw_textN, i, index, LIN); onRenderObject_LIN(g.VGrid_Lib_drawBox, 12, i, index, LIN); onRenderObject_LIN(g.VGrid_Lib_drawGrid && g.VGrid_Lib_showSurface, product(g.VGrid_Lib_viewSize), i, index, LIN); return LIN; }
   VGrid_Lib_BDraw_TextInfo VGrid_Lib_BDraw_textInfo(uint i) { return VGrid_Lib_BDraw_textInfos[i]; }
@@ -249,13 +243,7 @@ Shader "gs/gsVGrid_Lib_Doc"
     }
     return color;
   }
-  float4 frag_GS(v2f i, float4 color)
-  {
-    uint libI = roundu(i.tj.x);
-    if (libI == 0) return frag_VGrid_Lib_GS(i, color);
-    if (libI == 1) return frag_Views_Lib_GS(i, color);
-    return color;
-  }
+  float4 frag_GS(v2f i, float4 color) { return frag_VGrid_Lib_GS(i, color); }
   uint2 VGrid_Lib_BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 VGrid_Lib_BDraw_JQuadf(uint j) { return (float2)VGrid_Lib_BDraw_JQuadu(j); }
   float2 VGrid_Lib_BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = VGrid_Lib_BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }

@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{8DE051D2-8209-0FBC-24BA-10F1B024E070}</ProjectGuid>
+    <ProjectGuid>{AE828C0B-6A81-EE27-B3F9-48BB1D5CB96D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Editor_Assembly</AssemblyName>
@@ -1167,7 +1167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="GS_Assembly.csproj">
-      <Project>{0DA1B493-7738-F8F7-9585-19E5418496E3}</Project>
+      <Project>{173397DD-25B3-F707-36C6-1678BB67676C}</Project>
       <Name>GS_Assembly</Name>
     </ProjectReference>
   </ItemGroup>

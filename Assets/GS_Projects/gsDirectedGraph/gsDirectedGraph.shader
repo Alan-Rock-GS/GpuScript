@@ -53,7 +53,6 @@ Shader "gs/gsDirectedGraph"
   #define CalcMode_Min	0
   #define CalcMode_Max	1
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -104,7 +103,6 @@ Shader "gs/gsDirectedGraph"
   #define CalcMode_Min	0
   #define CalcMode_Max	1
   #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -137,10 +135,6 @@ Shader "gs/gsDirectedGraph"
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
-  float4 frag_Rand_GS(v2f i, float4 color)
-  {
-    return color;
-  }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i % g.BDraw_textN]; }
   float3 BDraw_gridMin() { return f000; }
   float3 BDraw_gridMax() { return f111; }
@@ -222,13 +216,7 @@ Shader "gs/gsDirectedGraph"
     }
     return color;
   }
-  float4 frag_GS(v2f i, float4 color)
-  {
-    uint libI = roundu(i.tj.x);
-    if (libI == 0) return frag_BDraw_GS(i, color);
-    if (libI == 1) return frag_Rand_GS(i, color);
-    return color;
-  }
+  float4 frag_GS(v2f i, float4 color) { return frag_BDraw_GS(i, color); }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }

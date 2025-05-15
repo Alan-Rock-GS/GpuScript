@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace>GpuScript</RootNamespace>
-    <ProjectGuid>{0DA1B493-7738-F8F7-9585-19E5418496E3}</ProjectGuid>
+    <ProjectGuid>{173397DD-25B3-F707-36C6-1678BB67676C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Assembly</AssemblyName>

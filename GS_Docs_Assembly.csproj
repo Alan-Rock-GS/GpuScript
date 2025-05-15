@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{3BB6B8F4-7E0A-8DED-9034-97919E516B28}</ProjectGuid>
+    <ProjectGuid>{2EB62EB6-71B7-F651-318A-839E16F09B6F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>GS_Docs_Assembly</AssemblyName>
@@ -66,10 +66,7 @@
     <Compile Include="Assets\GS_Docs\gsMatrix_Doc\gsMatrix_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsDocs\gsDocs.cs" />
-    <Compile Include="Assets\GS_Docs\gsGpuScript_Doc\gsGpuScript_Doc_GS.cs" />
-    <Compile Include="Assets\GS_Docs\gsGpuScript_Doc\gsGpuScript_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsGDM_Doc\gsGDM_Doc_.cs" />
-    <Compile Include="Assets\GS_Docs\gsOCam_Lib_Doc\gsOCam_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsMatrix_Doc\gsMatrix_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsGDM_Doc\gsGDM_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsLicense_Lib_Doc\gsLicense_Lib_Doc.cs" />
@@ -77,9 +74,8 @@
     <Compile Include="Assets\GS_Docs\gsBDraw_Doc\gsBDraw_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsBDraw_Doc\gsBDraw_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsTCloud_Doc\gsTCloud_Doc_GS.cs" />
-    <Compile Include="Assets\GS_Docs\gsGpuScript_Doc\gsGpuScript_Doc_.cs" />
-    <Compile Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsPuppeteer_Lib_Doc\gsPuppeteer_Lib_Doc_.cs" />
+    <Compile Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsReport_Lib_Doc\gsReport_Lib_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsViews_Lib_Doc\gsViews_Lib_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsGem_Doc\gsGem_Doc.cs" />
@@ -90,7 +86,6 @@
     <Compile Include="Assets\GS_Docs\gsGem_Doc\gsGem_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsProject_Lib_Doc\gsProject_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsBDraw_Doc\gsBDraw_Doc_GS.cs" />
-    <Compile Include="Assets\GS_Docs\gsAppendBuff_Doc\gsAppendBuff_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsViews_Lib_Doc\gsViews_Lib_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc_.cs" />
     <Compile Include="Assets\GS_Docs\gsTCloud_Doc\gsTCloud_Doc_.cs" />
@@ -98,11 +93,8 @@
     <Compile Include="Assets\GS_Docs\gsProject_Lib_Doc\gsProject_Lib_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsGS_Doc\gsGS_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc_GS.cs" />
-    <Compile Include="Assets\GS_Docs\gsAppendBuff_Doc\gsAppendBuff_Doc.cs" />
-    <Compile Include="Assets\GS_Docs\gsOCam_Lib_Doc\gsOCam_Lib_Doc_GS.cs" />
     <Compile Include="Assets\GS_Docs\gsProject_Lib_Doc\gsProject_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsGS_Doc\gsGS_Doc_.cs" />
-    <Compile Include="Assets\GS_Docs\gsOCam_Lib_Doc\gsOCam_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsPuppeteer_Lib_Doc\gsPuppeteer_Lib_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsGDM_Doc\gsGDM_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsGS_Doc\gsGS_Doc.cs" />
@@ -111,14 +103,12 @@
     <Compile Include="Assets\GS_Docs\gsTCloud_Doc\gsTCloud_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc.cs" />
     <Compile Include="Assets\GS_Docs\gsMatrix_Doc\gsMatrix_Doc.cs" />
-    <Compile Include="Assets\GS_Docs\gsAppendBuff_Doc\gsAppendBuff_Doc_GS.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc.shader" />
     <None Include="Assets\GS_Docs\gsBDraw_Doc\gsBDraw_Doc.shader" />
     <None Include="Assets\GS_Docs\gsBDraw_Doc\gsBDraw_Doc.compute" />
     <None Include="Assets\GS_Docs\gsVGrid_Lib_Doc\gsVGrid_Lib_Doc.compute" />
-    <None Include="Assets\GS_Docs\gsGpuScript_Doc\gsGpuScript_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsPuppeteer_Lib_Doc\gsPuppeteer_Lib_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsGem_Doc\gsGem_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsTCloud_Doc\gsTCloud_Doc_UXML.uxml" />
@@ -129,7 +119,6 @@
     <None Include="Assets\GS_Docs\gsGDM_Doc\gsGDM_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsMatrix_Doc\gsMatrix_Doc.compute" />
     <None Include="Assets\GS_Docs\gsGS_Doc\gsGS_Doc_UXML.uxml" />
-    <None Include="Assets\GS_Docs\gsGpuScript_Doc\gsGpuScript_Doc.compute" />
     <None Include="Assets\GS_Docs\gsGDM_Doc\gsGDM_Doc.compute" />
     <None Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc.shader" />
     <None Include="Assets\GS_Docs\GS_Docs_Assembly.asmdef" />
@@ -138,10 +127,7 @@
     <None Include="Assets\GS_Docs\gsTCloud_Doc\gsTCloud_Doc.compute" />
     <None Include="Assets\GS_Docs\gsTCloud_Doc\gsTCloud_Doc.shader" />
     <None Include="Assets\GS_Docs\gsTCloud_Doc\TCloud_Doc_Report.txt" />
-    <None Include="Assets\GS_Docs\gsAppendBuff_Doc\gsAppendBuff_Doc_UXML.uxml" />
-    <None Include="Assets\GS_Docs\gsAppendBuff_Doc\gsAppendBuff_Doc.compute" />
     <None Include="Assets\GS_Docs\gsGem_Doc\gsGem_Doc.compute" />
-    <None Include="Assets\GS_Docs\gsOCam_Lib_Doc\gsOCam_Lib_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc_UXML.uxml" />
     <None Include="Assets\GS_Docs\gsRand_Doc\gsRand_Doc.compute" />
     <None Include="Assets\GS_Docs\gsBDraw_Doc\gsBDraw_Doc_UXML.uxml" />
@@ -1235,12 +1221,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="GS_Assembly.csproj">
-      <Project>{0DA1B493-7738-F8F7-9585-19E5418496E3}</Project>
+      <Project>{173397DD-25B3-F707-36C6-1678BB67676C}</Project>
       <Name>GS_Assembly</Name>
     </ProjectReference>
     <ProjectReference Include="GS_Libs_Assembly.csproj">
-      <Project>{9AF67EA9-3284-8B3E-0C28-72E8B7EDEA80}</Project>
+      <Project>{1CB58885-9521-7475-BFDB-6AB6470D5033}</Project>
       <Name>GS_Libs_Assembly</Name>
+    </ProjectReference>
+    <ProjectReference Include="GSA_Libs_Assembly.csproj">
+      <Project>{6821BB7B-00CD-E5B8-B642-2266C58BC912}</Project>
+      <Name>GSA_Libs_Assembly</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
