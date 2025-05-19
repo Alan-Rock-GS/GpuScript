@@ -455,6 +455,7 @@ namespace GpuScript
     public static float2 log10(float2 v) => float2(log10(v.x), log10(v.y));
     public static float3 log10(float3 v) => float3(log10(v.x), log10(v.y), log10(v.z));
     public static float4 log10(float4 v) => float4(log10(v.x), log10(v.y), log10(v.z), log10(v.w));
+    public static uint log10u(uint v) => flooru(log10(v)); 
 
     //log2 - returns the base-2 logarithm of scalars and vectors
     public static readonly float LN2 = (float)Mathf.Log(2);
@@ -908,6 +909,9 @@ namespace GpuScript
     public static float2 round(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
     public static float3 round(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
     public static float4 round(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : round(v / nearest) * nearest; }
+    public static float2 round(float2 v, float2 nearest) { return any(nearest == 0) || any(isnan(nearest)) ? v : round(v / nearest) * nearest; }
+    public static float3 round(float3 v, float3 nearest) { return any(nearest == 0) || any(isnan(nearest)) ? v : round(v / nearest) * nearest; }
+    public static float4 round(float4 v, float4 nearest) { return any(nearest == 0) || any(isnan(nearest)) ? v : round(v / nearest) * nearest; }
 
     public static int4 roundi(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
     public static int4 roundi(int4 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
@@ -918,13 +922,26 @@ namespace GpuScript
     public static uint3 roundu(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
     public static uint3 roundu(uint3 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
     public static int2 roundi(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int2 roundi(float2 v, float2 nearest) { return any(nearest == f00) || any(isnan(nearest)) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int3 roundi(float3 v, float3 nearest) { return any(nearest == f000) || any(isnan(nearest)) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
+    public static int4 roundi(float4 v, float4 nearest) { return any(nearest == f0000) || any(isnan(nearest)) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
     public static int2 roundi(int2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static int2 roundi(int2 v, float2 nearest) { return any(nearest == f00) || any(isnan(nearest)) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static int3 roundi(int3 v, float3 nearest) { return any(nearest == f000) || any(isnan(nearest)) ? v : roundi(roundi(v / nearest) * nearest); }
+    public static int4 roundi(int4 v, float4 nearest) { return any(nearest == f0000) || any(isnan(nearest)) ? v : roundi(roundi(v / nearest) * nearest); }
     public static uint2 roundu(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint2 roundu(float2 v, float2 nearest) { return any(nearest == f00) || any(isnan(nearest)) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint3 roundu(float3 v, float3 nearest) { return any(nearest == f000) || any(isnan(nearest)) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
+    public static uint4 roundu(float4 v, float4 nearest) { return any(nearest == f0000) || any(isnan(nearest)) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
     public static uint2 roundu(uint2 v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
+    public static uint2 roundu(uint2 v, float2 nearest) { return any(nearest == f00) || any(isnan(nearest)) ? v : roundu(roundu(v / nearest) * nearest); }
+    public static uint3 roundu(uint3 v, float3 nearest) { return any(nearest == f000) || any(isnan(nearest)) ? v : roundu(roundu(v / nearest) * nearest); }
+    public static uint4 roundu(uint4 v, float4 nearest) { return any(nearest == f0000) || any(isnan(nearest)) ? v : roundu(roundu(v / nearest) * nearest); }
     public static int roundi(float v, float nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
     public static int roundi(int v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
     public static uint roundu(float v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
     public static uint roundu(uint v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
+
 
     public static int ceili(float v, int nearest) { return nearest == 0 || isnan(nearest) ? ceili(v) : ceili(v / nearest) * nearest; }
     public static uint ceilu(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? ceilu(v) : ceilu(v / nearest) * nearest; }
@@ -4129,13 +4146,12 @@ namespace GpuScript
     [HideInInspector] public float touch2Dist0 = 0, maxTouch2Dist = 210;
     [HideInInspector] public float2 mousePosition0;
     [HideInInspector] public bool leftButton, rightButton, middleButton;
-    //[HideInInspector] public bool MouseLeftButton; bool _MouseLeftButton { get => MouseLeftButton = isTouch ? touchN == 1 : Input.GetMouseButton(0); }
-    [HideInInspector] public bool MouseLeftButton; bool _MouseLeftButton { get => MouseLeftButton = isTouch ? touchN == 3 : Input.GetMouseButton(0); }
-    [HideInInspector] public bool MouseRightButton; bool _MouseRightButton { get => MouseRightButton = isTouch ? touchN == 3 : Input.GetMouseButton(1); }
-    [HideInInspector] public bool MouseMiddleButton; bool _MouseMiddleButton { get => MouseMiddleButton = isTouch ? touchN == 4 : Input.GetMouseButton(2); }
-    [HideInInspector] public bool MouseLeftButtonDown; bool _MouseLeftButtonDown { get => MouseLeftButtonDown = touchN == 1 && !leftButton ? leftButton = true : Input.GetMouseButtonDown(0); }
-    [HideInInspector] public bool MouseRightButtonDown; bool _MouseRightButtonDown { get => MouseRightButtonDown = touchN == 3 && !rightButton ? rightButton = true : Input.GetMouseButtonDown(1); }
-    [HideInInspector] public bool MouseMiddleButtonDown; bool _MouseMiddleButtonDown { get => MouseMiddleButtonDown = touchN == 4 && !middleButton ? middleButton = true : Input.GetMouseButtonDown(2); }
+    [HideInInspector] public bool MouseLeftButton; bool _MouseLeftButton { get => MouseLeftButton = isTouch ? touchN == 4 : Input.GetMouseButton(0); }
+    [HideInInspector] public bool MouseRightButton; bool _MouseRightButton { get => MouseRightButton = isTouch ? touchN == 5 : Input.GetMouseButton(1); }
+    [HideInInspector] public bool MouseMiddleButton; bool _MouseMiddleButton { get => MouseMiddleButton = isTouch ? touchN == 3 : Input.GetMouseButton(2); }
+    [HideInInspector] public bool MouseLeftButtonDown; bool _MouseLeftButtonDown { get => MouseLeftButtonDown = touchN == 4 && !leftButton ? leftButton = true : Input.GetMouseButtonDown(0); }
+    [HideInInspector] public bool MouseRightButtonDown; bool _MouseRightButtonDown { get => MouseRightButtonDown = touchN == 5 && !rightButton ? rightButton = true : Input.GetMouseButtonDown(1); }
+    [HideInInspector] public bool MouseMiddleButtonDown; bool _MouseMiddleButtonDown { get => MouseMiddleButtonDown = touchN == 3 && !middleButton ? middleButton = true : Input.GetMouseButtonDown(2); }
     [HideInInspector] public bool MouseLeftButtonUp; bool _MouseLeftButtonUp { get => MouseLeftButtonUp = touchN == 0 && leftButton ? !(leftButton = false) : Input.GetMouseButtonUp(0); }
     [HideInInspector] public bool MouseRightButtonUp; bool _MouseRightButtonUp { get => MouseRightButtonUp = touchN == 0 && rightButton ? !(rightButton = false) : Input.GetMouseButtonUp(1); }
     [HideInInspector] public bool MouseMiddleButtonUp; bool _MouseMiddleButtonUp { get => MouseMiddleButtonUp = touchN == 0 && middleButton ? !(middleButton = false) : Input.GetMouseButtonUp(2); }

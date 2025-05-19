@@ -7,8 +7,8 @@ namespace GpuScript
 {
   public class UI_int2 : UI_Slider_base
   {
-    public int2 Slider_Pow_Val(float2 v) => clamp(roundi(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
-    public float2 Slider_Log_Val(int2 v) => is_Pow2_Slider ? log10(abs(clamp(roundi(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : (float2)v;
+    public int2 Slider_Pow_Val(float2 v) => clamp(roundi(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), range_Min, range_Max);
+    public float2 Slider_Log_Val(int2 v) => is_Pow2_Slider ? log10(abs(clamp(roundi(v, GetNearest((float2)v)), range_Min, range_Max)) * 0.999f + 1) : (float2)v;
     public int2 SliderV { get => Slider_Pow_Val(new float2(sliders[0].value, sliders[1].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; } }
     public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") }; 
     public UI_int2() : base() { }
@@ -91,9 +91,9 @@ namespace GpuScript
     public static implicit operator int2(UI_int2 f) => f.v; 
 
     public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider,
-      bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
+      bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
     {
-      base.Build(title, description, val, format, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, treeGroup_parent);
+      base.Build(title, description, val, format, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
       range_Min = rangeMin.To_int2(); range_Max = rangeMax.To_int2(); SliderV = val.To_int2();
       if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
     }
@@ -111,7 +111,7 @@ namespace GpuScript
         ((UI_int2)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
             m_int2_value.GetValueFromBag(bag, cc), m_int2_min.GetValueFromBag(bag, cc), m_int2_max.GetValueFromBag(bag, cc),
             m_Format.GetValueFromBag(bag, cc), m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-            m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc),
+            m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
             m_TreeGroup_Parent.GetValueFromBag(bag, cc));
       }
     }

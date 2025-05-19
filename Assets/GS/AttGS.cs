@@ -59,6 +59,7 @@ namespace GpuScript
     public bool RenderPoints, RenderQuads, RenderMeshes;
     public int RenderPass = 0;
     public float Nearest = 0;
+    public bool NearestDigit;
 
     public bool isGS_Field, isGS_Action, isGS_Buffer, isGS_Render, isGS_Kernel, isGS_Class, isSync;
     public bool is_Pow2_Slider, is_Pow_10, is_Pow_2;
@@ -117,6 +118,7 @@ namespace GpuScript
             case UI.IsPow10: is_Pow_10 = true; break;
             case UI.IsPow2: is_Pow_2 = true; break;
             case UI.Nearest: Nearest = vals[++i].To_float(); break;
+            case UI.NearestDigit: NearestDigit = true; break;
             case UI.Password: isPassword = true; break;
             case UI.Single: isSingleRow = true; break;
             case UI.FixedLength: fixedLength = true; break;
@@ -246,7 +248,7 @@ namespace GpuScript
     Password,
     OnValueChanged, OnClicked,
     Pow2_Slider,
-    IsPow10, IsPow2, Nearest,
+    IsPow10, IsPow2, Nearest, NearestDigit,
     ColumnSorting,
     Null
   };

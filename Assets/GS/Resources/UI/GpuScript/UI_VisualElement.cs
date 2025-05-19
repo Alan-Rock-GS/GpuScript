@@ -342,7 +342,8 @@ namespace GpuScript
 			public UxmlBoolAttributeDescription m_isPow10 = new UxmlBoolAttributeDescription { name = "UI_isPow10", defaultValue = false };
 			public UxmlBoolAttributeDescription m_isPow2 = new UxmlBoolAttributeDescription { name = "UI_isPow2", defaultValue = false };
 			public UxmlFloatAttributeDescription m_Nearest = new UxmlFloatAttributeDescription { name = "UI_Nearest", defaultValue = float.NaN };
-			public UxmlBoolAttributeDescription m_isGrid = new UxmlBoolAttributeDescription { name = "UI_isGrid", defaultValue = false };
+      public UxmlBoolAttributeDescription m_NearestDigit = new UxmlBoolAttributeDescription { name = "UI_NearestDigit", defaultValue = false };
+      public UxmlBoolAttributeDescription m_isGrid = new UxmlBoolAttributeDescription { name = "UI_isGrid", defaultValue = false };
 			public UxmlStringAttributeDescription m_TreeGroup_Parent = new UxmlStringAttributeDescription { name = "UI_TreeGroup_Parent", defaultValue = "" };
 		}
 

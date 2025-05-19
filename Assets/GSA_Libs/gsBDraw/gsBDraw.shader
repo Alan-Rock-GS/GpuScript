@@ -102,12 +102,11 @@ Shader "gs/gsBDraw"
   public Texture2D fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
+  uint o_drawType(v2f o) { return roundu(o.ti.z); }
   float4 frag_Sphere(v2f i) { float2 uv = i.uv; float r = dot(uv, uv); float4 color = i.color; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = i.ti.w; float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = i.ti.w; float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = i.ti.w; float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_Mesh(v2f i) { float3 p = i.wPos; float4 color = i.color; color.xyz += dot(i.normal, _WorldSpaceLightPos0.xyz) / 2; return saturate(color); }
   TextInfo textInfo(uint i) { return textInfos[i]; }
+  uint o_i(v2f o) { return roundu(o.ti.x); }
   float4 frag_Text(Texture2D t, RWStructuredBuffer<uint> _text, RWStructuredBuffer<FontInfo> fontInfos, float fontSize, uint quadType, float4 backColor, uint2 textIs, v2f i)
   {
     float uv_x = 0;
@@ -137,6 +136,10 @@ Shader "gs/gsBDraw"
   uint2 Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : AppendBuff_Indexes[textI - 1] + 1, textI < g.AppendBuff_IndexN ? AppendBuff_Indexes[textI] : g.textCharN); }
   float3 gridMin() { return f000; }
   float3 gridMax() { return f111; }
+  float o_r(v2f o) { return o.ti.w; }
+  float4 frag_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   uint SignalSmpN(uint chI) { return 1024; }
   float SignalThickness(uint chI, uint smpI) { return 0.004f; }
   float SignalSmpV(uint chI, uint smpI) { return 0; }
@@ -146,8 +149,8 @@ Shader "gs/gsBDraw"
   float4 SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
   float4 frag_Signal(v2f i)
   {
-    uint chI = roundu(i.ti.x), SmpN = SignalSmpN(chI);
-    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), i.ti.w);
+    uint chI = o_i(i), SmpN = SignalSmpN(chI);
+    float2 uv = i.uv, wh = float2(distance(i.p1, i.p0), o_r(i));
     float smpI = lerp(0, SmpN, uv.x), y = lerp(-1, 1, uv.y), h = wh.y / wh.x * SmpN, thick = SignalThickness(chI, (uint)smpI) * SmpN, d = float_PositiveInfinity;
     uint SmpI = (uint)smpI, dSmpI = ceilu(thick) + 1, SmpI0 = (uint)max(0, (int)SmpI - (int)dSmpI), SmpI1 = min(SmpN - 1, SmpI + dSmpI);
     float2 p0 = float2(smpI, y * h), q0 = float2(SmpI0, (h - thick) * SignalSmpV(chI, SmpI0)), q1;
@@ -162,7 +165,7 @@ Shader "gs/gsBDraw"
   }
   float4 frag_GS(v2f i, float4 color)
   {
-    switch (roundu(i.ti.z))
+    switch (o_drawType(i))
     {
       case uint_max: Discard(0); break;
       case Draw_Sphere: color = frag_Sphere(i); break;
@@ -172,7 +175,7 @@ Shader "gs/gsBDraw"
       case Draw_LineSegment: color = frag_LineSegment(i); break;
       case Draw_Mesh: color = frag_Mesh(i); break;
       case Draw_Text3D:
-        TextInfo t = textInfo(roundu(i.ti.x));
+        TextInfo t = textInfo(o_i(i));
         color = frag_Text(fontTexture, tab_delimeted_text, fontInfos, g.fontSize, t.quadType, t.backColor, Get_text_indexes(t.textI), i);
         break;
     }
@@ -182,15 +185,28 @@ Shader "gs/gsBDraw"
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.textN, i, index, LIN); onRenderObject_LIN(g.boxEdgeN, i, index, LIN); return LIN; }
   float wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
+  v2f o_i(uint i, v2f o) { o.ti.x = i; return o; }
+  v2f o_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }
+  v2f o_r(float r, v2f o) { o.ti.w = r; return o; }
+  v2f o_color(float4 color, v2f o) { o.color = color; return o; }
+  v2f o_normal(float3 normal, v2f o) { o.normal = normal; return o; }
+  v2f o_uv(float2 uv, v2f o) { o.uv = uv; return o; }
+  v2f o_pos(float4 pos, v2f o) { o.pos = pos; return o; }
+  v2f o_pos_PV(float3 p, float4 q, v2f o) { return o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o); }
+  v2f o_pos_c(float4 c, v2f o) { return o_pos(UnityObjectToClipPos(c), o); }
+  v2f o_pos_c(float3 c, v2f o) { return o_pos(UnityObjectToClipPos(c), o); }
+  v2f o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
+  v2f o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
   uint2 JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 JQuadf(uint j) { return (float2)JQuadu(j); }
   float2 Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
+  float2 LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }
   float4 LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
-  v2f vert_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = Line_uv(p0, p1, r, j); o.pos = UnityObjectToClipPos(LineArrow_p4(1, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, Draw_Line, r); return o; }
+  float4 LineArrow_p4(float dpf, float3 p0, float3 p1, float r, uint j) { return LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j); }
+  v2f vert_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return o_i(i, o_p0(p0, o_p1(p1, o_r(r, o_drawType(Draw_Line, o_color(color, o_uv(Line_uv(p0, p1, r, j), o_pos_c(LineArrow_p4(1, p0, p1, r, j), o)))))))); }
   v2f vert_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_Line(p0, p1, lineRadius, color, i, j, o); }
   v2f vert_Box(uint i, uint j, v2f o) { return vert_BoxFrame(gridMin(), gridMax(), g.boxThickness, g.boxColor, i, j, o); }
-  float2 LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }
-  v2f vert_LineArrow(float dpf, float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { o.p0 = p0; o.p1 = p1; o.uv = LineArrow_uv(dpf, p0, p1, r, j); o.pos = UnityObjectToClipPos(LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j)); o.color = color; o.ti = float4(i, 0, dpf == 1 ? Draw_Line : Draw_Arrow, r); return o; }
+  v2f vert_LineArrow(float dpf, float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return o_i(i, o_p0(p0, o_p1(p1, o_r(r, o_drawType(dpf == 1 ? Draw_Line : Draw_Arrow, o_color(color, o_uv(LineArrow_uv(dpf, p0, p1, r, j), o_pos_c(LineArrow_p4(dpf, p0, p1, r, j), o)))))))); }
   v2f vert_Arrow(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return vert_LineArrow(3, p0, p1, r, color, i, j, o); }
   v2f vert_Text(TextInfo t, uint i, uint j, v2f o)
   {
@@ -216,12 +232,8 @@ Shader "gs/gsBDraw"
         case TextAlignment_CenterRight: jp = -w / 2 * right; break;
         case TextAlignment_TopRight: jp = -w / 2 * right - h / 2 * up; break;
       }
-      float4 p4 = new float4(p, 1), billboardQuad = float4((wrapJ(j, 2) - 0.5f) * w, (0.5f - wrapJ(j, 1)) * h, 0, 0);
-      o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + billboardQuad + float4(jp, 0));
-      o.normal = f00_;
-      o.uv = float2(wrapJ(j, 2), wrapJ(j, 4)) * uvSize;
-      o.ti = float4(i, 0, Draw_Text3D, i);
-      o.color = color;
+      float4 billboardQuad = float4((wrapJ(j, 2) - 0.5f) * w, (0.5f - wrapJ(j, 1)) * h, 0, 0);
+      o = o_i(i, o_drawType(Draw_Text3D, o_r(i, o_color(color, o_pos_PV(p, billboardQuad + float4(jp, 0), o_normal(f00_, o_uv(float2(wrapJ(j, 2), wrapJ(j, 4)) * uvSize, o)))))));
     }
     else if (quadType == Text_QuadType_Arrow)
     {
@@ -230,12 +242,7 @@ Shader "gs/gsBDraw"
       up = f010;
       jp = w / 2 * right;
       float3 q0 = p - jp, q1 = p + jp;
-      o = vert_Arrow(q0, q1, h * 0.165f, color, i, j, o);
-      float4 ti = o.ti; ti.z = Draw_Text3D; o.ti = ti;
-      if (dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0)
-        o.uv = float2(length(q1 - q0) / h * wrapJ(j, 1), wrapJ(j, 2) - 0.5f);
-      else
-        o.uv = float2(length(q1 - q0) / h * (1 - wrapJ(j, 1)), 0.5f - wrapJ(j, 2));
+      o = o_uv(dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0 ? float2(length(q1 - q0) / h * wrapJ(j, 1), wrapJ(j, 2) - 0.5f) : float2(length(q1 - q0) / h * (1 - wrapJ(j, 1)), 0.5f - wrapJ(j, 2)), o_drawType(Draw_Text3D, vert_Arrow(q0, q1, h * 0.165f, color, i, j, o)));
     }
     else if (quadType == Text_QuadType_FrontBack || quadType == Text_QuadType_Switch || dot(p - _WorldSpaceCameraPos, cross(right, up)) > 0)
     {
@@ -289,14 +296,7 @@ Shader "gs/gsBDraw"
           case TextAlignment_TopRight: jp = -w * right - h * up; break;
         }
         float3 q0 = p + jp, q1 = q0 + right * w, p2 = q1 + up * h, p3 = q0 + up * h;
-        o.pos = UnityObjectToClipPos(o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? q0 : q1);
-        o.normal = cross(right, up);
-        if (quadType == Text_QuadType_Switch && dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0)
-          o.uv = float2(1 - wrapJ(j, 2), wrapJ(j, 4)) * uvSize;
-        else
-          o.uv = float2(wrapJ(j, 2), wrapJ(j, 4)) * uvSize;
-        o.ti = float4(i, 0, Draw_Text3D, i);
-        o.color = color;
+        o = o_i(i, o_drawType(Draw_Text3D, o_r(i, o_color(color, o_pos_c(o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? q0 : q1, o_normal(cross(right, up), o_uv(quadType == Text_QuadType_Switch && dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0 ? float2(1 - wrapJ(j, 2), wrapJ(j, 4)) * uvSize : float2(wrapJ(j, 2), wrapJ(j, 4)) * uvSize, o)))))));
       }
     }
     return o;

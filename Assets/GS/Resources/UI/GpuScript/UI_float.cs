@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 using static GpuScript.GS;
 
@@ -7,8 +8,8 @@ namespace GpuScript
 {
 	public class UI_float : UI_Slider_base
 	{
-		public float Slider_Pow_Val(float v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
-		public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
+		public float Slider_Pow_Val(float v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), range_Min, range_Max);
+		public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(clamp(round(v, GetNearest(v)), range_Min, range_Max)) * 0.999f + 1) : v;
 		public float SliderV { get => sliders[0] == null ? default : Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) sliders[0].value = Slider_Log_Val(value); } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
 		public UI_float() : base() { }
@@ -86,9 +87,9 @@ namespace GpuScript
 			SliderV = val;
 		}
 		public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,
-			string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
+			string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
 		{
-			base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, treeGroup_parent);
+			base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
 			range_Min = rangeMin.To_float(); range_Max = rangeMax.To_float(); SliderV = val.To_float();
 			if (siUnit != siUnit.Null) { range_Min *= convert(siUnit); range_Max *= convert(siUnit); }
 		}
@@ -107,14 +108,14 @@ namespace GpuScript
 
 			public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
 			{
-				base.Init(ve, bag, cc);
+        base.Init(ve, bag, cc);
 				((UI_float)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
 					m_float_value.GetValueFromBag(bag, cc), m_float_min.GetValueFromBag(bag, cc), m_float_max.GetValueFromBag(bag, cc),
 					m_float_siUnit.GetValueFromBag(bag, cc), m_float_usUnit.GetValueFromBag(bag, cc), m_float_Unit.GetValueFromBag(bag, cc),
 					m_float_siFormat.GetValueFromBag(bag, cc), m_float_usFormat.GetValueFromBag(bag, cc),
 					m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-					m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc),
-					m_TreeGroup_Parent.GetValueFromBag(bag, cc));
+					m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
+          m_TreeGroup_Parent.GetValueFromBag(bag, cc));
 			}
 		}
 

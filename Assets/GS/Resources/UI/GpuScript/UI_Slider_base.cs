@@ -12,8 +12,13 @@ namespace GpuScript
     public Label headerLabel, unitLabel;
     public TextField textField;
     public Slider[] sliders;
-    public bool is_Pow2_Slider, is_Pow10, is_Pow2;
+    public bool is_Pow2_Slider, is_Pow10, is_Pow2, NearestDigit;
     public float Nearest = 0;
+    public uint GetNearest(uint v) => NearestDigit ? pow10(flooru(log10u(v))) : roundu(Nearest);
+    public float GetNearest(float v) => NearestDigit ? pow10(floor(log10(v))) : Nearest;
+    public float2 GetNearest(float2 v) => NearestDigit ? pow10(floor(log10(v))) : float2(Nearest);
+    public float3 GetNearest(float3 v) => NearestDigit ? pow10(floor(log10(v))) : float3(Nearest);
+    public float4 GetNearest(float4 v) => NearestDigit ? pow10(floor(log10(v))) : float4(Nearest);
     public virtual Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
     public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
     {
@@ -36,11 +41,11 @@ namespace GpuScript
       textField = container.Q<TextField>();
 #if UNITY_STANDALONE_WIN
       textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
-//#else
-//      headerLabel.RegisterCallback<FocusOutEvent>(OnFocusOut);
-//      headerLabel.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
-//      headerLabel.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOutEvent);
-//      headerLabel.RegisterCallback<ClickEvent>(OnClickEvent);
+                                  //#else
+                                  //      headerLabel.RegisterCallback<FocusOutEvent>(OnFocusOut);
+                                  //      headerLabel.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
+                                  //      headerLabel.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOutEvent);
+                                  //      headerLabel.RegisterCallback<ClickEvent>(OnClickEvent);
 #endif //UNITY_STANDALONE_WIN
       textField.RegisterValueChangedCallback(OnValueChanged);
       textField.RegisterCallback<FocusOutEvent>(OnFocusOut);
@@ -109,6 +114,7 @@ namespace GpuScript
       if (att.is_Pow_10) e.uxml.Add($" UI_isPow10=\"true\"");
       if (att.is_Pow_2) e.uxml.Add($" UI_isPow2=\"true\"");
       if (att.Nearest != 0) e.uxml.Add($" UI_Nearest=\"{att.Nearest}\"");
+      if (att.NearestDigit) e.uxml.Add($" UI_NearestDigit=\"true\"");
     }
     public override string label { get => base.label; set { base.label = value; if (headerLabel != null) headerLabel.text = value; } }
     public virtual bool hasRange => false;
@@ -152,7 +158,7 @@ namespace GpuScript
       formatString = format;
     }
     public virtual void Build(string title, string description, string val, string format, bool isReadOnly, bool isGrid,
-      bool isPow2Slider, bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
+      bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
     {
       base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
       if (textField != null)
@@ -164,12 +170,13 @@ namespace GpuScript
       is_Pow10 = isPow10;
       is_Pow2 = isPow2;
       Nearest = nearest;
+      NearestDigit = nearestDigit;
       formatString = format;
       usFormat = siFormat = format;
     }
     public virtual void Build(string title, string description,
       string _siUnit, string _usUnit, string _Unit, string siFormat, string usFormat, bool isReadOnly, bool isGrid,
-      bool isPow2Slider, bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
+      bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
     {
       Build(title, description, isReadOnly, isGrid, treeGroup_parent);
       siUnit = _siUnit.IsNotEmpty() ? _siUnit.ToEnum<siUnit>() : siUnit.Null;
@@ -187,6 +194,7 @@ namespace GpuScript
       formatString = format;
       is_Pow2_Slider = isPow2Slider;
       Nearest = nearest.isNan() ? 0 : nearest;
+      NearestDigit = nearestDigit;
     }
     public string usFormat, siFormat;
     public string format => siUnits ? siFormat : usFormat;

@@ -7,8 +7,8 @@ namespace GpuScript
 {
 	public class UI_float2 : UI_Slider_base
 	{
-		public float2 Slider_Pow_Val(float2 v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
-		public float2 Slider_Log_Val(float2 v) => is_Pow2_Slider ? log10(abs(clamp(round(v, Nearest), range_Min, range_Max)) * 0.999f + 1) : v;
+		public float2 Slider_Pow_Val(float2 v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), range_Min, range_Max);
+		public float2 Slider_Log_Val(float2 v) => is_Pow2_Slider ? log10(abs(clamp(round(v, GetNearest(v)), range_Min, range_Max)) * 0.999f + 1) : v;
 		public float2 SliderV { get => Slider_Pow_Val(new float2(sliders[0].value, sliders[1].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") };
 		public UI_float2() : base() { }
@@ -105,9 +105,9 @@ namespace GpuScript
 			SliderV = val;
 		}
 		public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,
-			string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
+			string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
 		{
-			base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, treeGroup_parent);
+			base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
 			range_Min = rangeMin.To_float2(); range_Max = rangeMax.To_float2(); SliderV = val.To_float2();
 			if (siUnit != siUnit.Null) { range_Min *= convert(siUnit); range_Max *= convert(siUnit); }
 		}
@@ -131,7 +131,7 @@ namespace GpuScript
 					m_float2_siUnit.GetValueFromBag(bag, cc), m_float2_usUnit.GetValueFromBag(bag, cc), m_float2_Unit.GetValueFromBag(bag, cc),
 					m_float2_siFormat.GetValueFromBag(bag, cc), m_float2_usFormat.GetValueFromBag(bag, cc),
 					m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-					m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc),
+					m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
 					m_TreeGroup_Parent.GetValueFromBag(bag, cc));
 			}
 		}

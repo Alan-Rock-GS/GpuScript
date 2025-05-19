@@ -7,8 +7,8 @@ namespace GpuScript
 {
   public class UI_uint2 : UI_Slider_base
   {
-    public uint2 Slider_Pow_Val(float2 v) => clamp(roundu(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, Nearest), range_Min, range_Max);
-    public float2 Slider_Log_Val(uint2 v) => is_Pow2_Slider ? log10(clamp(roundu(v, Nearest), range_Min, range_Max) * 0.999f + 1) : (float2)v;
+    public uint2 Slider_Pow_Val(float2 v) => clamp(roundu(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), range_Min, range_Max);
+    public float2 Slider_Log_Val(uint2 v) => is_Pow2_Slider ? log10(clamp(roundu(v, GetNearest((float2)v)), range_Min, range_Max) * 0.999f + 1) : (float2)v;
     public uint2 SliderV { get => Slider_Pow_Val(new float2(sliders[0].value, sliders[1].value)); set { if (sliders[0] != null) { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; } } }
     public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") }; 
     public UI_uint2() : base() { }
@@ -82,9 +82,9 @@ namespace GpuScript
 		public override bool Changed { get => any(v != _v); set => _v = value ? v - 1 : v; }
     public static implicit operator uint2(UI_uint2 f) => f.v; 
     public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider, 
-      bool isPow10, bool isPow2, float nearest, string treeGroup_parent)
+      bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
     {
-      base.Build(title, description, val, format, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, treeGroup_parent);
+      base.Build(title, description, val, format, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
       range_Min = rangeMin.To_uint2(); range_Max = rangeMax.To_uint2(); SliderV = val.To_uint2();
       if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
     }
@@ -102,7 +102,7 @@ namespace GpuScript
         ((UI_uint2)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
             m_uint2_value.GetValueFromBag(bag, cc), m_uint2_min.GetValueFromBag(bag, cc), m_uint2_max.GetValueFromBag(bag, cc),
             m_Format.GetValueFromBag(bag, cc), m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-            m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc),
+            m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
             m_TreeGroup_Parent.GetValueFromBag(bag, cc));
       }
     }
