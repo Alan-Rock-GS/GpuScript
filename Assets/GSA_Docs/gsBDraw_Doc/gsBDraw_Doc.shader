@@ -147,6 +147,7 @@ Shader "gs/gsBDraw_Doc"
   v2f BDraw_o_uv(float2 uv, v2f o) { o.uv = uv; return o; }
   v2f BDraw_o_wPos(float3 wPos, v2f o) { o.wPos = wPos; return o; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
+  v2f BDraw_o_r(float r, v2f o) { o.ti.w = r; return o; }
   float BDraw_o_r(v2f o) { return o.ti.w; }
   float4 frag_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
@@ -195,11 +196,10 @@ Shader "gs/gsBDraw_Doc"
   float4 frag_GS(v2f i, float4 color) { return frag_BDraw_GS(i, color); }
   v2f BDraw_o_pos(float4 pos, v2f o) { o.pos = pos; return o; }
   v2f BDraw_o_pos_PV(float3 p, float4 q, v2f o) { return BDraw_o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o); }
-  v2f BDraw_o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
-  v2f BDraw_o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
-  v2f BDraw_o_r(float r, v2f o) { o.ti.w = r; return o; }
   v2f BDraw_o_pos_c(float4 c, v2f o) { return BDraw_o_pos(UnityObjectToClipPos(c), o); }
   v2f BDraw_o_pos_c(float3 c, v2f o) { return BDraw_o_pos(UnityObjectToClipPos(c), o); }
+  v2f BDraw_o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
+  v2f BDraw_o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 BDraw_JQuadf(uint j) { return (float2)BDraw_JQuadu(j); }
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
@@ -248,12 +248,8 @@ Shader "gs/gsBDraw_Doc"
         case BDraw_TextAlignment_CenterRight: jp = -w / 2 * right; break;
         case BDraw_TextAlignment_TopRight: jp = -w / 2 * right - h / 2 * up; break;
       }
-      float4 p4 = new float4(p, 1), billboardQuad = float4((BDraw_wrapJ(j, 2) - 0.5f) * w, (0.5f - BDraw_wrapJ(j, 1)) * h, 0, 0);
-      o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + billboardQuad + float4(jp, 0));
-      o.normal = f00_;
-      o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize;
-      o.ti = float4(i, 0, BDraw_Draw_Text3D, i);
-      o.color = color;
+      float4 billboardQuad = float4((BDraw_wrapJ(j, 2) - 0.5f) * w, (0.5f - BDraw_wrapJ(j, 1)) * h, 0, 0);
+      o = BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Text3D, BDraw_o_r(i, BDraw_o_color(color, BDraw_o_pos_PV(p, billboardQuad + float4(jp, 0), BDraw_o_normal(f00_, BDraw_o_uv(float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize, o)))))));
     }
     else if (quadType == BDraw_Text_QuadType_Arrow)
     {
@@ -316,14 +312,7 @@ Shader "gs/gsBDraw_Doc"
           case BDraw_TextAlignment_TopRight: jp = -w * right - h * up; break;
         }
         float3 q0 = p + jp, q1 = q0 + right * w, p2 = q1 + up * h, p3 = q0 + up * h;
-        o.pos = UnityObjectToClipPos(o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? q0 : q1);
-        o.normal = cross(right, up);
-        if (quadType == BDraw_Text_QuadType_Switch && dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0)
-          o.uv = float2(1 - BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize;
-        else
-          o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize;
-        o.ti = float4(i, 0, BDraw_Draw_Text3D, i);
-        o.color = color;
+        o = BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Text3D, BDraw_o_r(i, BDraw_o_color(color, BDraw_o_pos_c(o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? q0 : q1, BDraw_o_normal(cross(right, up), BDraw_o_uv(quadType == BDraw_Text_QuadType_Switch && dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0 ? float2(1 - BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize : float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize, o)))))));
       }
     }
     return o;

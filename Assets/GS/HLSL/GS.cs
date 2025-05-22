@@ -455,7 +455,7 @@ namespace GpuScript
     public static float2 log10(float2 v) => float2(log10(v.x), log10(v.y));
     public static float3 log10(float3 v) => float3(log10(v.x), log10(v.y), log10(v.z));
     public static float4 log10(float4 v) => float4(log10(v.x), log10(v.y), log10(v.z), log10(v.w));
-    public static uint log10u(uint v) => flooru(log10(v)); 
+    public static uint log10u(uint v) => flooru(log10(v));
 
     //log2 - returns the base-2 logarithm of scalars and vectors
     public static readonly float LN2 = (float)Mathf.Log(2);
@@ -1574,6 +1574,14 @@ namespace GpuScript
       float3 c2 = float3(3.90307140f, 3.21182957f, 3.96587128f), x2 = float3(0.11748627f, 0.86755042f, 0.66077860f), y2 = float3(0.84897130f, 0.88445281f, 0.73949448f);
       return bump3y(c1 * (x - x1), y1) + bump3y(c2 * (x - x2), y2);
     }
+    public float4 rgb(float x, float3 a) { return float4(x < 0.5f ? 2 * x * a : (2 * x - 1) * f111, 1); }
+    public float4 red(float x) { return rgb(x, f100); }
+    public float4 green(float x) { return rgb(x, f010); }
+    public float4 blue(float x) { return rgb(x, f001); }
+    public float4 yellow(float x) { return rgb(x, f110); }
+    public float4 magenta(float x) { return rgb(x, f101); }
+    public float4 cyan(float x) { return rgb(x, f011); }
+    public float4 gray(float x) { return rgb(x, f111); }
 
     public static float step(float a, float x, float b) { return step(a, x) * step(x, b); }
 
