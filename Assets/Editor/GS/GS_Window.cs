@@ -144,7 +144,7 @@ public class GS_Window : EditorWindow
 
     //gsClass_name_val = gsClass_name.value = "gs" + newScene.name;
     //print($"CreateGUI(), scene = {SceneName}, gsClass_name = {gsClass_name.value}");
-    if($"gs{SceneName}".DoesNotEqual(gsClass_name.value)) 
+    if ($"gs{SceneName}".DoesNotEqual(gsClass_name.value))
       gsClass_name_val = gsClass_name.value = $"gs{SceneName}";
   }
 
@@ -1163,8 +1163,8 @@ public class GS_Window : EditorWindow
       string regions = _cs_lib_regions;
       int libI = 0;
       var libNames = lib_flds.Select(a => a.Name).ToList();
-      for (int i = 0; i < libNames.Count; i++)//detect if lib is or has BDraw, and make that libI == 0
-        if (_GS_Code.Contains($"{libNames[i]}_BDraw_")) { if (i > 0) { var item = libNames[i]; libNames.RemoveAt(i); libNames.Insert(0, item); } break; }
+      for (int i = 0; i < libNames.Count; i++)//detect if lib is or has ADraw, and make that libI == 0
+        if (_GS_Code.Contains($"{libNames[i]}_ADraw_")) { if (i > 0) { var item = libNames[i]; libNames.RemoveAt(i); libNames.Insert(0, item); } break; }
 
       for (int i = 0; i < render_methods.Length; i++)
       {
@@ -1206,8 +1206,8 @@ public class GS_Window : EditorWindow
       foreach (var lib_fld in lib_flds)
         if (lib_fld.isInternal_Lib())
         {
-          if (lib_fld.Name == "VGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
-          else if (lib_fld.Name == "BDraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+          if (lib_fld.Name == "AVGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+          else if (lib_fld.Name == "ADraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
         }
 
 
@@ -1791,7 +1791,7 @@ $"\n    {m_name}_To_UI();",
           s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
         }
 
-      if (uiDocument && gsName != "gsReport_Lib") s_onValueChanged.Add("\n    var type = \"gsReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
+      if (uiDocument && gsName != "gsAReport_Lib") s_onValueChanged.Add("\n    var type = \"gsAReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
 
       virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
         s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()", s_OnApplicationQuit, "OnApplicationQuit_GS()");
@@ -2556,7 +2556,7 @@ $"\n    {m_name}_To_UI();",
       }
 
       StrBldr _s = StrBldr();
-      foreach (var m in _methods)// add base_VGrid_InitBuffers0_GS(); from _cs_Code
+      foreach (var m in _methods)// add base_AVGrid_InitBuffers0_GS(); from _cs_Code
         if (m.name.IsAny("InitBuffers0_GS", "InitBuffers1_GS", "LateUpdate0_GS", "LateUpdate1_GS", "Update0_GS", "Update1_GS",
           "Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit", "Load_UI", "Save_UI"))
           _s.Add($"\n  public virtual {m.return_type} base_{Name}_{m.name}({m.args}){m.code.TrimEnd()}");
@@ -2978,16 +2978,25 @@ $"\n    {m_name}_To_UI();",
         string f = $"{AssetsPath}{p}/{name}";
         if (f.Exists())
         {
-          foreach (var dir in f.GetDirectories())
-          {
-            if (dir.DoesNotContainAny("~", "/GSA_"))
-            {
-              $"{dir}/".Rename($"{dir}~/");
-              $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
-            }
-          }
-        }
-      }
+					//foreach (var dir in f.GetDirectories())
+					//{
+					//  if (dir.DoesNotContainAny("~", "/GSA_"))
+					//  {
+					//    $"{dir}/".Rename($"{dir}~/");
+					//    $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
+					//  }
+					//}
+					foreach (var dir in f.GetDirectories())
+					{
+						if (dir.DoesNotContainAny("~", "/gsA"))
+						{
+							$"{dir}/".Rename($"{dir}~/");
+							$"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
+						}
+					}
+
+				}
+			}
       $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
       $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
@@ -3402,7 +3411,7 @@ $"\n    {m_name}_To_UI();",
   #region Unity Project Menu
   public static string Get_Report_Suffix(string path)
   {
-    string report = @$"{path}gsReport_Lib.txt";
+    string report = @$"{path}gsAReport_Lib.txt";
     if (report.Exists()) return report.ReadAllText().Between("suffixName\": \"", "\"");
     return "";
   }

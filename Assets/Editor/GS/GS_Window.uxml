@@ -10,7 +10,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="Lib" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px;">
             <ui:Button text="Paste" display-tooltip-when-elided="true" tooltip="Paste library information from email" name="Lib_Paste" style="height: 20px; width: 40px;" />
-            <ui:TextField picking-mode="Ignore" name="Lib_Info" value="OCam,you@gmail.com,2024/11/28,123456" tooltip="Library name, email, expires, key" style="height: 20px; min-width: 100px; width: 150px; flex-grow: 1;" />
+            <ui:TextField picking-mode="Ignore" name="Lib_Info" value="ACam,you@gmail.com,2024/11/28,123456" tooltip="Library name, email, expires, key" style="height: 20px; min-width: 100px; width: 150px; flex-grow: 1;" />
             <ui:Button text="Update" display-tooltip-when-elided="true" tooltip="Update Library" name="Lib_Update" style="height: 20px; width: 60px;" />
         </ui:VisualElement>
         <ui:VisualElement name="package" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; display: none;">
@@ -26,7 +26,7 @@
             <ui:Button text="Restore" display-tooltip-when-elided="true" tooltip="Restore GpuScript project" name="backup_Restore" style="height: 20px; width: 55px;" />
         </ui:VisualElement>
         <ui:VisualElement name="info" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
-            <ui:TextField picking-mode="Ignore" name="info_Android_dirs" readonly="false" value="Swarm,Rand,Gps" tooltip="Folders to include in Android" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1; flex-shrink: 1; display: none;" />
+            <ui:TextField picking-mode="Ignore" name="info_Android_dirs" readonly="false" value="Swarm,ARand,Gps" tooltip="Folders to include in Android" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1; flex-shrink: 1; display: none;" />
             <ui:DropdownField index="0" choices="Windows,Android" tooltip="Platform" name="info_platform" />
             <ui:TextField placeholder-text="company" name="company" tooltip="Company name" style="flex-grow: 1; min-width: auto; max-width: none; height: 20px;" />
             <ui:TextField placeholder-text="password" name="password" password="true" tooltip="keystore password" style="flex-grow: 1; height: 20px;" />

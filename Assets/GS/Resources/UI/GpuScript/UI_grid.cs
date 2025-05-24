@@ -235,7 +235,7 @@ namespace GpuScript
 			DrawGrid();
 		}
 		uint DisplayColN { get { uint displayN = 0; for (int i = 0; i < displayColumns.Count; i++) displayN += GS.Is(displayColumns[i].v); return displayN; } }
-		public static float GetGridWidth(uint colN, bool displayVGrid) => 20 + colN * 100 + (displayVGrid ? 24 : 0);
+		public static float GetGridWidth(uint colN, bool displayAVGrid) => 20 + colN * 100 + (displayAVGrid ? 24 : 0);
 		private void OnDisplayColumnValueChanged(ChangeEvent<bool> evt) { DrawGrid(); }
 		public Func<int> RowN;
 		//public int arrayLength => RowN == null ? (RowN = Expression.Lambda<Func<int>>(Expression.Call(Expression.Constant(gs), $"{name}_GetGridArrayLength".GetMethod(gs))).Compile())() : RowN();
