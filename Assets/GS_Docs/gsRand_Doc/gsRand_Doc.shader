@@ -106,7 +106,7 @@ Shader "gs/gsRand_Doc"
   #define BDraw_SPACE 32
   struct GRand_Doc
   {
-    uint pntN, starN, starPathN, drawGroup, BDraw_AppendBuff_IndexN, BDraw_AppendBuff_BitN, BDraw_AppendBuff_N, BDraw_AppendBuff_BitN1, BDraw_AppendBuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
+    uint pntN, starN, starPathN, drawGroup, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
     float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, Area_PI_Val, Area_PI_Error, Area_PI_Runtime, Area_PI_TFlops, Integral_PI_Val, Integral_PI_Error, Integral_PI_Runtime, Integral_PI_TFlops, starBorderReward, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
@@ -116,7 +116,7 @@ Shader "gs/gsRand_Doc"
   RWStructuredBuffer<GRand_Doc> gRand_Doc;
   RWStructuredBuffer<float3> stars;
   RWStructuredBuffer<int3> segments;
-  RWStructuredBuffer<uint> starPaths, pathLengths, uints, BDraw_tab_delimeted_text, BDraw_AppendBuff_Bits, BDraw_AppendBuff_Sums, BDraw_AppendBuff_Indexes, BDraw_AppendBuff_Fills1, BDraw_AppendBuff_Fills2;
+  RWStructuredBuffer<uint> starPaths, pathLengths, uints, BDraw_tab_delimeted_text, BDraw_ABuff_Bits, BDraw_ABuff_Sums, BDraw_ABuff_Indexes, BDraw_ABuff_Fills1, BDraw_ABuff_Fills2;
   RWStructuredBuffer<int> ints;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
@@ -164,7 +164,7 @@ Shader "gs/gsRand_Doc"
     }
     return color;
   }
-  uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_AppendBuff_Indexes[textI - 1] + 1, textI < g.BDraw_AppendBuff_IndexN ? BDraw_AppendBuff_Indexes[textI] : g.BDraw_textCharN); }
+  uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   v2f BDraw_o_i(uint i, v2f o) { o.ti.x = i; return o; }
   v2f BDraw_o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
   v2f BDraw_o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
@@ -294,12 +294,8 @@ Shader "gs/gsRand_Doc"
         case BDraw_TextAlignment_CenterRight: jp = -w / 2 * right; break;
         case BDraw_TextAlignment_TopRight: jp = -w / 2 * right - h / 2 * up; break;
       }
-      float4 p4 = new float4(p, 1), billboardQuad = float4((BDraw_wrapJ(j, 2) - 0.5f) * w, (0.5f - BDraw_wrapJ(j, 1)) * h, 0, 0);
-      o.pos = mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, p4) + billboardQuad + float4(jp, 0));
-      o.normal = f00_;
-      o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize;
-      o.ti = float4(i, 0, BDraw_Draw_Text3D, i);
-      o.color = color;
+      float4 billboardQuad = float4((BDraw_wrapJ(j, 2) - 0.5f) * w, (0.5f - BDraw_wrapJ(j, 1)) * h, 0, 0);
+      o = BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Text3D, BDraw_o_r(i, BDraw_o_color(color, BDraw_o_pos_PV(p, billboardQuad + float4(jp, 0), BDraw_o_normal(f00_, BDraw_o_uv(float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize, o)))))));
     }
     else if (quadType == BDraw_Text_QuadType_Arrow)
     {
@@ -362,14 +358,7 @@ Shader "gs/gsRand_Doc"
           case BDraw_TextAlignment_TopRight: jp = -w * right - h * up; break;
         }
         float3 q0 = p + jp, q1 = q0 + right * w, p2 = q1 + up * h, p3 = q0 + up * h;
-        o.pos = UnityObjectToClipPos(o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? q0 : q1);
-        o.normal = cross(right, up);
-        if (quadType == BDraw_Text_QuadType_Switch && dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0)
-          o.uv = float2(1 - BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize;
-        else
-          o.uv = float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize;
-        o.ti = float4(i, 0, BDraw_Draw_Text3D, i);
-        o.color = color;
+        o = BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Text3D, BDraw_o_r(i, BDraw_o_color(color, BDraw_o_pos_c(o.wPos = j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? q0 : q1, BDraw_o_normal(cross(right, up), BDraw_o_uv(quadType == BDraw_Text_QuadType_Switch && dot(p - _WorldSpaceCameraPos, cross(right, up)) < 0 ? float2(1 - BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize : float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)) * uvSize, o)))))));
       }
     }
     return o;

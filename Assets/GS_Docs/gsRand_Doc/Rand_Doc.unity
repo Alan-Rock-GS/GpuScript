@@ -1248,10 +1248,10 @@ GameObject:
   - component: {fileID: 622991500}
   - component: {fileID: 622991499}
   - component: {fileID: 622991498}
-  - component: {fileID: 622991502}
-  - component: {fileID: 622991501}
   - component: {fileID: 622991503}
-  - component: {fileID: 622991504}
+  - component: {fileID: 622991507}
+  - component: {fileID: 622991506}
+  - component: {fileID: 622991505}
   m_Layer: 0
   m_Name: gsRand_Doc
   m_TagString: Untagged
@@ -5684,9 +5684,7 @@ MonoBehaviour:
   kernel_BDraw_AppendBuff_GetFills2: 0
   kernel_BDraw_AppendBuff_GetFills1: 0
   kernel_BDraw_AppendBuff_Get_Bits_Sums: 0
-  kernel_BDraw_AppendBuff_Get_Existing_Sums: 0
   kernel_BDraw_AppendBuff_GetSums: 0
-  kernel_BDraw_AppendBuff_Get_Existing_Bits: 0
   kernel_BDraw_AppendBuff_Get_Bits: 0
   kernel_BDraw_setDefaultTextInfo: 0
   kernel_BDraw_getTextInfo: 0
@@ -5722,7 +5720,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &622991501
+--- !u!114 &622991503
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5731,7 +5729,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 622991495}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c284fa652a07a54586c5a0276b25a48, type: 3}
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 11400000, guid: a64302c2b81fd3b449678afffdc420b0, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 7da0924dc2490ef42acc1ad7654353be, type: 3}
+  m_SortingOrder: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+--- !u!114 &622991505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622991495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 322513dd8498658439d01e5aedffeaaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   uxml_level: 2
@@ -5740,8 +5757,8 @@ MonoBehaviour:
   generateComputeShader: 0
   const_bindings: 56
   SM6: 1
-  computeShader: {fileID: 7200000, guid: 31e24dd732e577649bf1121b5d9eb590, type: 3}
-  material: {fileID: 2100000, guid: 51b3cf205e296a844839c6a33fe9f1b9, type: 2}
+  computeShader: {fileID: 7200000, guid: d489205a15f03c3428949b26f041d4f8, type: 3}
+  material: {fileID: 2100000, guid: ecc811e7d63f68742a27cfe98655b85f, type: 2}
   renderTextures: []
   sync: 0
   render: 1
@@ -6038,7 +6055,7 @@ MonoBehaviour:
   camDist: 0
   has_missing_importFiles: 0
   translation: 
---- !u!114 &622991502
+--- !u!114 &622991506
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6047,7 +6064,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 622991495}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c6afcd38b087c341a8a5aa000d9e872, type: 3}
+  m_Script: {fileID: 11500000, guid: db41422a59e031647948665655820d40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   uxml_level: 2
@@ -6056,8 +6073,8 @@ MonoBehaviour:
   generateComputeShader: 0
   const_bindings: 56
   SM6: 1
-  computeShader: {fileID: 7200000, guid: 72272a09e4e7de148b5a7a12d46e029d, type: 3}
-  material: {fileID: 2100000, guid: c0d7b0c0efd3acb42a05e88268e81940, type: 2}
+  computeShader: {fileID: 7200000, guid: f7451a1291232ec428c6a2a83e1cb396, type: 3}
+  material: {fileID: 2100000, guid: f81e801c6efa0994bbad3ce2a602e362, type: 2}
   renderTextures: []
   sync: 0
   render: 1
@@ -6292,7 +6309,6 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
-    legendViewWidth: 0
     tiltSpin:
       x: 0
       y: 0
@@ -6318,6 +6334,7 @@ MonoBehaviour:
     legendAxisTitle: 
     legendFormat: 
     legendSphereTitles: 
+    legendViewWidthPixels: 0
   g:
     BDraw_AppendBuff_IndexN: 0
     BDraw_AppendBuff_BitN: 0
@@ -6337,6 +6354,7 @@ MonoBehaviour:
     displayLegend: 0
     displayLegendPalette: 0
     paletteType: 0
+    legendViewWidthPixels: 0
     displayLegendBackground: 0
     legendSphereN: 0
     legendPaletteN: 0
@@ -6392,9 +6410,7 @@ MonoBehaviour:
   kernel_BDraw_AppendBuff_GetFills2: 0
   kernel_BDraw_AppendBuff_GetFills1: 0
   kernel_BDraw_AppendBuff_Get_Bits_Sums: 0
-  kernel_BDraw_AppendBuff_Get_Existing_Sums: 0
   kernel_BDraw_AppendBuff_GetSums: 0
-  kernel_BDraw_AppendBuff_Get_Existing_Bits: 0
   kernel_BDraw_AppendBuff_Get_Bits: 0
   kernel_BDraw_setDefaultTextInfo: 0
   kernel_BDraw_getTextInfo: 0
@@ -6409,7 +6425,7 @@ MonoBehaviour:
   target: {fileID: 0}
   _target: {fileID: 0}
   webCamTexture: {fileID: 0}
---- !u!114 &622991503
+--- !u!114 &622991507
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6418,26 +6434,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 622991495}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: a64302c2b81fd3b449678afffdc420b0, type: 2}
-  m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 7da0924dc2490ef42acc1ad7654353be, type: 3}
-  m_SortingOrder: 0
-  m_WorldSpaceSizeMode: 1
-  m_WorldSpaceWidth: 1920
-  m_WorldSpaceHeight: 1080
---- !u!114 &622991504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 622991495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d06f5f320e64d62429c39e17b100a83d, type: 3}
+  m_Script: {fileID: 11500000, guid: 0d6b84b30ab70484a832a416f655308d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   uxml_level: 2

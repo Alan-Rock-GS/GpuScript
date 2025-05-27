@@ -1,0 +1,35 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define g gRand[0]
+  #pragma use_dxc
+  struct GRand
+  {
+    uint N, I, J;
+    uint4 seed4;
+  };
+  groupshared uint4 grp[1024];
+  RWStructuredBuffer<GRand> gRand;
+  RWStructuredBuffer<uint4> rs;
+  [numthreads(numthreads1, 1, 1)] void initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; rs[i] = i == 0 ? g.seed4 : u0000; } } }
+  [numthreads(numthreads1, 1, 1)] void grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  uint UV(uint4 r) { return cxor(r); }
+  float FV(uint4 r) { return 2.3283064365387e-10f * UV(r); }
+  uint u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
+  uint4 U4(uint4 r) { return uint4(u(r.x, 13, 19, 12, 4294967294u), u(r.y, 2, 25, 4, 4294967288u), u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
+  uint4 rUInt4(uint i) { return U4(rs[i]); }
+  uint4 UInt4(uint i) { return rs[i] = rUInt4(i); }
+  float Float(uint i) { return FV(UInt4(i)); }
+  float Float(uint i, float A, float B) { return lerp(A, B, Float(i)); }
+  uint UInt(uint i, uint A, uint B) { return flooru(Float(i, A, B)); }
+  [numthreads(numthreads1, 1, 1)] void initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.I) { uint i = id.x + g.I; if (i < g.N) rs[i] = index(rs[i], g.J, UInt(id.x, 0, uint_max)); } } }
+  #pragma kernel initState
+  #pragma kernel initSeed
+  #pragma kernel grp_fill_1K
+  #pragma kernel grp_init_1K
+  #pragma kernel grp_init_1M

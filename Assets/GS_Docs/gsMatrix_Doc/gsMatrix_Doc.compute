@@ -12,14 +12,14 @@
   #pragma use_dxc
   struct GMatrix_Doc
   {
-    uint MatN, MatRowN, runOn, useInterlocked, debug, repeatN, Matrix_IntsN, Matrix_col_m, Matrix_row_n, Matrix_XN, Matrix_AI0, Matrix_XsI0, Matrix_BsI0, ARand_N, ARand_I, ARand_J, N, focusedColumn, focusedRow;
-    uint4 ARand_seed4, LowerTriangleBounds;
+    uint MatN, MatRowN, runOn, useInterlocked, debug, repeatN, Matrix_IntsN, Matrix_col_m, Matrix_row_n, Matrix_XN, Matrix_AI0, Matrix_XsI0, Matrix_BsI0, Rand_N, Rand_I, Rand_J, N, focusedColumn, focusedRow;
+    uint4 Rand_seed4, LowerTriangleBounds;
     float maxAbs, rowMultiplier, scale;
   };
-  groupshared uint4 ARand_grp[1024];
+  groupshared uint4 Rand_grp[1024];
   groupshared float grp_f_4096[4096];
   RWStructuredBuffer<GMatrix_Doc> gMatrix_Doc;
-  RWStructuredBuffer<uint4> ARand_rs;
+  RWStructuredBuffer<uint4> Rand_rs;
   RWStructuredBuffer<int> Mat_A, Mat_x, Mat_b, Matrix_Ints, ia, sums;
   RWStructuredBuffer<float> Matrix_A_matrix, Matrix_Xs, Matrix_Bs, a, X, Y, b, row_maxAbs;
   RWStructuredBuffer<uint> P, uints;
@@ -43,31 +43,17 @@
 	
     }
   }
-  [numthreads(numthreads1, 1, 1)] void ARand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ARand_N) { uint i = id.x; ARand_rs[i] = i == 0 ? g.ARand_seed4 : u0000; } } }
-  [numthreads(numthreads1, 1, 1)] void Divide_by_maxAbs(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N * g.N) { } } }
-  [numthreads(numthreads1, 1, 1)] void MakeLowerTriangleZeroAndFillWithL(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
+  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Get_A_matrix(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { } } }
+  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Set_A_matrix(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.x < g.N) { }
+      if (id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { }
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void ARand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
-  [numthreads(numthreads1, 1, 1)] void ARand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
-  [numthreads(numthreads1, 1, 1)] void ARand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
-  [numthreads(numthreads3, numthreads3, numthreads3)] void Matrix_Calc_bs(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.z < g.Matrix_XN && id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { }
-     
-    }
-  }
-  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Zero_bs(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Set_Xs(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -83,7 +69,7 @@
      
     }
   }
-  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Set_Xs(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Zero_bs(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -91,19 +77,33 @@
      
     }
   }
-  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Set_A_matrix(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Matrix_Calc_bs(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { }
+      if (id.z < g.Matrix_XN && id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { }
      
     }
   }
-  [numthreads(numthreads2, numthreads2, 1)] void Matrix_Get_A_matrix(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void MakeLowerTriangleZeroAndFillWithL(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { }
+      if (id.x < g.N) { }
+     
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void Divide_by_maxAbs(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N * g.N) { }
      
     }
   }
@@ -312,16 +312,16 @@
 	
     }
   }
-  uint ARand_UV(uint4 r) { return cxor(r); }
-  float ARand_FV(uint4 r) { return 2.3283064365387e-10f * ARand_UV(r); }
-  uint ARand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
-  uint4 ARand_U4(uint4 r) { return uint4(ARand_u(r.x, 13, 19, 12, 4294967294u), ARand_u(r.y, 2, 25, 4, 4294967288u), ARand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
-  uint4 ARand_rUInt4(uint i) { return ARand_U4(ARand_rs[i]); }
-  uint4 ARand_UInt4(uint i) { return ARand_rs[i] = ARand_rUInt4(i); }
-  float ARand_Float(uint i) { return ARand_FV(ARand_UInt4(i)); }
-  float ARand_Float(uint i, float A, float B) { return lerp(A, B, ARand_Float(i)); }
-  uint ARand_UInt(uint i, uint A, uint B) { return flooru(ARand_Float(i, A, B)); }
-  [numthreads(numthreads1, 1, 1)] void ARand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ARand_I) { uint i = id.x + g.ARand_I; if (i < g.ARand_N) ARand_rs[i] = index(ARand_rs[i], g.ARand_J, ARand_UInt(id.x, 0, uint_max)); } } }
+  uint Rand_UV(uint4 r) { return cxor(r); }
+  float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
+  uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
+  uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
+  uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
+  uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
+  float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
+  float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
+  uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
+  [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
   [numthreads(numthreads1, 1, 1)] void Find_maxAbs(uint3 id : SV_DispatchThreadID)
   {
     unchecked
@@ -351,16 +351,16 @@
   #pragma kernel Init_Mat_b
   #pragma kernel Init_Mat_x
   #pragma kernel Init_Mat_A
-  #pragma kernel ARand_initState
-  #pragma kernel ARand_initSeed
-  #pragma kernel Divide_by_maxAbs
-  #pragma kernel MakeLowerTriangleZeroAndFillWithL
-  #pragma kernel ARand_grp_fill_1K
-  #pragma kernel ARand_grp_init_1K
-  #pragma kernel ARand_grp_init_1M
-  #pragma kernel Matrix_Calc_bs
-  #pragma kernel Matrix_Zero_bs
-  #pragma kernel Matrix_Get_Bs
-  #pragma kernel Matrix_Set_Xs
-  #pragma kernel Matrix_Set_A_matrix
+  #pragma kernel Rand_initState
+  #pragma kernel Rand_initSeed
   #pragma kernel Matrix_Get_A_matrix
+  #pragma kernel Matrix_Set_A_matrix
+  #pragma kernel Matrix_Set_Xs
+  #pragma kernel Matrix_Get_Bs
+  #pragma kernel Matrix_Zero_bs
+  #pragma kernel Matrix_Calc_bs
+  #pragma kernel Rand_grp_init_1M
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_fill_1K
+  #pragma kernel MakeLowerTriangleZeroAndFillWithL
+  #pragma kernel Divide_by_maxAbs

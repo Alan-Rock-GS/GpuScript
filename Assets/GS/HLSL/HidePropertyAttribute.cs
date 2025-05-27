@@ -27,7 +27,7 @@
 
 ////#if UNITY_EDITOR
 ////[CustomPropertyDrawer(typeof(GS))]
-//////[CustomPropertyDrawer(typeof(gsAVGrid_Test))]
+//////[CustomPropertyDrawer(typeof(gsVGrid_Test))]
 ////public class GSDrawer : PropertyDrawer
 ////{
 ////  //public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

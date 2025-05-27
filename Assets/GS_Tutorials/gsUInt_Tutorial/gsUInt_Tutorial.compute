@@ -2,156 +2,156 @@
   #include "UnityCG.cginc"
   #include "Lighting.cginc"
   #include "../../GS/GS_Compute.cginc"
-  #define ADraw_Draw_Point	0
-  #define ADraw_Draw_Sphere	1
-  #define ADraw_Draw_Line	2
-  #define ADraw_Draw_Arrow	3
-  #define ADraw_Draw_Signal	4
-  #define ADraw_Draw_LineSegment	5
-  #define ADraw_Draw_Texture_2D	6
-  #define ADraw_Draw_Quad	7
-  #define ADraw_Draw_WebCam	8
-  #define ADraw_Draw_Mesh	9
-  #define ADraw_Draw_Number	10
-  #define ADraw_Draw_N	11
-  #define ADraw_TextAlignment_BottomLeft	0
-  #define ADraw_TextAlignment_CenterLeft	1
-  #define ADraw_TextAlignment_TopLeft	2
-  #define ADraw_TextAlignment_BottomCenter	3
-  #define ADraw_TextAlignment_CenterCenter	4
-  #define ADraw_TextAlignment_TopCenter	5
-  #define ADraw_TextAlignment_BottomRight	6
-  #define ADraw_TextAlignment_CenterRight	7
-  #define ADraw_TextAlignment_TopRight	8
-  #define ADraw_Text_QuadType_FrontOnly	0
-  #define ADraw_Text_QuadType_FrontBack	1
-  #define ADraw_Text_QuadType_Switch	2
-  #define ADraw_Text_QuadType_Arrow	3
-  #define ADraw_Text_QuadType_Billboard	4
-  #define ADraw_Draw_Text3D 12
-  #define ADraw_LF 10
-  #define ADraw_TB 9
-  #define ADraw_ZERO 48
-  #define ADraw_NINE 57
-  #define ADraw_PERIOD 46
-  #define ADraw_COMMA 44
-  #define ADraw_PLUS 43
-  #define ADraw_MINUS 45
-  #define ADraw_SPACE 32
+  #define BDraw_Draw_Point	0
+  #define BDraw_Draw_Sphere	1
+  #define BDraw_Draw_Line	2
+  #define BDraw_Draw_Arrow	3
+  #define BDraw_Draw_Signal	4
+  #define BDraw_Draw_LineSegment	5
+  #define BDraw_Draw_Texture_2D	6
+  #define BDraw_Draw_Quad	7
+  #define BDraw_Draw_WebCam	8
+  #define BDraw_Draw_Mesh	9
+  #define BDraw_Draw_Number	10
+  #define BDraw_Draw_N	11
+  #define BDraw_TextAlignment_BottomLeft	0
+  #define BDraw_TextAlignment_CenterLeft	1
+  #define BDraw_TextAlignment_TopLeft	2
+  #define BDraw_TextAlignment_BottomCenter	3
+  #define BDraw_TextAlignment_CenterCenter	4
+  #define BDraw_TextAlignment_TopCenter	5
+  #define BDraw_TextAlignment_BottomRight	6
+  #define BDraw_TextAlignment_CenterRight	7
+  #define BDraw_TextAlignment_TopRight	8
+  #define BDraw_Text_QuadType_FrontOnly	0
+  #define BDraw_Text_QuadType_FrontBack	1
+  #define BDraw_Text_QuadType_Switch	2
+  #define BDraw_Text_QuadType_Arrow	3
+  #define BDraw_Text_QuadType_Billboard	4
+  #define BDraw_Draw_Text3D 12
+  #define BDraw_LF 10
+  #define BDraw_TB 9
+  #define BDraw_ZERO 48
+  #define BDraw_NINE 57
+  #define BDraw_PERIOD 46
+  #define BDraw_COMMA 44
+  #define BDraw_PLUS 43
+  #define BDraw_MINUS 45
+  #define BDraw_SPACE 32
   #define g gUInt_Tutorial[0]
   #pragma use_dxc
   struct GUInt_Tutorial
   {
-    uint displaySpheres, sphereN, ADraw_ABuff_IndexN, ADraw_ABuff_BitN, ADraw_ABuff_N, ADraw_ABuff_BitN1, ADraw_ABuff_BitN2, ADraw_omitText, ADraw_includeUnicode, ADraw_fontInfoN, ADraw_textN, ADraw_textCharN, ADraw_boxEdgeN;
-    float ADraw_fontSize, ADraw_boxThickness;
-    float4 ADraw_boxColor;
+    uint displaySpheres, sphereN, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
+    float BDraw_fontSize, BDraw_boxThickness;
+    float4 BDraw_boxColor;
   };
-  struct ADraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
-  struct ADraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
-  groupshared uint ADraw_ABuff_grp[1024];
-  groupshared uint ADraw_ABuff_grp0[1024];
+  struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  groupshared uint BDraw_ABuff_grp[1024];
+  groupshared uint BDraw_ABuff_grp0[1024];
   RWStructuredBuffer<GUInt_Tutorial> gUInt_Tutorial;
-  RWStructuredBuffer<uint> ADraw_tab_delimeted_text, ADraw_ABuff_Bits, ADraw_ABuff_Sums, ADraw_ABuff_Indexes, ADraw_ABuff_Fills1, ADraw_ABuff_Fills2;
-  RWStructuredBuffer<ADraw_TextInfo> ADraw_textInfos;
-  RWStructuredBuffer<ADraw_FontInfo> ADraw_fontInfos;
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ADraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : ADraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = ADraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); ADraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ADraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) ADraw_ABuff_Fills1[i] += ADraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  RWStructuredBuffer<uint> BDraw_tab_delimeted_text, BDraw_ABuff_Bits, BDraw_ABuff_Sums, BDraw_ABuff_Indexes, BDraw_ABuff_Fills1, BDraw_ABuff_Fills2;
+  RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
+  RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Fills1[i] += BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
   {
-    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.ADraw_ABuff_BitN2 - 1 ? ADraw_ABuff_Fills1[j] : i < g.ADraw_ABuff_BitN2 ? ADraw_ABuff_Fills1[g.ADraw_ABuff_BitN1 - 1] : 0, s;
-    ADraw_ABuff_grp0[grpI] = c; ADraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN2 - 1 ? BDraw_ABuff_Fills1[j] : i < g.BDraw_ABuff_BitN2 ? BDraw_ABuff_Fills1[g.BDraw_ABuff_BitN1 - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
     for (s = 1; s < numthreads1; s *= 2)
     {
-      if (grpI >= s && i < g.ADraw_ABuff_BitN2) ADraw_ABuff_grp[grpI] = ADraw_ABuff_grp0[grpI] + ADraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
-      ADraw_ABuff_grp0[grpI] = ADraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+      if (grpI >= s && i < g.BDraw_ABuff_BitN2) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
     }
-    if (i < g.ADraw_ABuff_BitN2) ADraw_ABuff_Fills2[i] = ADraw_ABuff_grp[grpI];
+    if (i < g.BDraw_ABuff_BitN2) BDraw_ABuff_Fills2[i] = BDraw_ABuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
   {
-    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.ADraw_ABuff_BitN1 - 1 ? ADraw_ABuff_Sums[j] : i < g.ADraw_ABuff_BitN1 ? ADraw_ABuff_Sums[g.ADraw_ABuff_BitN - 1] : 0, s;
-    ADraw_ABuff_grp0[grpI] = c; ADraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN1 - 1 ? BDraw_ABuff_Sums[j] : i < g.BDraw_ABuff_BitN1 ? BDraw_ABuff_Sums[g.BDraw_ABuff_BitN - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
     for (s = 1; s < numthreads1; s *= 2)
     {
-      if (grpI >= s && i < g.ADraw_ABuff_BitN1) ADraw_ABuff_grp[grpI] = ADraw_ABuff_grp0[grpI] + ADraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
-      ADraw_ABuff_grp0[grpI] = ADraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+      if (grpI >= s && i < g.BDraw_ABuff_BitN1) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
     }
-    if (i < g.ADraw_ABuff_BitN1) ADraw_ABuff_Fills1[i] = ADraw_ABuff_grp[grpI];
+    if (i < g.BDraw_ABuff_BitN1) BDraw_ABuff_Fills1[i] = BDraw_ABuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
   {
-    uint i = id.x, c = i < g.ADraw_ABuff_BitN ? countbits(ADraw_ABuff_Bits[i]) : 0, s;
-    ADraw_ABuff_grp0[grpI] = c; ADraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    uint i = id.x, c = i < g.BDraw_ABuff_BitN ? countbits(BDraw_ABuff_Bits[i]) : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
     for (s = 1; s < numthreads1; s *= 2)
     {
-      if (grpI >= s && i < g.ADraw_ABuff_BitN) ADraw_ABuff_grp[grpI] = ADraw_ABuff_grp0[grpI] + ADraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
-      ADraw_ABuff_grp0[grpI] = ADraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
     }
-    if (i < g.ADraw_ABuff_BitN) ADraw_ABuff_Sums[i] = ADraw_ABuff_grp[grpI];
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
   }
-  ADraw_TextInfo ADraw_textInfo(uint i) { return ADraw_textInfos[i]; }
-  void ADraw_textInfo(uint i, ADraw_TextInfo t) { ADraw_textInfos[i] = t; }
-  [numthreads(numthreads1, 1, 1)] void ADraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
+  BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
+  void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
+  [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.x < g.ADraw_textN)
+      if (id.x < g.BDraw_textN)
     {
       uint i = id.x;
       if (i > 0)
       {
-        ADraw_TextInfo t = ADraw_textInfo(0), ti = ADraw_textInfo(i);
+        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
         ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
         ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        ADraw_textInfo(i, ti);
+        BDraw_textInfo(i, ti);
       }
     }
     }
   }
-  uint2 ADraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : ADraw_ABuff_Indexes[textI - 1] + 1, textI < g.ADraw_ABuff_IndexN ? ADraw_ABuff_Indexes[textI] : g.ADraw_textCharN); }
-  uint ADraw_Byte(uint i) { return TextByte(ADraw_tab_delimeted_text, i); }
-  [numthreads(numthreads1, 1, 1)] void ADraw_getTextInfo(uint3 id : SV_DispatchThreadID)
+  uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
+  uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.x < g.ADraw_textN)
+      if (id.x < g.BDraw_textN)
     {
       uint i = id.x;
-      ADraw_TextInfo ti = ADraw_textInfo(i);
+      BDraw_TextInfo ti = BDraw_textInfo(i);
       ti.textI = i;
       ti.uvSize = f01;
-      uint2 textIs = ADraw_Get_text_indexes(i);
+      uint2 textIs = BDraw_Get_text_indexes(i);
       float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = ADraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += ADraw_fontInfos[byteI].advance; } }
-      t.x /= g.ADraw_fontSize;
+      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+      t.x /= g.BDraw_fontSize;
       ti.uvSize = t;
-      ADraw_textInfo(i, ti);
+      BDraw_textInfo(i, ti);
     }
     }
   }
-  bool ADraw_ABuff_IsBitOn(uint i) { uint c = ADraw_Byte(i); return c == ADraw_TB || c == ADraw_LF; }
-  uint ADraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.ADraw_ABuff_N && ADraw_ABuff_IsBitOn(i)) << (int)j); }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
+  uint BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_ABuff_N && BDraw_ABuff_IsBitOn(i)) << (int)j); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
   {
     uint i = id.x, c, s, j, k, bits = 0;
-    if (i < g.ADraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = ADraw_ABuff_Assign_Bits(k + j, j, bits); ADraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
-    ADraw_ABuff_grp0[grpI] = c; ADraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
     for (s = 1; s < numthreads1; s *= 2)
     {
-      if (grpI >= s && i < g.ADraw_ABuff_BitN) ADraw_ABuff_grp[grpI] = ADraw_ABuff_grp0[grpI] + ADraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
-      ADraw_ABuff_grp0[grpI] = ADraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
     }
-    if (i < g.ADraw_ABuff_BitN) ADraw_ABuff_Sums[i] = ADraw_ABuff_grp[grpI];
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ADraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.ADraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = ADraw_ABuff_Assign_Bits(k + j, j, bits); ADraw_ABuff_Bits[i] = bits; } } } }
-  [numthreads(numthreads1, 1, 1)] void ADraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ADraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) ADraw_ABuff_Sums[i] += ADraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.ADraw_ABuff_BitN - 1) g.ADraw_ABuff_IndexN = ADraw_ABuff_Sums[i]; } } }
-  #pragma kernel ADraw_ABuff_GetIndexes
-  #pragma kernel ADraw_ABuff_IncSums
-  #pragma kernel ADraw_ABuff_IncFills1
-  #pragma kernel ADraw_ABuff_GetFills2
-  #pragma kernel ADraw_ABuff_GetFills1
-  #pragma kernel ADraw_ABuff_Get_Bits_Sums
-  #pragma kernel ADraw_ABuff_GetSums
-  #pragma kernel ADraw_ABuff_Get_Bits
-  #pragma kernel ADraw_setDefaultTextInfo
-  #pragma kernel ADraw_getTextInfo
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; } } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Sums[i] += BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.BDraw_ABuff_BitN - 1) g.BDraw_ABuff_IndexN = BDraw_ABuff_Sums[i]; } } }
+  #pragma kernel BDraw_ABuff_GetIndexes
+  #pragma kernel BDraw_ABuff_IncSums
+  #pragma kernel BDraw_ABuff_IncFills1
+  #pragma kernel BDraw_ABuff_GetFills2
+  #pragma kernel BDraw_ABuff_GetFills1
+  #pragma kernel BDraw_ABuff_Get_Bits_Sums
+  #pragma kernel BDraw_ABuff_GetSums
+  #pragma kernel BDraw_ABuff_Get_Bits
+  #pragma kernel BDraw_setDefaultTextInfo
+  #pragma kernel BDraw_getTextInfo

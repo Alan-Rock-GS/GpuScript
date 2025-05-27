@@ -21,8 +21,8 @@
   RWStructuredBuffer<float> a, X, Y, b, row_maxAbs;
   RWStructuredBuffer<int> ia, sums;
   RWStructuredBuffer<uint> P, uints;
-  [numthreads(numthreads1, 1, 1)] void InitP(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { } } }
-  [numthreads(numthreads1, 1, 1)] void Find_maxAbs(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void A_times_B_to_X(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { } } }
+  [numthreads(numthreads1, 1, 1)] void Interlock_SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -30,7 +30,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Find_maxElementRow(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Interlock_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -38,7 +38,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementVal(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Interlock_Sum_SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -46,7 +46,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementRow(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Interlock_Sum_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -54,39 +54,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void MakeLowerTriangleZeroAndFillWithL(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { }
-     
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Divide_by_maxAbs(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N * g.N) { }
-     
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Find_rowMultiplier(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < 1) { }
-     
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void MakeElementZeroAndFillWithLowerMatrixElement(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { }
-     
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Set_rowMultiplier(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -102,7 +70,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Set_rowMultiplier(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -110,7 +78,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Interlock_Sum_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void MakeElementZeroAndFillWithLowerMatrixElement(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -118,15 +86,7 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Interlock_Sum_SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { }
-     
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Interlock_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Find_rowMultiplier(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -134,7 +94,39 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Interlock_SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Divide_by_maxAbs(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N * g.N) { }
+     
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void MakeLowerTriangleZeroAndFillWithL(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N) { }
+     
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementRow(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N) { }
+     
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementVal(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N) { }
+     
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void Find_maxElementRow(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
@@ -142,19 +134,11 @@
      
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Zero_B(uint3 id : SV_DispatchThreadID)
+  [numthreads(numthreads1, 1, 1)] void Find_maxAbs(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
-      if (id.x < g.N) { }
-     
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void A_times_B_to_X(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { }
+      if (id.x < 1) { }
      
     }
   }
@@ -166,22 +150,38 @@
      
     }
   }
-  #pragma kernel InitP
-  #pragma kernel Find_row_maxAbs
-  #pragma kernel Find_maxAbs
-  #pragma kernel Find_maxElementRow
-  #pragma kernel Interlock_Find_maxElementVal
-  #pragma kernel Interlock_Find_maxElementRow
-  #pragma kernel MakeLowerTriangleZeroAndFillWithL
-  #pragma kernel Divide_by_maxAbs
-  #pragma kernel Find_rowMultiplier
-  #pragma kernel MakeElementZeroAndFillWithLowerMatrixElement
-  #pragma kernel Set_rowMultiplier
-  #pragma kernel SolveYfromLYequalB
-  #pragma kernel SolveXfromUXequalY
-  #pragma kernel Interlock_Sum_SolveYfromLYequalB
-  #pragma kernel Interlock_Sum_SolveXfromUXequalY
-  #pragma kernel Interlock_SolveYfromLYequalB
-  #pragma kernel Interlock_SolveXfromUXequalY
-  #pragma kernel Zero_B
+  [numthreads(numthreads1, 1, 1)] void InitP(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N) { }
+     
+    }
+  }
+  [numthreads(numthreads1, 1, 1)] void Zero_B(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.N) { }
+     
+    }
+  }
   #pragma kernel A_times_B_to_X
+  #pragma kernel Zero_B
+  #pragma kernel Interlock_SolveXfromUXequalY
+  #pragma kernel Interlock_SolveYfromLYequalB
+  #pragma kernel Interlock_Sum_SolveXfromUXequalY
+  #pragma kernel Interlock_Sum_SolveYfromLYequalB
+  #pragma kernel SolveXfromUXequalY
+  #pragma kernel SolveYfromLYequalB
+  #pragma kernel Set_rowMultiplier
+  #pragma kernel MakeElementZeroAndFillWithLowerMatrixElement
+  #pragma kernel Find_rowMultiplier
+  #pragma kernel Divide_by_maxAbs
+  #pragma kernel MakeLowerTriangleZeroAndFillWithL
+  #pragma kernel Interlock_Find_maxElementRow
+  #pragma kernel Interlock_Find_maxElementVal
+  #pragma kernel Find_maxElementRow
+  #pragma kernel Find_maxAbs
+  #pragma kernel Find_row_maxAbs
+  #pragma kernel InitP

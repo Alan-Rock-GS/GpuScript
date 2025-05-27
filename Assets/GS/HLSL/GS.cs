@@ -3982,8 +3982,10 @@ namespace GpuScript
     public static uint hash(float2x2 v) => csum(asuint(v._m00_m01) * uint2(0x9C9F0823u, 0x5A9CA13Bu) + asuint(v._m10_m11) * uint2(0xAFCDD5EFu, 0xA88D187Du)) + 0xCF6EBA1Du;
     public static uint2 hashwide(float2 v) => (asuint(v) * uint2(0x94DDD769u, 0xA1E92D39u)) + 0x4583C801u;
 
+    public uint Random_u(uint minu = 0, uint maxu = uint_max) => roundu(UnityEngine.Random.Range(minu, maxu));
+    public uint4 Random_u4() => uint4(Random_u(129), Random_u(129), Random_u(129), Random_u());
     public uint Rnd_u(uint minu = 0, uint maxu = uint_max) => roundu(UnityEngine.Random.Range(minu, maxu));
-    public uint4 Rnd_u4() => uint4(Rnd_u(129), Rnd_u(129), Rnd_u(129), Rnd_u());
+    public uint4 Rnd_u4() => uint4(Random_u(129), Random_u(129), Random_u(129), Random_u());
 
     public static BindingFlags bindings = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
     public static BindingFlags static_bindings = BindingFlags.Public | BindingFlags.Static;
@@ -5194,8 +5196,7 @@ namespace GpuScript
     //endregion Sync
 
     //public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GS_Android" };
-    //public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GSA_Libs", "GSA_Docs", "GSA_Projects" };
-    public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials" };
+    public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GSA_Libs", "GSA_Docs", "GSA_Projects" };
     public T Add_Component_to_gameObject<T>() where T : Component => gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
     public List<string> NewStrList => new();
     public string[] NewStrArray => new string[0];

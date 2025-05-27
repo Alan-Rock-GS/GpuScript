@@ -1,0 +1,252 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define PaletteType_Rainbow	0
+  #define PaletteType_GradientRainbow	1
+  #define PaletteType_GradientRainbow10	2
+  #define PaletteType_GradientRainbow20	3
+  #define PaletteType_Heat	4
+  #define PaletteType_GradientHeat	5
+  #define PaletteType_WhiteRainbow	6
+  #define PaletteType_WhiteRainbow10	7
+  #define PaletteType_invRainbow	8
+  #define PaletteType_CT	9
+  #define PaletteType_Magenta	10
+  #define PaletteType_Blue	11
+  #define PaletteType_Cyan	12
+  #define PaletteType_Green	13
+  #define PaletteType_Yellow	14
+  #define PaletteType_Red	15
+  #define PaletteType_Gray	16
+  #define PaletteType_DarkGray	17
+  #define FractalType_Julia	0
+  #define FractalType_Mandelbrot	1
+  #define FractalType_Fractal_P	2
+  #define FractalType_Fractal_C	3
+  #define BDraw_Draw_Point	0
+  #define BDraw_Draw_Sphere	1
+  #define BDraw_Draw_Line	2
+  #define BDraw_Draw_Arrow	3
+  #define BDraw_Draw_Signal	4
+  #define BDraw_Draw_LineSegment	5
+  #define BDraw_Draw_Texture_2D	6
+  #define BDraw_Draw_Quad	7
+  #define BDraw_Draw_WebCam	8
+  #define BDraw_Draw_Mesh	9
+  #define BDraw_Draw_Number	10
+  #define BDraw_Draw_N	11
+  #define BDraw_TextAlignment_BottomLeft	0
+  #define BDraw_TextAlignment_CenterLeft	1
+  #define BDraw_TextAlignment_TopLeft	2
+  #define BDraw_TextAlignment_BottomCenter	3
+  #define BDraw_TextAlignment_CenterCenter	4
+  #define BDraw_TextAlignment_TopCenter	5
+  #define BDraw_TextAlignment_BottomRight	6
+  #define BDraw_TextAlignment_CenterRight	7
+  #define BDraw_TextAlignment_TopRight	8
+  #define BDraw_Text_QuadType_FrontOnly	0
+  #define BDraw_Text_QuadType_FrontBack	1
+  #define BDraw_Text_QuadType_Switch	2
+  #define BDraw_Text_QuadType_Arrow	3
+  #define BDraw_Text_QuadType_Billboard	4
+  #define Views_Lib_ProjectionMode_Automatic	0
+  #define Views_Lib_ProjectionMode_Perspective	1
+  #define Views_Lib_ProjectionMode_Orthographic	2
+  #define BDraw_Draw_Text3D 12
+  #define BDraw_LF 10
+  #define BDraw_TB 9
+  #define BDraw_ZERO 48
+  #define BDraw_NINE 57
+  #define BDraw_PERIOD 46
+  #define BDraw_COMMA 44
+  #define BDraw_PLUS 43
+  #define BDraw_MINUS 45
+  #define BDraw_SPACE 32
+  #define g gFractal[0]
+  #pragma use_dxc
+  struct GFractal
+  {
+    uint buffer_paletteType, fractalType, maxIterations, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, depthColorN, isOrtho, retrace;
+    float2 julia_c;
+    float BDraw_fontSize, BDraw_boxThickness, orthoSize, maxDist;
+    float4 BDraw_boxColor, directionalLight;
+    uint2 screenSize, skyboxSize;
+    Matrix4x4 camToWorld, camInvProjection;
+  };
+  struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  struct TRay { float3 origin, direction; };
+  struct TRayHit { float3 position; float distance; };
+  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; uint view_paletteType; uint view_fractalType; float2 view_julia_c; uint view_maxIterations; };
+  groupshared uint BDraw_ABuff_grp[1024];
+  groupshared uint BDraw_ABuff_grp0[1024];
+  RWStructuredBuffer<GFractal> gFractal;
+  RWStructuredBuffer<uint> BDraw_tab_delimeted_text, depthColor, BDraw_ABuff_Bits, BDraw_ABuff_Sums, BDraw_ABuff_Indexes, BDraw_ABuff_Fills1, BDraw_ABuff_Fills2;
+  RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
+  RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
+  RWStructuredBuffer<Color32> paletteBuffer, skyboxBuffer;
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Sums[i] += BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.BDraw_ABuff_BitN - 1) g.BDraw_ABuff_IndexN = BDraw_ABuff_Sums[i]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Fills1[i] += BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN2 - 1 ? BDraw_ABuff_Fills1[j] : i < g.BDraw_ABuff_BitN2 ? BDraw_ABuff_Fills1[g.BDraw_ABuff_BitN1 - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN2) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN2) BDraw_ABuff_Fills2[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN1 - 1 ? BDraw_ABuff_Sums[j] : i < g.BDraw_ABuff_BitN1 ? BDraw_ABuff_Sums[g.BDraw_ABuff_BitN - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN1) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN1) BDraw_ABuff_Fills1[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c = i < g.BDraw_ABuff_BitN ? countbits(BDraw_ABuff_Bits[i]) : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
+  }
+  BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
+  void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
+  [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.BDraw_textN)
+    {
+      uint i = id.x;
+      if (i > 0)
+      {
+        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+        BDraw_textInfo(i, ti);
+      }
+    }
+    }
+  }
+  uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
+  uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.BDraw_textN)
+    {
+      uint i = id.x;
+      BDraw_TextInfo ti = BDraw_textInfo(i);
+      ti.textI = i;
+      ti.uvSize = f01;
+      uint2 textIs = BDraw_Get_text_indexes(i);
+      float2 t = ti.uvSize;
+      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+      t.x /= g.BDraw_fontSize;
+      ti.uvSize = t;
+      BDraw_textInfo(i, ti);
+    }
+    }
+  }
+  TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; return ray; }
+  TRay CreateCameraRay(float2 uv)
+  {
+    if (g.isOrtho) return CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
+    return CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
+  }
+  TRayHit IntersectGroundPlane(TRay ray, TRayHit bestHit)
+  {
+    float t = ray.direction.y == 0 ? fPosInf : -ray.origin.y / ray.direction.y;
+    if (t > 0 && t < bestHit.distance) { bestHit.distance = t; bestHit.position = t * ray.direction + ray.origin; }
+    return bestHit;
+  }
+  TRayHit CreateRayHit() { TRayHit hit; hit.position = f000; hit.distance = fPosInf; return hit; }
+  TRayHit Trace(TRay ray) { return IntersectGroundPlane(ray, CreateRayHit()); }
+  void pixDepth_u(uint2 id, uint d) { depthColor[id_to_i(id, g.screenSize)] = d; }
+  void pixDepth_f(uint2 id, float d) { pixDepth_u(id, (uint)(d / g.maxDist * uint_max)); }
+  bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
+  uint BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_ABuff_N && BDraw_ABuff_IsBitOn(i)) << (int)j); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c, s, j, k, bits = 0;
+    if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; } } } }
+  float4 paletteBufferColor(float v) { return c32_f4(paletteBuffer[roundu(clamp(v * 255, 0, 255))]); }
+  float3 Fractal_Color(float2 p, float2 c)
+  {
+    uint i;
+    for (i = 0; i < g.maxIterations && length2(p) < 4; i++) p = ComplexMultiply(p, p) + c;
+    return paletteBufferColor(i / (float)g.maxIterations).xyz;
+  }
+  float3 Mandelbrot_Color(float2 p) { return Fractal_Color(f00, p); }
+  float3 fractal_C(float2 p) { return Fractal_Color(g.julia_c, p); }
+  float3 fractal_P(float2 p) { return Fractal_Color(p, p); }
+  float3 Julia_Color(float2 p) { return Fractal_Color(p, g.julia_c); }
+  void pix_u(uint2 id, uint c) { depthColor[id_to_i(id, g.screenSize) + product(g.screenSize)] = c; }
+  void pix_c32(uint2 id, Color32 c) { pix_u(id, c32_u(c)); }
+  void pix_f3(uint2 id, float3 c) { pix_c32(id, f4_c32(float4(c, 1))); }
+  [numthreads(numthreads2, numthreads2, 1)] void traceRay(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (all(id.xy < g.screenSize))
+    {
+      float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
+      TRayHit hit;
+      TRay ray = CreateCameraRay(uv);
+      float3 pixColor;
+      hit = Trace(ray);
+      if (hit.distance == fPosInf)
+      {
+        float phi = atan2(ray.direction.x, -ray.direction.z) * 0.5f, theta = acos(ray.direction.y);
+        float2 p = float2(phi, theta) * -rcp(PI) + 1;
+        int2 pixId = floori(p * g.skyboxSize);
+        uint pixI = id_to_i(pixId, g.skyboxSize);
+        pixColor = c32_f4(skyboxBuffer[pixI]).xyz;
+      }
+      else
+      {
+        float2 q = (ray.origin + ray.direction * hit.distance).xz * 0.01f;
+        if (g.fractalType == FractalType_Mandelbrot) pixColor = Mandelbrot_Color(q);
+        else if (g.fractalType == FractalType_Fractal_C) pixColor = fractal_C(q);
+        else if (g.fractalType == FractalType_Fractal_P) pixColor = fractal_P(q);
+        else pixColor = Julia_Color(q);
+      }
+      pix_f3(id.xy, pixColor);
+      pixDepth_f(id.xy, hit.distance);
+    }
+    }
+  }
+  #pragma kernel traceRay
+  #pragma kernel BDraw_ABuff_GetIndexes
+  #pragma kernel BDraw_ABuff_IncSums
+  #pragma kernel BDraw_ABuff_IncFills1
+  #pragma kernel BDraw_ABuff_GetFills2
+  #pragma kernel BDraw_ABuff_GetFills1
+  #pragma kernel BDraw_ABuff_Get_Bits_Sums
+  #pragma kernel BDraw_ABuff_GetSums
+  #pragma kernel BDraw_ABuff_Get_Bits
+  #pragma kernel BDraw_setDefaultTextInfo
+  #pragma kernel BDraw_getTextInfo

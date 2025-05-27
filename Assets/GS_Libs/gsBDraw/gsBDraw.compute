@@ -1,0 +1,76 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define Draw_Point	0
+  #define Draw_Sphere	1
+  #define Draw_Line	2
+  #define Draw_Arrow	3
+  #define Draw_Signal	4
+  #define Draw_LineSegment	5
+  #define Draw_Texture_2D	6
+  #define Draw_Quad	7
+  #define Draw_WebCam	8
+  #define Draw_Mesh	9
+  #define Draw_Number	10
+  #define Draw_N	11
+  #define TextAlignment_BottomLeft	0
+  #define TextAlignment_CenterLeft	1
+  #define TextAlignment_TopLeft	2
+  #define TextAlignment_BottomCenter	3
+  #define TextAlignment_CenterCenter	4
+  #define TextAlignment_TopCenter	5
+  #define TextAlignment_BottomRight	6
+  #define TextAlignment_CenterRight	7
+  #define TextAlignment_TopRight	8
+  #define Text_QuadType_FrontOnly	0
+  #define Text_QuadType_FrontBack	1
+  #define Text_QuadType_Switch	2
+  #define Text_QuadType_Arrow	3
+  #define Text_QuadType_Billboard	4
+  #define Draw_Text3D 12
+  #define LF 10
+  #define TB 9
+  #define ZERO 48
+  #define NINE 57
+  #define PERIOD 46
+  #define COMMA 44
+  #define PLUS 43
+  #define MINUS 45
+  #define SPACE 32
+  #define g gBDraw[0]
+  #pragma use_dxc
+  struct GBDraw
+  {
+    uint ABuff_IndexN, ABuff_BitN, ABuff_N, ABuff_BitN1, ABuff_BitN2, omitText, includeUnicode, fontInfoN, textN, textCharN, boxEdgeN;
+    float fontSize, boxThickness;
+    float4 boxColor;
+  };
+  struct FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  groupshared uint ABuff_grp[1024];
+  groupshared uint ABuff_grp0[1024];
+  RWStructuredBuffer<GBDraw> gBDraw;
+  RWStructuredBuffer<uint> tab_delimeted_text, ABuff_Bits, ABuff_Sums, ABuff_Indexes, ABuff_Fills1, ABuff_Fills2;
+  RWStructuredBuffer<TextInfo> textInfos;
+  RWStructuredBuffer<FontInfo> fontInfos;
+  [numthreads(numthreads1, 1, 1)] void setDefaultTextInfo(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.textN) { } } }
+  [numthreads(numthreads1, 1, 1)] void ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ABuff_BitN) { } } }
+  [numthreads(numthreads1, 1, 1)] void ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ABuff_BitN) { } } }
+  [numthreads(numthreads1, 1, 1)] void ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ABuff_BitN1) { } } }
+  [numthreads(numthreads1, 1, 1)] void ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { }
+  [numthreads(numthreads1, 1, 1)] void ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ABuff_BitN) { } } }
+  [numthreads(numthreads1, 1, 1)] void getTextInfo(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.textN) { } } }
+  #pragma kernel setDefaultTextInfo
+  #pragma kernel getTextInfo
+  #pragma kernel ABuff_GetIndexes
+  #pragma kernel ABuff_IncSums
+  #pragma kernel ABuff_IncFills1
+  #pragma kernel ABuff_GetFills2
+  #pragma kernel ABuff_GetFills1
+  #pragma kernel ABuff_GetSums
+  #pragma kernel ABuff_Get_Bits_Sums
+  #pragma kernel ABuff_Get_Bits

@@ -17,11 +17,16 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using static GpuScript.GS;
 using UnityEditor.Compilation;
-using UnityEditor.Android;
-using PuppeteerSharp;
-using System.Drawing;
-using System.Runtime.InteropServices;
+using static GS_Window.ProjectData;
+//using UnityEditor.Android;
+//using PuppeteerSharp;
+//using System.Drawing;
+//using System.Runtime.InteropServices;
 
+/// <summary>
+/// Omit all unnecessary folders~ when selecting a project
+/// Double-click folder in project to load the scene
+/// </summary>
 //https://www.youtube.com/watch?v=Xy_jvBg1vS0
 [InitializeOnLoad]
 public class GS_Window : EditorWindow
@@ -226,6 +231,22 @@ public class GS_Window : EditorWindow
     Selection.selectionChanged += SelectionChanged;
     EditorSceneManager.activeSceneChangedInEditMode -= OnActiveSceneChangedInEditMode;
     EditorSceneManager.activeSceneChangedInEditMode += OnActiveSceneChangedInEditMode;
+
+    FieldInfo info = typeof(EditorApplication).GetField("globalEventHandler", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+    EditorApplication.CallbackFunction value = (EditorApplication.CallbackFunction)info.GetValue(null);
+    info.SetValue(null, value += EditorGlobalKeyPress);
+  }
+  //static Event current, previous;
+  static EventType eventType, eventType0;
+  static KeyCode keyCode, keyCode0;
+  static void EditorGlobalKeyPress()
+  {
+    eventType0 = eventType;
+    eventType = Event.current.type;
+    keyCode0 = keyCode;
+    keyCode = Event.current.keyCode;
+    //if (Event.current.type == EventType.KeyDown)
+    //  print($"Key down {Event.current.keyCode}");
   }
 
   void OnDisable() { if (Selection.selectionChanged != null) Selection.selectionChanged -= SelectionChanged; }//probably unnecessary
@@ -1163,8 +1184,8 @@ public class GS_Window : EditorWindow
       string regions = _cs_lib_regions;
       int libI = 0;
       var libNames = lib_flds.Select(a => a.Name).ToList();
-      for (int i = 0; i < libNames.Count; i++)//detect if lib is or has ADraw, and make that libI == 0
-        if (_GS_Code.Contains($"{libNames[i]}_ADraw_")) { if (i > 0) { var item = libNames[i]; libNames.RemoveAt(i); libNames.Insert(0, item); } break; }
+      for (int i = 0; i < libNames.Count; i++)//detect if lib is or has BDraw, and make that libI == 0
+        if (_GS_Code.Contains($"{libNames[i]}_BDraw_")) { if (i > 0) { var item = libNames[i]; libNames.RemoveAt(i); libNames.Insert(0, item); } break; }
 
       for (int i = 0; i < render_methods.Length; i++)
       {
@@ -1206,8 +1227,8 @@ public class GS_Window : EditorWindow
       foreach (var lib_fld in lib_flds)
         if (lib_fld.isInternal_Lib())
         {
-          if (lib_fld.Name == "AVGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
-          else if (lib_fld.Name == "ADraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+          if (lib_fld.Name == "VGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+          else if (lib_fld.Name == "BDraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
         }
 
 
@@ -1791,7 +1812,7 @@ $"\n    {m_name}_To_UI();",
           s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
         }
 
-      if (uiDocument && gsName != "gsAReport_Lib") s_onValueChanged.Add("\n    var type = \"gsAReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
+      if (uiDocument && gsName != "gsReport_Lib") s_onValueChanged.Add("\n    var type = \"gsReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
 
       virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
         s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()", s_OnApplicationQuit, "OnApplicationQuit_GS()");
@@ -2556,7 +2577,7 @@ $"\n    {m_name}_To_UI();",
       }
 
       StrBldr _s = StrBldr();
-      foreach (var m in _methods)// add base_AVGrid_InitBuffers0_GS(); from _cs_Code
+      foreach (var m in _methods)// add base_VGrid_InitBuffers0_GS(); from _cs_Code
         if (m.name.IsAny("InitBuffers0_GS", "InitBuffers1_GS", "LateUpdate0_GS", "LateUpdate1_GS", "Update0_GS", "Update1_GS",
           "Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit", "Load_UI", "Save_UI"))
           _s.Add($"\n  public virtual {m.return_type} base_{Name}_{m.name}({m.args}){m.code.TrimEnd()}");
@@ -2825,6 +2846,61 @@ $"\n    {m_name}_To_UI();",
     return $"{AssetsPath}{name}/";
   }
 
+  void IncludeLibs(List<string> libs, string dir)
+  {
+    string uName = dir.AfterLast("/gs"), _GS_filename = $"{dir}/gs{uName}_GS.cs";
+    if (_GS_filename.DoesNotExist()) _GS_filename = _GS_filename.Replace("/Assets/", "/Assets_Omit/");
+    string _GS_Code = _GS_filename.ReadAllText().Clean();
+    MatchCollection lib_matches = _GS_Code.RegexMatch(@$"(.*) gs(.*) (.*);(((?s).*?)\#region \<(\w+)\>(?s).*?\#endregion \<(\w+)\>)?");
+    foreach (Match lib_match in lib_matches) libs.Add(lib_match.Groups[2]);
+  }
+  List<string> GetLibs(string dir)
+  {
+    List<string> libs = new();
+    IncludeLibs(libs, $"{dataPath}{selectedPath}");
+    for (uint i = 0; i < 3; i++) foreach (var d in assetsPath.GetAllDirectories()) { string f = d.Replace("\\", "/"); if (f.Contains("/gs")) { string fName = f.AfterLast("/gs"); if (libs.Contains(fName)) IncludeLibs(libs, f); } }
+    return libs.Distinct().ToList();
+  }
+  string omitPath(string path) => path.Replace("/Assets/", "/Assets_Omit/");
+  void keep(string path)
+  {
+    string p = omitPath(path), n = p.After("/gs").Before("/"), q = $"{p}{n}.unity";
+    if (q.Exists()) { p.CopyDirAll(path); p.DeleteDirectory(); }
+  }
+  void omit(string path)
+  {
+    string p = omitPath(path), n = p.After("/gs").Before("/"), q = $"{path}{n}.unity";
+    if (q.Exists()) path.CopyDirAll(p);
+    path.DeleteDirectory();
+    path.CreatePath();
+  }
+  void OpenProjectFolder()
+  {
+    if (Application.isPlaying) return;
+    string newSelectedPath = GetActiveFolderPath();
+    if (selectedPath != newSelectedPath && (selectedPath = newSelectedPath).IsNotEmpty())
+    {
+      bool isLeftAlt = eventType == EventType.KeyDown && keyCode == KeyCode.LeftAlt;
+      bool isRightAlt = eventType == EventType.KeyDown && keyCode == KeyCode.RightAlt;
+      string uName = selectedPath.AfterLastOrEmpty("/gs");
+      string gsPath = $"{dataPath}{selectedPath}/", uScene = $"{gsPath}{uName}.unity", dScene = omitPath(uScene), oScene = $"{selectedPath}/{uName}.unity";
+      if (dScene.Exists()) omitPath(gsPath).Rename(gsPath);
+      List<string> libs = GetLibs($"{dataPath}{selectedPath}");
+      var dirs = assetsPath.GetAllDirectories();
+      foreach (var dir in dirs)
+      {
+        string f = dir.Replace("\\", "/"), p = f + "/";
+        if (f.Contains("/gs"))
+        {
+          string fName = f.AfterLast("/gs");
+          if (fName.DoesNotContain("/")) { if (fName == uName || libs.Contains(fName) || isRightAlt) keep(p); else if (isLeftAlt) omit(p); }
+        }
+      }
+      AssetDatabase.Refresh();
+      if (uScene.Exists() && (isLeftAlt || isRightAlt)) EditorSceneManager.OpenScene(oScene, OpenSceneMode.Single);
+    }
+  }
+
   void Update()
   {
     coroutines.Update();
@@ -2844,6 +2920,21 @@ $"\n    {m_name}_To_UI();",
       else print("importedAssets = null");
     }
     if (rebuild > 0) { rebuild--; if (rebuild == 0) gsClass_Build_clicked(); }
+
+    OpenProjectFolder();
+  }
+
+  public static EditorWindow GetWindow(string pName) => Resources.FindObjectsOfTypeAll<EditorWindow>().FirstOrDefault(o => o.GetType().ToString().After("UnityEditor.") == pName);
+  private static EditorWindow _projectWindow = null;
+  public static EditorWindow ProjectWindow => _projectWindow = _projectWindow ?? GetWindow("ProjectWindow") ?? GetWindow("ObjectBrowser") ?? GetWindow("ProjectBrowser");
+  private static EditorWindow _hierarchyWindow = null;
+  public static EditorWindow HierarchyWindow => _hierarchyWindow = _hierarchyWindow ?? GetWindow("HierarchyWindow");
+
+  static string selectedPath = "";
+  static string GetActiveFolderPath()
+  {
+    var args = new object[] { null };
+    return (bool)typeof(ProjectWindowUtil).GetMethod("TryGetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, args) ? (string)args[0] : "";
   }
 
   protected bool isAndroid => EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
@@ -2978,25 +3069,16 @@ $"\n    {m_name}_To_UI();",
         string f = $"{AssetsPath}{p}/{name}";
         if (f.Exists())
         {
-					//foreach (var dir in f.GetDirectories())
-					//{
-					//  if (dir.DoesNotContainAny("~", "/GSA_"))
-					//  {
-					//    $"{dir}/".Rename($"{dir}~/");
-					//    $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
-					//  }
-					//}
-					foreach (var dir in f.GetDirectories())
-					{
-						if (dir.DoesNotContainAny("~", "/gsA"))
-						{
-							$"{dir}/".Rename($"{dir}~/");
-							$"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
-						}
-					}
-
-				}
-			}
+          foreach (var dir in f.GetDirectories())
+          {
+            if (dir.DoesNotContainAny("~", "/GSA_"))
+            {
+              $"{dir}/".Rename($"{dir}~/");
+              $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
+            }
+          }
+        }
+      }
       $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
       $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
@@ -3411,7 +3493,7 @@ $"\n    {m_name}_To_UI();",
   #region Unity Project Menu
   public static string Get_Report_Suffix(string path)
   {
-    string report = @$"{path}gsAReport_Lib.txt";
+    string report = @$"{path}gsReport_Lib.txt";
     if (report.Exists()) return report.ReadAllText().Between("suffixName\": \"", "\"");
     return "";
   }

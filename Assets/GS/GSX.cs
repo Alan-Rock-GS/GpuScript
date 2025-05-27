@@ -126,6 +126,9 @@ namespace GpuScript
     public static PropertyInfo GetStaticProperty(this string propertyName, Type t) => t.GetProperty(propertyName, static_bindings);
     public static PropertyInfo GetProperty(this string propertyName, object o) => GetProperty(propertyName, o.GetType());
 
+    public static FieldInfo GetStaticField(this string fldName, Type t) => t.GetField(fldName, static_bindings);
+    public static object GetStaticFieldValue(this string fldName, Type t) => fldName.GetStaticField(t)?.GetValue(null) ?? null;
+
     public static bool IsStruct(this Type t) => t.IsValueType && !t.IsEnum;
     //public static bool IsClass(this Type t) => t.IsClass;
 
@@ -412,14 +415,31 @@ namespace GpuScript
     public static void DeleteDirectory(this string dir) { dir.setAttributesNormal(); Directory.Delete(dir, true); }
     public static void DeleteFiles_Locked(this string path, string searchPattern) { var files = path.GetFiles(searchPattern); foreach (var file in files) file.DeleteFile_Locked(); }
     public static void DeleteFiles(this string path, string searchPattern) { var files = path.GetFiles(searchPattern); foreach (var file in files) file.DeleteFile(); }
+    //public static void Rename(this string f0, string f1)
+    //{
+    //  if (f0.Exists())
+    //  {
+    //    if (f1.Exists())
+    //      f1.DeleteFile();
+    //    if (f0.isPath())
+    //    {
+    //      Directory.Move(f0.ToPath(), f1.ToPath());
+    //      if (f0.Exists())
+    //        f0.DeleteFile();
+    //    }
+    //    else
+    //      File.Move(f0, f1);
+    //  }
+    //}
     public static void Rename(this string f0, string f1)
     {
       if (f0.Exists())
       {
-        if (f1.Exists())
-          f1.DeleteFile();
-        if (f0.isPath())
+        if (f1.Exists()) f1.DeleteFile();
+        if (f0.isPath() && f0.Exists())
         {
+          f1.CreatePath();
+          f1.DeleteFile();
           Directory.Move(f0.ToPath(), f1.ToPath());
           if (f0.Exists())
             f0.DeleteFile();
@@ -428,6 +448,7 @@ namespace GpuScript
           File.Move(f0, f1);
       }
     }
+
     public static void RemoveEmptyFolders(this string path)
     {
       foreach (var directory in Directory.GetDirectories(path))
@@ -2075,7 +2096,7 @@ namespace GpuScript
       var sameFiles = files0.Intersect(files1).ToArray();
       var changedFiles = sameFiles.Where(a => (path0 + a).FileDate() != (path1 + a).FileDate()).ToArray();
       string[] deletedFiles = files1.Except(files0).ToArray(), copyFiles = newFiles.Union(changedFiles).ToArray();
-      foreach (var f in deletedFiles) 
+      foreach (var f in deletedFiles)
         (path1 + f).DeleteFile();
       foreach (var f in copyFiles)
         if ((path0 + f).DoesNotContainAny(omitStrs))
