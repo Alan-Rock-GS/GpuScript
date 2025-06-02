@@ -5015,18 +5015,31 @@ namespace GpuScript
 
     public void threadStart(ThreadStart threadStart) { var runThread = new Thread(threadStart) { IsBackground = true, Priority = System.Threading.ThreadPriority.Highest }; runThread.Start(); }
 
+    //public string[] splitStr3(string str, bool setEqual)
+    //{
+    //  string[] ss = new string[] { "", "", "" };
+    //  if (str.Contains("|"))
+    //  {
+    //    string[] strs = str.Split("|");
+    //    for (int i = 0; i < min(ss.Length, strs.Length); i++) ss[i] = strs[i];
+    //  }
+    //  else ss[0] = str;
+    //  if (setEqual) for (int i = 1; i < 3; i++) if (ss[i].IsEmpty()) ss[i] = ss[i - 1];
+    //  return ss;
+    //}
     public string[] splitStr3(string str, bool setEqual)
     {
       string[] ss = new string[] { "", "", "" };
-      if (str.Contains("|"))
+      if (str.ContainsAny("|", ";"))
       {
-        string[] strs = str.Split("|");
+        string[] strs = str.Split('|', ';');
         for (int i = 0; i < min(ss.Length, strs.Length); i++) ss[i] = strs[i];
       }
       else ss[0] = str;
       if (setEqual) for (int i = 1; i < 3; i++) if (ss[i].IsEmpty()) ss[i] = ss[i - 1];
       return ss;
     }
+
 
     [StructLayout(LayoutKind.Sequential)] struct LASTINPUTINFO { [MarshalAs(UnmanagedType.U4)] public UInt32 cbSize, dwTime; }
     [DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);

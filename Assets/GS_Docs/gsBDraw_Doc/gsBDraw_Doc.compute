@@ -90,15 +90,9 @@
     }
     if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
   }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Existing_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Existing_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Existing_Bits(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_ABuff_BitN) { }
-     
-    }
-  }
+   
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
@@ -165,5 +159,5 @@
   #pragma kernel BDraw_ABuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
-  #pragma kernel BDraw_ABuff_Get_Existing_Sums
   #pragma kernel BDraw_ABuff_Get_Existing_Bits
+  #pragma kernel BDraw_ABuff_Get_Existing_Sums

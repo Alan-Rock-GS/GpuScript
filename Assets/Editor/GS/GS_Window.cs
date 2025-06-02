@@ -892,9 +892,15 @@ public class GS_Window : EditorWindow
 
       foreach (var fld in texture_flds) Texture2Ds.Add($"\n  public Texture2D {fld.Name};");
       var (s, gParams) = StrBldr();
+
+      //addComputeBuffers.Add(
+      //  $"\n    AddComputeBuffer(ref g{Name}, nameof(g{Name}), 1);",
+      //   "\n    InitKernels();");
+      AllocDatas.Add($"\n  public virtual void AllocData_g{Name}(uint n) => AddComputeBuffer(ref g{Name}, nameof(g{Name}), n);");
       addComputeBuffers.Add(
-        $"\n    AddComputeBuffer(ref g{Name}, nameof(g{Name}), 1);",
-         "\n    InitKernels();");
+   $"\n    AllocData_g{Name}(1);",
+   "\n    InitKernels();");
+
 
       for (int i = 0; i < kernel_methods.Count; i++)
       {
@@ -929,7 +935,8 @@ public class GS_Window : EditorWindow
             if (bufferN.IsNotEmpty())
             {
               if (bufferN.Contains(".") && bufferN.After(".").DoesNotContainAny("x", "y", "z")) bufferN = bufferN.Replace(".", "_");
-              addComputeBuffers.Add($"\n    AddComputeBuffer(ref {bufferName}, nameof({bufferName}), {bufferN});{bufferComment}");
+              //addComputeBuffers.Add($"\n    AddComputeBuffer(ref {bufferName}, nameof({bufferName}), {bufferN});{bufferComment}");
+              addComputeBuffers.Add($"\n    AllocData_{bufferName}({bufferN});{bufferComment}");
             }
           }
         }
@@ -1196,7 +1203,8 @@ public class GS_Window : EditorWindow
           libI = libNames.Select((a, i) => new { a, i }).Where(a => m.methodName.After("vert_").StartsWith(a.a + "_")).Select(a => a.i).FirstOrDefault();
           var elseStr = i == 0 ? "" : "else ";
           if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;");
-          vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) {{ o = {m.methodName}(i, j, o); o.tj.x = {libI}; }}");
+          //vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) {{ o = {m.methodName}(i, j, o); o.tj.x = {libI}; }}");
+          vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) o = {m.methodName}(i, j, o);");
           string methodDeclaration = $"public virtual v2f {m.methodName}(uint i, uint j, v2f o)";
           if (regions.DoesNotContain(methodDeclaration)) virtual_verts.Add($"\n  {methodDeclaration} => o;");
         }
@@ -1206,7 +1214,41 @@ public class GS_Window : EditorWindow
 "\n  {", vertDrawSegments,
 "\n    return o;",
 "\n  }",
-"\n  public v2f vert(uint i, uint j)",
+//"\n  public uint o_i(v2f o) => roundu(o.ti.x);",
+//"\n  public v2f o_i(uint i, v2f o) { o.ti.x = i; return o; }",
+//"\n  public uint o_j(v2f o) => roundu(o.ti.y);",
+//"\n  public v2f o_j(uint j, v2f o) { o.ti.y = j; return o; }",
+//"\n  public uint o_drawType(v2f o) => roundu(o.ti.z);",
+//"\n  public v2f o_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }",
+//"\n  public float4 o_color(v2f o) => o.color;",
+//"\n  public v2f o_color(float4 color, v2f o) { o.color = color; return o; }",
+//"\n  public float3 o_normal(v2f o) => o.normal;",
+//"\n  public v2f o_normal(float3 normal, v2f o) { o.normal = normal; return o; }",
+//"\n  public float2 o_uv(v2f o) => o.uv;",
+//"\n  public v2f o_uv(float2 uv, v2f o) { o.uv = uv; return o; }",
+//"\n  public float4 o_pos(v2f o) => o.pos;",
+//"\n  public v2f o_pos(float4 pos, v2f o) { o.pos = pos; return o; }",
+//"\n  public v2f o_pos_PV(float3 p, float4 q, v2f o) => o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o);",
+//"\n  public v2f o_pos_c(float4 c, v2f o) => o_pos(UnityObjectToClipPos(c), o);",
+//"\n  public v2f o_pos_c(float3 c, v2f o) => o_pos(UnityObjectToClipPos(c), o);",
+//"\n  public float3 o_wPos(v2f o) => o.wPos;",
+//"\n  public v2f o_wPos(float3 wPos, v2f o) { o.wPos = wPos; return o; }",
+//"\n  public float3 o_p0(v2f o) => o.p0;",
+//"\n  public v2f o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }",
+//"\n  public float3 o_p1(v2f o) => o.p1;",
+//"\n  public v2f o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }",
+//"\n  public float o_r(v2f o) => o.ti.w;",
+//"\n  public v2f o_r(float r, v2f o) { o.ti.w = r; return o; }",
+//"\n  public float3 quad(float3 p0, float3 p1, float3 p2, float3 p3, uint j) => j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1;",
+//"\n  public float4 o_ti(v2f o) => o.ti;",
+//"\n  public v2f o_ti(float4 ti, v2f o) { o.ti = ti; return o; }",
+//"\n  public float4 o_tj(v2f o) => o.tj;",
+//"\n  public v2f o_tj(float4 tj, v2f o) { o.tj = tj; return o; }",
+//"\n  public float4 o_tk(v2f o) => o.tk;",
+//"\n  public v2f o_tk(float4 tk, v2f o) { o.tk = tk; return o; }",
+//"\n  public v2f o_zero() => o_pos(f0000, o_color(f0000, o_ti(f0000, o_tj(f0000, o_tk(f0000, o_normal(f000, o_p0(f000, o_p1(f000, o_wPos(f000, o_uv(f00, default))))))))));",
+//"\n  public virtual v2f vert(uint i, uint j) => vert_GS(i, j, o_zero());");
+"\n  public virtual v2f vert(uint i, uint j)",
 "\n  {",
 "\n    v2f o = default;",
 "\n    o.pos = o.color = o.tj = o.tk = f0000; o.normal = o.p0 = o.p1 = o.wPos = f000; o.uv = f00; o.ti = float4(i, j, 0, 0);",
@@ -1224,12 +1266,14 @@ public class GS_Window : EditorWindow
 
       s_frag.Set("color;");
       libI = 0;
+      //foreach (var lib_fld in lib_flds)
+      //  if (lib_fld.isInternal_Lib())
+      //  {
+      //    if (lib_fld.Name == "VGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+      //    else if (lib_fld.Name == "BDraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
+      //  }
       foreach (var lib_fld in lib_flds)
-        if (lib_fld.isInternal_Lib())
-        {
-          if (lib_fld.Name == "VGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
-          else if (lib_fld.Name == "BDraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
-        }
+        if (lib_fld.isInternal_Lib() && lib_fld.Name.IsAny("VGrid_Lib", "Axes_Lib", "Mesh_Lib", "BDraw")) s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
 
 
 
@@ -1385,7 +1429,8 @@ public class GS_Window : EditorWindow
                   if (defaultStr.IsEmpty())
                   {
                     if (_GS_fieldType.IsArray && _GS_fieldType.GetElementType().IsStruct())
-                      data_to_ui.Add($"\n    AddComputeBufferData(ref {m_name}, nameof({m_name}), data.{m_name});");
+                      //data_to_ui.Add($"\n    AddComputeBufferData(ref {m_name}, nameof({m_name}), data.{m_name});");
+                      data_to_ui.Add($"\n    AssignData({m_name}, data.{m_name});");
                     else
                       data_to_ui.Add($"\n    {m_name} = data.{m_name}{v};");
                   }

@@ -770,6 +770,8 @@ namespace GpuScript
     }
     public static IEnumerable<int> For(this (int a, int b) r) => (r.a, r.b, 1).For();
 
+
+
     //public static IEnumerable<int> For(this (int a, uint b) r) => (r.a, (int)r.b, 1).For();
 
     //public static IEnumerable<uint> uFor(this (uint a, uint b, int dx) r)

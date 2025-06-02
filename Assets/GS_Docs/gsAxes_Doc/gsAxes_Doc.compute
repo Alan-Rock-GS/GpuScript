@@ -1,0 +1,175 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define Axes_Lib_BDraw_Draw_Point	0
+  #define Axes_Lib_BDraw_Draw_Sphere	1
+  #define Axes_Lib_BDraw_Draw_Line	2
+  #define Axes_Lib_BDraw_Draw_Arrow	3
+  #define Axes_Lib_BDraw_Draw_Signal	4
+  #define Axes_Lib_BDraw_Draw_LineSegment	5
+  #define Axes_Lib_BDraw_Draw_Texture_2D	6
+  #define Axes_Lib_BDraw_Draw_Quad	7
+  #define Axes_Lib_BDraw_Draw_WebCam	8
+  #define Axes_Lib_BDraw_Draw_Mesh	9
+  #define Axes_Lib_BDraw_Draw_Number	10
+  #define Axes_Lib_BDraw_Draw_N	11
+  #define Axes_Lib_BDraw_TextAlignment_BottomLeft	0
+  #define Axes_Lib_BDraw_TextAlignment_CenterLeft	1
+  #define Axes_Lib_BDraw_TextAlignment_TopLeft	2
+  #define Axes_Lib_BDraw_TextAlignment_BottomCenter	3
+  #define Axes_Lib_BDraw_TextAlignment_CenterCenter	4
+  #define Axes_Lib_BDraw_TextAlignment_TopCenter	5
+  #define Axes_Lib_BDraw_TextAlignment_BottomRight	6
+  #define Axes_Lib_BDraw_TextAlignment_CenterRight	7
+  #define Axes_Lib_BDraw_TextAlignment_TopRight	8
+  #define Axes_Lib_BDraw_Text_QuadType_FrontOnly	0
+  #define Axes_Lib_BDraw_Text_QuadType_FrontBack	1
+  #define Axes_Lib_BDraw_Text_QuadType_Switch	2
+  #define Axes_Lib_BDraw_Text_QuadType_Arrow	3
+  #define Axes_Lib_BDraw_Text_QuadType_Billboard	4
+  #define Axes_Lib_PaletteType_Rainbow	0
+  #define Axes_Lib_PaletteType_GradientRainbow	1
+  #define Axes_Lib_PaletteType_GradientRainbow10	2
+  #define Axes_Lib_PaletteType_GradientRainbow20	3
+  #define Axes_Lib_PaletteType_Heat	4
+  #define Axes_Lib_PaletteType_GradientHeat	5
+  #define Axes_Lib_PaletteType_WhiteRainbow	6
+  #define Axes_Lib_PaletteType_invRainbow	7
+  #define Axes_Lib_PaletteType_Green	8
+  #define Axes_Lib_PaletteType_Gray	9
+  #define Axes_Lib_PaletteType_DarkGray	10
+  #define Axes_Lib_PaletteType_CT	11
+  #define Views_Lib_ProjectionMode_Automatic	0
+  #define Views_Lib_ProjectionMode_Perspective	1
+  #define Views_Lib_ProjectionMode_Orthographic	2
+  #define Axes_Lib_BDraw_Draw_Text3D 12
+  #define Axes_Lib_BDraw_LF 10
+  #define Axes_Lib_BDraw_TB 9
+  #define Axes_Lib_BDraw_ZERO 48
+  #define Axes_Lib_BDraw_NINE 57
+  #define Axes_Lib_BDraw_PERIOD 46
+  #define Axes_Lib_BDraw_COMMA 44
+  #define Axes_Lib_BDraw_PLUS 43
+  #define Axes_Lib_BDraw_MINUS 45
+  #define Axes_Lib_BDraw_SPACE 32
+  #define g gAxes_Doc[0]
+  #pragma use_dxc
+  struct GAxes_Doc
+  {
+    uint Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
+    float Axes_Lib_BDraw_fontSize, Axes_Lib_BDraw_boxThickness, Axes_Lib_boxLineThickness, Axes_Lib_axesOpacity;
+    float4 Axes_Lib_BDraw_boxColor;
+    float2 Axes_Lib_GridX, Axes_Lib_GridY, Axes_Lib_GridZ, Axes_Lib_textSize;
+    float3 Axes_Lib_axesRangeMin, Axes_Lib_axesRangeMax, Axes_Lib_axesRangeMin1, Axes_Lib_axesRangeMax1, Axes_Lib_axesRangeMin2, Axes_Lib_axesRangeMax2, Axes_Lib_axesColor;
+  };
+  struct Axes_Lib_BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct Axes_Lib_BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; };
+  groupshared uint Axes_Lib_BDraw_ABuff_grp[1024];
+  groupshared uint Axes_Lib_BDraw_ABuff_grp0[1024];
+  RWStructuredBuffer<GAxes_Doc> gAxes_Doc;
+  RWStructuredBuffer<uint> Axes_Lib_BDraw_tab_delimeted_text, Axes_Lib_BDraw_ABuff_Bits, Axes_Lib_BDraw_ABuff_Sums, Axes_Lib_BDraw_ABuff_Indexes, Axes_Lib_BDraw_ABuff_Fills1, Axes_Lib_BDraw_ABuff_Fills2;
+  RWStructuredBuffer<Axes_Lib_BDraw_TextInfo> Axes_Lib_BDraw_textInfos;
+  RWStructuredBuffer<Axes_Lib_BDraw_FontInfo> Axes_Lib_BDraw_fontInfos;
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : Axes_Lib_BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = Axes_Lib_BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); Axes_Lib_BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) Axes_Lib_BDraw_ABuff_Fills1[i] += Axes_Lib_BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.Axes_Lib_BDraw_ABuff_BitN2 - 1 ? Axes_Lib_BDraw_ABuff_Fills1[j] : i < g.Axes_Lib_BDraw_ABuff_BitN2 ? Axes_Lib_BDraw_ABuff_Fills1[g.Axes_Lib_BDraw_ABuff_BitN1 - 1] : 0, s;
+    Axes_Lib_BDraw_ABuff_grp0[grpI] = c; Axes_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.Axes_Lib_BDraw_ABuff_BitN2) Axes_Lib_BDraw_ABuff_grp[grpI] = Axes_Lib_BDraw_ABuff_grp0[grpI] + Axes_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      Axes_Lib_BDraw_ABuff_grp0[grpI] = Axes_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.Axes_Lib_BDraw_ABuff_BitN2) Axes_Lib_BDraw_ABuff_Fills2[i] = Axes_Lib_BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.Axes_Lib_BDraw_ABuff_BitN1 - 1 ? Axes_Lib_BDraw_ABuff_Sums[j] : i < g.Axes_Lib_BDraw_ABuff_BitN1 ? Axes_Lib_BDraw_ABuff_Sums[g.Axes_Lib_BDraw_ABuff_BitN - 1] : 0, s;
+    Axes_Lib_BDraw_ABuff_grp0[grpI] = c; Axes_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.Axes_Lib_BDraw_ABuff_BitN1) Axes_Lib_BDraw_ABuff_grp[grpI] = Axes_Lib_BDraw_ABuff_grp0[grpI] + Axes_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      Axes_Lib_BDraw_ABuff_grp0[grpI] = Axes_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.Axes_Lib_BDraw_ABuff_BitN1) Axes_Lib_BDraw_ABuff_Fills1[i] = Axes_Lib_BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c = i < g.Axes_Lib_BDraw_ABuff_BitN ? countbits(Axes_Lib_BDraw_ABuff_Bits[i]) : 0, s;
+    Axes_Lib_BDraw_ABuff_grp0[grpI] = c; Axes_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.Axes_Lib_BDraw_ABuff_BitN) Axes_Lib_BDraw_ABuff_grp[grpI] = Axes_Lib_BDraw_ABuff_grp0[grpI] + Axes_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      Axes_Lib_BDraw_ABuff_grp0[grpI] = Axes_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.Axes_Lib_BDraw_ABuff_BitN) Axes_Lib_BDraw_ABuff_Sums[i] = Axes_Lib_BDraw_ABuff_grp[grpI];
+  }
+  Axes_Lib_BDraw_TextInfo Axes_Lib_BDraw_textInfo(uint i) { return Axes_Lib_BDraw_textInfos[i]; }
+  void Axes_Lib_BDraw_textInfo(uint i, Axes_Lib_BDraw_TextInfo t) { Axes_Lib_BDraw_textInfos[i] = t; }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.Axes_Lib_BDraw_textN)
+    {
+      uint i = id.x;
+      if (i > 0)
+      {
+        Axes_Lib_BDraw_TextInfo t = Axes_Lib_BDraw_textInfo(0), ti = Axes_Lib_BDraw_textInfo(i);
+        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+        Axes_Lib_BDraw_textInfo(i, ti);
+      }
+    }
+    }
+  }
+  uint2 Axes_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : Axes_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.Axes_Lib_BDraw_ABuff_IndexN ? Axes_Lib_BDraw_ABuff_Indexes[textI] : g.Axes_Lib_BDraw_textCharN); }
+  uint Axes_Lib_BDraw_Byte(uint i) { return TextByte(Axes_Lib_BDraw_tab_delimeted_text, i); }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
+  {
+    unchecked
+    {
+      if (id.x < g.Axes_Lib_BDraw_textN)
+    {
+      uint i = id.x;
+      Axes_Lib_BDraw_TextInfo ti = Axes_Lib_BDraw_textInfo(i);
+      ti.textI = i;
+      ti.uvSize = f01;
+      uint2 textIs = Axes_Lib_BDraw_Get_text_indexes(i);
+      float2 t = ti.uvSize;
+      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Axes_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += Axes_Lib_BDraw_fontInfos[byteI].advance; } }
+      t.x /= g.Axes_Lib_BDraw_fontSize;
+      ti.uvSize = t;
+      Axes_Lib_BDraw_textInfo(i, ti);
+    }
+    }
+  }
+  bool Axes_Lib_BDraw_ABuff_IsBitOn(uint i) { uint c = Axes_Lib_BDraw_Byte(i); return c == Axes_Lib_BDraw_TB || c == Axes_Lib_BDraw_LF; }
+  uint Axes_Lib_BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.Axes_Lib_BDraw_ABuff_N && Axes_Lib_BDraw_ABuff_IsBitOn(i)) << (int)j); }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c, s, j, k, bits = 0;
+    if (i < g.Axes_Lib_BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = Axes_Lib_BDraw_ABuff_Assign_Bits(k + j, j, bits); Axes_Lib_BDraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
+    Axes_Lib_BDraw_ABuff_grp0[grpI] = c; Axes_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.Axes_Lib_BDraw_ABuff_BitN) Axes_Lib_BDraw_ABuff_grp[grpI] = Axes_Lib_BDraw_ABuff_grp0[grpI] + Axes_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      Axes_Lib_BDraw_ABuff_grp0[grpI] = Axes_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.Axes_Lib_BDraw_ABuff_BitN) Axes_Lib_BDraw_ABuff_Sums[i] = Axes_Lib_BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.Axes_Lib_BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = Axes_Lib_BDraw_ABuff_Assign_Bits(k + j, j, bits); Axes_Lib_BDraw_ABuff_Bits[i] = bits; } } } }
+  [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) Axes_Lib_BDraw_ABuff_Sums[i] += Axes_Lib_BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.Axes_Lib_BDraw_ABuff_BitN - 1) g.Axes_Lib_BDraw_ABuff_IndexN = Axes_Lib_BDraw_ABuff_Sums[i]; } } }
+  #pragma kernel Axes_Lib_BDraw_ABuff_GetIndexes
+  #pragma kernel Axes_Lib_BDraw_ABuff_IncSums
+  #pragma kernel Axes_Lib_BDraw_ABuff_IncFills1
+  #pragma kernel Axes_Lib_BDraw_ABuff_GetFills2
+  #pragma kernel Axes_Lib_BDraw_ABuff_GetFills1
+  #pragma kernel Axes_Lib_BDraw_ABuff_Get_Bits_Sums
+  #pragma kernel Axes_Lib_BDraw_ABuff_GetSums
+  #pragma kernel Axes_Lib_BDraw_ABuff_Get_Bits
+  #pragma kernel Axes_Lib_BDraw_setDefaultTextInfo
+  #pragma kernel Axes_Lib_BDraw_getTextInfo

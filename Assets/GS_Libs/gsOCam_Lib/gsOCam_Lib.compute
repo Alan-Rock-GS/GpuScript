@@ -62,8 +62,8 @@
   #pragma use_dxc
   struct GOCam_Lib
   {
-    uint BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, plotBackground, multiCams, displayLegend, displayLegendPalette, paletteType, legendViewWidthPixels, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
-    float BDraw_fontSize, BDraw_boxThickness, dist, distSpeed, orthoSize, legendViewWidth;
+    uint BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, plotBackground, multiCams, displayLegend, displayLegendPalette, paletteType, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
+    float BDraw_fontSize, BDraw_boxThickness, dist, distSpeed, orthoSize, legendViewWidth, legendWidthRatio;
     float4 BDraw_boxColor;
     float3 center, Default_Center;
     float2 tiltSpin, tiltRange, rotationSpeed, distanceRange, orthoTiltSpin, legendRange;
