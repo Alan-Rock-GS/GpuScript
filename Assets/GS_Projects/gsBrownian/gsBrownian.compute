@@ -76,7 +76,7 @@
   RWStructuredBuffer<Axes_Lib_BDraw_TextInfo> Axes_Lib_BDraw_textInfos;
   RWStructuredBuffer<Axes_Lib_BDraw_FontInfo> Axes_Lib_BDraw_fontInfos;
   RWStructuredBuffer<int> vs, vs0;
-  [numthreads(numthreads2, numthreads2, 1)] void CalcPntSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.stepN * (g.stepN - 1) / 2 && id.x < g.pntN) { uint2 u = upperTriangularIndex(id.y, g.stepN) + id.x * g.stepN * u11; InterlockedAdd(vs, u.y, vs0[u.x]); } } }
+  [numthreads(numthreads1, 1, 1)] void Calc_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { uint i = id.x * g.stepN, j = 0; for (float v = 1; j < g.stepN; j++, i++) vs[i] = roundi(100 * g.price0 * (v *= 1 + vs0[i] / 10000.0f)); } } }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : Axes_Lib_BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = Axes_Lib_BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); Axes_Lib_BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) Axes_Lib_BDraw_ABuff_Sums[i] += Axes_Lib_BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.Axes_Lib_BDraw_ABuff_BitN - 1) g.Axes_Lib_BDraw_ABuff_IndexN = Axes_Lib_BDraw_ABuff_Sums[i]; } } }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) Axes_Lib_BDraw_ABuff_Fills1[i] += Axes_Lib_BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
@@ -187,8 +187,8 @@
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads2, numthreads2, 1)] void Init_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.stepN && id.x < g.pntN) { uint i = vI(id.xy); vs0[i] = vs[i] = roundi(100 * Rand_gauss(i, 0, g.gainSD * 100 / 2)); } } }
-  #pragma kernel CalcPntSums
+  [numthreads(numthreads2, numthreads2, 1)] void Init_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.stepN && id.x < g.pntN) { uint i = vI(id.xy); vs0[i] = roundi(10000 * max(-0.999f, Rand_gauss(i, 0, g.gainSD))); } } }
+  #pragma kernel Calc_1D_Motion
   #pragma kernel Init_1D_Motion
   #pragma kernel Axes_Lib_BDraw_ABuff_GetIndexes
   #pragma kernel Axes_Lib_BDraw_ABuff_IncSums

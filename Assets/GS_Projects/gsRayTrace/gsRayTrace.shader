@@ -338,9 +338,9 @@ Shader "gs/gsRayTrace"
   v2f vert_GS(uint i, uint j, v2f o)
   {
     uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;
-    if (level == ++index) { o = vert_BDraw_Text(i, j, o); o.tj.x = 3; }
-    else if (level == ++index) { o = vert_BDraw_Box(i, j, o); o.tj.x = 3; }
-    else if (level == ++index) { o = vert_DrawScreen(i, j, o); o.tj.x = 0; }
+    if (level == ++index) o = vert_BDraw_Text(i, j, o);
+    else if (level == ++index) o = vert_BDraw_Box(i, j, o);
+    else if (level == ++index) o = vert_DrawScreen(i, j, o);
     return o;
   }
   float4 frag(v2f i) : SV_Target

@@ -1430,7 +1430,7 @@ public class GS_Window : EditorWindow
                   {
                     if (_GS_fieldType.IsArray && _GS_fieldType.GetElementType().IsStruct())
                       //data_to_ui.Add($"\n    AddComputeBufferData(ref {m_name}, nameof({m_name}), data.{m_name});");
-                      data_to_ui.Add($"\n    AssignData({m_name}, data.{m_name});");
+                      data_to_ui.Add($"\n    AssignData_{m_name}(data.{m_name});");
                     else
                       data_to_ui.Add($"\n    {m_name} = data.{m_name}{v};");
                   }

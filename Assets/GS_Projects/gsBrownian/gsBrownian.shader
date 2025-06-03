@@ -175,6 +175,9 @@ Shader "gs/gsBrownian"
     return color;
   }
   uint2 Axes_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : Axes_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.Axes_Lib_BDraw_ABuff_IndexN ? Axes_Lib_BDraw_ABuff_Indexes[textI] : g.Axes_Lib_BDraw_textCharN); }
+  float3 Axes_Lib_gridSize() { return Axes_Lib_gridMax() - Axes_Lib_gridMin(); }
+  float3 Axes_Lib_BDraw_SignalQuad_Size(uint chI) { return Axes_Lib_gridSize(); }
+  bool Axes_Lib_BDraw_SignalQuad(uint chI) { return true; }
   v2f Axes_Lib_BDraw_o_i(uint i, v2f o) { o.ti.x = i; return o; }
   v2f Axes_Lib_BDraw_o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
   v2f Axes_Lib_BDraw_o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
@@ -192,7 +195,7 @@ Shader "gs/gsBrownian"
   float Axes_Lib_BDraw_SignalThickness(uint chI, uint smpI) { return g.lineThickness; }
   float Axes_Lib_BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
   float4 Axes_Lib_BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
-  float4 Axes_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.001f); }
+  float4 Axes_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return f0000; }
   uint2 Axes_Lib_BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
   float2 Axes_Lib_BDraw_JQuadf(uint j) { return (float2)Axes_Lib_BDraw_JQuadu(j); }
   v2f Axes_Lib_BDraw_o_pos(float4 pos, v2f o) { o.pos = pos; return o; }
@@ -201,8 +204,21 @@ Shader "gs/gsBrownian"
   v2f Axes_Lib_BDraw_o_pos_PV(float3 p, float4 q, v2f o) { return Axes_Lib_BDraw_o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o); }
   float4 Axes_Lib_BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = Axes_Lib_BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   float4 Axes_Lib_BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float r, uint j) { return Axes_Lib_BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j); }
-  v2f vert_Axes_Lib_BDraw_Signal(float3 p0, float3 p1, float r, uint i, uint j, v2f o) { return Axes_Lib_BDraw_o_i(i, Axes_Lib_BDraw_o_p0(p0, Axes_Lib_BDraw_o_p1(p1, Axes_Lib_BDraw_o_uv(f11 - Axes_Lib_BDraw_JQuadf(j).yx, Axes_Lib_BDraw_o_drawType(Axes_Lib_BDraw_Draw_Signal, Axes_Lib_BDraw_o_r(r, Axes_Lib_BDraw_o_pos_c(Axes_Lib_BDraw_LineArrow_p4(1, p0, p1, r, j), o))))))); }
-  v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { return vert_Axes_Lib_BDraw_Signal(f_00, f100, extent(g.Axes_Lib_GridY) / 2, i, j, o); }
+  float3 Axes_Lib_BDraw_SignalQuad_Min(uint chI) { return float3(Axes_Lib_gridMin().xy, lerp(-0.5f, 0.5f, chI / (float)g.pntN)); }
+  float3 Axes_Lib_BDraw_SignalQuad_p0(uint chI) { return Axes_Lib_BDraw_SignalQuad_Min(chI); }
+  float3 Axes_Lib_BDraw_SignalQuad_p1(uint chI) { return Axes_Lib_BDraw_SignalQuad_p0(chI) + Axes_Lib_BDraw_SignalQuad_Size(chI) * f100; }
+  float3 Axes_Lib_BDraw_SignalQuad_p2(uint chI) { return Axes_Lib_BDraw_SignalQuad_p0(chI) + Axes_Lib_BDraw_SignalQuad_Size(chI) * f110; }
+  float3 Axes_Lib_BDraw_SignalQuad_p3(uint chI) { return Axes_Lib_BDraw_SignalQuad_p0(chI) + Axes_Lib_BDraw_SignalQuad_Size(chI) * f010; }
+  float3 Axes_Lib_BDraw_quad(float3 p0, float3 p1, float3 p2, float3 p3, uint j) { return j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1; }
+  v2f Axes_Lib_BDraw_o_wPos(float3 wPos, v2f o) { o.wPos = wPos; return o; }
+  v2f vert_Axes_Lib_BDraw_Quad(float3 p0, float3 p1, float3 p2, float3 p3, float4 color, uint i, uint j, v2f o) { float3 p = Axes_Lib_BDraw_quad(p0, p1, p2, p3, j); return Axes_Lib_BDraw_o_i(i, Axes_Lib_BDraw_o_drawType(Axes_Lib_BDraw_Draw_Texture_2D, Axes_Lib_BDraw_o_normal(cross(p1 - p0, p0 - p3), Axes_Lib_BDraw_o_uv(float2(Axes_Lib_BDraw_wrapJ(j, 2), Axes_Lib_BDraw_wrapJ(j, 4)), Axes_Lib_BDraw_o_wPos(p, Axes_Lib_BDraw_o_pos_c(p, Axes_Lib_BDraw_o_color(color, o))))))); }
+  v2f vert_Axes_Lib_BDraw_Signal(float3 p0, float3 p1, float r, uint i, uint j, v2f o)
+  {
+    if (!Axes_Lib_BDraw_SignalQuad(i)) return Axes_Lib_BDraw_o_i(i, Axes_Lib_BDraw_o_p0(p0, Axes_Lib_BDraw_o_p1(p1, Axes_Lib_BDraw_o_uv(f11 - Axes_Lib_BDraw_JQuadf(j).yx, Axes_Lib_BDraw_o_drawType(Axes_Lib_BDraw_Draw_Signal, Axes_Lib_BDraw_o_r(r, Axes_Lib_BDraw_o_pos_c(Axes_Lib_BDraw_LineArrow_p4(1, p0, p1, r, j), o)))))));
+    float3 q0 = Axes_Lib_BDraw_SignalQuad_p0(i), q1 = Axes_Lib_BDraw_SignalQuad_p1(i), q2 = Axes_Lib_BDraw_SignalQuad_p2(i), q3 = Axes_Lib_BDraw_SignalQuad_p3(i);
+    return Axes_Lib_BDraw_o_p0(p0, Axes_Lib_BDraw_o_p1(p1, Axes_Lib_BDraw_o_r(distance(q0, q3), Axes_Lib_BDraw_o_drawType(Axes_Lib_BDraw_Draw_Signal, vert_Axes_Lib_BDraw_Quad(q0, q1, q2, q3, f1111, i, j, o)))));
+  }
+  v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { float3 z = f001 * Axes_Lib_BDraw_SignalQuad_Size(i); return vert_Axes_Lib_BDraw_Signal(f_00 + z, f100 + z, extent(g.Axes_Lib_GridY) / 2, i, j, o); }
   float2 Axes_Lib_BDraw_Line_uv(float3 p0, float3 p1, float r, uint j) { float2 p = Axes_Lib_BDraw_JQuadf(j); return float2(length(p1 - p0) * (1 - p.y), (1 - 2 * p.x) * r); }
   v2f vert_Axes_Lib_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return Axes_Lib_BDraw_o_i(i, Axes_Lib_BDraw_o_p0(p0, Axes_Lib_BDraw_o_p1(p1, Axes_Lib_BDraw_o_r(r, Axes_Lib_BDraw_o_drawType(Axes_Lib_BDraw_Draw_Line, Axes_Lib_BDraw_o_color(color, Axes_Lib_BDraw_o_uv(Axes_Lib_BDraw_Line_uv(p0, p1, r, j), Axes_Lib_BDraw_o_pos_c(Axes_Lib_BDraw_LineArrow_p4(1, p0, p1, r, j), o)))))))); }
   v2f vert_Axes_Lib_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_Axes_Lib_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
@@ -316,7 +332,7 @@ Shader "gs/gsBrownian"
   }
   uint vI(uint2 pntI_stepI) { return pntI_stepI.x * g.stepN + pntI_stepI.y; }
   uint vI(uint pntI, uint stepI) { return vI(uint2(pntI, stepI)); }
-  float Axes_Lib_BDraw_SignalSmpV(uint chI, uint smpI) { return g.stepN == 0 ? 0 : lerp(-1, 1, lerp1(g.priceRange, vs[vI(chI, smpI)] / 100.0f + g.price0)); }
+  float Axes_Lib_BDraw_SignalSmpV(uint chI, uint smpI) { return g.stepN == 0 ? 0 : lerp(-1, 1, lerp1(g.priceRange, vs[vI(chI, smpI)] / 100.0f)); }
   float4 frag_Axes_Lib_BDraw_Signal(v2f i)
   {
     uint chI = Axes_Lib_BDraw_o_i(i), SmpN = Axes_Lib_BDraw_SignalSmpN(chI);
