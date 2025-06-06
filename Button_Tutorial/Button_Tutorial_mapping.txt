@@ -1,0 +1,1548 @@
+# compiler: R8
+# compiler_version: 8.7.18
+# min_api: 32
+# common_typos_disable
+# {"id":"com.android.tools.r8.mapping","version":"2.2"}
+# pg_map_id: 50d2e9a
+# pg_map_hash: SHA-256 50d2e9a796752d9e04bc815d8f1d11571ad088c5c883b2aa980a2a09a76d3b68
+android.window.OnBackInvokedCallback -> android.window.OnBackInvokedCallback:
+# {"id":"com.android.tools.r8.synthesized"}
+    void <clinit>() -> <clinit>
+      # {"id":"com.android.tools.r8.synthesized"}
+bitter.jnibridge.JNIBridge -> bitter.jnibridge.JNIBridge:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:void disableInterfaceProxy(java.lang.Object) -> disableInterfaceProxy
+    0:0:java.lang.Object newInterfaceProxy(long,java.lang.Class[]) -> newInterfaceProxy
+bitter.jnibridge.a -> bitter.jnibridge.a:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:java.lang.Object[] -$$Nest$fgeta(bitter.jnibridge.a) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputb(bitter.jnibridge.a,long) -> -$$Nest$fputb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(long) -> <init>
+    0:0:java.lang.Object a(java.lang.Object,java.lang.reflect.Method,java.lang.Object[]) -> a
+    0:0:java.lang.Object invoke(java.lang.Object,java.lang.reflect.Method,java.lang.Object[]) -> invoke
+com.unity3d.player.A -> com.unity3d.player.A:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>(java.lang.String,int,int) -> <init>
+com.unity3d.player.A0 -> com.unity3d.player.A0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayer -$$Nest$fgeta(com.unity3d.player.A0) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void a() -> a
+    0:0:void b() -> b
+com.unity3d.player.A1 -> com.unity3d.player.A1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForGameActivity,int,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.ApplicationExitInfoBase -> com.unity3d.player.ApplicationExitInfoBase:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:int hashCode() -> hashCode
+    0:0:java.lang.String toString() -> toString
+com.unity3d.player.ApplicationExitInfoProvider -> com.unity3d.player.ApplicationExitInfoProvider:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:com.unity3d.player.ApplicationExitInfoBase[] getHistoricalProcessExitReasons(android.app.Activity,java.lang.String,int,int) -> getHistoricalProcessExitReasons
+    0:0:void setProcessStateSummary(android.app.Activity,byte[]) -> setProcessStateSummary
+com.unity3d.player.ApplicationExitInfoWrapper -> com.unity3d.player.ApplicationExitInfoWrapper:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.app.ApplicationExitInfo) -> <init>
+    0:0:java.lang.Object GetStaticFieldByReflection(java.lang.Class,java.lang.String,java.lang.Object,boolean) -> GetStaticFieldByReflection
+    0:0:boolean checkSupport() -> checkSupport
+    0:0:int describeContents() -> describeContents
+    0:0:int getDefiningUid() -> getDefiningUid
+    0:0:java.lang.String getDescription() -> getDescription
+    0:0:int getImportance() -> getImportance
+    0:0:int getPackageUid() -> getPackageUid
+    0:0:int getPid() -> getPid
+    0:0:java.lang.String getProcessName() -> getProcessName
+    0:0:byte[] getProcessStateSummary() -> getProcessStateSummary
+    0:0:long getPss() -> getPss
+    0:0:int getRealUid() -> getRealUid
+    0:0:int getReason() -> getReason
+    0:0:long getRss() -> getRss
+    0:0:int getStatus() -> getStatus
+    0:0:long getTimestamp() -> getTimestamp
+    0:0:byte[] getTrace() -> getTrace
+    0:0:byte[] readAllBytes(java.io.InputStream) -> readAllBytes
+com.unity3d.player.AudioVolumeHandler -> com.unity3d.player.AudioVolumeHandler:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.B -> com.unity3d.player.B:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:com.unity3d.player.D0 a() -> a
+    0:0:boolean onGenericMotionEvent(android.view.MotionEvent) -> onGenericMotionEvent
+    0:0:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
+    0:0:boolean onKeyLongPress(int,android.view.KeyEvent) -> onKeyLongPress
+    0:0:boolean onKeyMultiple(int,int,android.view.KeyEvent) -> onKeyMultiple
+    0:0:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
+    0:0:boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
+com.unity3d.player.B0 -> com.unity3d.player.B0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:void a() -> a
+    0:0:void a(java.lang.String) -> a
+    0:0:void uncaughtException(java.lang.Thread,java.lang.Throwable) -> uncaughtException
+com.unity3d.player.B1 -> com.unity3d.player.B1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForGameActivity) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.C -> com.unity3d.player.C:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:java.lang.String a(android.view.inputmethod.InputMethodSubtype) -> a
+com.unity3d.player.C0 -> com.unity3d.player.C0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.D0) -> <init>
+    0:0:void surfaceChanged(android.view.SurfaceHolder,int,int,int) -> surfaceChanged
+    0:0:void surfaceCreated(android.view.SurfaceHolder) -> surfaceCreated
+    0:0:void surfaceDestroyed(android.view.SurfaceHolder) -> surfaceDestroyed
+com.unity3d.player.C1 -> com.unity3d.player.C1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForGameActivity) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.Camera2Wrapper -> com.unity3d.player.Camera2Wrapper:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a(java.lang.Object) -> a
+    0:0:void a(java.nio.ByteBuffer,java.nio.ByteBuffer,java.nio.ByteBuffer,int,int,int) -> a
+    0:0:void closeCamera2() -> closeCamera2
+    0:0:int getCamera2Count() -> getCamera2Count
+    0:0:int getCamera2FocalLengthEquivalent(int) -> getCamera2FocalLengthEquivalent
+    0:0:int[] getCamera2Resolutions(int) -> getCamera2Resolutions
+    0:0:int getCamera2SensorOrientation(int) -> getCamera2SensorOrientation
+    0:0:android.graphics.Rect getFrameSizeCamera2() -> getFrameSizeCamera2
+    0:0:boolean initializeCamera2(int,int,int,int,int,android.view.Surface) -> initializeCamera2
+    0:0:boolean isCamera2AutoFocusPointSupported(int) -> isCamera2AutoFocusPointSupported
+    0:0:boolean isCamera2FrontFacing(int) -> isCamera2FrontFacing
+    0:0:void pauseCamera2() -> pauseCamera2
+    0:0:boolean setAutoFocusPoint(float,float) -> setAutoFocusPoint
+    0:0:void startCamera2() -> startCamera2
+    0:0:void stopCamera2() -> stopCamera2
+com.unity3d.player.D -> com.unity3d.player.D:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void Log(int,java.lang.String) -> Log
+com.unity3d.player.D0 -> com.unity3d.player.D0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.f -$$Nest$fgeta(com.unity3d.player.D0) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService -$$Nest$fgetb(com.unity3d.player.D0) -> -$$Nest$fgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.O -$$Nest$fgetc(com.unity3d.player.D0) -> -$$Nest$fgetc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:com.unity3d.player.f a() -> a
+    0:0:java.lang.String a(android.content.Context) -> a
+    0:0:void a(float) -> a
+    0:0:void b() -> b
+    0:0:boolean c() -> c
+com.unity3d.player.D1 -> com.unity3d.player.D1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForGameActivity) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.DisplayCutoutSupport -> com.unity3d.player.DisplayCutoutSupport:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean getDisplayCutoutSupport(android.app.Activity) -> getDisplayCutoutSupport
+    0:0:void setLayoutCutoutMode(android.app.Activity) -> setLayoutCutoutMode
+com.unity3d.player.E -> com.unity3d.player.E:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+    0:0:int b() -> b
+com.unity3d.player.E0 -> com.unity3d.player.E0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.G0) -> <init>
+    0:0:boolean handleMessage(android.os.Message) -> handleMessage
+com.unity3d.player.E1 -> com.unity3d.player.E1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean a() -> a
+    0:0:boolean a(boolean) -> a
+    0:0:void b(boolean) -> b
+    0:0:boolean b() -> b
+    0:0:void c(boolean) -> c
+    0:0:boolean c() -> c
+    0:0:void d(boolean) -> d
+    0:0:boolean d() -> d
+    0:0:void e() -> e
+    0:0:void e(boolean) -> e
+    0:0:void f() -> f
+    0:0:java.lang.String toString() -> toString
+com.unity3d.player.F -> com.unity3d.player.F:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(java.lang.Runnable) -> <init>
+com.unity3d.player.F0 -> com.unity3d.player.F0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>(int,java.lang.String) -> <init>
+com.unity3d.player.F1 -> com.unity3d.player.F1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.I1) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.G -> com.unity3d.player.G:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(java.lang.Runnable) -> <init>
+    0:0:void registerOnBackPressedCallback() -> registerOnBackPressedCallback
+    0:0:void unregisterOnBackPressedCallback() -> unregisterOnBackPressedCallback
+com.unity3d.player.G0 -> com.unity3d.player.G0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService -$$Nest$fgeta(com.unity3d.player.G0) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.os.Handler -$$Nest$fgetb(com.unity3d.player.G0) -> -$$Nest$fgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$fgetc(com.unity3d.player.G0) -> -$$Nest$fgetc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$fgetd(com.unity3d.player.G0) -> -$$Nest$fgetd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgete(com.unity3d.player.G0) -> -$$Nest$fgete
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgetf(com.unity3d.player.G0) -> -$$Nest$fgetf
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgetg(com.unity3d.player.G0) -> -$$Nest$fgetg
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgeth(com.unity3d.player.G0) -> -$$Nest$fgeth
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgeti(com.unity3d.player.G0) -> -$$Nest$fgeti
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputc(com.unity3d.player.G0,boolean) -> -$$Nest$fputc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputd(com.unity3d.player.G0,boolean) -> -$$Nest$fputd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fpute(com.unity3d.player.G0,int) -> -$$Nest$fpute
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputf(com.unity3d.player.G0,int) -> -$$Nest$fputf
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputi(com.unity3d.player.G0,int) -> -$$Nest$fputi
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void a() -> a
+    0:0:void a(int,int) -> a
+    0:0:void a(com.unity3d.player.F0) -> a
+    0:0:void a(java.lang.Runnable) -> a
+    0:0:void b() -> b
+    0:0:void b(java.lang.Runnable) -> b
+    0:0:void c() -> c
+    0:0:void c(java.lang.Runnable) -> c
+    0:0:void d() -> d
+    0:0:void d(java.lang.Runnable) -> d
+    0:0:void run() -> run
+com.unity3d.player.G1 -> com.unity3d.player.G1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.GoogleARCoreApi -> com.unity3d.player.GoogleARCoreApi:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+com.unity3d.player.H -> com.unity3d.player.H:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.window.OnBackInvokedDispatcher,int,java.lang.Runnable) -> <init>
+    0:0:com.unity3d.player.G a(java.lang.Object,int,java.lang.Runnable) -> a
+    0:0:void registerOnBackPressedCallback() -> registerOnBackPressedCallback
+    0:0:void unregisterOnBackPressedCallback() -> unregisterOnBackPressedCallback
+com.unity3d.player.H0 -> com.unity3d.player.H0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.H1 -> com.unity3d.player.H1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void -$$Nest$fputb(com.unity3d.player.H1,boolean) -> -$$Nest$fputb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.I1) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.HFPStatus -> com.unity3d.player.HFPStatus:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:boolean -$$Nest$fgetc(com.unity3d.player.HFPStatus) -> -$$Nest$fgetc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.media.AudioManager -$$Nest$fgetd(com.unity3d.player.HFPStatus) -> -$$Nest$fgetd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputf(com.unity3d.player.HFPStatus,int) -> -$$Nest$fputf
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$ma(com.unity3d.player.HFPStatus) -> -$$Nest$ma
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+    0:0:void b() -> b
+    0:0:void clearHFPStat() -> clearHFPStat
+    0:0:boolean getHFPStat() -> getHFPStat
+    0:0:void requestHFPStat() -> requestHFPStat
+    0:0:void setHFPRecordingStat(boolean) -> setHFPRecordingStat
+com.unity3d.player.HFPStatus$1 -> com.unity3d.player.HFPStatus$1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.HFPStatus) -> <init>
+    0:0:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+com.unity3d.player.I -> com.unity3d.player.I:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.I0 -> com.unity3d.player.I0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,boolean) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.I1 -> com.unity3d.player.I1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void -$$Nest$ma(com.unity3d.player.I1,int) -> -$$Nest$ma
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.UnityPlayer,java.lang.String,int,int,int,boolean,long,long,com.unity3d.player.G1) -> <init>
+    0:0:void a(int) -> a
+    0:0:boolean a() -> a
+    0:0:boolean canPause() -> canPause
+    0:0:boolean canSeekBackward() -> canSeekBackward
+    0:0:boolean canSeekForward() -> canSeekForward
+    0:0:void cancelOnPrepare() -> cancelOnPrepare
+    0:0:void destroyPlayer() -> destroyPlayer
+    0:0:void doCleanUp() -> doCleanUp
+    0:0:boolean exitOnKeypress(int,android.view.KeyEvent) -> exitOnKeypress
+    0:0:int getAudioSessionId() -> getAudioSessionId
+    0:0:int getBufferPercentage() -> getBufferPercentage
+    0:0:int getCurrentPosition() -> getCurrentPosition
+    0:0:int getDuration() -> getDuration
+    0:0:boolean isPlaying() -> isPlaying
+    0:0:void onBufferingUpdate(android.media.MediaPlayer,int) -> onBufferingUpdate
+    0:0:void onCompletion(android.media.MediaPlayer) -> onCompletion
+    0:0:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
+    0:0:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
+    0:0:void onPrepared(android.media.MediaPlayer) -> onPrepared
+    0:0:boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
+    0:0:void onVideoSizeChanged(android.media.MediaPlayer,int,int) -> onVideoSizeChanged
+    0:0:void pause() -> pause
+    0:0:void seekTo(int) -> seekTo
+    0:0:void start() -> start
+    0:0:void surfaceChanged(android.view.SurfaceHolder,int,int,int) -> surfaceChanged
+    0:0:void surfaceCreated(android.view.SurfaceHolder) -> surfaceCreated
+    0:0:void surfaceDestroyed(android.view.SurfaceHolder) -> surfaceDestroyed
+    0:0:void updateVideoLayout() -> updateVideoLayout
+com.unity3d.player.IAssetPackManagerDownloadStatusCallback -> com.unity3d.player.IAssetPackManagerDownloadStatusCallback:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.IAssetPackManagerMobileDataConfirmationCallback -> com.unity3d.player.IAssetPackManagerMobileDataConfirmationCallback:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.IAssetPackManagerStatusQueryCallback -> com.unity3d.player.IAssetPackManagerStatusQueryCallback:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.IPermissionRequestCallbacks -> com.unity3d.player.IPermissionRequestCallbacks:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.IUnityPermissionRequestSupport -> com.unity3d.player.IUnityPermissionRequestSupport:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.IUnityPlayerLifecycleEvents -> com.unity3d.player.IUnityPlayerLifecycleEvents:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.IUnityPlayerSupport -> com.unity3d.player.IUnityPlayerSupport:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.J -> com.unity3d.player.J:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.J0 -> com.unity3d.player.J0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.J1 -> com.unity3d.player.J1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.K1) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.K -> com.unity3d.player.K:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.K0 -> com.unity3d.player.K0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,int) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.K1 -> com.unity3d.player.K1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.L1) -> <init>
+    0:0:void a(int) -> a
+com.unity3d.player.L -> com.unity3d.player.L:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.M) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.L0 -> com.unity3d.player.L0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:void run() -> run
+com.unity3d.player.L1 -> com.unity3d.player.L1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.Q1,java.lang.String,int,int,int,boolean,long,long) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.M -> com.unity3d.player.M:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.N,java.util.concurrent.Semaphore) -> <init>
+    0:0:void onPixelCopyFinished(int) -> onPixelCopyFinished
+com.unity3d.player.M0 -> com.unity3d.player.M0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void onClick(android.content.DialogInterface,int) -> onClick
+com.unity3d.player.M1 -> com.unity3d.player.M1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.Q1) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.MultiWindowSupport -> com.unity3d.player.MultiWindowSupport:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean isInMultiWindowMode(android.app.Activity) -> isInMultiWindowMode
+    0:0:boolean isMultiWindowModeChangedToTrue(android.app.Activity) -> isMultiWindowModeChangedToTrue
+    0:0:void saveMultiWindowMode(android.app.Activity) -> saveMultiWindowMode
+com.unity3d.player.N -> com.unity3d.player.N:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.O,android.content.Context) -> <init>
+    0:0:void a(android.view.SurfaceView) -> a
+com.unity3d.player.N0 -> com.unity3d.player.N0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.N1 -> com.unity3d.player.N1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.Q1) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.NativeLoader -> com.unity3d.player.NativeLoader:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.O -> com.unity3d.player.O:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+com.unity3d.player.O0 -> com.unity3d.player.O0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.O1 -> com.unity3d.player.O1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.Q1) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.OrientationLockListener -> com.unity3d.player.OrientationLockListener:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+    0:0:void b() -> b
+com.unity3d.player.P -> com.unity3d.player.P:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,long,java.lang.Class[]) -> <init>
+    0:0:java.lang.Object a(java.lang.Object,java.lang.reflect.Method,java.lang.Object[],com.unity3d.player.S) -> a
+    0:0:void finalize() -> finalize
+    0:0:java.lang.Object invoke(java.lang.Object,java.lang.reflect.Method,java.lang.Object[]) -> invoke
+com.unity3d.player.P0 -> com.unity3d.player.P0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.PermissionRequest,java.lang.String[],int[]) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.P1 -> com.unity3d.player.P1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.PermissionRequest -> com.unity3d.player.PermissionRequest:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(java.lang.String[],com.unity3d.player.IPermissionRequestCallbacks) -> <init>
+    0:0:java.lang.String[] getPermissionNames() -> getPermissionNames
+    0:0:void permissionResponse(java.lang.String[],int[]) -> permissionResponse
+com.unity3d.player.PlatformSupport -> com.unity3d.player.PlatformSupport:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>() -> <init>
+com.unity3d.player.PlayAssetDeliveryUnityWrapper -> com.unity3d.player.PlayAssetDeliveryUnityWrapper:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,android.content.Context) -> <init>
+    0:0:com.unity3d.player.n a(com.unity3d.player.UnityPlayer,android.content.Context) -> a
+    0:0:void a() -> a
+    0:0:void cancelAssetPackDownload(java.lang.String) -> cancelAssetPackDownload
+    0:0:void cancelAssetPackDownloads(java.lang.String[]) -> cancelAssetPackDownloads
+    0:0:void downloadAssetPack(java.lang.String,com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> downloadAssetPack
+    0:0:void downloadAssetPacks(java.lang.String[],com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> downloadAssetPacks
+    0:0:java.lang.String getAssetPackPath(java.lang.String) -> getAssetPackPath
+    0:0:void getAssetPackState(java.lang.String,com.unity3d.player.IAssetPackManagerStatusQueryCallback) -> getAssetPackState
+    0:0:void getAssetPackStates(java.lang.String[],com.unity3d.player.IAssetPackManagerStatusQueryCallback) -> getAssetPackStates
+    0:0:com.unity3d.player.PlayAssetDeliveryUnityWrapper getInstance() -> getInstance
+    0:0:com.unity3d.player.PlayAssetDeliveryUnityWrapper init(com.unity3d.player.UnityPlayer,android.content.Context) -> init
+    0:0:boolean playCoreApiMissing() -> playCoreApiMissing
+    0:0:java.lang.Object registerDownloadStatusListener(com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> registerDownloadStatusListener
+    0:0:void removeAssetPack(java.lang.String) -> removeAssetPack
+    0:0:void requestToUseMobileData(android.app.Activity,com.unity3d.player.IAssetPackManagerMobileDataConfirmationCallback) -> requestToUseMobileData
+    0:0:void unregisterDownloadStatusListener(java.lang.Object) -> unregisterDownloadStatusListener
+com.unity3d.player.Q -> com.unity3d.player.Q:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:int -$$Nest$fgetd(com.unity3d.player.Q) -> -$$Nest$fgetd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(java.lang.Class,java.lang.String,java.lang.String) -> <init>
+    0:0:boolean equals(java.lang.Object) -> equals
+    0:0:int hashCode() -> hashCode
+com.unity3d.player.Q0 -> com.unity3d.player.Q0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(java.lang.String) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.Q1 -> com.unity3d.player.Q1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayer -$$Nest$fgeta(com.unity3d.player.Q1) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.content.Context -$$Nest$fgetb(com.unity3d.player.Q1) -> -$$Nest$fgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.P1 -$$Nest$fgetc(com.unity3d.player.Q1) -> -$$Nest$fgetc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.util.concurrent.Semaphore -$$Nest$fgetd(com.unity3d.player.Q1) -> -$$Nest$fgetd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.util.concurrent.locks.ReentrantLock -$$Nest$fgete(com.unity3d.player.Q1) -> -$$Nest$fgete
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.I1 -$$Nest$fgetf(com.unity3d.player.Q1) -> -$$Nest$fgetf
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$fgeti(com.unity3d.player.Q1) -> -$$Nest$fgeti
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputf(com.unity3d.player.Q1,com.unity3d.player.I1) -> -$$Nest$fputf
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputg(com.unity3d.player.Q1,int) -> -$$Nest$fputg
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputi(com.unity3d.player.Q1,boolean) -> -$$Nest$fputi
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void a() -> a
+    0:0:boolean a(android.content.Context,java.lang.String,int,int,int,boolean,long,long,com.unity3d.player.P1) -> a
+    0:0:void b() -> b
+    0:0:void c() -> c
+    0:0:void runOnUiThread(java.lang.Runnable) -> runOnUiThread
+com.unity3d.player.R -> com.unity3d.player.R:
+    0:0:void <init>() -> <init>
+com.unity3d.player.R$color -> com.unity3d.player.R$color:
+    0:0:void <init>() -> <init>
+com.unity3d.player.R$id -> com.unity3d.player.R$id:
+    0:0:void <init>() -> <init>
+com.unity3d.player.R$string -> com.unity3d.player.R$string:
+    0:0:void <init>() -> <init>
+com.unity3d.player.R$style -> com.unity3d.player.R$style:
+    0:0:void <init>() -> <init>
+com.unity3d.player.R0 -> com.unity3d.player.R0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.R1 -> com.unity3d.player.R1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:android.graphics.Point a(android.content.Context) -> a
+    0:0:void a(android.app.Activity,android.widget.FrameLayout) -> a
+    0:0:void a(android.app.Activity,android.widget.FrameLayout,boolean,boolean) -> a
+com.unity3d.player.ReflectionHelper -> com.unity3d.player.ReflectionHelper:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:long -$$Nest$sfgetb() -> -$$Nest$sfgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smnativeProxyFinalize(long) -> -$$Nest$smnativeProxyFinalize
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.lang.Object -$$Nest$smnativeProxyInvoke(long,java.lang.String,java.lang.Object[]) -> -$$Nest$smnativeProxyInvoke
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smnativeProxyJNIFreeGCHandle(long) -> -$$Nest$smnativeProxyJNIFreeGCHandle
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smnativeProxyLogJNIInvokeException(long) -> -$$Nest$smnativeProxyLogJNIInvokeException
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:float a(java.lang.Class,java.lang.Class[],java.lang.Class[]) -> a
+    0:0:java.lang.Class a(java.lang.String,int[]) -> a
+    0:0:boolean a(com.unity3d.player.Q) -> a
+    0:0:java.lang.Class[] a(java.lang.String) -> a
+    0:0:boolean beginProxyCall(long) -> beginProxyCall
+    0:0:java.lang.Object createInvocationError(long,boolean) -> createInvocationError
+    0:0:void endProxyCall() -> endProxyCall
+    0:0:void endUnityLaunch() -> endUnityLaunch
+    0:0:java.lang.reflect.Constructor getConstructorID(java.lang.Class,java.lang.String) -> getConstructorID
+    0:0:java.lang.reflect.Field getFieldID(java.lang.Class,java.lang.String,java.lang.String,boolean) -> getFieldID
+    0:0:java.lang.String getFieldSignature(java.lang.reflect.Field) -> getFieldSignature
+    0:0:java.lang.reflect.Method getMethodID(java.lang.Class,java.lang.String,java.lang.String,boolean) -> getMethodID
+    0:0:java.lang.Object newProxyInstance(com.unity3d.player.UnityPlayer,long,java.lang.Class) -> newProxyInstance
+    0:0:java.lang.Object newProxyInstance(com.unity3d.player.UnityPlayer,long,java.lang.Class[]) -> newProxyInstance
+com.unity3d.player.RequiredByNative -> com.unity3d.player.RequiredByNative:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.S -> com.unity3d.player.S:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:long -$$Nest$fgeta(com.unity3d.player.S) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$fgetb(com.unity3d.player.S) -> -$$Nest$fgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputa(com.unity3d.player.S,long) -> -$$Nest$fputa
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(long,boolean) -> <init>
+com.unity3d.player.S0 -> com.unity3d.player.S0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.SoftInputProvider -> com.unity3d.player.SoftInputProvider:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:int a() -> a
+com.unity3d.player.T -> com.unity3d.player.T:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(long,long) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.T0 -> com.unity3d.player.T0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,android.content.Context,int) -> <init>
+    0:0:void onOrientationChanged(int) -> onOrientationChanged
+com.unity3d.player.U -> com.unity3d.player.U:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,android.widget.EditText) -> <init>
+    0:0:void createUI() -> createUI
+    0:0:void setOnClickListener(android.view.View$OnClickListener) -> setOnClickListener
+com.unity3d.player.U0 -> com.unity3d.player.U0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,float) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.UnityAccessibilityDelegate -> com.unity3d.player.UnityAccessibilityDelegate:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayer -$$Nest$fgeta(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.view.SurfaceView -$$Nest$fgetb(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.view.accessibility.AccessibilityManager -$$Nest$fgetc(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgetc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.view.accessibility.CaptioningManager -$$Nest$fgete(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgete
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgetg(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgetg
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$fgeth(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgeth
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$fgeti(com.unity3d.player.UnityAccessibilityDelegate) -> -$$Nest$fgeti
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputd(com.unity3d.player.UnityAccessibilityDelegate,com.unity3d.player.u0) -> -$$Nest$fputd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputf(com.unity3d.player.UnityAccessibilityDelegate,com.unity3d.player.w0) -> -$$Nest$fputf
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputg(com.unity3d.player.UnityAccessibilityDelegate,int) -> -$$Nest$fputg
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputh(com.unity3d.player.UnityAccessibilityDelegate,int) -> -$$Nest$fputh
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputi(com.unity3d.player.UnityAccessibilityDelegate,boolean) -> -$$Nest$fputi
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int[] -$$Nest$smgetRootNodeIds() -> -$$Nest$smgetRootNodeIds
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:int -$$Nest$smhitTest(float,float) -> -$$Nest$smhitTest
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$smisNodeDismissable(int) -> -$$Nest$smisNodeDismissable
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$smisNodeSelectable(int) -> -$$Nest$smisNodeSelectable
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smonNodeDecremented(int) -> -$$Nest$smonNodeDecremented
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$smonNodeDismissed(int) -> -$$Nest$smonNodeDismissed
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smonNodeFocusChanged(int,boolean) -> -$$Nest$smonNodeFocusChanged
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smonNodeIncremented(int) -> -$$Nest$smonNodeIncremented
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$smonNodeSelected(int) -> -$$Nest$smonNodeSelected
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$smpopulateNodeInfo(android.view.accessibility.AccessibilityNodeInfo,int,android.view.View) -> -$$Nest$smpopulateNodeInfo
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smsendClosedCaptioningChangedNotification(boolean) -> -$$Nest$smsendClosedCaptioningChangedNotification
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smsendElementFocusedNotification(int) -> -$$Nest$smsendElementFocusedNotification
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smsendFontScaleChangedNotification(float) -> -$$Nest$smsendFontScaleChangedNotification
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smsendScreenReaderStatusChangedNotification(boolean) -> -$$Nest$smsendScreenReaderStatusChangedNotification
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void a(android.content.res.Configuration) -> a
+    0:0:void cleanup() -> cleanup
+    0:0:android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider(android.view.View) -> getAccessibilityNodeProvider
+    0:0:int getFocusedNodeId() -> getFocusedNodeId
+    0:0:com.unity3d.player.UnityAccessibilityDelegate init(com.unity3d.player.UnityPlayer) -> init
+    0:0:boolean sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent) -> sendAccessibilityEvent
+    0:0:boolean sendAnnouncementForVirtualViewId(int,java.lang.String) -> sendAnnouncementForVirtualViewId
+    0:0:boolean sendEventForVirtualViewId(int,int) -> sendEventForVirtualViewId
+    0:0:boolean sendEventForVirtualViewIdFromNative(int,int) -> sendEventForVirtualViewIdFromNative
+com.unity3d.player.UnityCoreAssetPacksStatusCallbacks -> com.unity3d.player.UnityCoreAssetPacksStatusCallbacks:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:void onStatusResult(long,java.lang.String[],int[],int[]) -> onStatusResult
+    0:0:void onStatusUpdate(java.lang.String,int,long,long,int,int) -> onStatusUpdate
+com.unity3d.player.UnityGameManager -> com.unity3d.player.UnityGameManager:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:java.lang.Object getGameManager(android.content.Context) -> getGameManager
+    0:0:int getGameMode(android.content.Context) -> getGameMode
+com.unity3d.player.UnityGameState -> com.unity3d.player.UnityGameState:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:java.lang.String ModeName(int) -> ModeName
+    0:0:void setGameState(android.content.Context,boolean,int) -> setGameState
+    0:0:void setGameState(android.content.Context,boolean,int,int,int) -> setGameState
+com.unity3d.player.UnityGameState$$ExternalSyntheticApiModelOutline0 -> com.unity3d.player.UnityGameState$$ExternalSyntheticApiModelOutline0:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:void m(android.app.GameManager,android.app.GameState) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.UnityGameState$$ExternalSyntheticApiModelOutline1 -> com.unity3d.player.UnityGameState$$ExternalSyntheticApiModelOutline1:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.app.GameState m(boolean,int,int,int) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.UnityGameState$$ExternalSyntheticApiModelOutline2 -> com.unity3d.player.UnityGameState$$ExternalSyntheticApiModelOutline2:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.app.GameState m(boolean,int) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.UnityPermissions -> com.unity3d.player.UnityPermissions:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean checkInfoForMetadata(android.content.pm.PackageItemInfo) -> checkInfoForMetadata
+    0:0:boolean hasUserAuthorizedPermission(android.content.Context,java.lang.String) -> hasUserAuthorizedPermission
+    0:0:void requestUserPermissions(android.app.Activity,java.lang.String[],com.unity3d.player.IPermissionRequestCallbacks) -> requestUserPermissions
+    0:0:boolean shouldShowRequestPermissionRationale(android.app.Activity,java.lang.String) -> shouldShowRequestPermissionRationale
+    0:0:boolean skipPermissionsDialog(android.app.Activity) -> skipPermissionsDialog
+com.unity3d.player.UnityPlayer -> com.unity3d.player.UnityPlayer:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:int -$$Nest$fgetmInitialScreenOrientation(com.unity3d.player.UnityPlayer) -> -$$Nest$fgetmInitialScreenOrientation
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.a.g -$$Nest$fgetm_SplashScreen(com.unity3d.player.UnityPlayer) -> -$$Nest$fgetm_SplashScreen
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputmVideoPlayerProxy(com.unity3d.player.UnityPlayer,com.unity3d.player.Q1) -> -$$Nest$fputmVideoPlayerProxy
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputm_SplashScreen(com.unity3d.player.UnityPlayer,com.unity3d.player.a.g) -> -$$Nest$fputm_SplashScreen
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mdispatchFrameLayoutPadding(com.unity3d.player.UnityPlayer) -> -$$Nest$mdispatchFrameLayoutPadding
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$minvokeOnMainThread(com.unity3d.player.UnityPlayer,com.unity3d.player.Z0) -> -$$Nest$minvokeOnMainThread
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$mnativeIsAutorotationOn(com.unity3d.player.UnityPlayer) -> -$$Nest$mnativeIsAutorotationOn
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeMuteMasterAudio(com.unity3d.player.UnityPlayer,boolean) -> -$$Nest$mnativeMuteMasterAudio
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$smnativeSetLaunchURL(java.lang.String) -> -$$Nest$smnativeSetLaunchURL
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>(android.content.Context,com.unity3d.player.A,com.unity3d.player.IUnityPlayerLifecycleEvents) -> <init>
+    0:0:void EarlyEnableFullScreenIfEnabled() -> EarlyEnableFullScreenIfEnabled
+    0:0:java.lang.String GetGlViewContentDescription(android.content.Context) -> GetGlViewContentDescription
+    0:0:void UnitySendMessage(java.lang.String,java.lang.String,java.lang.String) -> UnitySendMessage
+    0:0:void addPermissionRequest(com.unity3d.player.PermissionRequest) -> addPermissionRequest
+    0:0:void addPhoneCallListener() -> addPhoneCallListener
+    0:0:boolean addViewToPlayer(android.view.View,boolean) -> addViewToPlayer
+    0:0:void applySurfaceViewSettings(android.view.SurfaceView) -> applySurfaceViewSettings
+    0:0:void applyWindowInsets() -> applyWindowInsets
+    0:0:void applyWindowUIChanges(boolean) -> applyWindowUIChanges
+    0:0:boolean canPauseUnity() -> canPauseUnity
+    0:0:boolean canResumeUnity() -> canResumeUnity
+    0:0:void configurationChanged(android.content.res.Configuration) -> configurationChanged
+    0:0:void destroy() -> destroy
+    0:0:void developmentPlayerInitialize() -> developmentPlayerInitialize
+    0:0:void disableLogger() -> disableLogger
+    0:0:void disableStaticSplashScreen() -> disableStaticSplashScreen
+    0:0:void dispatchFrameLayoutPadding() -> dispatchFrameLayoutPadding
+    0:0:void executeMainThreadJobs() -> executeMainThreadJobs
+    0:0:void finish() -> finish
+    0:0:boolean getARCoreEnabled() -> getARCoreEnabled
+    0:0:android.app.Activity getActivity() -> getActivity
+    0:0:android.content.pm.ActivityInfo getActivityInfo() -> getActivityInfo
+    0:0:android.content.pm.ApplicationInfo getApplicationInfo() -> getApplicationInfo
+    0:0:boolean getAutoReportFullyDrawnEnabled() -> getAutoReportFullyDrawnEnabled
+    0:0:boolean getAutoSetGameStateEnabled() -> getAutoSetGameStateEnabled
+    0:0:java.lang.String getClipboardText() -> getClipboardText
+    0:0:android.content.Context getContext() -> getContext
+    0:0:com.unity3d.player.A getContextType() -> getContextType
+    0:0:android.widget.FrameLayout getFrameLayout() -> getFrameLayout
+    0:0:java.lang.String getKeyboardLayout() -> getKeyboardLayout
+    0:0:boolean getLaunchFullscreen() -> getLaunchFullscreen
+    0:0:java.lang.String getLaunchURL() -> getLaunchURL
+    0:0:int getNaturalOrientation(int) -> getNaturalOrientation
+    0:0:int getNetworkConnectivity() -> getNetworkConnectivity
+    0:0:java.lang.String getNetworkProxySettings(java.lang.String) -> getNetworkProxySettings
+    0:0:java.lang.String getProcessName() -> getProcessName
+    0:0:float getScreenBrightness() -> getScreenBrightness
+    0:0:boolean getSplashEnabled() -> getSplashEnabled
+    0:0:int getSplashMode() -> getSplashMode
+    0:0:java.lang.String getState() -> getState
+    0:0:int getUaaLLaunchProcessType() -> getUaaLLaunchProcessType
+    0:0:java.lang.String getUnityNativeLibraryPath(android.content.Context) -> getUnityNativeLibraryPath
+    0:0:void hideStatusBar() -> hideStatusBar
+    0:0:void initialize(android.widget.FrameLayout) -> initialize
+    0:0:boolean initializeGoogleAr() -> initializeGoogleAr
+    0:0:boolean injectEvent(android.view.InputEvent) -> injectEvent
+    0:0:boolean injectEvent(android.view.InputEvent,int) -> injectEvent
+    0:0:void invokeOnMainThread(com.unity3d.player.Z0) -> invokeOnMainThread
+    0:0:void invokeOnMainThread(java.lang.Runnable) -> invokeOnMainThread
+    0:0:boolean isFinishing() -> isFinishing
+    0:0:boolean isNativeInitialized() -> isNativeInitialized
+    0:0:boolean isUaaLUseCase() -> isUaaLUseCase
+    0:0:boolean isWindowTranslucent() -> isWindowTranslucent
+    0:0:void kill() -> kill
+    0:0:boolean loadLibrary(java.lang.String) -> loadLibrary
+    0:0:java.lang.String loadNative(java.lang.String) -> loadNative
+    0:0:java.lang.String logLoadLibMainError(java.lang.String,java.lang.String) -> logLoadLibMainError
+    0:0:void newIntent(android.content.Intent) -> newIntent
+    0:0:void onPause() -> onPause
+    0:0:void onResume() -> onResume
+    0:0:void onStart() -> onStart
+    0:0:void onStop() -> onStop
+    0:0:void onUnityPlayerQuitted() -> onUnityPlayerQuitted
+    0:0:void onUnityPlayerUnloaded() -> onUnityPlayerUnloaded
+    0:0:void pause() -> pause
+    0:0:void pauseJavaAndCallUnloadCallback() -> pauseJavaAndCallUnloadCallback
+    0:0:void pauseUnity() -> pauseUnity
+    0:0:void permissionResponse(android.app.Activity,int,java.lang.String[],int[]) -> permissionResponse
+    0:0:void postOnUiThread(java.lang.Runnable) -> postOnUiThread
+    0:0:void preloadJavaPlugins() -> preloadJavaPlugins
+    0:0:void releasePointerCapture() -> releasePointerCapture
+    0:0:void removeViewFromPlayer(android.view.View) -> removeViewFromPlayer
+    0:0:void reportError(java.lang.String,java.lang.String) -> reportError
+    0:0:void reportFullyDrawn() -> reportFullyDrawn
+    0:0:void requestPermissionsFromActivity(java.lang.String[],int) -> requestPermissionsFromActivity
+    0:0:void requestPointerCapture() -> requestPointerCapture
+    0:0:void requestUserAuthorization(java.lang.String,long) -> requestUserAuthorization
+    0:0:void resume() -> resume
+    0:0:void resumeUnity() -> resumeUnity
+    0:0:void runOnAnonymousThread(java.lang.Runnable) -> runOnAnonymousThread
+    0:0:void runOnUiThread(java.lang.Runnable) -> runOnUiThread
+    0:0:boolean runningOnUIThread() -> runningOnUIThread
+    0:0:void setAccessibilityDelegate(com.unity3d.player.UnityAccessibilityDelegate) -> setAccessibilityDelegate
+    0:0:void setBackButtonLeavesApp(boolean) -> setBackButtonLeavesApp
+    0:0:void setClipboardText(java.lang.String) -> setClipboardText
+    0:0:void setLaunchURL(android.net.Uri) -> setLaunchURL
+    0:0:void setScreenBrightness(float) -> setScreenBrightness
+    0:0:void setupUnityToBePaused() -> setupUnityToBePaused
+    0:0:void setupUnityToBeResumed() -> setupUnityToBeResumed
+    0:0:boolean shouldReportFullyDrawn() -> shouldReportFullyDrawn
+    0:0:boolean shouldSetGameState() -> shouldSetGameState
+    0:0:boolean showVideoPlayer(java.lang.String,int,int,int,boolean,int,int) -> showVideoPlayer
+    0:0:void shutdown() -> shutdown
+    0:0:boolean skipPermissionsDialog() -> skipPermissionsDialog
+    0:0:void startActivityIndicator(int) -> startActivityIndicator
+    0:0:boolean startOrientationListener(int) -> startOrientationListener
+    0:0:void stopActivityIndicator() -> stopActivityIndicator
+    0:0:boolean stopOrientationListener() -> stopOrientationListener
+    0:0:boolean supportsWindowInsetController() -> supportsWindowInsetController
+    0:0:void swapViews(android.view.View,android.view.View) -> swapViews
+    0:0:void toggleGyroscopeSensor(boolean) -> toggleGyroscopeSensor
+    0:0:void triggerNextPermissionRequest() -> triggerNextPermissionRequest
+    0:0:void unload() -> unload
+    0:0:void unloadNative() -> unloadNative
+    0:0:void windowFocusChanged(boolean) -> windowFocusChanged
+com.unity3d.player.UnityPlayer-IA -> com.unity3d.player.UnityPlayer-IA:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.UnityPlayerActivity -> com.unity3d.player.UnityPlayerActivity:
+# {"id":"sourceFile","fileName":"UnityPlayerActivity.java"}
+    13:13:void <init>() -> <init>
+    147:147:boolean dispatchKeyEvent(android.view.KeyEvent) -> dispatchKeyEvent
+    148:148:boolean dispatchKeyEvent(android.view.KeyEvent) -> dispatchKeyEvent
+    149:149:boolean dispatchKeyEvent(android.view.KeyEvent) -> dispatchKeyEvent
+    13:13:com.unity3d.player.UnityPlayer getUnityPlayerConnection() -> getUnityPlayerConnection
+    45:45:com.unity3d.player.UnityPlayerForActivityOrService getUnityPlayerConnection() -> getUnityPlayerConnection
+    132:132:void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
+    133:133:void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
+    134:134:void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
+    32:32:void onCreate(android.os.Bundle) -> onCreate
+    33:33:void onCreate(android.os.Bundle) -> onCreate
+    35:35:void onCreate(android.os.Bundle) -> onCreate
+    36:36:void onCreate(android.os.Bundle) -> onCreate
+    38:38:void onCreate(android.os.Bundle) -> onCreate
+    39:39:void onCreate(android.os.Bundle) -> onCreate
+    40:40:void onCreate(android.os.Bundle) -> onCreate
+    41:41:void onCreate(android.os.Bundle) -> onCreate
+    70:70:void onDestroy() -> onDestroy
+    71:71:void onDestroy() -> onDestroy
+    72:72:void onDestroy() -> onDestroy
+    169:169:boolean onGenericMotionEvent(android.view.MotionEvent) -> onGenericMotionEvent
+    167:167:boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
+    166:166:boolean onKeyUp(int,android.view.KeyEvent) -> onKeyUp
+    107:107:void onLowMemory() -> onLowMemory
+    108:108:void onLowMemory() -> onLowMemory
+    109:109:void onLowMemory() -> onLowMemory
+    63:63:void onNewIntent(android.content.Intent) -> onNewIntent
+    64:64:void onNewIntent(android.content.Intent) -> onNewIntent
+    65:65:void onNewIntent(android.content.Intent) -> onNewIntent
+    93:93:void onPause() -> onPause
+    94:94:void onPause() -> onPause
+    95:95:void onPause() -> onPause
+    161:161:void onRequestPermissionsResult(int,java.lang.String[],int[]) -> onRequestPermissionsResult
+    162:162:void onRequestPermissionsResult(int,java.lang.String[],int[]) -> onRequestPermissionsResult
+    163:163:void onRequestPermissionsResult(int,java.lang.String[],int[]) -> onRequestPermissionsResult
+    100:100:void onResume() -> onResume
+    101:101:void onResume() -> onResume
+    102:102:void onResume() -> onResume
+    86:86:void onStart() -> onStart
+    87:87:void onStart() -> onStart
+    88:88:void onStart() -> onStart
+    80:80:void onStop() -> onStop
+    81:81:void onStop() -> onStop
+    82:82:void onStop() -> onStop
+    168:168:boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
+    114:114:void onTrimMemory(int) -> onTrimMemory
+    115:115:void onTrimMemory(int) -> onTrimMemory
+    118:118:void onTrimMemory(int) -> onTrimMemory
+    119:119:void onTrimMemory(int) -> onTrimMemory
+    121:121:void onTrimMemory(int) -> onTrimMemory
+    122:122:void onTrimMemory(int) -> onTrimMemory
+    124:124:void onTrimMemory(int) -> onTrimMemory
+    127:127:void onTrimMemory(int) -> onTrimMemory
+    55:55:void onUnityPlayerQuitted() -> onUnityPlayerQuitted
+    50:50:void onUnityPlayerUnloaded() -> onUnityPlayerUnloaded
+    51:51:void onUnityPlayerUnloaded() -> onUnityPlayerUnloaded
+    139:139:void onWindowFocusChanged(boolean) -> onWindowFocusChanged
+    140:140:void onWindowFocusChanged(boolean) -> onWindowFocusChanged
+    141:141:void onWindowFocusChanged(boolean) -> onWindowFocusChanged
+    156:156:void requestPermissions(com.unity3d.player.PermissionRequest) -> requestPermissions
+    157:157:void requestPermissions(com.unity3d.player.PermissionRequest) -> requestPermissions
+    26:26:java.lang.String updateUnityCommandLineArguments(java.lang.String) -> updateUnityCommandLineArguments
+com.unity3d.player.UnityPlayerForActivityOrService -> com.unity3d.player.UnityPlayerForActivityOrService:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:boolean -$$Nest$fgetmMainDisplayOverride(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$fgetmMainDisplayOverride
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.W -$$Nest$fgetmSoftInput(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$fgetmSoftInput
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputmSoftInput(com.unity3d.player.UnityPlayerForActivityOrService,com.unity3d.player.W) -> -$$Nest$fputmSoftInput
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mdismissSoftInput(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mdismissSoftInput
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeOnApplyWindowInsets(com.unity3d.player.UnityPlayerForActivityOrService,android.view.WindowInsets) -> -$$Nest$mnativeOnApplyWindowInsets
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:boolean -$$Nest$mnativePause(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativePause
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeRecreateGfxState(com.unity3d.player.UnityPlayerForActivityOrService,int,android.view.Surface) -> -$$Nest$mnativeRecreateGfxState
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeReportKeyboardConfigChanged(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativeReportKeyboardConfigChanged
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeResume(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativeResume
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSendSurfaceChangedEvent(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativeSendSurfaceChangedEvent
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSetInputArea(com.unity3d.player.UnityPlayerForActivityOrService,int,int,int,int) -> -$$Nest$mnativeSetInputArea
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSetInputSelection(com.unity3d.player.UnityPlayerForActivityOrService,int,int) -> -$$Nest$mnativeSetInputSelection
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSetInputString(com.unity3d.player.UnityPlayerForActivityOrService,java.lang.String) -> -$$Nest$mnativeSetInputString
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSetKeyboardIsVisible(com.unity3d.player.UnityPlayerForActivityOrService,boolean) -> -$$Nest$mnativeSetKeyboardIsVisible
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSoftInputCanceled(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativeSoftInputCanceled
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSoftInputClosed(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativeSoftInputClosed
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeSoftInputLostFocus(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mnativeSoftInputLostFocus
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mqueueDestroy(com.unity3d.player.UnityPlayerForActivityOrService) -> -$$Nest$mqueueDestroy
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void <init>(android.content.Context,com.unity3d.player.IUnityPlayerLifecycleEvents) -> <init>
+    0:0:void cleanupResourcesForDestroy() -> cleanupResourcesForDestroy
+    0:0:void configurationChanged(android.content.res.Configuration) -> configurationChanged
+    0:0:void dismissSoftInput() -> dismissSoftInput
+    0:0:boolean displayChanged(int,android.view.Surface) -> displayChanged
+    0:0:boolean getHaveAndroidWindowSupport() -> getHaveAndroidWindowSupport
+    0:0:long getSoftInputTimeout() -> getSoftInputTimeout
+    0:0:android.view.SurfaceView getSurfaceView() -> getSurfaceView
+    0:0:com.unity3d.player.f getSurfaceView() -> getSurfaceView
+    0:0:android.view.View getView() -> getView
+    0:0:com.unity3d.player.D0 getView() -> getView
+    0:0:boolean handleFocus(boolean) -> handleFocus
+    0:0:void hidePreservedContent() -> hidePreservedContent
+    0:0:void hideSoftInput() -> hideSoftInput
+    0:0:void onOrientationChanged(int,int) -> onOrientationChanged
+    0:0:void onTrimMemory(com.unity3d.player.UnityPlayerForActivityOrService$MemoryUsage) -> onTrimMemory
+    0:0:void pauseUnity() -> pauseUnity
+    0:0:void queueDestroy() -> queueDestroy
+    0:0:void raiseFocusListener(boolean) -> raiseFocusListener
+    0:0:void reportSoftInputArea(android.graphics.Rect) -> reportSoftInputArea
+    0:0:void reportSoftInputIsVisible(boolean) -> reportSoftInputIsVisible
+    0:0:void reportSoftInputSelection(int,int) -> reportSoftInputSelection
+    0:0:void reportSoftInputStr(java.lang.String,int,boolean) -> reportSoftInputStr
+    0:0:void resumeUnity() -> resumeUnity
+    0:0:boolean runningOnMainThread() -> runningOnMainThread
+    0:0:void sendSurfaceChangedEvent() -> sendSurfaceChangedEvent
+    0:0:void setCharacterLimit(int) -> setCharacterLimit
+    0:0:void setHideInputField(boolean) -> setHideInputField
+    0:0:void setMainSurfaceViewAspectRatio(float) -> setMainSurfaceViewAspectRatio
+    0:0:void setOnHandleFocusListener(com.unity3d.player.I) -> setOnHandleFocusListener
+    0:0:void setSelection(int,int) -> setSelection
+    0:0:void setSoftInputStr(java.lang.String) -> setSoftInputStr
+    0:0:void showSoftInput(java.lang.String,int,boolean,boolean,boolean,boolean,java.lang.String,int,boolean,boolean) -> showSoftInput
+    0:0:void shutdown() -> shutdown
+    0:0:boolean updateDisplayInternal(int,android.view.Surface) -> updateDisplayInternal
+    0:0:void updateGLDisplay(int,android.view.Surface) -> updateGLDisplay
+com.unity3d.player.UnityPlayerForActivityOrService$MemoryUsage -> com.unity3d.player.UnityPlayerForActivityOrService$MemoryUsage:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService$MemoryUsage[] $values() -> $values
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>(java.lang.String,int,int) -> <init>
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService$MemoryUsage valueOf(java.lang.String) -> valueOf
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService$MemoryUsage[] values() -> values
+com.unity3d.player.UnityPlayerForActivityOrService$SynchronizationTimeout -> com.unity3d.player.UnityPlayerForActivityOrService$SynchronizationTimeout:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService$SynchronizationTimeout[] $values() -> $values
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>(java.lang.String,int,int) -> <init>
+    0:0:int getTimeout() -> getTimeout
+    0:0:void setTimeout(int) -> setTimeout
+    0:0:void setTimeoutForAll(int) -> setTimeoutForAll
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService$SynchronizationTimeout valueOf(java.lang.String) -> valueOf
+    0:0:com.unity3d.player.UnityPlayerForActivityOrService$SynchronizationTimeout[] values() -> values
+com.unity3d.player.UnityPlayerForGameActivity -> com.unity3d.player.UnityPlayerForGameActivity:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.O -$$Nest$fgetm_PersistentUnitySurface(com.unity3d.player.UnityPlayerForGameActivity) -> -$$Nest$fgetm_PersistentUnitySurface
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeOrientationChanged(com.unity3d.player.UnityPlayerForGameActivity,int,int) -> -$$Nest$mnativeOrientationChanged
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mnativeUnityPlayerSetRunning(com.unity3d.player.UnityPlayerForGameActivity,boolean) -> -$$Nest$mnativeUnityPlayerSetRunning
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(android.app.Activity,android.widget.FrameLayout,android.view.SurfaceView) -> <init>
+    0:0:void <init>(android.app.Activity,android.widget.FrameLayout,android.view.SurfaceView,com.unity3d.player.IUnityPlayerLifecycleEvents) -> <init>
+    0:0:void cleanupResourcesForDestroy() -> cleanupResourcesForDestroy
+    0:0:android.view.SurfaceView getSurfaceView() -> getSurfaceView
+    0:0:int getUnityViewIdentifier(android.content.Context) -> getUnityViewIdentifier
+    0:0:android.view.SurfaceView getView() -> getView
+    0:0:android.view.View getView() -> getView
+    0:0:boolean handleFocus(boolean) -> handleFocus
+    0:0:void hidePreservedContent() -> hidePreservedContent
+    0:0:void onOrientationChanged(int,int) -> onOrientationChanged
+    0:0:void pauseUnity() -> pauseUnity
+    0:0:void resumeUnity() -> resumeUnity
+    0:0:boolean runningOnMainThread() -> runningOnMainThread
+    0:0:void setMainSurfaceViewAspectRatio(float) -> setMainSurfaceViewAspectRatio
+    0:0:void setMainThread() -> setMainThread
+com.unity3d.player.V -> com.unity3d.player.V:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.W) -> <init>
+    0:0:boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
+com.unity3d.player.V0 -> com.unity3d.player.V0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:void onAccuracyChanged(android.hardware.Sensor,int) -> onAccuracyChanged
+    0:0:void onSensorChanged(android.hardware.SensorEvent) -> onSensorChanged
+com.unity3d.player.W -> com.unity3d.player.W:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:java.lang.String a() -> a
+    0:0:void a(java.lang.String,int,boolean,boolean,boolean,boolean,java.lang.String,int,boolean,boolean) -> a
+    0:0:void a(java.lang.String,boolean) -> a
+    0:0:void afterTextChanged(android.text.Editable) -> afterTextChanged
+    0:0:void beforeTextChanged(java.lang.CharSequence,int,int,int) -> beforeTextChanged
+    0:0:boolean c() -> c
+    0:0:void e() -> e
+    0:0:void invokeOnClose() -> invokeOnClose
+    0:0:void onTextChanged(java.lang.CharSequence,int,int,int) -> onTextChanged
+    0:0:void setupTextInput(java.lang.String,int,boolean,boolean,boolean,boolean,java.lang.String,int) -> setupTextInput
+com.unity3d.player.W0 -> com.unity3d.player.W0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.X0,boolean) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.X -> com.unity3d.player.X:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.Y) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.X0 -> com.unity3d.player.X0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:long -$$Nest$fgeta(com.unity3d.player.X0) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,long) -> <init>
+    0:0:void onPermissionResult(java.lang.String[],int[]) -> onPermissionResult
+com.unity3d.player.Y -> com.unity3d.player.Y:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:android.graphics.Rect a() -> a
+    0:0:void a(com.unity3d.player.W,boolean,boolean) -> a
+    0:0:void a(boolean) -> a
+    0:0:void b() -> b
+    0:0:com.unity3d.player.U createSoftInputView(android.widget.EditText) -> createSoftInputView
+    0:0:boolean dispatchTouchEvent(android.view.MotionEvent) -> dispatchTouchEvent
+    0:0:void onBackPressed() -> onBackPressed
+    0:0:void onClick(android.view.View) -> onClick
+    0:0:void onStop() -> onStop
+com.unity3d.player.Y0 -> com.unity3d.player.Y0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void <init>(com.unity3d.player.UnityPlayer,com.unity3d.player.UnityPlayer-IA) -> <init>
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void onCallStateChanged(int,java.lang.String) -> onCallStateChanged
+com.unity3d.player.Z -> com.unity3d.player.Z:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.b0) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.Z0 -> com.unity3d.player.Z0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.a -> com.unity3d.player.a:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean onTouch(android.view.View,android.view.MotionEvent) -> onTouch
+com.unity3d.player.a.a -> com.unity3d.player.a.a:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:int a(int) -> a
+    0:0:int[] b(int) -> b
+com.unity3d.player.a.b -> com.unity3d.player.a.b:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.a.c -> com.unity3d.player.a.c:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.a.d) -> <init>
+    0:0:void onAvailable(android.net.Network) -> onAvailable
+    0:0:void onCapabilitiesChanged(android.net.Network,android.net.NetworkCapabilities) -> onCapabilitiesChanged
+    0:0:void onLost(android.net.Network) -> onLost
+    0:0:void onUnavailable() -> onUnavailable
+com.unity3d.player.a.d -> com.unity3d.player.a.d:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void -$$Nest$fputb(com.unity3d.player.a.d,int) -> -$$Nest$fputb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+    0:0:int b() -> b
+com.unity3d.player.a.e -> com.unity3d.player.a.e:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.a.f -> com.unity3d.player.a.f:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:int a(int) -> a
+com.unity3d.player.a.g -> com.unity3d.player.a.g:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,int) -> <init>
+    0:0:void onDetachedFromWindow() -> onDetachedFromWindow
+    0:0:void onLayout(boolean,int,int,int,int) -> onLayout
+com.unity3d.player.a0 -> com.unity3d.player.a0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.W) -> <init>
+    0:0:void onEditorAction(int) -> onEditorAction
+    0:0:boolean onKeyPreIme(int,android.view.KeyEvent) -> onKeyPreIme
+    0:0:void onSelectionChanged(int,int) -> onSelectionChanged
+com.unity3d.player.a1 -> com.unity3d.player.a1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.n1,android.view.WindowInsets) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.b -> com.unity3d.player.b:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean onKey(android.view.View,int,android.view.KeyEvent) -> onKey
+com.unity3d.player.b0 -> com.unity3d.player.b0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void a(boolean) -> a
+    0:0:void b() -> b
+    0:0:boolean c() -> c
+    0:0:android.widget.EditText createEditText(com.unity3d.player.W) -> createEditText
+    0:0:void d() -> d
+com.unity3d.player.b1 -> com.unity3d.player.b1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.d1) -> <init>
+com.unity3d.player.c -> com.unity3d.player.c:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:void a() -> a
+    0:0:void a(android.app.Activity,android.widget.FrameLayout,int) -> a
+com.unity3d.player.c0 -> com.unity3d.player.c0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.g0) -> <init>
+    0:0:void onDismiss(android.content.DialogInterface) -> onDismiss
+com.unity3d.player.c1 -> com.unity3d.player.c1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.d1) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.d -> com.unity3d.player.d:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.a.e) -> <init>
+    0:0:void onBackInvoked() -> onBackInvoked
+com.unity3d.player.d0 -> com.unity3d.player.d0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.g0) -> <init>
+    0:0:void onGlobalLayout() -> onGlobalLayout
+com.unity3d.player.d1 -> com.unity3d.player.d1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,java.util.concurrent.Semaphore,com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.e -> com.unity3d.player.e:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:android.window.OnBackInvokedDispatcher a(java.lang.Object) -> a
+    0:0:void a(android.window.OnBackInvokedDispatcher,int,android.window.OnBackInvokedCallback) -> a
+    0:0:void a(android.window.OnBackInvokedDispatcher,android.window.OnBackInvokedCallback) -> a
+com.unity3d.player.e$$ExternalSyntheticApiModelOutline0 -> com.unity3d.player.e$$ExternalSyntheticApiModelOutline0:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:void m(android.window.OnBackInvokedDispatcher,int,android.window.OnBackInvokedCallback) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.e$$ExternalSyntheticApiModelOutline1 -> com.unity3d.player.e$$ExternalSyntheticApiModelOutline1:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:void m(android.window.OnBackInvokedDispatcher,android.window.OnBackInvokedCallback) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.e$$ExternalSyntheticApiModelOutline2 -> com.unity3d.player.e$$ExternalSyntheticApiModelOutline2:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.window.OnBackInvokedDispatcher m(android.app.Activity) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.e$$ExternalSyntheticApiModelOutline3 -> com.unity3d.player.e$$ExternalSyntheticApiModelOutline3:
+# {"id":"sourceFile","fileName":"R8$$SyntheticClass"}
+# {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.window.OnBackInvokedDispatcher m(android.app.Dialog) -> m
+      # {"id":"com.android.tools.r8.synthesized"}
+com.unity3d.player.e0 -> com.unity3d.player.e0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.g0) -> <init>
+    0:0:void onCancel(android.content.DialogInterface) -> onCancel
+com.unity3d.player.e1 -> com.unity3d.player.e1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,java.lang.String) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.f -> com.unity3d.player.f:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer) -> <init>
+    0:0:void a(float) -> a
+    0:0:boolean a() -> a
+    0:0:boolean onCapturedPointerEvent(android.view.MotionEvent) -> onCapturedPointerEvent
+    0:0:boolean onGenericMotionEvent(android.view.MotionEvent) -> onGenericMotionEvent
+    0:0:void onMeasure(int,int) -> onMeasure
+    0:0:boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
+com.unity3d.player.f0 -> com.unity3d.player.f0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.g0,android.content.Context,com.unity3d.player.W) -> <init>
+    0:0:boolean onKeyPreIme(int,android.view.KeyEvent) -> onKeyPreIme
+    0:0:void onWindowFocusChanged(boolean) -> onWindowFocusChanged
+com.unity3d.player.f1 -> com.unity3d.player.f1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,int) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.g -> com.unity3d.player.g:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(java.util.Set,java.lang.String,int,long,long,int,int) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.g0 -> com.unity3d.player.g0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context,com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void a(java.lang.String,int,boolean,boolean,boolean,boolean,java.lang.String,int,boolean,boolean) -> a
+    0:0:void a(boolean) -> a
+    0:0:void b() -> b
+    0:0:android.widget.EditText createEditText(com.unity3d.player.W) -> createEditText
+    0:0:void d() -> d
+    0:0:void reportSoftInputArea() -> reportSoftInputArea
+com.unity3d.player.g1 -> com.unity3d.player.g1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,boolean) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.h -> com.unity3d.player.h:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.n,com.unity3d.player.UnityPlayer,com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> <init>
+    0:0:void a(com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> a
+    0:0:void onStateUpdate(java.lang.Object) -> onStateUpdate
+com.unity3d.player.h0 -> com.unity3d.player.h0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.h1 -> com.unity3d.player.h1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,int,int) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.i -> com.unity3d.player.i:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.IAssetPackManagerMobileDataConfirmationCallback,boolean) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.i0 -> com.unity3d.player.i0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.os.Handler,com.unity3d.player.h0) -> <init>
+    0:0:boolean deliverSelfNotifications() -> deliverSelfNotifications
+    0:0:void onChange(boolean) -> onChange
+com.unity3d.player.i1 -> com.unity3d.player.i1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,boolean,java.lang.String,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.j -> com.unity3d.player.j:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,com.unity3d.player.IAssetPackManagerMobileDataConfirmationCallback) -> <init>
+    0:0:void onSuccess(java.lang.Object) -> onSuccess
+com.unity3d.player.j0 -> com.unity3d.player.j0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+    0:0:void a(com.unity3d.player.h0) -> a
+com.unity3d.player.j1 -> com.unity3d.player.j1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,int,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.k -> com.unity3d.player.k:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,com.unity3d.player.IAssetPackManagerDownloadStatusCallback,java.lang.String[]) -> <init>
+    0:0:void onComplete(com.google.android.gms.tasks.Task) -> onComplete
+com.unity3d.player.k0 -> com.unity3d.player.k0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityAccessibilityDelegate,java.util.concurrent.Semaphore) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.k1 -> com.unity3d.player.k1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,android.graphics.Rect) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.l -> com.unity3d.player.l:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.IAssetPackManagerStatusQueryCallback,long,java.lang.String[],int[],int[]) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.l0 -> com.unity3d.player.l0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,android.content.res.Configuration) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.l1 -> com.unity3d.player.l1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,boolean) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.m -> com.unity3d.player.m:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,com.unity3d.player.IAssetPackManagerStatusQueryCallback,java.lang.String[]) -> <init>
+    0:0:void onComplete(com.google.android.gms.tasks.Task) -> onComplete
+com.unity3d.player.m0 -> com.unity3d.player.m0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityAccessibilityDelegate,int,int) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.m1 -> com.unity3d.player.m1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.n -> com.unity3d.player.n:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.UnityPlayer -$$Nest$fgeta(com.unity3d.player.n) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.google.android.play.core.assetpacks.AssetPackManager -$$Nest$fgetb(com.unity3d.player.n) -> -$$Nest$fgetb
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.util.HashSet -$$Nest$fgetc(com.unity3d.player.n) -> -$$Nest$fgetc
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.lang.Object -$$Nest$fgetd(com.unity3d.player.n) -> -$$Nest$fgetd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputd(com.unity3d.player.n,java.lang.Object) -> -$$Nest$fputd
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:com.unity3d.player.n -$$Nest$sfgete() -> -$$Nest$sfgete
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,android.content.Context) -> <init>
+    0:0:com.unity3d.player.n a(com.unity3d.player.UnityPlayer,android.content.Context) -> a
+    0:0:java.lang.Object a(com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> a
+    0:0:java.lang.String a(java.lang.String) -> a
+    0:0:void a(android.app.Activity,com.unity3d.player.IAssetPackManagerMobileDataConfirmationCallback) -> a
+    0:0:void a(java.lang.Object) -> a
+    0:0:void a(java.lang.String[]) -> a
+    0:0:void a(java.lang.String[],com.unity3d.player.IAssetPackManagerDownloadStatusCallback) -> a
+    0:0:void a(java.lang.String[],com.unity3d.player.IAssetPackManagerStatusQueryCallback) -> a
+    0:0:void b(java.lang.String) -> b
+com.unity3d.player.n0 -> com.unity3d.player.n0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.n1 -> com.unity3d.player.n1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:android.view.WindowInsets onApplyWindowInsets(android.view.View,android.view.WindowInsets) -> onApplyWindowInsets
+com.unity3d.player.o -> com.unity3d.player.o:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.os.Handler,android.media.AudioManager,com.unity3d.player.p) -> <init>
+    0:0:boolean deliverSelfNotifications() -> deliverSelfNotifications
+    0:0:void onChange(boolean,android.net.Uri) -> onChange
+com.unity3d.player.o0 -> com.unity3d.player.o0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.o1 -> com.unity3d.player.o1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,java.util.concurrent.Semaphore) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.p -> com.unity3d.player.p:
+# {"id":"sourceFile","fileName":"SourceFile"}
+com.unity3d.player.p0 -> com.unity3d.player.p0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.s0,com.unity3d.player.UnityPlayer,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.p1 -> com.unity3d.player.p1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,java.util.concurrent.Semaphore) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.q -> com.unity3d.player.q:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.content.Context) -> <init>
+    0:0:void a() -> a
+    0:0:void a(com.unity3d.player.p) -> a
+com.unity3d.player.q0 -> com.unity3d.player.q0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.s0,com.unity3d.player.UnityPlayer,int,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.q1 -> com.unity3d.player.q1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,android.content.res.Configuration) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.r -> com.unity3d.player.r:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.w) -> <init>
+    0:0:void onConfigureFailed(android.hardware.camera2.CameraCaptureSession) -> onConfigureFailed
+    0:0:void onConfigured(android.hardware.camera2.CameraCaptureSession) -> onConfigured
+com.unity3d.player.r0 -> com.unity3d.player.r0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,int) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.r1 -> com.unity3d.player.r1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.s -> com.unity3d.player.s:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.w) -> <init>
+    0:0:void onClosed(android.hardware.camera2.CameraDevice) -> onClosed
+    0:0:void onDisconnected(android.hardware.camera2.CameraDevice) -> onDisconnected
+    0:0:void onError(android.hardware.camera2.CameraDevice,int) -> onError
+    0:0:void onOpened(android.hardware.camera2.CameraDevice) -> onOpened
+com.unity3d.player.s0 -> com.unity3d.player.s0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityAccessibilityDelegate) -> <init>
+    0:0:android.view.accessibility.AccessibilityNodeInfo createAccessibilityNodeInfo(int) -> createAccessibilityNodeInfo
+    0:0:boolean performAction(int,int,android.os.Bundle) -> performAction
+com.unity3d.player.s1 -> com.unity3d.player.s1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,int,android.view.Surface,java.util.concurrent.Semaphore) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.t -> com.unity3d.player.t:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.w) -> <init>
+    0:0:void onImageAvailable(android.media.ImageReader) -> onImageAvailable
+com.unity3d.player.t0 -> com.unity3d.player.t0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,boolean) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.t1 -> com.unity3d.player.t1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.u -> com.unity3d.player.u:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.w) -> <init>
+    0:0:void onFrameAvailable(android.graphics.SurfaceTexture) -> onFrameAvailable
+com.unity3d.player.u0 -> com.unity3d.player.u0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityAccessibilityDelegate) -> <init>
+    0:0:void cleanup() -> cleanup
+    0:0:void onAccessibilityStateChanged(boolean) -> onAccessibilityStateChanged
+    0:0:void onTouchExplorationStateChanged(boolean) -> onTouchExplorationStateChanged
+com.unity3d.player.u1 -> com.unity3d.player.u1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.v -> com.unity3d.player.v:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.w) -> <init>
+    0:0:void onCaptureCompleted(android.hardware.camera2.CameraCaptureSession,android.hardware.camera2.CaptureRequest,android.hardware.camera2.TotalCaptureResult) -> onCaptureCompleted
+    0:0:void onCaptureFailed(android.hardware.camera2.CameraCaptureSession,android.hardware.camera2.CaptureRequest,android.hardware.camera2.CaptureFailure) -> onCaptureFailed
+    0:0:void onCaptureSequenceAborted(android.hardware.camera2.CameraCaptureSession,int) -> onCaptureSequenceAborted
+    0:0:void onCaptureSequenceCompleted(android.hardware.camera2.CameraCaptureSession,int,long) -> onCaptureSequenceCompleted
+com.unity3d.player.v0 -> com.unity3d.player.v0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayer,boolean) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.v1 -> com.unity3d.player.v1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.w -> com.unity3d.player.w:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:com.unity3d.player.a.b -$$Nest$fgeta(com.unity3d.player.w) -> -$$Nest$fgeta
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.util.Range -$$Nest$fgetn(com.unity3d.player.w) -> -$$Nest$fgetn
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.media.Image -$$Nest$fgetp(com.unity3d.player.w) -> -$$Nest$fgetp
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:android.hardware.camera2.CaptureRequest$Builder -$$Nest$fgetq(com.unity3d.player.w) -> -$$Nest$fgetq
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.lang.Object -$$Nest$fgett(com.unity3d.player.w) -> -$$Nest$fgett
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputA(com.unity3d.player.w,int) -> -$$Nest$fputA
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputp(com.unity3d.player.w,android.media.Image) -> -$$Nest$fputp
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputq(com.unity3d.player.w,android.hardware.camera2.CaptureRequest$Builder) -> -$$Nest$fputq
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$fputr(com.unity3d.player.w,android.hardware.camera2.CameraCaptureSession) -> -$$Nest$fputr
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$ma(com.unity3d.player.w,android.hardware.camera2.CameraDevice) -> -$$Nest$ma
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$ma(com.unity3d.player.w,java.lang.Object) -> -$$Nest$ma
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void -$$Nest$mg(com.unity3d.player.w) -> -$$Nest$mg
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:java.util.concurrent.Semaphore -$$Nest$sfgetD() -> -$$Nest$sfgetD
+      # {"id":"com.android.tools.r8.synthesized"}
+    0:0:void <clinit>() -> <clinit>
+    0:0:void <init>(com.unity3d.player.a.b) -> <init>
+    0:0:int a(android.content.Context,int) -> a
+    0:0:void a() -> a
+    0:0:void a(android.hardware.camera2.CameraDevice) -> a
+    0:0:void a(java.lang.Object) -> a
+    0:0:boolean a(float,float) -> a
+    0:0:boolean a(android.content.Context,int,int,int,int,int,android.view.Surface) -> a
+    0:0:void b() -> b
+    0:0:int[] b(android.content.Context,int) -> b
+    0:0:int c(android.content.Context,int) -> c
+    0:0:android.graphics.Rect c() -> c
+    0:0:void createCaptureSession(android.hardware.camera2.CameraCaptureSession$StateCallback) -> createCaptureSession
+    0:0:void d() -> d
+    0:0:boolean d(android.content.Context,int) -> d
+    0:0:void e() -> e
+    0:0:boolean e(android.content.Context,int) -> e
+    0:0:void f() -> f
+    0:0:void g() -> g
+    0:0:java.lang.String getCameraIdToOpen(android.content.Context,int) -> getCameraIdToOpen
+    0:0:java.lang.String[] getCameraIds(android.content.Context) -> getCameraIds
+    0:0:android.hardware.camera2.CameraManager getCameraManager(android.content.Context) -> getCameraManager
+    0:0:android.hardware.camera2.CameraCaptureSession$CaptureCallback getCaptureCallback() -> getCaptureCallback
+    0:0:void h() -> h
+    0:0:void i() -> i
+com.unity3d.player.w0 -> com.unity3d.player.w0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityAccessibilityDelegate) -> <init>
+    0:0:void cleanup() -> cleanup
+    0:0:void onEnabledChanged(boolean) -> onEnabledChanged
+com.unity3d.player.w1 -> com.unity3d.player.w1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,float) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.x -> com.unity3d.player.x:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.z) -> <init>
+    0:0:void onCaptureBufferLost(android.hardware.camera2.CameraCaptureSession,android.hardware.camera2.CaptureRequest,android.view.Surface,long) -> onCaptureBufferLost
+com.unity3d.player.x0 -> com.unity3d.player.x0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityAccessibilityDelegate) -> <init>
+    0:0:boolean onHover(android.view.View,android.view.MotionEvent) -> onHover
+com.unity3d.player.x1 -> com.unity3d.player.x1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.y1) -> <init>
+    0:0:void a() -> a
+com.unity3d.player.y -> com.unity3d.player.y:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(android.os.Handler) -> <init>
+    0:0:void execute(java.lang.Runnable) -> execute
+com.unity3d.player.y0 -> com.unity3d.player.y0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.A0) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.y1 -> com.unity3d.player.y1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForActivityOrService,com.unity3d.player.UnityPlayerForActivityOrService,java.lang.String,int,boolean,boolean,boolean,boolean,java.lang.String,int,boolean,boolean,java.util.concurrent.Semaphore) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.z -> com.unity3d.player.z:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.a.b) -> <init>
+    0:0:java.lang.String[] a(android.content.Context) -> a
+    0:0:void createCaptureSession(android.hardware.camera2.CameraCaptureSession$StateCallback) -> createCaptureSession
+    0:0:java.lang.String getCameraIdToOpen(android.content.Context,int) -> getCameraIdToOpen
+    0:0:android.hardware.camera2.CameraCaptureSession$CaptureCallback getCaptureCallback() -> getCaptureCallback
+com.unity3d.player.z0 -> com.unity3d.player.z0:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.A0) -> <init>
+    0:0:void run() -> run
+com.unity3d.player.z1 -> com.unity3d.player.z1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(com.unity3d.player.UnityPlayerForGameActivity) -> <init>
+    0:0:void surfaceChanged(android.view.SurfaceHolder,int,int,int) -> surfaceChanged
+    0:0:void surfaceCreated(android.view.SurfaceHolder) -> surfaceCreated
+    0:0:void surfaceDestroyed(android.view.SurfaceHolder) -> surfaceDestroyed
+org.fmod.FMODAudioDevice -> org.fmod.FMODAudioDevice:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:void close() -> close
+    0:0:boolean isRunning() -> isRunning
+    0:0:void releaseAudioTrack() -> releaseAudioTrack
+    0:0:void run() -> run
+    0:0:void start() -> start
+    0:0:int startAudioRecord(int,int,int) -> startAudioRecord
+    0:0:void stop() -> stop
+    0:0:void stopAudioRecord() -> stopAudioRecord
+org.fmod.FmodAndroidAudioManager -> org.fmod.FmodAndroidAudioManager:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>() -> <init>
+    0:0:boolean access$002(org.fmod.FmodAndroidAudioManager,boolean) -> access$002
+    0:0:int getBluetoothInputDeviceId() -> getBluetoothInputDeviceId
+    0:0:org.fmod.FmodAndroidAudioManager getInstance() -> getInstance
+    0:0:boolean isBluetoothInputDeviceAvailable() -> isBluetoothInputDeviceAvailable
+    0:0:boolean isBluetoothScoConnected() -> isBluetoothScoConnected
+    0:0:boolean isBuiltinInputDeviceAvailable() -> isBuiltinInputDeviceAvailable
+    0:0:boolean isBuiltinSpeakerDevice(int) -> isBuiltinSpeakerDevice
+    0:0:boolean isInputSampleRateAvailable(int) -> isInputSampleRateAvailable
+    0:0:void setActivity(android.app.Activity) -> setActivity
+    0:0:void setUseBluetooth(boolean) -> setUseBluetooth
+    0:0:void startBluetoothSco() -> startBluetoothSco
+    0:0:void stopBluetoothSco() -> stopBluetoothSco
+org.fmod.FmodAndroidAudioManager$1 -> org.fmod.FmodAndroidAudioManager$1:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(org.fmod.FmodAndroidAudioManager) -> <init>
+    0:0:void onReceive(android.content.Context,android.content.Intent) -> onReceive
+org.fmod.a -> org.fmod.a:
+# {"id":"sourceFile","fileName":"SourceFile"}
+    0:0:void <init>(org.fmod.FMODAudioDevice,int,int) -> <init>
+    0:0:int a() -> a
+    0:0:void b() -> b
+    0:0:void c() -> c
+    0:0:void d() -> d
+    0:0:void run() -> run

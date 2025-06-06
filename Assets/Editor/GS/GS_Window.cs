@@ -3109,35 +3109,37 @@ $"\n    {m_name}_To_UI();",
 
     if (info_platform.index == 1 && !isAndroid)
     {
-      foreach (var p in GS_Assemblies)
-      {
-        string f = $"{AssetsPath}{p}/{name}";
-        if (f.Exists())
-        {
-          foreach (var dir in f.GetDirectories())
-          {
-            if (dir.DoesNotContainAny("~", "/GSA_"))
-            {
-              $"{dir}/".Rename($"{dir}~/");
-              $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
-            }
-          }
-        }
-      }
+      //foreach (var p in GS_Assemblies)
+      //{
+      //  string f = $"{AssetsPath}{p}/{name}";
+      //  if (f.Exists())
+      //  {
+      //    foreach (var dir in f.GetDirectories())
+      //    {
+      //      if (dir.DoesNotContainAny("~", "/GSA_"))
+      //      {
+      //        $"{dir}/".Rename($"{dir}~/");
+      //        $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
+      //      }
+      //    }
+      //  }
+      //}
       $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
+      $"{AssetsPath}Models.meta".DeleteFile();
       $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
+      $"{AssetsPath}Plugins/Chrome.meta".DeleteFile();
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
     }
     else if (info_platform.index == 0 && isAndroid)
     {
-      foreach (var p in GS_Assemblies)
-      {
-        string f = $"{AssetsPath}{p}/{name}";
-        if (f.Exists())
-          foreach (var dir in f.GetDirectories())
-            if (dir.Contains("~"))
-              $"{dir}/".Rename($"{dir.Replace("~", "")}/");
-      }
+      //foreach (var p in GS_Assemblies)
+      //{
+      //  string f = $"{AssetsPath}{p}/{name}";
+      //  if (f.Exists())
+      //    foreach (var dir in f.GetDirectories())
+      //      if (dir.Contains("~"))
+      //        $"{dir}/".Rename($"{dir.Replace("~", "")}/");
+      //}
       $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
       $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);

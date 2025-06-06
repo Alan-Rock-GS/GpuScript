@@ -4007,6 +4007,9 @@ namespace GpuScript
 #else
         path = Application.dataPath;
 #endif
+        //path = Application.persistentDataPath;
+        
+
         if (path.Contains("/"))
           path = path.BeforeLastIncluding("/");
         return path;

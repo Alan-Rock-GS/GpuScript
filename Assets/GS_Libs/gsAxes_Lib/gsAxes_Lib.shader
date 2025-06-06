@@ -188,7 +188,7 @@ Shader "gs/gsAxes_Lib"
     float4 marker = BDraw_SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
-    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    if (d < thick) return float4(c.xyz * (1 - d / thick), c.w);
     return BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_GS(v2f i, float4 color)

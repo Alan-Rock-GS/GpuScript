@@ -54,8 +54,9 @@
   #pragma use_dxc
   struct GBrownian
   {
-    uint pntN, stepN, plotGain, Rand_N, Rand_I, Rand_J, Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
+    uint stockN, tradeN, plotGain, Rand_N, Rand_I, Rand_J, Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
     float price0, gainSD, lineThickness, Axes_Lib_BDraw_fontSize, Axes_Lib_BDraw_boxThickness, Axes_Lib_boxLineThickness, Axes_Lib_axesOpacity;
+    uint2 displayRange;
     float2 priceRange, gainRange, Axes_Lib_GridX, Axes_Lib_GridY, Axes_Lib_GridZ, Axes_Lib_textSize;
     uint4 Rand_seed4;
     float4 Axes_Lib_BDraw_boxColor;
@@ -157,7 +158,7 @@
     }
     }
   }
-  uint vI(uint pntI, uint stepI) { return pntI * g.stepN + stepI; }
+  uint vI(uint pntI, uint stepI) { return pntI * g.tradeN + stepI; }
   uint vI(uint2 ps) { return vI(ps.x, ps.y); }
   bool Axes_Lib_BDraw_ABuff_IsBitOn(uint i) { uint c = Axes_Lib_BDraw_Byte(i); return c == Axes_Lib_BDraw_TB || c == Axes_Lib_BDraw_LF; }
   uint Axes_Lib_BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.Axes_Lib_BDraw_ABuff_N && Axes_Lib_BDraw_ABuff_IsBitOn(i)) << (int)j); }
@@ -183,11 +184,11 @@
   float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
   float Rand_gauss(uint i) { uint j = i * 2; return sqrt(-2 * ln(1 - Rand_Float(j))) * cos(TwoPI * (1 - Rand_Float(j + 1))); }
   float Rand_gauss(uint i, float mean, float standardDeviation) { return standardDeviation * Rand_gauss(i) + mean; }
-  [numthreads(numthreads2, numthreads2, 1)] void Init_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.stepN && id.x < g.pntN) { uint i = vI(id.xy); v0(i, max(-0.999f, Rand_gauss(i, 0, g.gainSD))); } } }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.tradeN && id.x < g.stockN) { uint i = vI(id.xy); v0(i, max(-0.999f, Rand_gauss(i, 0, g.gainSD))); } } }
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void Calc_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { uint i = id.x * g.stepN, j = 0; for (float s = 1; j < g.stepN; j++, i++) v(i, s *= 1 + v0(i)); } } }
+  [numthreads(numthreads1, 1, 1)] void Calc_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.stockN) { uint i = id.x * g.tradeN, j = 0; for (float s = 1; j < g.tradeN; j++, i++) v(i, s *= 1 + v0(i)); } } }
   #pragma kernel Calc_1D_Motion
   #pragma kernel Init_1D_Motion
   #pragma kernel Axes_Lib_BDraw_ABuff_GetIndexes

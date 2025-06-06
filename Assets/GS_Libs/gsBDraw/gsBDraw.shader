@@ -159,7 +159,7 @@ Shader "gs/gsBDraw"
     float4 marker = SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
-    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    if (d < thick) return float4(c.xyz * (1 - d / thick), c.w);
     return SignalBackColor(chI, SmpI);
   }
   float4 frag_GS(v2f i, float4 color)

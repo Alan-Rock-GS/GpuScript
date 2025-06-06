@@ -32,7 +32,7 @@
             <ui:TextField placeholder-text="password" name="password" password="true" tooltip="keystore password" style="flex-grow: 1; height: 20px;" />
             <ui:Button text="Project" display-tooltip-when-elided="true" name="android_projectPath" tooltip="Show Project Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />
             <ui:Button text="Persistent" display-tooltip-when-elided="true" name="android_persistentPath" tooltip="Show Persistent Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />
-            <ui:Button text="Phone&#10;" display-tooltip-when-elided="true" name="android_phonePath" tooltip="Show Phone Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />
+            <ui:Button text="Phone&#10;" display-tooltip-when-elided="true" name="android_phonePath" tooltip="Show Phone Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: flex;" />
         </ui:VisualElement>
         <ui:VisualElement name="android" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap; display: none;" />
         <ui:VisualElement name="exe" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">

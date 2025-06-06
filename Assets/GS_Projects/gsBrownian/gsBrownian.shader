@@ -112,8 +112,9 @@ Shader "gs/gsBrownian"
   #define Axes_Lib_BDraw_SPACE 32
   struct GBrownian
   {
-    uint pntN, stepN, plotGain, Rand_N, Rand_I, Rand_J, Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
+    uint stockN, tradeN, plotGain, Rand_N, Rand_I, Rand_J, Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
     float price0, gainSD, lineThickness, Axes_Lib_BDraw_fontSize, Axes_Lib_BDraw_boxThickness, Axes_Lib_boxLineThickness, Axes_Lib_axesOpacity;
+    uint2 displayRange;
     float2 priceRange, gainRange, Axes_Lib_GridX, Axes_Lib_GridY, Axes_Lib_GridZ, Axes_Lib_textSize;
     uint4 Rand_seed4;
     float4 Axes_Lib_BDraw_boxColor;
@@ -133,7 +134,7 @@ Shader "gs/gsBrownian"
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
-  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.pntN, i, index, LIN); onRenderObject_LIN(g.Axes_Lib_drawBox && g.Axes_Lib_drawAxes, g.Axes_Lib_BDraw_textN, i, index, LIN); onRenderObject_LIN(g.Axes_Lib_drawBox, 12, i, index, LIN); return LIN; }
+  uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.stockN, i, index, LIN); onRenderObject_LIN(g.Axes_Lib_drawBox && g.Axes_Lib_drawAxes, g.Axes_Lib_BDraw_textN, i, index, LIN); onRenderObject_LIN(g.Axes_Lib_drawBox, 12, i, index, LIN); return LIN; }
   Axes_Lib_BDraw_TextInfo Axes_Lib_BDraw_textInfo(uint i) { return Axes_Lib_BDraw_textInfos[i]; }
   float3 Axes_Lib_gridMin() { return float3(g.Axes_Lib_GridX.x, g.Axes_Lib_GridY.x, g.Axes_Lib_GridZ.x); }
   float3 Axes_Lib_gridMax() { return float3(g.Axes_Lib_GridX.y, g.Axes_Lib_GridY.y, g.Axes_Lib_GridZ.y); }
@@ -184,7 +185,7 @@ Shader "gs/gsBrownian"
   float4 frag_Axes_Lib_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = Axes_Lib_BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_Axes_Lib_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = Axes_Lib_BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_Axes_Lib_BDraw_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = Axes_Lib_BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  uint Axes_Lib_BDraw_SignalSmpN(uint chI) { return g.stepN; }
+  uint Axes_Lib_BDraw_SignalSmpN(uint chI) { return g.tradeN; }
   float Axes_Lib_BDraw_SignalThickness(uint chI, uint smpI) { return g.lineThickness; }
   float Axes_Lib_BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
   float4 Axes_Lib_BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
@@ -197,7 +198,7 @@ Shader "gs/gsBrownian"
   v2f Axes_Lib_BDraw_o_pos_PV(float3 p, float4 q, v2f o) { return Axes_Lib_BDraw_o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o); }
   float4 Axes_Lib_BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = Axes_Lib_BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   float4 Axes_Lib_BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float r, uint j) { return Axes_Lib_BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j); }
-  float3 Axes_Lib_BDraw_SignalQuad_Min(uint chI) { return float3(Axes_Lib_gridMin().xy, lerp(-0.5f, 0.5f, chI / (float)g.pntN)); }
+  float3 Axes_Lib_BDraw_SignalQuad_Min(uint chI) { return float3(Axes_Lib_gridMin().xy, lerp(-0.5f, 0.5f, chI / (float)g.stockN)); }
   float3 Axes_Lib_BDraw_SignalQuad_p0(uint chI) { return Axes_Lib_BDraw_SignalQuad_Min(chI); }
   float3 Axes_Lib_BDraw_SignalQuad_p1(uint chI) { return Axes_Lib_BDraw_SignalQuad_p0(chI) + Axes_Lib_BDraw_SignalQuad_Size(chI) * f100; }
   float3 Axes_Lib_BDraw_SignalQuad_p2(uint chI) { return Axes_Lib_BDraw_SignalQuad_p0(chI) + Axes_Lib_BDraw_SignalQuad_Size(chI) * f110; }
@@ -221,10 +222,10 @@ Shader "gs/gsBrownian"
   v2f vert_Axes_Lib_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_Axes_Lib_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
   v2f vert_Axes_Lib_BDraw_Box(uint i, uint j, v2f o) { return vert_Axes_Lib_BDraw_BoxFrame(Axes_Lib_gridMin(), Axes_Lib_gridMax(), g.Axes_Lib_boxLineThickness, DARK_BLUE, i, j, o); }
   float v(uint i) { return vs[i] / 10000.0f; }
-  uint vI(uint pntI, uint stepI) { return pntI * g.stepN + stepI; }
-  float Axes_Lib_BDraw_SignalSmpV(uint chI, uint smpI) { return g.stepN == 0 ? 0 : lerp(-1, 1, lerp1(g.plotGain ? g.gainRange : g.priceRange / g.price0, v(vI(chI, smpI)))); }
+  uint vI(uint pntI, uint stepI) { return pntI * g.tradeN + stepI; }
+  float Axes_Lib_BDraw_SignalSmpV(uint chI, uint smpI) { return g.tradeN == 0 ? 0 : lerp(-1, 1, lerp1(g.plotGain ? g.gainRange : g.priceRange / g.price0, v(vI(chI, smpI)))); }
   float4 palette(float v) { return paletteColor(_PaletteTex, v); }
-  float4 Axes_Lib_BDraw_SignalColor(uint chI, uint smpI) { return palette(chI / (float)g.pntN); }
+  float4 Axes_Lib_BDraw_SignalColor(uint chI, uint smpI) { return IsOutside(chI, g.displayRange) ? f0000 : palette(chI / (float)g.stockN); }
   float4 frag_Axes_Lib_BDraw_Signal(v2f i)
   {
     uint chI = Axes_Lib_BDraw_o_i(i), SmpN = Axes_Lib_BDraw_SignalSmpN(chI);
@@ -238,7 +239,7 @@ Shader "gs/gsBrownian"
     float4 marker = Axes_Lib_BDraw_SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
-    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    if (d < thick) return float4(c.xyz * (1 - d / thick), c.w);
     return Axes_Lib_BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_Axes_Lib_GS(v2f i, float4 color)

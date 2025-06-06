@@ -292,6 +292,114 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 76547336}
   m_Mesh: {fileID: 4300016, guid: 1fd462a47499d1b4cb4c029ec969e39b, type: 3}
+--- !u!1 &174029448
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 174029452}
+  - component: {fileID: 174029451}
+  - component: {fileID: 174029450}
+  - component: {fileID: 174029449}
+  m_Layer: 0
+  m_Name: Sphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!135 &174029449
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174029448}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &174029450
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174029448}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &174029451
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174029448}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &174029452
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 174029448}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &184350928
 GameObject:
   m_ObjectHideFlags: 0
@@ -3341,7 +3449,6 @@ GameObject:
   - component: {fileID: 1353924508}
   - component: {fileID: 1353924507}
   - component: {fileID: 1353924506}
-  - component: {fileID: 1353924505}
   - component: {fileID: 1353924504}
   m_Layer: 0
   m_Name: gsAxes_Doc
@@ -3369,322 +3476,6 @@ MonoBehaviour:
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
---- !u!114 &1353924505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1353924503}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 322513dd8498658439d01e5aedffeaaf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uxml_level: 2
-  ui_loaded: 0
-  ui_txt_str: 
-  generateComputeShader: 0
-  const_bindings: 56
-  SM6: 1
-  computeShader: {fileID: 0}
-  material: {fileID: 0}
-  renderTextures: []
-  sync: 0
-  render: 1
-  isInitBuffers: 0
-  loadedProjectPath: 
-  touch2Dist0: 0
-  maxTouch2Dist: 210
-  mousePosition0:
-    x: 0
-    y: 0
-  leftButton: 0
-  rightButton: 0
-  middleButton: 0
-  MouseLeftButton: 0
-  MouseRightButton: 0
-  MouseMiddleButton: 0
-  MouseLeftButtonDown: 0
-  MouseRightButtonDown: 0
-  MouseMiddleButtonDown: 0
-  MouseLeftButtonUp: 0
-  MouseRightButtonUp: 0
-  MouseMiddleButtonUp: 0
-  MousePosition:
-    x: 0
-    y: 0
-  MousePositionDelta:
-    x: 0
-    y: 0
-  ScrollWheel: 0
-  canSave: 1
-  isSelected: 0
-  UNITY_LIGHTMODEL_AMBIENT:
-    x: 1
-    y: 1
-    z: 1
-    w: 1
-  _Time:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  _SinTime:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  _CosTime:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  unity_DeltaTime:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  _ProjectionParams:
-    x: -0
-    y: -0
-    z: -1
-    w: -0
-  _ScreenParams:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  unity_ObjectToWorld:
-    _m00_m01_m02_m03:
-      a:
-        x: 1
-        y: 0
-        z: 0
-        w: 1
-    _m10_m11_m12_m13:
-      a:
-        x: 0
-        y: 1
-        z: 0
-        w: 1
-    _m20_m21_m22_m23:
-      a:
-        x: 0
-        y: 0
-        z: 1
-        w: 1
-    _m30_m31_m32_m33:
-      a:
-        x: 1
-        y: 1
-        z: 1
-        w: 1
-  unity_WorldToObject:
-    _m00_m01_m02_m03:
-      a:
-        x: 1
-        y: 0
-        z: 0
-        w: 1
-    _m10_m11_m12_m13:
-      a:
-        x: 0
-        y: 1
-        z: 0
-        w: 1
-    _m20_m21_m22_m23:
-      a:
-        x: 0
-        y: 0
-        z: 1
-        w: 1
-    _m30_m31_m32_m33:
-      a:
-        x: 1
-        y: 1
-        z: 1
-        w: 1
-  unity_CameraProjection:
-    _m00_m01_m02_m03:
-      a:
-        x: 1
-        y: 0
-        z: 0
-        w: 1
-    _m10_m11_m12_m13:
-      a:
-        x: 0
-        y: 1
-        z: 0
-        w: 1
-    _m20_m21_m22_m23:
-      a:
-        x: 0
-        y: 0
-        z: 1
-        w: 1
-    _m30_m31_m32_m33:
-      a:
-        x: 1
-        y: 1
-        z: 1
-        w: 1
-  unity_CameraInvProjection:
-    _m00_m01_m02_m03:
-      a:
-        x: 1
-        y: 0
-        z: 0
-        w: 1
-    _m10_m11_m12_m13:
-      a:
-        x: 0
-        y: 1
-        z: 0
-        w: 1
-    _m20_m21_m22_m23:
-      a:
-        x: 0
-        y: 0
-        z: 1
-        w: 1
-    _m30_m31_m32_m33:
-      a:
-        x: 1
-        y: 1
-        z: 1
-        w: 1
-  unity_CameraToWorld:
-    _m00_m01_m02_m03:
-      a:
-        x: 1
-        y: 0
-        z: 0
-        w: 1
-    _m10_m11_m12_m13:
-      a:
-        x: 0
-        y: 1
-        z: 0
-        w: 1
-    _m20_m21_m22_m23:
-      a:
-        x: 0
-        y: 0
-        z: 1
-        w: 1
-    _m30_m31_m32_m33:
-      a:
-        x: 1
-        y: 1
-        z: 1
-        w: 1
-  _WorldSpaceCameraPos:
-    x: 0
-    y: 0
-    z: 0
-  _WorldSpaceLightPos0:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  _LightColor0:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
-  _ZBufferParams:
-    x: -0
-    y: -0
-    z: -1
-    w: -0
-  data:
-    siUnits: 0
-    group_Report: 0
-    group_Report_Record: 0
-    recordCommand: 0
-    commentCommand: 0
-    group_Report_Display: 0
-    includeAnimations: 0
-    displayReportCommands: 0
-    displayCodeNotes: 0
-    group_Report_Languages: 0
-    language_English: 0
-    language_Chinese: 0
-    language_French: 0
-    language_German: 0
-    language_Italian: 0
-    language_Japanese: 0
-    language_Russian: 0
-    language_Spanish: 0
-    group_Report_Build: 0
-    all_html: 0
-    build: 0
-    translate: 0
-    untranslate: 0
-    commandInfo: 
-    suffixName: 
-    insertType: 0
-    insertAtLine: 0
-  g:
-    has_importFiles: 0
-    recordCommand: 0
-    insertType: 0
-    commentCommand: 0
-    includeAnimations: 0
-    displayReportCommands: 0
-    displayCodeNotes: 0
-    show_Chinese: 0
-    show_French: 0
-    show_German: 0
-    show_Italian: 0
-    show_Japanese: 0
-    show_Russian: 0
-    show_Spanish: 0
-    language_English: 0
-    language_Chinese: 0
-    language_French: 0
-    language_German: 0
-    language_Italian: 0
-    language_Japanese: 0
-    language_Russian: 0
-    language_Spanish: 0
-    all_html: 0
-    build: 0
-    translate: 0
-    untranslate: 0
-    drawMouseRect: 0
-    insertAtLine: 0
-    mouseP0:
-      x: 0
-      y: 0
-      z: 0
-    mouseP1:
-      x: 0
-      y: 0
-      z: 0
-    mouseP2:
-      x: 0
-      y: 0
-      z: 0
-    mouseP3:
-      x: 0
-      y: 0
-      z: 0
-  ValuesChanged: 0
-  gChanged: 0
-  already_quited: 0
-  lateUpdateI: 0
-  in_RunInstructions: 0
-  _PaletteTex: {fileID: 0}
-  kernel_gpu_test: 0
-  isCoroutineRunning: 0
-  _languages: []
-  isAnimating: 0
-  camDist: 0
-  has_missing_importFiles: 0
-  translation: 
 --- !u!114 &1353924506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6167,3 +5958,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1353924509}
   - {fileID: 262597966}
+  - {fileID: 174029452}
