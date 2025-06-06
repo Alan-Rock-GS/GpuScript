@@ -174,7 +174,7 @@ Shader "gs/gsAxes_Lib"
   float4 BDraw_SignalColor(uint chI, uint smpI) { return YELLOW; }
   float BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
   float4 BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
-  float4 BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
+  float4 BDraw_SignalBackColor(uint chI, uint smpI) { return f0000; }
   float4 frag_BDraw_Signal(v2f i)
   {
     uint chI = BDraw_o_i(i), SmpN = BDraw_SignalSmpN(chI);

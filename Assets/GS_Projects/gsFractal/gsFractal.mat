@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: gsFractal
-  m_Shader: {fileID: 4800000, guid: 9474b938464a74f4fbbb1bbfa8f37304, type: 3}
+  m_Shader: {fileID: 4800000, guid: 486640a194d96dc40a088a07a1cd0d3c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
