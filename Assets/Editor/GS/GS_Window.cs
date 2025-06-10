@@ -17,11 +17,6 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using static GpuScript.GS;
 using UnityEditor.Compilation;
-using static GS_Window.ProjectData;
-//using UnityEditor.Android;
-//using PuppeteerSharp;
-//using System.Drawing;
-//using System.Runtime.InteropServices;
 
 /// <summary>
 /// Omit all unnecessary folders~ when selecting a project
@@ -38,13 +33,12 @@ public class GS_Window : EditorWindow
     {
       var items = s.Split("\n").Where(a => a.Contains(":")).Select(a => (a.Before(":").Trim(), a.After(":").Trim()));
       string email = "", lib = "", expires = "", key = "";
-      items.ForEach(item => s = item.Item1 switch { "Email" => email = item.Item2, "Library" => lib = item.Item2, "Expires" => expires = item.Item2, "Key" => key = item.Item2, _ => "" });
+      items.For(item => s = item.Item1 switch { "Email" => email = item.Item2, "Library" => lib = item.Item2, "Expires" => expires = item.Item2, "Key" => key = item.Item2, _ => "" });
       Lib_Info.value = $"{lib},{email},{expires},{key}";
     }
   }
   public void Lib_Update_clicked(ClickEvent evt = null)
   {
-    //print($"Update Library: {Lib_Info.text}");
     string path = assetsPath, text = Lib_Info.value;
     if (text.Contains(","))
     {
@@ -71,8 +65,7 @@ public class GS_Window : EditorWindow
               }
             }
           }
-          if (s != original_s)
-            f.WriteAllText(s);
+          if (s != original_s) f.WriteAllText(s);
         }
       }
     }
@@ -146,11 +139,7 @@ public class GS_Window : EditorWindow
     CodeCount_clicked(null);
     info_platform.index = isAndroid ? 1 : 0;
     SwitchPlatform();
-
-    //gsClass_name_val = gsClass_name.value = "gs" + newScene.name;
-    //print($"CreateGUI(), scene = {SceneName}, gsClass_name = {gsClass_name.value}");
-    if ($"gs{SceneName}".DoesNotEqual(gsClass_name.value))
-      gsClass_name_val = gsClass_name.value = $"gs{SceneName}";
+    if ($"gs{SceneName}".DoesNotEqual(gsClass_name.value)) gsClass_name_val = gsClass_name.value = $"gs{SceneName}";
   }
 
   bool ignoreTextFieldChange = false;
@@ -236,18 +225,9 @@ public class GS_Window : EditorWindow
     EditorApplication.CallbackFunction value = (EditorApplication.CallbackFunction)info.GetValue(null);
     info.SetValue(null, value += EditorGlobalKeyPress);
   }
-  //static Event current, previous;
   static EventType eventType, eventType0;
   static KeyCode keyCode, keyCode0;
-  static void EditorGlobalKeyPress()
-  {
-    eventType0 = eventType;
-    eventType = Event.current.type;
-    keyCode0 = keyCode;
-    keyCode = Event.current.keyCode;
-    //if (Event.current.type == EventType.KeyDown)
-    //  print($"Key down {Event.current.keyCode}");
-  }
+  static void EditorGlobalKeyPress() { eventType0 = eventType; eventType = Event.current.type; keyCode0 = keyCode; keyCode = Event.current.keyCode; }
 
   void OnDisable() { if (Selection.selectionChanged != null) Selection.selectionChanged -= SelectionChanged; }//probably unnecessary
 
@@ -257,8 +237,7 @@ public class GS_Window : EditorWindow
   void SelectionChanged()
   {
     var o = Selection.activeGameObject;
-    if (o != null && o.name.StartsWith("gs") && gsClass_name != null && o.name.After("gs") == sceneName)
-      gsClass_name_val = gsClass_name.value = o.name;
+    if (o != null && o.name.StartsWith("gs") && gsClass_name != null && o.name.After("gs") == sceneName) gsClass_name_val = gsClass_name.value = o.name;
   }
 
   void OnActiveSceneChangedInEditMode(Scene previousScene, Scene newScene)
@@ -277,11 +256,6 @@ public class GS_Window : EditorWindow
         foreach (var scene in EditorBuildSettings.scenes) s.Add($" {scene.path.After("/Assets/")}");
         print(s);
       }
-      //else
-      //{
-      //  ////print("Add current scene to build, https://docs.unity3d.com/ScriptReference/EditorBuildSettings-scenes.html");
-      //  //print($"Add current scene to build, {appPath}");
-      //}
     }
   }
 
@@ -367,7 +341,6 @@ public class GS_Window : EditorWindow
               libInterfaces.Add($", I{libName}");
             libCheckKeys.Add($"\n    if(!GS_{libName}.CheckKey(\"{att.libEmail}\", \"{att.libExpires.ToString("yyyy/M/d")}\", {att.libKey}))",
               $" Status($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
-            //$" print($\"{libName} not registered, check email, expiration, and key in gs{Name0}_GS class\");");
             if (libName.EndsWith("_Lib")) libOnLoaded.Add($"\n    GS_{libName}.onLoaded({(att.libExternal ? libName : "this")});");
           }
         }
@@ -407,7 +380,6 @@ public class GS_Window : EditorWindow
       }
       return changed;
     }
-
 
     private IEnumerator attempt(Func<bool> f) { for (int i = 0; !f(); i++) if (i == 0) yield return null; else yield break; }
     public StrBldr StrBldr(params object[] items) => new StrBldr(items);
@@ -472,13 +444,8 @@ public class GS_Window : EditorWindow
           Type fldType = fld.FieldType;
           string typeName = fldType.GetTypeName().Replace("GpuScript.", "");
           if (fldType.IsEnum || fldType == typeof(bool)) typeName = "uint";
-          if (typeName.StartsWith("gs"))
-            lib_flds.Add(fld);
-          else
-          {
-            StackFields(gStruct, typeName, fld.Name);
-            gpu_flds.Add(fld);
-          }
+          if (typeName.StartsWith("gs")) lib_flds.Add(fld);
+          else { StackFields(gStruct, typeName, fld.Name); gpu_flds.Add(fld); }
         }
       }
       gStruct.Add("\n  };");
@@ -512,11 +479,7 @@ public class GS_Window : EditorWindow
           libProjects.Add(libProject);
           if (libProject.BuildLib(Name, libFld, ref _GS_Text0, _cs_includes, _cs_lib_regions, libInterfaces, libCheckKeys, libOnLoaded, libKernels)) changed = true;
         }
-        if (_GS_filename.WriteAllText_IfChanged(_GS_Text0.ReplaceTabsWithSpaces()))
-        {
-          print($"Libraries reloaded: {_GS_filename.AfterLast("/")}, Recompiling");
-          changed = true;
-        }
+        if (_GS_filename.WriteAllText_IfChanged(_GS_Text0.ReplaceTabsWithSpaces())) { print($"Libraries reloaded: {_GS_filename.AfterLast("/")}, Recompiling"); changed = true; }
         else changed = false;
       }
       return changed;
@@ -543,8 +506,7 @@ public class GS_Window : EditorWindow
     {
       int fontSize = 12;
       string alignText = "lower-left";
-      foreach (var name in names)
-        UI_VisualElement.Get_USS_Text(text, name, fontSize: fontSize, alignText: alignText, height: height, padding: 0, margin: 0, border: 0);
+      foreach (var name in names) UI_VisualElement.Get_USS_Text(text, name, fontSize: fontSize, alignText: alignText, height: height, padding: 0, margin: 0, border: 0);
     }
     public virtual string uss_filename => $"{dataPath}Assets/GS/Resources/UI/GpuScript/gs_USS.uss";
 
@@ -785,14 +747,7 @@ public class GS_Window : EditorWindow
 
     public class method_data
     {
-      public method_data(string Name, string methodName)
-      {
-        this.methodName = methodName;
-        name = $"g{Name}_{methodName}_GS";
-        args = "uint3 id";
-        return_type = "void";
-        code = "";
-      }
+      public method_data(string Name, string methodName) { this.methodName = methodName; name = $"g{Name}_{methodName}_GS"; args = "uint3 id"; return_type = "void"; code = ""; }
       public method_data(string Name, Match match)
       {
         access = match.Group(1);
@@ -893,9 +848,6 @@ public class GS_Window : EditorWindow
       foreach (var fld in texture_flds) Texture2Ds.Add($"\n  public Texture2D {fld.Name};");
       var (s, gParams) = StrBldr();
 
-      //addComputeBuffers.Add(
-      //  $"\n    AddComputeBuffer(ref g{Name}, nameof(g{Name}), 1);",
-      //   "\n    InitKernels();");
       AllocDatas.Add($"\n  public virtual void AllocData_g{Name}(uint n) => AddComputeBuffer(ref g{Name}, nameof(g{Name}), n);");
       addComputeBuffers.Add(
    $"\n    AllocData_g{Name}(1);",
@@ -935,7 +887,6 @@ public class GS_Window : EditorWindow
             if (bufferN.IsNotEmpty())
             {
               if (bufferN.Contains(".") && bufferN.After(".").DoesNotContainAny("x", "y", "z")) bufferN = bufferN.Replace(".", "_");
-              //addComputeBuffers.Add($"\n    AddComputeBuffer(ref {bufferName}, nameof({bufferName}), {bufferN});{bufferComment}");
               addComputeBuffers.Add($"\n    AllocData_{bufferName}({bufferN});{bufferComment}");
             }
           }
@@ -1042,13 +993,7 @@ public class GS_Window : EditorWindow
       for (int i = render_methods.Length - 1; i >= 0; i--)
       {
         var m = render_methods[i];
-        if (m != null)
-        {
-          if (!m.renderQuads)
-            rMethods.Add(m);
-          else
-            rMethods.Insert(0, m);
-        }
+        if (m != null) { if (!m.renderQuads) rMethods.Add(m); else rMethods.Insert(0, m); }
       }
       render_methods = rMethods.ToArray();
 
@@ -1214,40 +1159,6 @@ public class GS_Window : EditorWindow
 "\n  {", vertDrawSegments,
 "\n    return o;",
 "\n  }",
-//"\n  public uint o_i(v2f o) => roundu(o.ti.x);",
-//"\n  public v2f o_i(uint i, v2f o) { o.ti.x = i; return o; }",
-//"\n  public uint o_j(v2f o) => roundu(o.ti.y);",
-//"\n  public v2f o_j(uint j, v2f o) { o.ti.y = j; return o; }",
-//"\n  public uint o_drawType(v2f o) => roundu(o.ti.z);",
-//"\n  public v2f o_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }",
-//"\n  public float4 o_color(v2f o) => o.color;",
-//"\n  public v2f o_color(float4 color, v2f o) { o.color = color; return o; }",
-//"\n  public float3 o_normal(v2f o) => o.normal;",
-//"\n  public v2f o_normal(float3 normal, v2f o) { o.normal = normal; return o; }",
-//"\n  public float2 o_uv(v2f o) => o.uv;",
-//"\n  public v2f o_uv(float2 uv, v2f o) { o.uv = uv; return o; }",
-//"\n  public float4 o_pos(v2f o) => o.pos;",
-//"\n  public v2f o_pos(float4 pos, v2f o) { o.pos = pos; return o; }",
-//"\n  public v2f o_pos_PV(float3 p, float4 q, v2f o) => o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o);",
-//"\n  public v2f o_pos_c(float4 c, v2f o) => o_pos(UnityObjectToClipPos(c), o);",
-//"\n  public v2f o_pos_c(float3 c, v2f o) => o_pos(UnityObjectToClipPos(c), o);",
-//"\n  public float3 o_wPos(v2f o) => o.wPos;",
-//"\n  public v2f o_wPos(float3 wPos, v2f o) { o.wPos = wPos; return o; }",
-//"\n  public float3 o_p0(v2f o) => o.p0;",
-//"\n  public v2f o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }",
-//"\n  public float3 o_p1(v2f o) => o.p1;",
-//"\n  public v2f o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }",
-//"\n  public float o_r(v2f o) => o.ti.w;",
-//"\n  public v2f o_r(float r, v2f o) { o.ti.w = r; return o; }",
-//"\n  public float3 quad(float3 p0, float3 p1, float3 p2, float3 p3, uint j) => j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1;",
-//"\n  public float4 o_ti(v2f o) => o.ti;",
-//"\n  public v2f o_ti(float4 ti, v2f o) { o.ti = ti; return o; }",
-//"\n  public float4 o_tj(v2f o) => o.tj;",
-//"\n  public v2f o_tj(float4 tj, v2f o) { o.tj = tj; return o; }",
-//"\n  public float4 o_tk(v2f o) => o.tk;",
-//"\n  public v2f o_tk(float4 tk, v2f o) { o.tk = tk; return o; }",
-//"\n  public v2f o_zero() => o_pos(f0000, o_color(f0000, o_ti(f0000, o_tj(f0000, o_tk(f0000, o_normal(f000, o_p0(f000, o_p1(f000, o_wPos(f000, o_uv(f00, default))))))))));",
-//"\n  public virtual v2f vert(uint i, uint j) => vert_GS(i, j, o_zero());");
 "\n  public virtual v2f vert(uint i, uint j)",
 "\n  {",
 "\n    v2f o = default;",
@@ -1255,34 +1166,12 @@ public class GS_Window : EditorWindow
 "\n    return vert_GS(i, j, o);",
 "\n  }");
 
-      //libI = 0;
-      //foreach (var lib_fld in lib_flds)
-      //  if (lib_fld.isInternal_Lib())
-      //  {
-      //    string path = $"{AssetsPath}GS_Libs/{lib_fld.FieldType}/Lib/";
-      //    if (path.Exists()) s_frag.Add($"\n    if (libI == {libI}) return frag_{lib_fld.Name}_GS(i, color);");
-      //    libI++;
-      //  }
-
       s_frag.Set("color;");
       libI = 0;
-      //foreach (var lib_fld in lib_flds)
-      //  if (lib_fld.isInternal_Lib())
-      //  {
-      //    if (lib_fld.Name == "VGrid_Lib") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
-      //    else if (lib_fld.Name == "BDraw") s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
-      //  }
       foreach (var lib_fld in lib_flds)
         if (lib_fld.isInternal_Lib() && lib_fld.Name.IsAny("VGrid_Lib", "Axes_Lib", "Mesh_Lib", "BDraw")) s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
 
-
-
       fragCode.Add(
-//"\n  public virtual float4 frag_GS(v2f i, float4 color)",
-//"\n  {",
-//"\n    uint libI = roundu(i.tj.x);", s_frag,
-//"\n    return color;",
-//"\n  }",
 "\n  public virtual float4 frag_GS(v2f i, float4 color) => ", s_frag,
 
 "\n  public virtual float4 frag(v2f i)",
@@ -1341,7 +1230,7 @@ public class GS_Window : EditorWindow
         }
       }
 
-      _GS_fields?.Where(a => a.FieldType == typeof(TreeGroup)).ForEach(f => dataWrappers.Add($"\n  public bool {f.Name} {{ get => UI_{f.Name}?.v ?? false; set {{ if (UI_{f.Name} != null) UI_{f.Name}.v = value; }} }}"));
+      _GS_fields?.Where(a => a.FieldType == typeof(TreeGroup)).For(f => dataWrappers.Add($"\n  public bool {f.Name} {{ get => UI_{f.Name}?.v ?? false; set {{ if (UI_{f.Name} != null) UI_{f.Name}.v = value; }} }}"));
 
       StrBldr G_Str = StrBldr("\n  [HideInInspector] public G", Name, " g; public G", Name, " G { get { g", Name, ".GetData(); return g", Name, "[0]; } }");
       if (generateComputeShader || generateMaterialShader)
@@ -1429,7 +1318,6 @@ public class GS_Window : EditorWindow
                   if (defaultStr.IsEmpty())
                   {
                     if (_GS_fieldType.IsArray && _GS_fieldType.GetElementType().IsStruct())
-                      //data_to_ui.Add($"\n    AddComputeBufferData(ref {m_name}, nameof({m_name}), data.{m_name});");
                       data_to_ui.Add($"\n    AssignData_{m_name}(data.{m_name});");
                     else
                       data_to_ui.Add($"\n    {m_name} = data.{m_name}{v};");
@@ -1974,8 +1862,6 @@ $"\n    {m_name}_To_UI();",
       _cs_str = _cs_str.ReplaceAll("public virtual bool Equals(object obj)", "public override bool Equals(object obj)",
         "public virtual int GetHashCode()", "public override int GetHashCode()",
         "public virtual void OnValueChanged_GS()", "public override void OnValueChanged_GS()");
-      //if (_cs_str.Contains(" record "))
-      //  _cs_str += "\nnamespace System.Runtime.CompilerServices { [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)] internal class IsExternalInit { } }";
       bool wrote_cs_File = _cs_filename.WriteAllText_IfChanged(_cs_str.ReplaceTabsWithSpaces());
 
       Load_gs_prefabs();
@@ -1989,11 +1875,7 @@ $"\n    {m_name}_To_UI();",
         var scenes = EditorBuildSettings.scenes;
         var s = StrBldr("\n  public string[] Scenes_in_Build => new string[] { ");
         bool firstTime = true;
-        for (int i = 0; i < scenes.Length; i++)
-        {
-          var scene = scenes[i];
-          if (scene.enabled) { s.Add($"{(firstTime ? "" : ", ")}\"{scene.path}\""); firstTime = false; }
-        }
+        for (int i = 0; i < scenes.Length; i++) { var scene = scenes[i]; if (scene.enabled) { s.Add($"{(firstTime ? "" : ", ")}\"{scene.path}\""); firstTime = false; } }
         s.Add(" };");
         return s;
       }
@@ -2221,17 +2103,12 @@ $"\n    {m_name}_To_UI();",
         }
         if (keep) s.Add(s2);
       }
-      if (s.IsNotEmpty())
-        print("Get_include_methods" + s);
+      if (s.IsNotEmpty()) print("Get_include_methods" + s);
     }
 
-    public void Build()
-    {
-      This.StartCoroutine(Build_Coroutine());
-    }
+    public void Build() => This.StartCoroutine(Build_Coroutine());
     public IEnumerator Build_Coroutine()
     {
-      //print($"{new { SceneName }}");
       if (SceneName.IsEmpty()) yield break;
       StrBldr compileTimeStr = StrBldr();
       ClockSec();
@@ -2243,11 +2120,7 @@ $"\n    {m_name}_To_UI();",
       Create_GS_Code();
       yield return This.StartCoroutine(attempt(() => gameObject = FindOrCreate_GameObject(gsName)));
       Component GS_script = FindOrCreate_Script(gameObject, gsName);
-      if (GS_script == null)
-      {
-        print($"Abort Build, GS_script == null, gsName = {gsName}");
-        yield break;
-      }
+      if (GS_script == null) { print($"Abort Build, GS_script == null, gsName = {gsName}"); yield break; }
       if ((gs = gameObject.GetComponent<GS>()) == null) //Write a simple .cs file
       {
         if (_cs_filename.DoesNotExist()) _cs_filename.WriteAllText_IfChanged(StrBldr().AddLines("using GpuScript;", $"public class {gsName}_ : GS", "{", "}"));
@@ -2281,10 +2154,8 @@ $"\n    {m_name}_To_UI();",
       build_UI = Name == SceneManager.GetActiveScene().name;
 
       bool changed = _GS_Build_Libs();
-      //print($"changed = {changed}");
       if (changed)
       {
-        //yield break;
         AssetDatabase.ImportAsset(_GS_filename.ToAsset(), ImportAssetOptions.ForceUpdate);
         yield return null;
         ForceRecompile();
@@ -2390,7 +2261,8 @@ $"\n    {m_name}_To_UI();",
       foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
       s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
       if (compute_filename.WriteAllTextAscii_IfChanged(s)) print($"{compute_filename} changed"); else print($"{compute_filename} did not change");
-      if (gs.computeShader == null) gs.computeShader = compute_filename.LoadAssetAtPath<ComputeShader>();
+      if (gs.computeShader == null)
+        gs.computeShader = compute_filename.LoadAssetAtPath<ComputeShader>();
     }
 
     public void shader_Write()
@@ -2470,11 +2342,7 @@ $"\n    {m_name}_To_UI();",
         {
           gs.material = new Material(shader);
           material_filename.CreateAsset(gs.material);
-          if (gs.material)
-          {
-            Component script = GameObject.Find(gsName).GetComponent(gsName);
-            script.GetType().GetField("material")?.SetValue(script, gs.material);
-          }
+          if (gs.material) { Component script = GameObject.Find(gsName).GetComponent(gsName); script.GetType().GetField("material")?.SetValue(script, gs.material); }
         }
       }
 
@@ -2527,11 +2395,6 @@ $"\n    {m_name}_To_UI();",
       if (AssignConsts.IsNotEmpty() && AssignConsts.ToString().DoesNotEndWith(";")) AssignConsts.Add(";");
     }
 
-    //#if UNITY_STANDALONE_WIN
-    //    [HideInInspector] public bool SM6 = true;
-    //#else
-    //		[HideInInspector] public bool SM6 = true;
-    //#endif //UNITY_STANDALONE_WIN
     [HideInInspector] public bool SM6 = true;
 
     StrBldr shaderCode;
@@ -2550,13 +2413,10 @@ $"\n    {m_name}_To_UI();",
       string matchStr;
       var classList = new List<string>();
 
-      //if (_gs_members == null) _gs_members ??= (gsName + "_GS").GetOrderedMembers();
       _gs_members ??= (gsName + "_GS").GetOrderedMembers();
 
       foreach (var mem in _gs_members)
-        if (mem.AttGS() != null && mem.IsArray() && mem.GetMemberType().GetElementType().IsClass)
-          if (classList.DoesNotContain(mem.Name))
-            classList.Add(mem.Name);
+        if (mem.AttGS() != null && mem.IsArray() && mem.GetMemberType().GetElementType().IsClass && classList.DoesNotContain(mem.Name)) classList.Add(mem.Name);
 
       string[] cs_includes = cs_Text.Before("public").Split("\n").Select(a => a.Trim()).Where(a => a.IsNotEmpty()).Distinct().ToArray();
       matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override))\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|\[Serializable\]|#region|#endregion|\r\n}|\n})";
@@ -2632,8 +2492,6 @@ $"\n    {m_name}_To_UI();",
 
       foreach (Match lib_m in lib_matches)
       {
-        //string libName = lib_m.Groups[1].Value, libTypeName = "gs" + libName, libPath = $"{AssemblyPath(libTypeName)}Lib/{libTypeName}";
-        //string libVarName = lib_m.Groups[2].Value;
         string libName = lib_m.Groups[2].Value, libTypeName = "gs" + libName, libPath = $"{AssemblyPath(libTypeName)}Lib/{libTypeName}";
         string libVarName = lib_m.Groups[3].Value;
 
@@ -2807,12 +2665,7 @@ $"\n    {m_name}_To_UI();",
     }
   }
 
-  public void gsClass_Build_clicked(ClickEvent evt = null)
-  {
-    This = this;
-    var project = new ProjectData(Name);
-    project.Build();
-  }
+  public void gsClass_Build_clicked(ClickEvent evt = null) { This = this; var project = new ProjectData(Name); project.Build(); }
 
   public void CommentOutFile(string f)
   {
@@ -2836,15 +2689,9 @@ $"\n    {m_name}_To_UI();",
     }
   }
 
-  public void gsClass_Lib_clicked(ClickEvent evt = null)
-  {
-    //ClearConsole();
-    var project = new ProjectData(Name);
-    project.Build_Precompiled_Lib();
-    AssetDatabase.Refresh();
-  }
+  public void gsClass_Lib_clicked(ClickEvent evt = null) { var project = new ProjectData(Name); project.Build_Precompiled_Lib(); AssetDatabase.Refresh(); }
 
-  public void gsClass_Create_clicked(ClickEvent evt = null) { gsClass_Build_clicked(); }
+  public void gsClass_Create_clicked(ClickEvent evt = null) => gsClass_Build_clicked();
 
   #region Modify Code
 
@@ -2876,12 +2723,7 @@ $"\n    {m_name}_To_UI();",
 
   public void OnScriptsCompiled(string[] compiled_gsFiles)
   {
-    foreach (var f in compiled_gsFiles)
-      if (f.EndsWithAny($"{gsName}_GS.cs", $"{gsName}.cs"))
-      {
-        print($"OnScriptsCompiled: {f}");
-        rebuild = 2;
-      }
+    foreach (var f in compiled_gsFiles) if (f.EndsWithAny($"{gsName}_GS.cs", $"{gsName}.cs")) { print($"OnScriptsCompiled: {f}"); rebuild = 2; }
   }
 
   public static string AssemblyPath(string name)
@@ -2907,11 +2749,7 @@ $"\n    {m_name}_To_UI();",
     return libs.Distinct().ToList();
   }
   string omitPath(string path) => path.Replace("/Assets/", "/Assets_Omit/");
-  void keep(string path)
-  {
-    string p = omitPath(path), n = p.After("/gs").Before("/"), q = $"{p}{n}.unity";
-    if (q.Exists()) { p.CopyDirAll(path); p.DeleteDirectory(); }
-  }
+  void keep(string path) { string p = omitPath(path), n = p.After("/gs").Before("/"), q = $"{p}{n}.unity"; if (q.Exists()) { p.CopyDirAll(path); p.DeleteDirectory(); } }
   void omit(string path)
   {
     string p = omitPath(path), n = p.After("/gs").Before("/"), q = $"{path}{n}.unity";
@@ -3002,11 +2840,7 @@ $"\n    {m_name}_To_UI();",
 
   protected static Type GetComponentTypeByName(string name)
   {
-    foreach (var a in GS_Assemblies)
-    {
-      Type t = Type.GetType($"{name}, {a}_Assembly, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
-      if (t != null) return t;
-    }
+    foreach (var a in GS_Assemblies) { Type t = Type.GetType($"{name}, {a}_Assembly, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"); if (t != null) return t; }
     return null;
   }
 
@@ -3020,14 +2854,9 @@ $"\n    {m_name}_To_UI();",
   }
   static Component FindOrCreate_Script(GameObject o, string _GS)
   {
-    if (o == null)
-      return null;
+    if (o == null) return null;
     Component GS_script = o.GetComponent(_GS);
-    if (!GS_script)
-    {
-      Type componentType = GetComponentTypeByName(_GS);
-      if (componentType != null) { GS_script = o.GetComponent(componentType); GS_script ??= o.AddComponent(componentType); }
-    }
+    if (!GS_script) { Type componentType = GetComponentTypeByName(_GS); if (componentType != null) { GS_script = o.GetComponent(componentType); GS_script ??= o.AddComponent(componentType); } }
     return GS_script;
   }
 
@@ -3097,7 +2926,6 @@ $"\n    {m_name}_To_UI();",
         exportPaths.Add($"Assets{f.BeforeLast("/")}");
     }
     AssetDatabase.ExportPackage(exportPaths.ToArray(), pkgFile, ExportPackageOptions.Recurse); // | ExportPackageOptions.IncludeDependencies);
-    //Beep(0.1f, 1000);
     dataPath.Run();
   }
 
@@ -3109,21 +2937,6 @@ $"\n    {m_name}_To_UI();",
 
     if (info_platform.index == 1 && !isAndroid)
     {
-      //foreach (var p in GS_Assemblies)
-      //{
-      //  string f = $"{AssetsPath}{p}/{name}";
-      //  if (f.Exists())
-      //  {
-      //    foreach (var dir in f.GetDirectories())
-      //    {
-      //      if (dir.DoesNotContainAny("~", "/GSA_"))
-      //      {
-      //        $"{dir}/".Rename($"{dir}~/");
-      //        $"{dir.BeforeLast("/")}/{dir.AfterLast("/")}.meta".DeleteFile();
-      //      }
-      //    }
-      //  }
-      //}
       $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
       $"{AssetsPath}Models.meta".DeleteFile();
       $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
@@ -3132,14 +2945,6 @@ $"\n    {m_name}_To_UI();",
     }
     else if (info_platform.index == 0 && isAndroid)
     {
-      //foreach (var p in GS_Assemblies)
-      //{
-      //  string f = $"{AssetsPath}{p}/{name}";
-      //  if (f.Exists())
-      //    foreach (var dir in f.GetDirectories())
-      //      if (dir.Contains("~"))
-      //        $"{dir}/".Rename($"{dir.Replace("~", "")}/");
-      //}
       $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
       $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
@@ -3156,54 +2961,18 @@ $"\n    {m_name}_To_UI();",
     exe_Setup.style.display = HideIf(isPhone);
     company.style.display = DisplayIf(isPhone);
     password.style.display = DisplayIf(isPhone);
+    android_phonePath.style.display = DisplayIf(isPhone);
   }
 
   #region Count Lines
   uint2 fileN = u00;
 
-  //void ProcessPath(string dir, params string[] search)
-  //{
-  //  if (dir.DoesNotExist()) return;
-  //  foreach (var s in search) foreach (var f in FastDirectory.GetFiles(dir, s)) ProcessFile(f);
-  //  foreach (var d in Directory.GetDirectories(dir)) ProcessPath(d, search);
-  //}
-  //void ProcessPath_All(string dir, params string[] search)
-  //{
-  //  if (dir.DoesNotExist()) return;
-  //  foreach (var s in search) foreach (var f in FastDirectory.GetFiles(dir, s)) ProcessFile(f);
-  //  foreach (var d in Directory.GetDirectories(dir)) ProcessPath_All(d, search);
-  //}
-  //void ProcessPath_Manual(string dir, params string[] search)
-  //{
-  //  if (dir.DoesNotExist()) return;
-  //  foreach (var s in search) foreach (var f in FastDirectory.GetFiles(dir, s)) if (f.DoesNotContainAny("_.cs", "_GS.cs")) ProcessFile(f);
-  //  foreach (var d in Directory.GetDirectories(dir)) ProcessPath_Manual(d, search);
-  //}
   void ProcessPath(bool isManual, string dir, params string[] search)
   {
     if (dir.DoesNotExist()) return;
     foreach (var s in search) foreach (var f in FastDirectory.GetFiles(dir, s)) if (!isManual || f.DoesNotContainAny("_.cs", "_GS.cs")) ProcessFile(f);
     foreach (var d in Directory.GetDirectories(dir)) ProcessPath(isManual, d, search);
   }
-
-  //string CountLines(string path, params string[] search)
-  //{
-  //  fileN = u00;
-  //  ProcessPath(path, search);
-  //  return $"{(fileN.x <= 1 ? "" : $"{fileN.x}F,")} {(fileN.y > 10000 ? $"{fileN.y / 1000:#,###}K" : $"{fileN.y:#,###}")}";
-  //}
-  //string CountLines_All(string path, params string[] search)
-  //{
-  //  fileN = u00;
-  //  ProcessPath_All(path, search);
-  //  return $"{(fileN.x <= 1 ? "" : $"{fileN.x}F,")} {(fileN.y > 10000 ? $"{fileN.y / 1000:#,###}K" : $"{fileN.y:#,###}")}";
-  //}
-  //string CountLines_Manual(string path, params string[] search)
-  //{
-  //  fileN = u00;
-  //  ProcessPath_Manual(path, search);
-  //  return $"{(fileN.x <= 1 ? "" : $"{fileN.x}F,")} {(fileN.y > 10000 ? $"{fileN.y / 1000:#,###}K" : $"{fileN.y:#,###}")}";
-  //}
   string CountLines(bool isManual, string path, params string[] search)
   {
     fileN = u00;
@@ -3212,36 +2981,7 @@ $"\n    {m_name}_To_UI();",
   }
   string CountLines_Manual(string path, params string[] search) => CountLines(true, path, search);
   string CountLines_All(string path, params string[] search) => CountLines(false, path, search);
-
-
   string sceneName => SceneManager.GetActiveScene().name;
-
-  //string LineCountStr()
-  //{
-  //  string dir = Directory.GetCurrentDirectory(), all = CountLines($@"{dir}\Assets", "*.cs", "*.cginc", "*.compute", "*.shader", "*.uxml"),
-  //    core = CountLines($@"{dir}\Assets\GS", "*.cs", "*.cginc"), scn = "", scn0 = "";
-  //  foreach (var a in GS_Assemblies)
-  //    if ($@"{dir}\Assets\{a}\gs{sceneName}".Exists())
-  //    {
-  //      scn = CountLines($@"{dir}\Assets\{a}\gs{sceneName}", "*.cs", "*.compute", "*.shader", "*.uxml");
-  //      scn0 = CountLines($@"{dir}\Assets\{a}\gs{sceneName}", $"gs{sceneName}.cs");
-  //      break;
-  //    }
-  //  return $"GS({core}) All({all}) Scene({scn.Before(",")},{scn0}/{scn.After(", ")})";
-  //}
-  //string LineCountStr()
-  //{
-  //  string dir = Directory.GetCurrentDirectory(), all = CountLines_Manual($@"{dir}\Assets", "*.cs"),
-  //    core = CountLines_Manual($@"{dir}\Assets\GS", "*.cs"), scn = "", scn0 = "";
-  //  foreach (var a in GS_Assemblies)
-  //    if ($@"{dir}\Assets\{a}\gs{sceneName}".Exists())
-  //    {
-  //      scn = CountLines_All($@"{dir}\Assets\{a}\gs{sceneName}", "*.cs", "*.compute", "*.shader", "*.uxml");
-  //      scn0 = CountLines_Manual($@"{dir}\Assets\{a}\gs{sceneName}", $"gs{sceneName}.cs");
-  //      break;
-  //    }
-  //  return $"GS({core}) All({all}) Scene({scn.Before(",")},{scn0}/{scn.After(", ")})";
-  //}
   string LineCountStr()
   {
     string dir = Directory.GetCurrentDirectory(), all = CountLines_Manual($@"{dir}\Assets", "*.cs"),
@@ -3255,11 +2995,7 @@ $"\n    {m_name}_To_UI();",
       }
     return $"GS({core}) All({all}) Scene({scn.Before(",")},{scn0}/{scn.After(", ")})";
   }
-
-
   void CodeCount_clicked(ClickEvent evt) => CodeCount.value = LineCountStr();
-
-
   void ProcessFile(string filename)
   {
     StreamReader f = File.OpenText(filename);
@@ -3418,7 +3154,6 @@ $"\n    {m_name}_To_UI();",
     Process process = new Process() { StartInfo = new ProcessStartInfo(filename, args) { UseShellExecute = false, CreateNoWindow = false, RedirectStandardError = true, RedirectStandardOutput = true, RedirectStandardInput = true } };
     process.OutputDataReceived += (sender, e) => b.Append(e.Data);
     process.Start(); process.BeginOutputReadLine(); process.WaitForExit(); process.CancelOutputRead(); process.Dispose();
-    //if (setupFile.Exists()) { print($"Setup file generated: {setupFile}"); Beep(0.1f, 1000); } else { print($"Error in .iss file: {b.ToString()}"); Beep(0.1f, 500); }
     if (setupFile.Exists()) print($"Setup file generated: {setupFile}"); else print($"Error in .iss file: {b.ToString()}");
   }
 
@@ -3437,7 +3172,6 @@ $"\n    {m_name}_To_UI();",
   public void exe_Setup_clicked(ClickEvent evt = null) { Generate_GS_Setup(exe_Build.value); }
   public BuildPlayerOptions BuildSettings()
   {
-    //PlayerSettings.companyName = "SummitPeak";
     PlayerSettings.companyName = company.text;
     PlayerSettings.Android.keystorePass = PlayerSettings.Android.keyaliasPass = password.text;
     string appName = appPath.BeforeLast("/").AfterLast("/");
@@ -3452,13 +3186,6 @@ $"\n    {m_name}_To_UI();",
     AssetDatabase.SaveAssets();
     AssetDatabase.Refresh();
 
-    //var iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Android, IconKind.Any);
-    //int iconN = iconSizes.Length;
-    //var texture = icon.LoadImage();
-    //var icons = Enumerable.Repeat(texture, iconN).ToArray();
-    //PlayerSettings.SetIcons(NamedBuildTarget.Android, icons, IconKind.Any);
-    //PlayerSettings.SetPlatformIcons(BuildTargetGroup.Android, AndroidPlatformIconKind.Adaptive, icons);
-
     PlayerSettings.bundleVersion = $"{DateTime.Now:yyyy.MM.dd.HH.mm}";
     BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
     buildPlayerOptions.scenes = new[] { SceneManager.GetActiveScene().path };
@@ -3469,7 +3196,6 @@ $"\n    {m_name}_To_UI();",
     BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
     BuildSummary summary = report.summary;
     ok = summary.result == BuildResult.Succeeded;
-    //if (ok) print($"Build succeeded: {summary.totalSize} bytes"); else { print("Build failed"); Beep(0.1f, 500); }
     if (ok) print($"Build succeeded: {summary.totalSize} bytes"); else print("Build failed");
   }
 
@@ -3480,13 +3206,7 @@ $"\n    {m_name}_To_UI();",
     PlayerSettings.resizableWindow = true;
     PlayerSettings.runInBackground = true;
     UnityEngine.Rendering.GraphicsDeviceType[] apis = PlayerSettings.GetGraphicsAPIs(BuildTarget.StandaloneWindows);
-    if (apis.Length == 1)
-    {
-      var apis2 = new UnityEngine.Rendering.GraphicsDeviceType[2];
-      apis2[1] = apis[0];
-      apis2[0] = UnityEngine.Rendering.GraphicsDeviceType.Direct3D12;
-      apis = apis2;
-    }
+    if (apis.Length == 1) { var apis2 = new UnityEngine.Rendering.GraphicsDeviceType[2]; apis2[1] = apis[0]; apis2[0] = UnityEngine.Rendering.GraphicsDeviceType.Direct3D12; apis = apis2; }
     PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows, apis);
     PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.Standalone, ApiCompatibilityLevel.NET_4_6);
     buildPlayerOptions.locationPathName = $"{appName} {exe_Version.text}.exe";
@@ -3507,21 +3227,6 @@ $"\n    {m_name}_To_UI();",
     buildPlayerOptions.locationPathName = $"{appName}/{appName}.apk";
     buildPlayerOptions.target = BuildTarget.Android;
     buildPlayerOptions.options = BuildOptions.AutoRunPlayer;
-
-    //string icon = $"{Application.dataPath}/Icon.png", defaultIcon = $"{Application.dataPath}/Icon_Default.png";
-
-    //PlatformIcon[] icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive);
-    //var texture = icon.LoadImage();
-    //for (int i = 0; i < icons.Length; i++)
-    //  icons[i].SetTextures(texture);
-    //var iconSizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Android, IconKind.Any);
-    //int iconN = iconSizes.Length;
-    //var texture = icon.LoadImage();
-    //var textures = Enumerable.Repeat(texture, iconN).ToArray();
-
-    //PlayerSettings.SetIcons(NamedBuildTarget.Android, textures, IconKind.Any);
-
-
     yield return null;
     Build_Report(buildPlayerOptions);
   }

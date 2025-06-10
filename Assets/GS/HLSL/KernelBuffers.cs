@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using System.Collections;
 using System.Linq;
+using static GpuScript.GS;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,11 +22,8 @@ namespace GpuScript
   public class numthreads : Attribute
   {
     public uint x, y, z;
-    //public numthreads(int X, int Y, int Z) { x = (uint)X; y = (uint)Y; z = (uint)Z; }
-    //public numthreads(uint X, uint Y, uint Z) { x = X; y = Y; z = Z; }
     public numthreads(int X, int Y, int Z) => (x, y, z) = ((uint)X, (uint)Y, (uint)Z);
     public numthreads(uint X, uint Y, uint Z) => (x, y, z) = (X, Y, Z);
-
     public static implicit operator uint3(numthreads n) => new uint3(n.x, n.y, n.z);
   }
 
@@ -223,26 +221,14 @@ namespace GpuScript
     public static numthreads numthreads(this KernelFunction_dispatchThreadID t) => t.Method.numthreads();
     public static numthreads numthreads(this KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex t) => t.Method.numthreads();
 
-    //public static bool IsSorted(this List<string> strs) { for (int i = 0; i < strs.Count - 1; i++) if (strs[i].CompareTo(strs[i + 1]) > 0) return false; return true; }
-    //public static bool IsSorted(this List<int> strs) { for (int i = 0; i < strs.Count - 1; i++) if (strs[i].CompareTo(strs[i + 1]) > 0) return false; return true; }
-    //public static bool IsSorted(this List<uint> strs) { for (int i = 0; i < strs.Count - 1; i++) if (strs[i].CompareTo(strs[i + 1]) > 0) return false; return true; }
-    //public static bool IsSorted(this List<bool> strs) { for (int i = 0; i < strs.Count - 1; i++) if (strs[i].CompareTo(strs[i + 1]) > 0) return false; return true; }
-    //public static bool IsSorted(this List<float> strs) { for (int i = 0; i < strs.Count - 1; i++) if (strs[i].CompareTo(strs[i + 1]) > 0) return false; return true; }
-    public static bool IsSorted(this List<string> strs) => (0, strs.Count - 1).For().Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
-    public static bool IsSorted(this List<int> strs) => (0, strs.Count - 1).For().Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
-    public static bool IsSorted(this List<uint> strs) => (0, strs.Count - 1).For().Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
-    public static bool IsSorted(this List<bool> strs) => (0, strs.Count - 1).For().Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
-    public static bool IsSorted(this List<float> strs) => (0, strs.Count - 1).For().Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
+    public static bool IsSorted(this List<string> strs) => For(strs.Count - 1).Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
+    public static bool IsSorted(this List<int> strs) => For(strs.Count - 1).Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
+    public static bool IsSorted(this List<uint> strs) => For(strs.Count - 1).Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
+    public static bool IsSorted(this List<bool> strs) => For(strs.Count - 1).Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
+    public static bool IsSorted(this List<float> strs) => For(strs.Count - 1).Any(i => strs[i].CompareTo(strs[i + 1]) > 0);
   }
   public class RWStructuredBuffer<T> : IComputeBuffer
   {
-    //public T[] Data
-    //{
-    //  get { AllocData(); if (cpuWrite) { SetData(); cpuWrite = false; } if (gpuWrite) { GetData(); gpuWrite = false; } return _Data; }
-    //  set { AllocData(); _Data = value; cpuWrite = true; }
-    //}
-    //public T this[uint i] { get => Data[i]; set { Data = _Data; if (i < _Data.Length) _Data[i] = value; } }
-    //public T this[int i] { get => this[(uint)i]; set => this[(uint)i] = value; }
     T[] _Data;
     public T[] Data
     {

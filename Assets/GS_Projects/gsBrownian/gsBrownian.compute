@@ -54,9 +54,8 @@
   #pragma use_dxc
   struct GBrownian
   {
-    uint stockN, tradeN, plotGain, Rand_N, Rand_I, Rand_J, Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
+    uint tickerN, dayN, plotGain, displayTickerI, displayTickerN, Rand_N, Rand_I, Rand_J, Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;
     float price0, gainSD, lineThickness, Axes_Lib_BDraw_fontSize, Axes_Lib_BDraw_boxThickness, Axes_Lib_boxLineThickness, Axes_Lib_axesOpacity;
-    uint2 displayRange;
     float2 priceRange, gainRange, Axes_Lib_GridX, Axes_Lib_GridY, Axes_Lib_GridZ, Axes_Lib_textSize;
     uint4 Rand_seed4;
     float4 Axes_Lib_BDraw_boxColor;
@@ -73,6 +72,7 @@
   RWStructuredBuffer<uint> Axes_Lib_BDraw_tab_delimeted_text, Axes_Lib_BDraw_ABuff_Bits, Axes_Lib_BDraw_ABuff_Sums, Axes_Lib_BDraw_ABuff_Indexes, Axes_Lib_BDraw_ABuff_Fills1, Axes_Lib_BDraw_ABuff_Fills2;
   RWStructuredBuffer<Axes_Lib_BDraw_TextInfo> Axes_Lib_BDraw_textInfos;
   RWStructuredBuffer<Axes_Lib_BDraw_FontInfo> Axes_Lib_BDraw_fontInfos;
+  [numthreads(numthreads2, numthreads2, 1)] void SumPrice(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.dayN * (g.dayN - 1) / 2 && id.x < g.tickerN) { uint2 u = upperTriangularIndex(id.y, g.dayN) + id.x * g.dayN * u11; InterlockedAdd(vs0, u.y, vs[u.x]); } } }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : Axes_Lib_BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = Axes_Lib_BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); Axes_Lib_BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) Axes_Lib_BDraw_ABuff_Sums[i] += Axes_Lib_BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.Axes_Lib_BDraw_ABuff_BitN - 1) g.Axes_Lib_BDraw_ABuff_IndexN = Axes_Lib_BDraw_ABuff_Sums[i]; } } }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Axes_Lib_BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) Axes_Lib_BDraw_ABuff_Fills1[i] += Axes_Lib_BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
@@ -115,9 +115,8 @@
    
   [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  void v(uint i, float v) { vs[i] = roundi(10000 * v); }
-  float v0(uint i) { return vs0[i] / 10000.0f; }
-  void v0(uint i, float v) { vs0[i] = roundi(10000 * v); }
+  uint vI(uint pntI, uint stepI) { return pntI * g.dayN + stepI; }
+  uint vI(uint2 ps) { return vI(ps.x, ps.y); }
   Axes_Lib_BDraw_TextInfo Axes_Lib_BDraw_textInfo(uint i) { return Axes_Lib_BDraw_textInfos[i]; }
   void Axes_Lib_BDraw_textInfo(uint i, Axes_Lib_BDraw_TextInfo t) { Axes_Lib_BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
@@ -158,8 +157,10 @@
     }
     }
   }
-  uint vI(uint pntI, uint stepI) { return pntI * g.tradeN + stepI; }
-  uint vI(uint2 ps) { return vI(ps.x, ps.y); }
+  float f2u() { return 10000; }
+  void v(uint i, float v) { vs[i] = roundi(f2u() * v); }
+  float v0(uint i) { return vs0[i] / f2u(); }
+  void v0(uint i, float v) { vs0[i] = roundi(f2u() * v); }
   bool Axes_Lib_BDraw_ABuff_IsBitOn(uint i) { uint c = Axes_Lib_BDraw_Byte(i); return c == Axes_Lib_BDraw_TB || c == Axes_Lib_BDraw_LF; }
   uint Axes_Lib_BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.Axes_Lib_BDraw_ABuff_N && Axes_Lib_BDraw_ABuff_IsBitOn(i)) << (int)j); }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
@@ -184,13 +185,14 @@
   float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
   float Rand_gauss(uint i) { uint j = i * 2; return sqrt(-2 * ln(1 - Rand_Float(j))) * cos(TwoPI * (1 - Rand_Float(j + 1))); }
   float Rand_gauss(uint i, float mean, float standardDeviation) { return standardDeviation * Rand_gauss(i) + mean; }
-  [numthreads(numthreads2, numthreads2, 1)] void Init_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.tradeN && id.x < g.stockN) { uint i = vI(id.xy); v0(i, max(-0.999f, Rand_gauss(i, 0, g.gainSD))); } } }
+  [numthreads(numthreads2, numthreads2, 1)] void InitPrice(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.dayN && id.x < g.tickerN) { uint i = vI(id.xy); v(i, g.price0 * max(-0.999f, Rand_gauss(i, 0, g.gainSD))); v0(i, 0); } } }
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void Calc_1D_Motion(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.stockN) { uint i = id.x * g.tradeN, j = 0; for (float s = 1; j < g.tradeN; j++, i++) v(i, s *= 1 + v0(i)); } } }
-  #pragma kernel Calc_1D_Motion
-  #pragma kernel Init_1D_Motion
+  [numthreads(numthreads2, numthreads2, 1)] void CalcGain(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.dayN && id.x < g.tickerN) { uint i = id.x, j = id.y, ai = vI(i, j); v(ai, gain(g.price0 + v0(ai), g.price0 + v0(vI(i, 0)))); } } }
+  #pragma kernel CalcGain
+  #pragma kernel SumPrice
+  #pragma kernel InitPrice
   #pragma kernel Axes_Lib_BDraw_ABuff_GetIndexes
   #pragma kernel Axes_Lib_BDraw_ABuff_IncSums
   #pragma kernel Axes_Lib_BDraw_ABuff_IncFills1

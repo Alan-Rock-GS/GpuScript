@@ -25,12 +25,12 @@
     {
       if (id.z < Ints_N && id.y < g.NumberN && id.x < g.ListN)
     {
-      uint listI = id.x, numberI = id.y, operationI = id.z;
+      uint listI = id.x, numberI = id.y, opI = id.z, i = listI * Ints_N + opI;
       float v = Numbers[listI * g.NumberN + numberI];
       int V = roundi(v * 1e6f);
-      if (operationI == Ints_Min) InterlockedMin(ints, listI * Ints_N + operationI, V);
-      else if (operationI == Ints_Max) InterlockedMax(ints, listI * Ints_N + operationI, V);
-      else InterlockedAdd(ints, listI * Ints_N + operationI, V);
+      if (opI == Ints_Min) InterlockedMin(ints, i, V);
+      else if (opI == Ints_Max) InterlockedMax(ints, i, V);
+      else InterlockedAdd(ints, i, V);
     }
     }
   }
@@ -54,17 +54,7 @@
   [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 1); } } }
   uint MatA_Index(uint matI, uint i, uint colI) { return id_to_i(matI, i, colI, g.MatN, g.MatRowN); }
   float MatA(uint matI, uint i, uint j) { return Mat_A[MatA_Index(matI, i, j)]; }
-  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Mat_A_x(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN)
-    {
-      uint matI = id.x, i = id.y, j = id.z;
-      InterlockedAdd(Mat_b, Mat_Index(matI, j), roundi(MatA(matI, i, j) * Matx(matI, j)));
-    }
-    }
-  }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Mat_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y, j = id.z; InterlockedAdd(Mat_b, Mat_Index(matI, j), roundi(MatA(matI, i, j) * Matx(matI, j))); } } }
   void MatA(uint matI, uint i, uint j, float v) { Mat_A[MatA_Index(matI, i, j)] = v; }
   [numthreads(numthreads3, numthreads3, numthreads3)] void Init_Mat_A(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y, j = id.z; MatA(matI, i, j, 1); } } }
   [numthreads(numthreads1, 1, 1)] void Init_intNums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.NumberN) { intNums[id.x] = (int)id.x; } } }

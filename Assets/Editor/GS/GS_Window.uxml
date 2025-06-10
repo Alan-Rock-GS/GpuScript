@@ -2,16 +2,16 @@
     <Style src="project://database/Assets/Editor/GS/GS_Window.uss?fileID=7433441132597879392&amp;guid=7752e86810f9eef4c8365300ed716db9&amp;type=3#GS_Window" />
     <ui:ScrollView style="flex-wrap: wrap; height: 103px; flex-grow: 1;">
         <ui:VisualElement name="gsClass" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; white-space: normal; flex-wrap: nowrap;">
-            <ui:TextField picking-mode="Ignore" value="gsClassName" name="gsClass_name" style="height: 20px; width: auto; flex-grow: 1;" />
+            <ui:TextField picking-mode="Ignore" value="gsClassName" name="gsClass_name" tooltip="Change Class Name and click Build to copy scene" style="height: 20px; width: auto; flex-grow: 1;" />
             <ui:Toggle tooltip="Run after build" text="Run" name="gsClass_Run" style="height: 20px; flex-shrink: 0; flex-grow: 0; max-width: none; width: 52px; visibility: visible; display: none;" />
             <ui:Button text="Build" display-tooltip-when-elided="true" tooltip="Write _cs, compute, and shader. Change name and Build to copy scene" name="gsClass_Build" style="height: 20px; width: 40px;" />
             <ui:Button text="Fix" display-tooltip-when-elided="true" tooltip="Write _cs, compute, and shader. Change name and Build to copy scene" name="gsClass_Fix" style="height: 20px; width: 30px; display: none;" />
             <ui:Button text="Lib" display-tooltip-when-elided="true" tooltip="Build pre-compiled library files" name="gsClass_Lib" style="height: 20px; width: 30px;" />
         </ui:VisualElement>
         <ui:VisualElement name="Lib" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px;">
-            <ui:Button text="Paste" display-tooltip-when-elided="true" tooltip="Paste library information from email" name="Lib_Paste" style="height: 20px; width: 40px;" />
-            <ui:TextField picking-mode="Ignore" name="Lib_Info" value="OCam,you@gmail.com,2024/11/28,123456" tooltip="Library name, email, expires, key" style="height: 20px; min-width: 100px; width: 150px; flex-grow: 1;" />
-            <ui:Button text="Update" display-tooltip-when-elided="true" tooltip="Update Library" name="Lib_Update" style="height: 20px; width: 60px;" />
+            <ui:Button text="Paste" display-tooltip-when-elided="true" tooltip="Paste license information from email" name="Lib_Paste" style="height: 20px; width: 40px;" />
+            <ui:TextField picking-mode="Ignore" name="Lib_Info" value="OCam,you@gmail.com,2024/11/28,123456" tooltip="License name, email, expires, key" style="height: 20px; min-width: 100px; width: 150px; flex-grow: 1;" />
+            <ui:Button text="Update" display-tooltip-when-elided="true" tooltip="Update License" name="Lib_Update" style="height: 20px; width: 60px;" />
         </ui:VisualElement>
         <ui:VisualElement name="package" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; display: none;">
             <ui:TextField picking-mode="Ignore" name="package_name" value="PackageName" tooltip="Package name" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1;" />

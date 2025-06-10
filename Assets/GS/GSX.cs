@@ -28,23 +28,17 @@ namespace GpuScript
       GS.Destroy(t);
       return imageSize;
     }
-
     public static IEnumerable<int> To_ints(this string s, int startIndex = 0)
     {
       foreach (var a in s.Split(","))
-        if (a.Contains("-")) foreach (var i in (a.Before("-").To_int(), a.After("-").To_int()).Seq()) yield return i - startIndex;
+        if (a.Contains("-")) foreach (var i in GS.Seq(a.Before("-").To_int(), a.After("-").To_int())) yield return i - startIndex;
         else if (a.IsNotEmpty()) yield return a.To_int() - startIndex;
     }
 
     public static bool[] RangeStr_to_bools(this string s, int n)
     {
       bool[] isSelected = new bool[n];
-      if (s != null)
-      {
-        var ints = s.To_ints();
-        for (int i = 0; i < isSelected.Length; i++)
-          isSelected[i] = ints.Contains(i);
-      }
+      if (s != null) { var ints = s.To_ints(); for (int i = 0; i < isSelected.Length; i++) isSelected[i] = ints.Contains(i); }
       return isSelected;
     }
     public static bool[] ints_to_selected_bools(this int[] ints, int n)
@@ -65,8 +59,7 @@ namespace GpuScript
           if (i < ranges.Length - 1 && ranges[i + 1])
           {
             for (++i; i < ranges.Length && ranges[i]; i++) { }
-            if (i < ranges.Length && ranges[i])
-              s.Add("-", i);
+            if (i < ranges.Length && ranges[i]) s.Add("-", i);
           }
         }
       }
@@ -130,32 +123,10 @@ namespace GpuScript
     public static object GetStaticFieldValue(this string fldName, Type t) => fldName.GetStaticField(t)?.GetValue(null) ?? null;
 
     public static bool IsStruct(this Type t) => t.IsValueType && !t.IsEnum;
-    //public static bool IsClass(this Type t) => t.IsClass;
-
-    //public static T SetValue<T>(this T o, FieldInfo f, object v)
-    //{
-    //	Type t = o.GetType();
-    //	if (t.IsStruct())
-    //	{
-    //		object box = o;
-    //		f.SetValue(box, v);
-    //		o = (T)box;
-    //	}
-    //	else
-    //		f.SetValue(o, v);
-    //	return o;
-    //}
     public static T SetValue<T>(this ref T o, FieldInfo f, object v) where T : struct
     {
       Type t = o.GetType();
-      if (t.IsStruct())
-      {
-        object box = o;
-        f.SetValue(box, v);
-        o = (T)box;
-      }
-      else
-        f.SetValue(o, v);
+      if (t.IsStruct()) { object box = o; f.SetValue(box, v); o = (T)box; } else f.SetValue(o, v);
       return o;
     }
     public static bool is_uint(this FieldInfo f) => f.FieldType == typeof(uint);
@@ -275,7 +246,6 @@ namespace GpuScript
     public static bool StartsWithAnyChar(this string str, string label) => str.IndexOfAny(label) == 0;
     public static bool DoesNotContain(this string s, string item) => !s.Contains(item);
 
-    //public static bool Contains(this float[] a, float v) => a.Contains(v);
     public static bool Contains(this uint[] a, int v) => a.Contains((uint)v);
     public static bool DoesNotContain(this uint[] a, uint v) => !a.Contains(v);
     public static bool DoesNotContain(this uint[] a, int v) => !a.Contains((uint)v);
@@ -305,15 +275,7 @@ namespace GpuScript
       if (s != null && items != null) foreach (var item in items) if (item != null && s.EndsWith(item)) return true; return false;
     }
     public static bool DoesNotEndWithAny(this string s, params string[] items) => !EndsWithAny(s, items);
-
-    public static string Repeat(this string s, int n)
-    {
-      if (s.Length == 1) return new string(s[0], n);
-      string t = "";
-      for (int i = 0; i < n; i++) t += s;
-      return t;
-    }
-
+    public static string Repeat(this string s, int n) { if (s.Length == 1) return new string(s[0], n); string t = ""; for (int i = 0; i < n; i++) t += s; return t; }
     public static string Replace(this string s, params object[] vs)
     {
       foreach (var v in vs)
@@ -323,11 +285,7 @@ namespace GpuScript
       }
       return s;
     }
-    public static string ReplaceFirst(this string s, string search, string replace)
-    {
-      int i = s.IndexOf(search);
-      return i < 0 ? s : s.Substring(0, i) + replace + s.Substring(i + search.Length);
-    }
+    public static string ReplaceFirst(this string s, string search, string replace) { int i = s.IndexOf(search); return i < 0 ? s : s.Substring(0, i) + replace + s.Substring(i + search.Length); }
     public static string ReplaceLast(this string s, string search, string replace)
     {
       int i = s.LastIndexOf(search);
@@ -415,37 +373,12 @@ namespace GpuScript
     public static void DeleteDirectory(this string dir) { dir.setAttributesNormal(); Directory.Delete(dir, true); }
     public static void DeleteFiles_Locked(this string path, string searchPattern) { var files = path.GetFiles(searchPattern); foreach (var file in files) file.DeleteFile_Locked(); }
     public static void DeleteFiles(this string path, string searchPattern) { var files = path.GetFiles(searchPattern); foreach (var file in files) file.DeleteFile(); }
-    //public static void Rename(this string f0, string f1)
-    //{
-    //  if (f0.Exists())
-    //  {
-    //    if (f1.Exists())
-    //      f1.DeleteFile();
-    //    if (f0.isPath())
-    //    {
-    //      Directory.Move(f0.ToPath(), f1.ToPath());
-    //      if (f0.Exists())
-    //        f0.DeleteFile();
-    //    }
-    //    else
-    //      File.Move(f0, f1);
-    //  }
-    //}
     public static void Rename(this string f0, string f1)
     {
       if (f0.Exists())
       {
         if (f1.Exists()) f1.DeleteFile();
-        if (f0.isPath() && f0.Exists())
-        {
-          f1.CreatePath();
-          f1.DeleteFile();
-          Directory.Move(f0.ToPath(), f1.ToPath());
-          if (f0.Exists())
-            f0.DeleteFile();
-        }
-        else
-          File.Move(f0, f1);
+        if (f0.isPath() && f0.Exists()) { f1.CreatePath(); f1.DeleteFile(); Directory.Move(f0.ToPath(), f1.ToPath()); if (f0.Exists()) f0.DeleteFile(); } else File.Move(f0, f1);
       }
     }
 
@@ -454,8 +387,7 @@ namespace GpuScript
       foreach (var directory in Directory.GetDirectories(path))
       {
         RemoveEmptyFolders(directory);
-        if (FastDirectory.GetFiles(directory).Length == 0 && Directory.GetDirectories(directory).Length == 0)
-          Directory.Delete(directory, false);
+        if (FastDirectory.GetFiles(directory).Length == 0 && Directory.GetDirectories(directory).Length == 0) Directory.Delete(directory, false);
       }
     }
     public static string[] GetFiles(this string path, string searchPattern)
@@ -465,8 +397,7 @@ namespace GpuScript
       {
         List<string> files = new List<string>();
         string[] patterns = searchPattern.Split("|");
-        foreach (var pattern in patterns)
-          files.AddRange(FastDirectory.GetFiles(path, pattern, SearchOption.TopDirectoryOnly));
+        foreach (var pattern in patterns) files.AddRange(FastDirectory.GetFiles(path, pattern, SearchOption.TopDirectoryOnly));
         return files.ToArray();
       }
       else return FastDirectory.GetFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
@@ -507,15 +438,13 @@ namespace GpuScript
       s.WriteAllText(sb);
     }
     public static byte[] ReadAllBytes(this string file) => file.Exists() ? File.ReadAllBytes(file) : null;
-
     public static bool Contains(this string str, char label) => str.IndexOf(label) >= 0;
-
     public static string[] Split(this string text, string separators)
     {
       List<string> items = new List<string>();
       if (text.IsNotEmpty())
       {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         for (int i = 0; i < text.Length; i++)
         {
           while (i < text.Length && !separators.Contains(text[i].ToString()))
@@ -581,15 +510,15 @@ namespace GpuScript
       return null;
     }
 
-    static void _gpu_scale(this Texture2D src, int width, int height, FilterMode fmode)
-    {
-      src.filterMode = fmode;
-      src.Apply(true);
-      Graphics.SetRenderTarget(new RenderTexture(width, height, 32));
-      GL.LoadPixelMatrix(0, 1, 1, 0);
-      GL.Clear(true, true, new Color(0, 0, 0, 0));
-      Graphics.DrawTexture(new Rect(0, 0, 1, 1), src);
-    }
+    //static void _gpu_scale(this Texture2D src, int width, int height, FilterMode fmode)
+    //{
+    //  src.filterMode = fmode;
+    //  src.Apply(true);
+    //  Graphics.SetRenderTarget(new RenderTexture(width, height, 32));
+    //  GL.LoadPixelMatrix(0, 1, 1, 0);
+    //  GL.Clear(true, true, new Color(0, 0, 0, 0));
+    //  Graphics.DrawTexture(new Rect(0, 0, 1, 1), src);
+    //}
 
     public static Rect Plus(this Rect rect, Rect rect2) => new Rect(rect.xMin + rect2.xMin, rect.yMin + rect2.yMin, rect.width + rect2.width, rect.height + rect2.height);
     public static Rect Plus(this Rect rect, float xMin, float yMin, float width, float height) => new Rect(rect.xMin + xMin, rect.yMin + yMin, rect.width + width, rect.height + height);
@@ -704,129 +633,19 @@ namespace GpuScript
       else if (c == new Color(1, 0.5f, 0.5f)) return "LIGHT_RED";
       return c.ToString();
     }
-
-    //public static string ToName(this Color c)
-    //{
-    //	if (c == Color.black) return "black";
-    //	else if (c == Color.blue) return "blue";
-    //	else if (c == Color.green) return "green";
-    //	else if (c == Color.cyan) return "cyan";
-    //	else if (c == Color.red) return "red";
-    //	else if (c == Color.magenta) return "magenta";
-    //	else if (c == Color.yellow) return "yellow";
-    //	else if (c == new Color(1, 1, 0)) return "yellow";
-    //	else if (c == Color.white) return "white";
-    //	else if (c == Color.clear) return "clear";
-    //	else if (c == Color.grey) return "grey";
-    //	return c.ToString();
-    //}
-
     public static object print(this object o, string prefix = "") { GS.print($"{prefix}{o}"); return o; }
-
-    public static IEnumerable<float> Seq(this (float a, float b, float dx) r)
-    {
-      float a = r.a, b = r.b, dx = abs(r.dx);
-      if (dx != 0) { if (a < b) for (; a <= b + dx / 2; a += dx) yield return a; else if (a > b) for (; a >= b - dx / 2; a -= dx) yield return a; else yield return a; }
-    }
-    public static IEnumerable<float> Seq(this (float a, float b) r) => (r.a, r.b, 1.0f).Seq();
-    public static IEnumerable<int> Seq(this (int a, int b, int dx) r)
-    {
-      int a = r.a, b = r.b, dx = abs(r.dx);
-      if (dx != 0) { if (a < b) for (; a <= b; a += dx) yield return a; else if (a > b) for (; a >= b; a -= dx) yield return a; }
-    }
-    public static IEnumerable<int> Seq(this (int a, int b) r) => (r.a, r.b, 1).Seq();
-    public static IEnumerable<int> Seq(this (int a, uint b) r) => (r.a, (int)r.b, 1).Seq();
-
-    public static IEnumerable<float> Decay(this (float a, float b, float d) r)
-    {
-      var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
-      if (d < 1) for (; b >= a; b *= d) yield return b;
-      else if (d > 1) for (; a <= b; a *= d) yield return a;
-    }
-    public static IEnumerable<uint> Decay(this (uint a, uint b, uint d) r)
-    {
-      var (a, b, d) = (min(r.a, r.b), max(r.a, r.b), r.d);
-      if (d < 1) for (; b >= a; b *= d) yield return b;
-      else if (d > 1) for (; a <= b; a *= d) yield return a;
-    }
-
     public static bool DoesNotContain<TSource>(this IEnumerable<TSource> source, TSource value) => !source.Contains(value);
-
-    public static IEnumerable<(float v, int i)> ForI(this (float a, float b, float dx) r)
-    {
-      float a = r.a, b = r.b, dx = abs(r.dx);
-      if (dx != 0) { if (a < b) for (int i = 0; a <= b + dx / 2; a += dx, i++) yield return (a, i); else if (a > b) for (int i = 0; a >= b - dx / 2; a -= dx, i++) yield return (a, i); else yield return (a, 0); }
-    }
-    public static IEnumerable<float> For(this (float a, float b, float dx) r)
-    {
-      float a = r.a, b = r.b, dx = abs(r.dx);
-      if (dx != 0) { if (a < b) for (; a <= b + dx / 2; a += dx) yield return a; else if (a > b) for (; a >= b - dx / 2; a -= dx) yield return a; else yield return a; }
-    }
-    public static IEnumerable<float> For(this (float a, float b) r) => (r.a, r.b, 1.0f).For();
-    public static IEnumerable<int> For(this (int a, int b, int dx) r)
-    {
-      int a = r.a, b = r.b, dx = abs(r.dx);
-      if (dx != 0) { if (a < b) for (; a < b; a += dx) yield return a; else if (a > b) for (a -= dx; a >= b; a -= dx) yield return a; }
-    }
-    public static IEnumerable<int> For(this (int a, int b) r) => (r.a, r.b, 1).For();
-
-
-
-    //public static IEnumerable<int> For(this (int a, uint b) r) => (r.a, (int)r.b, 1).For();
-
-    //public static IEnumerable<uint> uFor(this (uint a, uint b, int dx) r)
-    //{
-    //	uint a = r.a, b = r.b, dx = (uint)abs(r.dx);
-    //	if (dx > 0) { if (a < b) for (; a < b; a += dx) yield return a; else if (a > b) for (a -= dx; a >= b; a -= dx) yield return a; }
-    //}
-    //public static IEnumerable<uint> uFor(this (int a, uint b) r) => ((uint)r.a, r.b, 1).uFor();
-    //public static IEnumerable<uint> uFor(this (uint a, uint b) r) => (r.a, r.b, 1).uFor();
-
-    public static IEnumerable<uint> For(this (uint a, uint b, int dx) r)
-    {
-      uint a = r.a, b = r.b, dx = (uint)abs(r.dx);
-      if (dx > 0) { if (a < b) for (; a < b; a += dx) yield return a; else if (a > b) for (a -= dx; a >= b; a -= dx) yield return a; }
-    }
-    public static IEnumerable<uint> For(this (int a, uint b) r) => ((uint)r.a, r.b, 1).For();
-    public static IEnumerable<uint> For(this (uint a, uint b) r) => (r.a, r.b, 1).For();
-
-
     public static uint uCount<T>(this IEnumerable<T> e, Func<T, bool> f) { uint num = 0; foreach (T item in e) if (f(item)) num++; return num; }
 
-    public static void ForEach(this (int a, int b) r, Action<int> f) { r.For().ForEach(f); }
-    //public static void ForEach(this (int a, uint b) r, Action<int> f) { r.For().ForEach(f); }
-    public static void ForEach(this (int a, uint b) r, Action<uint> f) { r.For().ForEach(f); }
-    public static void ForEach(this (int a, int b, int dx) r, Action<int> f) { r.For().ForEach(f); }
-
-    public static IEnumerable<int> ForProduct(this (int a, int b, int dx) r)
-    {
-      for (int a = r.a, b = r.b, dx = r.dx; a <= b; a *= dx) yield return a;
-    }
-    public static void ForEachProduct(this (int a, int b, int dx) r, Action<int> f) { r.ForProduct().ForEach(f); }
-
-
-    public static void ForEach<T>(this IEnumerable<T> e, Action<T> a) { foreach (T v in e) a(v); }
-    public static IEnumerable<T> ForEach<T>(this IEnumerable<T> e, Func<T, T> a) { foreach (T v in e) yield return a(v); }
+    public static void For<T>(this IEnumerable<T> e, Action<T> a) { foreach (T v in e) a(v); }
+    public static IEnumerable<T> For<T>(this IEnumerable<T> e, Func<T, T> a) { foreach (T v in e) yield return a(v); }
 
     public static IEnumerable<T> ItemBefore<T>(this IEnumerable<T> e, T i)
     {
       using (var iterator = e.GetEnumerator())
-        for (T previous = iterator.Current; iterator.MoveNext(); previous = iterator.Current)
-          if (i.Equals(iterator.Current))
-            yield return previous;
+        for (T previous = iterator.Current; iterator.MoveNext(); previous = iterator.Current) if (i.Equals(iterator.Current)) yield return previous;
       yield return default;
     }
-    //public static IEnumerable<T> ItemBefore2<T>(this IEnumerable<T> e, T item)
-    //{
-    //  var a = e.Select((a, i) => (a, i)).FirstOrDefault(a => a.a.Equals(item));
-    //  return a.Equals( default) ? default : e.ElementAt(a.i - 1);
-    //  using (var iterator = e.GetEnumerator())
-    //    for (T previous = iterator.Current; iterator.MoveNext(); previous = iterator.Current)
-    //      if (i.Equals(iterator.Current))
-    //        yield return previous;
-    //  yield return default;
-    //}
-
     public static string Append(this string s, params object[] items)
     {
       var sb = new StringBuilder(s); for (int i = 0; i < items.Length; i++) AppendEntry(sb, items, i); return sb.ToString();
@@ -1084,15 +903,6 @@ namespace GpuScript
       try { v = Convert.ToInt32(o); } catch (Exception) { try { v = floori(Convert.ToSingle(o)); } catch (Exception) { v = 0; } }
       return v;
     }
-
-    //public static int To_int(this byte[] bytes, int startIndex)
-    //{
-    //	return (int)bitSwap16((uint)BitConverter.ToInt32(bytes, startIndex));
-    //}
-    //public static int To_short(this byte[] bytes, int startIndex)
-    //{
-    //	return (int)BitConverter.ToInt16(bytes, startIndex);
-    //}
 
     public static uint To_uint(this object o)
     {
@@ -1432,9 +1242,7 @@ namespace GpuScript
 
     public static List<T> Add<T>(this List<T> list, T item, int copyN = 1) { if (copyN <= 0) return list; for (int i = 0; i < copyN; i++) list.Add(item); return list; }
     public static List<T> Add<T>(this List<T> list, params T[] items) { foreach (var item in items) list.Add(item); return list; }
-
-    public static List<T> Append<T>(this List<T> list, T item, int copyN = 1) { (0, copyN).ForEach(i => list.Add(item)); return list; }
-
+    public static List<T> Append<T>(this List<T> list, T item, int copyN = 1) { GS.For(copyN, i => list.Add(item)); return list; }
     public static T[] Add<T>(this T[] array, T item, int copyN = 1) { if (copyN <= 0) return array; return new List<T>(array).Add(item, copyN).ToArray(); }
     public static uint uLength<T>(this T[] array) => (uint)array.Length;
 
@@ -1648,20 +1456,8 @@ namespace GpuScript
       else if ((significant_digits < test.Length) && result.EndsWith(".")) result = result.Substring(0, result.Length - 1);// Remove the trailing decimal point.
       return result;
     }
-
-    public static string ToStr(this string[] ss)
-    {
-      string s = "";
-      if (ss != null) { s = $"string[{ss.Length}]"; for (int i = 0; i < ss.Length; i++) s = $"{s}, {ss[i]}"; }
-      return s;
-    }
-
-    public static int IndexOf(this string[] a, string s)
-    {
-      if (s.IsNotEmpty()) for (int i = 0; i < a.Length; i++) if (a[i] == s) return i;
-      return -1;
-    }
-
+    public static string ToStr(this string[] ss) { string s = ""; if (ss != null) { s = $"string[{ss.Length}]"; for (int i = 0; i < ss.Length; i++) s = $"{s}, {ss[i]}"; } return s; }
+    public static int IndexOf(this string[] a, string s) { if (s.IsNotEmpty()) for (int i = 0; i < a.Length; i++) if (a[i] == s) return i; return -1; }
     public static string SimplifyType(this string typeName)
     {
       typeName = typeName.ReplaceOne("System.Single", "float", "System.UInt32", "uint", "System.Int32", "int", "System.UInt64", "ulong",
@@ -1688,10 +1484,7 @@ namespace GpuScript
     public static bool IsAny(this uint a, List<uint> vs) { foreach (var v in vs) if (a == v) return true; return false; }
     public static bool IsNotAny(this uint a, List<uint> vs) => !IsAny(a, vs);
 
-    public static bool IsAny(this Enum mode, params Enum[] vals)
-    {
-      string modeI = mode.ToString(); foreach (var v in vals) if (modeI == v.ToString()) return true; return false;
-    }
+    public static bool IsAny(this Enum mode, params Enum[] vals) { string modeI = mode.ToString(); foreach (var v in vals) if (modeI == v.ToString()) return true; return false; }
 
     public static bool IsAny<T>(this T item, params T[] items) { foreach (var v in items) if (EqualityComparer<T>.Default.Equals(item, v)) return true; return false; }
     public static bool IsNotAny<T>(this T item, params T[] items) => !IsAny(item, items);
@@ -1834,11 +1627,7 @@ namespace GpuScript
       if (text == null) return 0;
       float w = TextSize(text).x;
       var s = text;
-      if (s != null && s.EndsWith(" "))
-      {
-        float sw = TextSize("a").x;
-        for (; s.EndsWith(" "); s = s.BeforeLast(" ")) w += sw;
-      }
+      if (s != null && s.EndsWith(" ")) { float sw = TextSize("a").x; for (; s.EndsWith(" "); s = s.BeforeLast(" ")) w += sw; }
       return w;
     }
     public static string join(this string separator, params object[] vs) => string.Join(separator, vs);
@@ -2093,7 +1882,6 @@ namespace GpuScript
       path1 = path1.Replace("\\", "/");
       var files0 = path0.GetAllFiles().Select(a => a.After(path0).Replace("\\", "/")).ToArray();
       var files1 = path1.GetAllFiles().Select(a => a.After(path1).Replace("\\", "/")).ToArray();
-      //var oDirs = omitDirs.Select(a => $"/{a}/").ToArray();
       var newFiles = files0.Except(files1).ToArray();
       var sameFiles = files0.Intersect(files1).ToArray();
       var changedFiles = sameFiles.Where(a => (path0 + a).FileDate() != (path1 + a).FileDate()).ToArray();
@@ -2111,13 +1899,8 @@ namespace GpuScript
       path1 = path1.Replace("\\", "/");
       path0.DuplicateFolder(path1, omitStrs);
       var dirs0 = path0.GetDirectories();
-      foreach (var dir in dirs0)
-      {
-        var dir1 = dir.Replace(path0, path1);
-        DuplicateFolders(dir, dir1, omitStrs);
-      }
+      foreach (var dir in dirs0) { var dir1 = dir.Replace(path0, path1); DuplicateFolders(dir, dir1, omitStrs); }
     }
-
 
     public static string[] GetFiles(this string path, params string[] searchPatterns)
     {
@@ -2140,7 +1923,6 @@ namespace GpuScript
     public static string ReadAllTextAscii(this string file) => file.Exists() ? File.ReadAllText(file, new ASCIIEncoding()) : "";
     public static void WriteAllTextUnicode(this string filename, string s) { filename.CreatePath(); File.WriteAllText(filename, $"{(char)255}{(char)254}{s}", new UnicodeEncoding()); }
 
-    //public static string rRemoveCpuComments(this string s) => Regex.Replace(s, @"\n.*?//.*?(?i)debug.*?\n", "\n");
     public static string rRemoveCpuDebugComments(this string s) => Regex.Replace(s, @"\n.*?//.*?(?i)debug", "\n");
     public static string rRemoveRegions(this string s) => Regex.Replace(s, @"\n.*?\#(?=region|endregion).*?\n", "\n");
     public static string rRemoveExcludeRegions(this string s) => Regex.Replace(s, @"\n.*?\#region Exclude(?s:.*?)\#endregion Exclude.*?\n", "\n");
@@ -2260,31 +2042,17 @@ namespace GpuScript
       unchecked
       {
         uint hash1 = 5381, hash2 = hash1;
-        for (int i = 0; i < s.Length; i += 2)
-        {
-          hash1 = ((hash1 << 5) + hash1) ^ s[i];
-          if (i < s.Length - 1) hash2 = ((hash2 << 5) + hash2) ^ s[i + 1];
-        }
+        for (int i = 0; i < s.Length; i += 2) { hash1 = ((hash1 << 5) + hash1) ^ s[i]; if (i < s.Length - 1) hash2 = ((hash2 << 5) + hash2) ^ s[i + 1]; }
         return hash1 + (hash2 * 1566083941);
       }
     }
     public static uint GetJavaHashCode(this string s)
     {
-      unchecked
-      {
-        uint hash = 0, n = (uint)s.Length;
-        for (int i = 0; i < n; i++) hash += (uint)(s[i] * 31 ^ (n - (i + 1)));
-        return hash;
-      }
+      unchecked { uint hash = 0, n = (uint)s.Length; for (int i = 0; i < n; i++) hash += (uint)(s[i] * 31 ^ (n - (i + 1))); return hash; }
     }
     public static uint GetApacheHashCode(this string s)
     {
-      unchecked
-      {
-        uint hash = 0, m = 1, n = (uint)s.Length;
-        for (int i = 0; i < n; i++, m = (m << 5) - m) hash += (uint)(s[i] * m);
-        return hash;
-      }
+      unchecked { uint hash = 0, m = 1, n = (uint)s.Length; for (int i = 0; i < n; i++, m = (m << 5) - m) hash += (uint)(s[i] * m); return hash; }
     }
 
     public static string SecsToTimeString(this float seconds, string secondsFormat = "00") //"00.###,###,#"
@@ -2409,20 +2177,8 @@ namespace GpuScript
       return 6.5f;
     }
 
-    public static string toIP(this string url)
-    {
-      var addresses = System.Net.Dns.GetHostAddresses(url);
-      if (addresses == null || addresses.Length == 0) return null;
-      return addresses[0].ToString();
-    }
-    public static T[] Reverse<T>(this T[] a)
-    {
-      int n = a.Length;
-      var b = new T[n];
-      for (int i = 0; i < n; i++) b[n - i - 1] = a[i];
-      return b;
-    }
-
+    public static string toIP(this string url) { var addresses = System.Net.Dns.GetHostAddresses(url); if (addresses == null || addresses.Length == 0) return null; return addresses[0].ToString(); }
+    public static T[] Reverse<T>(this T[] a) { int n = a.Length; var b = new T[n]; for (int i = 0; i < n; i++) b[n - i - 1] = a[i]; return b; }
 
     //Go to File->Build Settings->Player settings->Player->Other Settings->Scripting Define Symbols to add Rock_Debug
     //Copy C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.IO.Compression.FileSystem.dll 
@@ -2479,11 +2235,7 @@ namespace GpuScript
 
     public static void WriteBytes(this string filename, byte[] bytes, int b0, int bN)
     {
-      using (var fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write))
-      {
-        fs.Position = b0;
-        fs.Write(bytes, 0, bN);
-      }
+      using (var fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Write)) { fs.Position = b0; fs.Write(bytes, 0, bN); }
     }
 
     public static Texture2D LoadTexture(this string path) => Resources.Load<Texture2D>(path);

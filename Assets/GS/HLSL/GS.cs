@@ -823,10 +823,6 @@ namespace GpuScript
     public static uint2 ceilu(float2 v) { return int2(ceil(v.x), ceil(v.y)); }
     public static uint3 ceilu(float3 v) { return int3(ceil(v.x), ceil(v.y), ceil(v.z)); }
     public static uint4 ceilu(float4 v) { return int4(ceil(v.x), ceil(v.y), ceil(v.z), ceil(v.w)); }
-    //public static uint ceilu(uint numerator, uint denominator) { return (uint)(numerator / denominator + ((numerator % denominator) > 0 ? 1 : 0)); }
-    //public static uint2 ceilu(uint2 numerator, uint2 denominator) { return int2(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y)); }
-    //public static uint3 ceilu(uint3 numerator, uint3 denominator) { return int3(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y), ceilu(numerator.z, denominator.z)); }
-    //public static uint4 ceilu(uint4 numerator, uint4 denominator) { return int4(ceilu(numerator.x, denominator.x), ceilu(numerator.y, denominator.y), ceilu(numerator.z, denominator.z), ceilu(numerator.w, denominator.w)); }
     public static uint ceilu(uint v, uint nearest) { return v / nearest + min(1, v % nearest); }
     public static uint2 ceilu(uint2 v, uint2 nearest) { return int2(ceilu(v.x, nearest.x), ceilu(v.y, nearest.y)); }
     public static uint3 ceilu(uint3 v, uint3 nearest) { return int3(ceilu(v.x, nearest.x), ceilu(v.y, nearest.y), ceilu(v.z, nearest.z)); }
@@ -863,45 +859,6 @@ namespace GpuScript
     public static uint2 roundu(float2 v) { return uint2(round(v.x), round(v.y)); }
     public static uint3 roundu(float3 v) { return uint3(round(v.x), round(v.y), round(v.z)); }
     public static uint4 roundu(float4 v) { return uint4(round(v.x), round(v.y), round(v.z), round(v.w)); }
-
-    //public static int roundi(float v, int nearest) { return nearest == 0 ? roundi(v) : roundi(v / nearest) * nearest; }
-    //public static uint roundu(float v, uint nearest) { return nearest == 0 ? roundu(v) : roundu(v / nearest) * nearest; }
-    //public static float round(float v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-    //public static float2 round(float2 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-    //public static float3 round(float3 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-    //public static float4 round(float4 v, float nearest) { return nearest == 0 ? round(v) : round(v / nearest) * nearest; }
-
-    //public static int4 roundi(float4 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    //public static int4 roundi(int4 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    //public static uint4 roundu(float4 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    //public static uint4 roundu(uint4 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-    //public static int3 roundi(float3 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    //public static int3 roundi(int3 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    //public static uint3 roundu(float3 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    //public static uint3 roundu(uint3 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-    //public static int2 roundi(float2 v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    //public static int2 roundi(int2 v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    //public static uint2 roundu(float2 v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    //public static uint2 roundu(uint2 v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-    //public static int roundi(float v, float nearest) { return nearest == 0 ? roundi(v) : roundi(roundi(v / nearest) * nearest); }
-    //public static int roundi(int v, float nearest) { return nearest == 0 ? v : roundi(roundi(v / nearest) * nearest); }
-    //public static uint roundu(float v, float nearest) { return nearest == 0 ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
-    //public static uint roundu(uint v, float nearest) { return nearest == 0 ? v : roundu(roundu(v / nearest) * nearest); }
-
-    //public static int ceili(float v, int nearest) { return nearest == 0 ? ceili(v) : ceili(v / nearest) * nearest; }
-    //public static uint ceilu(float v, uint nearest) { return nearest == 0 ? ceilu(v) : ceilu(v / nearest) * nearest; }
-    //public static float ceil(float v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-    //public static float2 ceil(float2 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-    //public static float3 ceil(float3 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-    //public static float4 ceil(float4 v, float nearest) { return nearest == 0 ? ceil(v) : ceil(v / nearest) * nearest; }
-
-    //public static int floori(float v, int nearest) { return nearest == 0 ? floori(v) : floori(v / nearest) * nearest; }
-    //public static uint flooru(float v, uint nearest) { return nearest == 0 ? flooru(v) : flooru(v / nearest) * nearest; }
-    //public static float floor(float v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-    //public static float2 floor(float2 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-    //public static float3 floor(float3 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-    //public static float4 floor(float4 v, float nearest) { return nearest == 0 ? floor(v) : floor(v / nearest) * nearest; }
-
 
     public static int roundi(float v, int nearest) { return nearest == 0 || isnan(nearest) ? roundi(v) : roundi(v / nearest) * nearest; }
     public static uint roundu(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(v / nearest) * nearest; }
@@ -941,7 +898,6 @@ namespace GpuScript
     public static int roundi(int v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundi(roundi(v / nearest) * nearest); }
     public static uint roundu(float v, float nearest) { return nearest == 0 || isnan(nearest) ? roundu(v) : roundu(roundu(v / nearest) * nearest); }
     public static uint roundu(uint v, float nearest) { return nearest == 0 || isnan(nearest) ? v : roundu(roundu(v / nearest) * nearest); }
-
 
     public static int ceili(float v, int nearest) { return nearest == 0 || isnan(nearest) ? ceili(v) : ceili(v / nearest) * nearest; }
     public static uint ceilu(float v, uint nearest) { return nearest == 0 || isnan(nearest) ? ceilu(v) : ceilu(v / nearest) * nearest; }
@@ -1029,11 +985,7 @@ namespace GpuScript
     public static uint2 index2(uint3 a, uint i, uint j) { i = (i + 3) % 3; j = (j + 3) % 3; return uint2(i == 0 ? a.x : i == 1 ? a.y : a.z, j == 0 ? a.x : j == 1 ? a.y : a.z); }
     public static float2 index2(float3 a, uint i, uint j) { i = (i + 3) % 3; j = (j + 3) % 3; return float2(i == 0 ? a.x : i == 1 ? a.y : a.z, j == 0 ? a.x : j == 1 ? a.y : a.z); }
 
-    public static float2x2 inverse(float2x2 m)
-    {
-      float a = m[0].x, b = m[0].y, c = m[1].x, d = m[1].y;
-      return new float2x2(d, -b, -c, a) / (a * d - b * c);
-    }
+    public static float2x2 inverse(float2x2 m) { float a = m[0].x, b = m[0].y, c = m[1].x, d = m[1].y; return new float2x2(d, -b, -c, a) / (a * d - b * c); }
     public static float3x3 inverse(float3x3 m)
     {
       float m2233_m3223 = m._22 * m._33 - m._32 * m._23, m2133 = m._21 * m._33, m2331 = m._23 * m._31, m2132 = m._21 * m._32;
@@ -1194,7 +1146,6 @@ namespace GpuScript
     public static float2 rotate_cs(float2 p, float2 cs) { return -ComplexMultiply(cs, p); }
     public static float2 rotate(float2 p, float s, float c) { return float2(c * p.x + s * p.y, s * p.x - c * p.y); }
     public static float2 rotate(float2 p, float t) { return rotate(p, sin(t), cos(t)); }
-
 
     public static float3 rotateDeg(float3 p, float thetaDeg, float3 axis) { return rotate(p, radians(thetaDeg), axis); }
     public static float3 rotateXsc(float3 p, float sx, float cx) { float3 a = p; float fy = a.y; a.y = (float)(cx * a.y + sx * a.z); a.z = (float)(-sx * fy + cx * a.z); return a; }
@@ -2252,14 +2203,33 @@ namespace GpuScript
 #if !gs_compute && !gs_shader //C# code
     //<<<<< GpuScript Code Extensions. This section contains code that runs on both compute shaders and material shaders, but is not in HLSL
 
+    //public static IEnumerable<int> For(int a, int b, int d = 1) { for (; a < b; a += d) yield return a; }
+    //public static IEnumerable<int> For(int b) => For(0, b, 1);
+    public static IEnumerable<int> For(int a, int b, int d = 1) { if ((d = abs(d)) != 0) { if (a < b) for (; a < b; a += d) yield return a; else if (a > b) for (a -= d; a >= b; a -= d) yield return a; } }
+    public static IEnumerable<int> For(int b) => For(0, b, 1);
+    public static IEnumerable<uint> For(uint a, uint b, int d = 1) { uint dx = (uint)abs(d); if (dx > 0) { if (a < b) for (; a < b; a += dx) yield return a; else if (a > b) for (a -= dx; a >= b; a -= dx) yield return a; } }
+    public static IEnumerable<uint> For(uint b) => For(0, b, 1);
+    public static IEnumerable<float> For(float a, float b, float d = 1) { if ((d = abs(d)) != 0) { if (a < b) for (; a <= b + d / 2; a += d) yield return a; else if (a > b) for (; a >= b - d / 2; a -= d) yield return a; else yield return a; } }
+    public static IEnumerable<float> For(float b) => For(0, b, 1.0f);
+    public static void For(int a, int b, int d, Action<int> f) => For(a, b, d).For(f);
+    public static void For(uint a, uint b, int d, Action<uint> f) => For(a, b, d).For(f);
+    public static void For(int a, int b, Action<int> f) => For(a, b).For(f);
+    public static void For(uint a, uint b, Action<uint> f) => For(a, b).For(f);
+    public static void For(int b, Action<int> f) => For(b).For(f);
+    public static void For(uint b, Action<uint> f) => For(b).For(f);
+    public static IEnumerable<(float v, int i)> ForI(float a, float b, float d = 1) { if ((d = abs(d)) != 0) { if (a < b) for (int i = 0; a <= b + d / 2; a += d, i++) yield return (a, i); else if (a > b) for (int i = 0; a >= b - d / 2; a -= d, i++) yield return (a, i); else yield return (a, 0); } }
+    public static IEnumerable<float> Seq(float a, float b, float d = 1) { if ((d = abs(d)) != 0) { if (a < b) for (; a <= b + d / 2; a += d) yield return a; else if (a > b) for (; a >= b - d / 2; a -= d) yield return a; else yield return a; } }
+    public static IEnumerable<float> Seq(float b) => Seq(0, b, 1);
+    public static IEnumerable<int> Seq(int a, int b, int d = 1) { if ((d = abs(d)) != 0) { if (a < b) for (; a <= b; a += d) yield return a; else if (a > b) for (; a >= b; a -= d) yield return a; } }
+    public static IEnumerable<int> Seq(int b) => Seq(0, b, 1);
+    public static IEnumerable<int> Seq(uint b) => Seq(0, (int)b, 1);
+    public static IEnumerable<float> Decay(float a, float b, float d) { (a, b) = (min(a, b), max(a, b)); if (d < 1) for (; b >= a; b *= d) yield return b; else if (d > 1) for (; a <= b; a *= d) yield return a; }
+    public static IEnumerable<uint> Decay(uint a, uint b, uint d) { (a, b) = (min(a, b), max(a, b)); if (d < 1) for (; b >= a; b *= d) yield return b; else if (d > 1) for (; a <= b; a *= d) yield return a; }
+    public static IEnumerable<int> ForProduct(int a, int b, int d) { for (; a <= b; a *= d) yield return a; }
+    public static void ForProduct(int a, int b, int d, Action<int> f) => ForProduct(a, b, d).For(f);
+
     public static float Secs(Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
-    //public float TimeAction(uint n, Action a, float t) => (0, n).For().Select(i => Secs(a)).Min() * t;
-    //public float us(Action a) => TimeAction(100, a, 1e6f);
-    //public string us(string s, Action a) => $"{s}\t {us(a):#,###} μs";
-    //public float TimeAction(uint n, Action a, float secs) => (0, n).For().Select(i => Secs(a)).Min() * secs;
-    //public string TimeAction_Str(uint n, Action a, float secs) => $"{TimeAction(n, a, secs):#,###} {(secs == 1e-3f ? "ms" : secs == 1e-6f ? "μs" : secs == 1e-9f ? "ηs" : "s")}";
-    //public string TimeAction_Str(uint n, Action a, Unit unit) => $"{TimeAction(n, a, UI_VisualElement.convert(Unit.s, unit)):#,###} {unit.ToLabel()}";
-    public float TimeAction(uint n, Action a, Unit unit) => (0, n).For().Select(i => Secs(a)).Min() * UI_VisualElement.convert(Unit.s, unit);
+    public float TimeAction(uint n, Action a, Unit unit) => For(n).Select(i => Secs(a)).Min() * UI_VisualElement.convert(Unit.s, unit);
     public string TimeAction_Str(uint n, Action a, Unit unit) => $"{TimeAction(n, a, unit):#,##0} {unit.ToLabel()}";
 
     public static void swap<T>(ref T a, ref T b) { T t = a; a = b; b = t; }
@@ -2319,7 +2289,6 @@ namespace GpuScript
     }
     public static string SerializeWithStringEnum(object obj) => JsonConvert.SerializeObject(obj, new StringEnumConverter());
     public static StrBldr StrBldr(params object[] items) => new(items);
-    //public static StrBldr StrBldr(IEnumerable<string> s) => new(s.ToArray());
     public virtual void OnValueChanged_GS() { }
     public virtual void OnValueChanged() { if (ui_loaded) OnValueChanged_GS(); }
 
@@ -2349,7 +2318,6 @@ namespace GpuScript
     public IEnumerator Status() { status = ""; progress(0); yield return null; }
     public IEnumerator Status(string s) { status = s; yield return null; }
     public IEnumerator Status(uint i, uint n, string s) { status = s; progress(i, n); yield return null; }
-    //public void _Status(uint i, uint n, string s) { status = s; progress(i, n);  }
     public IEnumerator Status(int i, int n, string s)
     {
       if (i == n - 1) yield return Status();
@@ -3319,7 +3287,6 @@ namespace GpuScript
     public static float4 fPosInf4 = float4(fPosInf, fPosInf, fPosInf, fPosInf);
 
 
-    //public static float2 initRange = float2(float_PositiveInfinity, float_NegativeInfinity);
     public static float2 initRange = float2(fPosInf, fNegInf);
     public static int2 initRangei = int2(int_max, int_min);
     public static uint2 initRangeu = uint2(uint_max, uint_min);
@@ -3358,10 +3325,6 @@ namespace GpuScript
       return z;
     }
 
-    //public static bool IsType(Type parent, Type child) { if (child == null) return false; return child.IsAssignableFrom(parent); }
-    //public static bool IsType(object parent, Type child) { if (parent == null) return false; return IsType(parent.GetType(), child); }
-    //public static bool IsType(object parent, object child) { if (parent == null || child == null) return false; return IsType(parent.GetType(), child.GetType()); }
-    //public static bool IsType(Type parent, object child) { if (child == null) return false; return IsType(parent, child.GetType()); }
     public static bool IsType(Type parent, Type child) => child?.IsAssignableFrom(parent) ?? false;
     public static bool IsType(object parent, Type child) => (parent == null) ? false : IsType(parent.GetType(), child);
     public static bool IsType(object parent, object child) => parent == null || child == null ? false : IsType(parent.GetType(), child.GetType());
@@ -3404,11 +3367,9 @@ namespace GpuScript
     public static bool Key(string c) => Input.GetKey(c);
     public static bool Key(char c) => char.IsUpper(c) ? Shift && Key((KeyCode)char.ToLower(c)) : Key((KeyCode)c);
     public static bool KeyList(string keyList) { for (int i = 0; i < keyList.Length; i++) if (Key(keyList[i])) return true; return false; }
-    //public static bool GetKeyDown(char c) { if (char.IsUpper(c)) return Shift && Input.GetKeyDown((KeyCode)char.ToLower(c)); return Input.GetKeyDown((KeyCode)char.ToLower(c)); }
     public static bool GetKeyDown(char c) => char.IsUpper(c) ? Shift && Input.GetKeyDown((KeyCode)char.ToLower(c)) : Input.GetKeyDown((KeyCode)char.ToLower(c));
     public static bool GetKeyDown(bool modifier, char c) => modifier && GetKeyDown(c);
     public static bool KeyDown(KeyCode c) => Input.GetKeyDown(c);
-    //public static bool GetKeyUp(char c) { if (char.IsUpper(c)) return Shift && Input.GetKeyUp((KeyCode)char.ToLower(c)); return Input.GetKeyUp((KeyCode)char.ToLower(c)); }
     public static bool GetKeyUp(char c) => char.IsUpper(c) ? Shift && Input.GetKeyUp((KeyCode)char.ToLower(c)) : Input.GetKeyUp((KeyCode)char.ToLower(c));
 
     public static char GetKeyInRange(char c0, char c1) { if (Input.anyKey) for (char c = c0; c <= c1; c++) if (Input.GetKey((KeyCode)c)) return c; return (char)0; }
@@ -4001,17 +3962,12 @@ namespace GpuScript
     {
       get
       {
-        string path;
 #if UNITY_ANDROID && !UNITY_EDITOR
-        path = Application.persistentDataPath;
+        string path = Application.persistentDataPath;
 #else
-        path = Application.dataPath;
+        string path = Application.dataPath;
 #endif
-        //path = Application.persistentDataPath;
-        
-
-        if (path.Contains("/"))
-          path = path.BeforeLastIncluding("/");
+        if (path.Contains("/")) path = path.BeforeLastIncluding("/");
         return path;
       }
     }
@@ -4215,10 +4171,7 @@ namespace GpuScript
       for (int i = 0; i < data.Length; i++)
         data[i] = audio_samples[audio_position++];
     }
-    public static void OnAudioSetPosition(int newPosition)
-    {
-      audio_position = newPosition;
-    }
+    public static void OnAudioSetPosition(int newPosition) { audio_position = newPosition; }
 
     public static void Beep(float secs, int freq)
     {
@@ -5018,18 +4971,6 @@ namespace GpuScript
 
     public void threadStart(ThreadStart threadStart) { var runThread = new Thread(threadStart) { IsBackground = true, Priority = System.Threading.ThreadPriority.Highest }; runThread.Start(); }
 
-    //public string[] splitStr3(string str, bool setEqual)
-    //{
-    //  string[] ss = new string[] { "", "", "" };
-    //  if (str.Contains("|"))
-    //  {
-    //    string[] strs = str.Split("|");
-    //    for (int i = 0; i < min(ss.Length, strs.Length); i++) ss[i] = strs[i];
-    //  }
-    //  else ss[0] = str;
-    //  if (setEqual) for (int i = 1; i < 3; i++) if (ss[i].IsEmpty()) ss[i] = ss[i - 1];
-    //  return ss;
-    //}
     public string[] splitStr3(string str, bool setEqual)
     {
       string[] ss = new string[] { "", "", "" };
@@ -5042,7 +4983,6 @@ namespace GpuScript
       if (setEqual) for (int i = 1; i < 3; i++) if (ss[i].IsEmpty()) ss[i] = ss[i - 1];
       return ss;
     }
-
 
     [StructLayout(LayoutKind.Sequential)] struct LASTINPUTINFO { [MarshalAs(UnmanagedType.U4)] public UInt32 cbSize, dwTime; }
     [DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
@@ -5128,7 +5068,6 @@ namespace GpuScript
 
     public static Stopwatch runtime, segmentTime;
     public static void InitClock() { if (runtime == null) { runtime = new Stopwatch(); segmentTime = new Stopwatch(); runtime.Restart(); segmentTime.Restart(); } }
-    //public static float ClockSec_SoFar() { InitClock(); segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
     public static float ClockSec_SoFar() { segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
 
     public static float ClockSec_Segment() { float t = segmentTime.ElapsedTicks * rcp(Stopwatch.Frequency); segmentTime.Restart(); return t; }
@@ -5218,13 +5157,6 @@ namespace GpuScript
     public string[] NewStrArray => new string[0];
     public string[] NewStrArrayN(int n) => new string[n];
 
-
-    //public double _round(double v) => round(v);
-    //public float  _round(float v) => round(v);
-    //public float2 _round(float2 v) => round(v);
-    //public float3 _round(float3 v) => round(v);
-    //public float4 _round(float4 v) => round(v);
-
     public uint _roundu(float v) => roundu(v);
     public uint2 _roundu(float2 v) => roundu(v);
     public uint3 _roundu(float3 v) => roundu(v);
@@ -5245,10 +5177,8 @@ namespace GpuScript
     public float _lerp(float a, float b, float w) => lerp(a, b, w);
 
     public bool IsOnly(uint i, params bool[] vs) { vs[i] = !vs[i]; bool r = !vs.Any(v => v); vs[i] = !vs[i]; return r; }
-    //public bool IsOnly(params bool[] vs) => IsOnly(0, vs);
   }
 }
-//namespace System.Runtime.CompilerServices { [ComponentModel.EditorBrowsable(ComponentModel.EditorBrowsableState.Never)] internal class IsExternalInit { } }
 #endif //!gs_compute && !gs_shader //C# code
 
 //run code from string, could be really good for Geometric Algebra

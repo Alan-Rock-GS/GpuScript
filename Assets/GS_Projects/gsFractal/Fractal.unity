@@ -3192,7 +3192,7 @@ GameObject:
   - component: {fileID: 1423818013}
   - component: {fileID: 1423818022}
   - component: {fileID: 1423818024}
-  - component: {fileID: 1423818023}
+  - component: {fileID: 1423818025}
   m_Layer: 0
   m_Name: gsFractal
   m_TagString: Untagged
@@ -3252,8 +3252,8 @@ MonoBehaviour:
   generateComputeShader: 0
   const_bindings: 56
   SM6: 1
-  computeShader: {fileID: 7200000, guid: f7451a1291232ec428c6a2a83e1cb396, type: 3}
-  material: {fileID: 2100000, guid: f81e801c6efa0994bbad3ce2a602e362, type: 2}
+  computeShader: {fileID: 7200000, guid: 43004045fbc2c014f8f015d6dd709557, type: 3}
+  material: {fileID: 2100000, guid: 96e04db163e39bd4aad707deda32ad45, type: 2}
   renderTextures: []
   sync: 0
   render: 1
@@ -3604,7 +3604,19 @@ MonoBehaviour:
   target: {fileID: 0}
   _target: {fileID: 0}
   webCamTexture: {fileID: 0}
---- !u!114 &1423818023
+--- !u!114 &1423818024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423818012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9075192e0c6181e4593b83f097280537, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1423818025
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3947,18 +3959,6 @@ MonoBehaviour:
   kernel_BDraw_getTextInfo: 0
   BDraw_ExtraTextN: 0
   Skybox: {fileID: 2800000, guid: 2d61d0806af4ca342a526db384b69feb, type: 3}
---- !u!114 &1423818024
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1423818012}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9075192e0c6181e4593b83f097280537, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1434583307
 GameObject:
   m_ObjectHideFlags: 0
