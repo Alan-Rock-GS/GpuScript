@@ -110,10 +110,10 @@
     if (i < g.Axes_Lib_BDraw_ABuff_BitN) Axes_Lib_BDraw_ABuff_Sums[i] = Axes_Lib_BDraw_ABuff_grp[grpI];
   }
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
   uint vI(uint pntI, uint stepI) { return pntI * g.dayN + stepI; }
   uint vI(uint2 ps) { return vI(ps.x, ps.y); }
@@ -205,6 +205,6 @@
   #pragma kernel Axes_Lib_BDraw_getTextInfo
   #pragma kernel Rand_initState
   #pragma kernel Rand_initSeed
-  #pragma kernel Rand_grp_init_1M
-  #pragma kernel Rand_grp_init_1K
   #pragma kernel Rand_grp_fill_1K
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_init_1M
