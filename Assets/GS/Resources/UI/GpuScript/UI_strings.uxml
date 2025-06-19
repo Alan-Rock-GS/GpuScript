@@ -1,7 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS%201.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS 1" />
-    <ui:VisualElement name="UI_strings" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; width: auto; display: flex; height: 20px; flex-shrink: 0;">
-        <ui:Label text="strings" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; flex-grow: 0; flex-shrink: 0; padding-left: 2px; padding-right: 2px; min-width: 50px; -unity-text-align: lower-right;" />
-        <ui:DropdownField label="      " name="DropdownField" style="width: auto; flex-grow: 0; flex-shrink: 0; background-color: rgb(255, 255, 255); min-width: 300px;" />
+    <ui:VisualElement name="UI_strings" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); flex-direction: row; width: auto; display: flex; height: 36px; flex-shrink: 0; -unity-text-align: upper-left;">
+        <ui:DropdownField name="DropdownField" index="0" label="Name" style="width: auto; flex-grow: 0; flex-shrink: 0; background-color: rgb(188, 188, 188); height: 36px; border-top-width: 0; padding-right: 0; padding-left: 4px; padding-top: 0; -unity-font-style: normal; -unity-text-align: middle-right;" />
     </ui:VisualElement>
 </ui:UXML>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+//using System.Linq;
 
 public class StrBldr
 {
@@ -65,8 +66,9 @@ public class StrBldr
 	public StrBldr AddLineSeparators(string separator, params object[] items) => Add("\n").AddSeparatorRow(separator, items);
 
   public StrBldr AddTabRow(params object[] items) => AddSeparatorRow("\t", items);
-	public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\n");
-	public StrBldr AddLineTabs(params object[] items) => Add("\n").AddTabRow(items);
+  public StrBldr AddTabLine(params object[] items) => AddTabRow(items).Add("\n");
+  //public StrBldr AddTabLine(IEnumerator<object> items) => items.Select(a => a.ToString);// AddTabLine(items.Select().ToArray()).Add("\n");
+  public StrBldr AddLineTabs(params object[] items) => Add("\n").AddTabRow(items);
 
 
 	public StrBldr Add(params object[] items) { foreach (var item in items) sb.Append(item); return this; }

@@ -2242,7 +2242,8 @@ namespace GpuScript
     {
       get
       {
-        if (_uiDocument == null) _uiDocument = gameObject.GetComponent<UIDocument>();
+        //if (_uiDocument == null) _uiDocument = gameObject.GetComponent<UIDocument>();
+        _uiDocument ??= gameObject.GetComponent<UIDocument>();
         if (_uiDocument == null) { gameObject.AddComponent<UIDocument>(); _uiDocument = gameObject.GetComponent<UIDocument>(); }
         return _uiDocument;
       }
@@ -2271,7 +2272,8 @@ namespace GpuScript
       if (Get_uiDocument())
       {
         var children = UI_GS?.Q<VisualElement>().Children();
-        if (children != null) { ui_elements = children.ToList(); foreach (UI_VisualElement u in children) u.Init(this, gss); }
+        //if (children != null) { ui_elements = children.ToList(); foreach (UI_VisualElement u in children) u.Init(this, gss); }
+        if (children != null) { ui_elements = children.ToList(); foreach (VisualElement u in children) if (u is UI_VisualElement) ((UI_VisualElement)u).Init(this, gss); }
       }
     }
     public bool AnyChanged(params UI_VisualElement[] elements) => elements.Any(a => a.Changed);
