@@ -7,6 +7,7 @@
             <ui:Button text="Build" display-tooltip-when-elided="true" tooltip="Write _cs, compute, and shader. Change name and Build to copy scene" name="gsClass_Build" style="height: 20px; width: 40px;" />
             <ui:Button text="Fix" display-tooltip-when-elided="true" tooltip="Write _cs, compute, and shader. Change name and Build to copy scene" name="gsClass_Fix" style="height: 20px; width: 30px; display: none;" />
             <ui:Button text="Lib" display-tooltip-when-elided="true" tooltip="Build pre-compiled library files" name="gsClass_Lib" style="height: 20px; width: 30px;" />
+            <ui:DropdownField index="0" choices="Windows,Android,WebGpu" tooltip="Platform" name="info_platform" />
         </ui:VisualElement>
         <ui:VisualElement name="Lib" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px;">
             <ui:Button text="Paste" display-tooltip-when-elided="true" tooltip="Paste license information from email" name="Lib_Paste" style="height: 20px; width: 40px;" />
@@ -27,7 +28,6 @@
         </ui:VisualElement>
         <ui:VisualElement name="info" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; height: 20px; flex-wrap: nowrap;">
             <ui:TextField picking-mode="Ignore" name="info_Android_dirs" readonly="false" value="Swarm,Rand,Gps" tooltip="Folders to include in Android" style="height: 20px; min-width: 100px; width: auto; flex-grow: 1; flex-shrink: 1; display: none;" />
-            <ui:DropdownField index="0" choices="Windows,Android" tooltip="Platform" name="info_platform" />
             <ui:TextField placeholder-text="company" name="company" tooltip="Company name" style="flex-grow: 1; min-width: auto; max-width: none; height: 20px;" />
             <ui:TextField placeholder-text="password" name="password" password="true" tooltip="keystore password" style="flex-grow: 1; height: 20px;" />
             <ui:Button text="Project" display-tooltip-when-elided="true" name="android_projectPath" tooltip="Show Project Path" style="width: auto; flex-shrink: 1; flex-grow: 1; height: 20px; display: none;" />

@@ -4146,15 +4146,17 @@ namespace GpuScript
     public static AudioClip mic_audio_clip;
     static uint _audio_smpPerSec = 0;
     public static uint audio_smpPerSec { get { if (_audio_smpPerSec == 0) _audio_smpPerSec = (uint)AudioSettings.outputSampleRate; return _audio_smpPerSec; } set { _audio_smpPerSec = value; } }
+#if !UNITY_WEBGL
     public static bool Mic_Start(int secs = 1, bool loop = true)
     {
       bool ok = true;
       try { mic_audio_clip = Microphone.Start(null, loop, secs, (int)audio_smpPerSec); }
       catch (Exception) { ok = false; }
-      return ok;
+     return ok;
     }
     public static int Mic_GetPosition() => Microphone.GetPosition(null);
     public static void Mic_End() { Microphone.End(null); Destroy(mic_audio_clip); mic_audio_clip = null; }
+#endif //!UNITY_WEBGL
 
     public static void Spk_Start(float[] data, int spkN, int smpN)
     {

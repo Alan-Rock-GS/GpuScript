@@ -5,6 +5,7 @@
     "includePlatforms": [
         "Android",
         "Editor",
+        "WebGL",
         "WindowsStandalone64"
     ],
     "excludePlatforms": [],

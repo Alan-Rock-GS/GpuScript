@@ -26,6 +26,7 @@ using UnityEditor.Compilation;
 [InitializeOnLoad]
 public class GS_Window : EditorWindow
 {
+  enum PlatformType { Windows, Android, WebGpu }
   public void Lib_Paste_clicked(ClickEvent evt = null)
   {
     string s = Clipboard;
@@ -88,6 +89,7 @@ public class GS_Window : EditorWindow
     android_projectPath, android_persistentPath, android_phonePath, exe_Exe, exe_Setup, exe_Apk, exe_Apk_CMake;
   Toggle gsClass_Run, exe_Parent, exe_Build, exe_Debug, exe_Run;
   DropdownField info_platform;
+  VisualElement info;
 
   public static GS_Window This;
   void CreateGUI()
@@ -95,7 +97,7 @@ public class GS_Window : EditorWindow
     This = this;
     visualTreeAsset?.CloneTree(rootVisualElement);
     Type[] types = new Type[] {typeof(Label), typeof(Button), typeof(Toggle), typeof(Scroller), typeof(TextField), typeof(Foldout), typeof(Slider),
-      typeof(SliderInt), typeof(MinMaxSlider), typeof(ProgressBar), typeof(DropdownField), typeof(Enum), typeof(RadioButton), typeof(RadioButtonGroup)};
+      typeof(SliderInt), typeof(MinMaxSlider), typeof(ProgressBar), typeof(DropdownField), typeof(Enum), typeof(RadioButton), typeof(RadioButtonGroup), typeof(VisualElement)};
 
     foreach (var fld in GetType().GetFields(bindings))
       foreach (var type in types)
@@ -133,11 +135,17 @@ public class GS_Window : EditorWindow
             var method = GetType().GetMethod(fld.Name + "_clicked", bindings);
             button?.RegisterCallback<ClickEvent>((evt) => { method?.Invoke(this, new object[] { evt }); });
           }
+          //else if (type == typeof(VisualElement))
+          //{
+          //  var visualElement = (VisualElement)element;
+          //  var method = GetType().GetMethod(fld.Name + "_clicked", bindings);
+          //  button?.RegisterCallback<ClickEvent>((evt) => { method?.Invoke(this, new object[] { evt }); });
+          //}
         }
     info_platform.RegisterValueChangedCallback((evt) => { SwitchPlatform(); });
     CodeCount.RegisterCallback<ClickEvent>(CodeCount_clicked);
     CodeCount_clicked(null);
-    info_platform.index = isAndroid ? 1 : 0;
+    info_platform.index = GetPlatformI;
     SwitchPlatform();
     if ($"gs{SceneName}".DoesNotEqual(gsClass_name.value)) gsClass_name_val = gsClass_name.value = $"gs{SceneName}";
   }
@@ -2820,7 +2828,10 @@ $"\n    {m_name}_To_UI();",
     return (bool)typeof(ProjectWindowUtil).GetMethod("TryGetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, args) ? (string)args[0] : "";
   }
 
+  protected bool isWindows => EditorUserBuildSettings.activeBuildTarget == BuildTarget.StandaloneWindows64;
   protected bool isAndroid => EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android;
+  protected bool isWebGpu => EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL;
+  protected int GetPlatformI => isWindows ? 0 : isAndroid ? 1 : 2;
 
   protected bool AutoCompile { get => EditorPrefs.GetInt("kAutoRefresh") == 1; set => EditorPrefs.SetInt("kAutoRefresh", value ? 1 : 0); }
   protected static bool AutoRefresh;
@@ -2931,11 +2942,46 @@ $"\n    {m_name}_To_UI();",
 
   #endregion Package
 
+  //void SwitchPlatform() //if in Android mode, automatically "remove~" all unnecessary folders when generating APK.
+  //{
+  //  var android_folders = new List<string> { "Editor", "GS" };
+
+  //  if (info_platform.index == 1 && !isAndroid)
+  //  {
+  //    $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
+  //    $"{AssetsPath}Models.meta".DeleteFile();
+  //    $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
+  //    $"{AssetsPath}Plugins/Chrome.meta".DeleteFile();
+  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+  //  }
+  //  else if (info_platform.index == 0 && isAndroid)
+  //  {
+  //    $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
+  //    $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
+  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+  //  }
+  //  bool isPhone = info_platform.index == 1;
+
+  //  exe_Apk.style.display = DisplayIf(isPhone);
+  //  exe_Apk_CMake.style.display = DisplayIf(isPhone && Show_exe_Apk_CMake);
+  //  exe_Parent.style.display = HideIf(isPhone);
+  //  exe_Build.style.display = HideIf(isPhone);
+  //  exe_Debug.style.display = HideIf(isPhone && !exe_Build.value);
+  //  exe_Run.style.display = HideIf(isPhone);
+  //  exe_Exe.style.display = HideIf(isPhone);
+  //  exe_Setup.style.display = HideIf(isPhone);
+  //  company.style.display = DisplayIf(isPhone);
+  //  password.style.display = DisplayIf(isPhone);
+  //  android_phonePath.style.display = DisplayIf(isPhone);
+  //}
+  bool isWindowsSelected => info_platform.index == (int)PlatformType.Windows;
+  bool isAndroidSelected => info_platform.index == (int)PlatformType.Android;
+  bool isWebGpuSelected => info_platform.index == (int)PlatformType.WebGpu;
   void SwitchPlatform() //if in Android mode, automatically "remove~" all unnecessary folders when generating APK.
   {
     var android_folders = new List<string> { "Editor", "GS" };
 
-    if (info_platform.index == 1 && !isAndroid)
+    if (isAndroidSelected && !isAndroid)
     {
       $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
       $"{AssetsPath}Models.meta".DeleteFile();
@@ -2943,26 +2989,35 @@ $"\n    {m_name}_To_UI();",
       $"{AssetsPath}Plugins/Chrome.meta".DeleteFile();
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
     }
-    else if (info_platform.index == 0 && isAndroid)
+    else if (isWindowsSelected && !isWindows)
     {
       $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
       $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
       EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
     }
-    bool isPhone = info_platform.index == 1;
+    else if (isWebGpuSelected && !isWebGpu)
+    {
+      $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
+      $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
+      EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.WebGL);
+    }
+    exe_Apk.style.display = DisplayIf(isAndroidSelected || isWebGpu);
+    exe_Apk_CMake.style.display = DisplayIf(isAndroidSelected && Show_exe_Apk_CMake);
 
-    exe_Apk.style.display = DisplayIf(isPhone);
-    exe_Apk_CMake.style.display = DisplayIf(isPhone && Show_exe_Apk_CMake);
-    exe_Parent.style.display = HideIf(isPhone);
-    exe_Build.style.display = HideIf(isPhone);
-    exe_Debug.style.display = HideIf(isPhone && !exe_Build.value);
-    exe_Run.style.display = HideIf(isPhone);
-    exe_Exe.style.display = HideIf(isPhone);
-    exe_Setup.style.display = HideIf(isPhone);
-    company.style.display = DisplayIf(isPhone);
-    password.style.display = DisplayIf(isPhone);
-    android_phonePath.style.display = DisplayIf(isPhone);
+
+    exe_Parent.style.display = DisplayIf(isWindowsSelected);
+    exe_Build.style.display = DisplayIf(isWindowsSelected || isWebGpu);
+    exe_Debug.style.display = DisplayIf((isWindowsSelected || isWebGpu) && exe_Build.value);
+    exe_Run.style.display = DisplayIf(isWindowsSelected || isWebGpu);
+    exe_Exe.style.display = DisplayIf(isWindowsSelected);
+    exe_Setup.style.display = DisplayIf(isWindowsSelected);
+
+    info.style.display = DisplayIf(isAndroidSelected);
+    company.style.display = DisplayIf(isAndroidSelected);
+    password.style.display = DisplayIf(isAndroidSelected);
+    android_phonePath.style.display = DisplayIf(isAndroidSelected);
   }
+
 
   #region Count Lines
   uint2 fileN = u00;
@@ -3219,16 +3274,32 @@ $"\n    {m_name}_To_UI();",
   public void exe_Apk_clicked(ClickEvent evt = null) { StartCoroutine(Apk_Coroutine()); }
   IEnumerator Apk_Coroutine()
   {
-    BuildPlayerOptions buildPlayerOptions = BuildSettings();
-    PlayerSettings.SetIl2CppCompilerConfiguration(NamedBuildTarget.Android, Il2CppCompilerConfiguration.Release);
-    PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, Il2CppCodeGeneration.OptimizeSpeed);
-    string packageName = "com." + $"{company.text}.{appName}_{exe_Version.text}".ReplaceAll(".", "_", " ", "_");
-    PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, packageName);
-    buildPlayerOptions.locationPathName = $"{appName}/{appName}.apk";
-    buildPlayerOptions.target = BuildTarget.Android;
-    buildPlayerOptions.options = BuildOptions.AutoRunPlayer;
-    yield return null;
-    Build_Report(buildPlayerOptions);
+    if (isAndroid)
+    {
+      BuildPlayerOptions buildPlayerOptions = BuildSettings();
+      PlayerSettings.SetIl2CppCompilerConfiguration(NamedBuildTarget.Android, exe_Debug_val ? Il2CppCompilerConfiguration.Debug : Il2CppCompilerConfiguration.Release);
+      PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.Android, Il2CppCodeGeneration.OptimizeSpeed);
+      string packageName = "com." + $"{company.text}.{appName}_{exe_Version.text}".ReplaceAll(".", "_", " ", "_");
+      PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, packageName);
+      buildPlayerOptions.locationPathName = $"{appName}/{appName}.apk";
+      buildPlayerOptions.target = BuildTarget.Android;
+      buildPlayerOptions.options = BuildOptions.AutoRunPlayer;
+      yield return null;
+      Build_Report(buildPlayerOptions);
+    }
+    else if (isWebGpu)
+    {
+      BuildPlayerOptions buildPlayerOptions = BuildSettings();
+      PlayerSettings.SetIl2CppCompilerConfiguration(NamedBuildTarget.WebGL, exe_Debug_val ? Il2CppCompilerConfiguration.Debug : Il2CppCompilerConfiguration.Release);
+      PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSpeed);
+      string packageName = "com." + $"{company.text}.{appName}_{exe_Version.text}".ReplaceAll(".", "_", " ", "_");
+      PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.WebGL, packageName);
+      buildPlayerOptions.locationPathName = $"{appName}/{appName}.apk";
+      buildPlayerOptions.target = BuildTarget.WebGL;
+      buildPlayerOptions.options = BuildOptions.AutoRunPlayer;
+      yield return null;
+      Build_Report(buildPlayerOptions);
+    }
   }
   public bool Show_exe_Apk_CMake => $@"C:\Program Files\Unity\Hub\Editor\{UnityVersion}\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\cmake".DoesNotExist();
   public void exe_Apk_CMake_clicked(ClickEvent evt = null)
