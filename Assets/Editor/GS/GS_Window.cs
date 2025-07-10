@@ -135,12 +135,6 @@ public class GS_Window : EditorWindow
             var method = GetType().GetMethod(fld.Name + "_clicked", bindings);
             button?.RegisterCallback<ClickEvent>((evt) => { method?.Invoke(this, new object[] { evt }); });
           }
-          //else if (type == typeof(VisualElement))
-          //{
-          //  var visualElement = (VisualElement)element;
-          //  var method = GetType().GetMethod(fld.Name + "_clicked", bindings);
-          //  button?.RegisterCallback<ClickEvent>((evt) => { method?.Invoke(this, new object[] { evt }); });
-          //}
         }
     info_platform.RegisterValueChangedCallback((evt) => { SwitchPlatform(); });
     CodeCount.RegisterCallback<ClickEvent>(CodeCount_clicked);
@@ -536,6 +530,85 @@ public class GS_Window : EditorWindow
 
     public virtual string uxml_filename => $"{AssemblyPath(gsName)}{gsName}_UXML.uxml";
 
+#if NEW_UI
+    public UI_Element Get_ui_items()
+    {
+      in_Get_ui_items = true;
+      var items = new List<VisualElement>();
+
+      gameObject ??= FindOrCreate_GameObject(gsName);
+      _gs ??= gameObject.GetComponent<_GS>();
+      gs ??= gameObject.GetComponent<GS>();
+
+      UI_Element e = new UI_Element() { _gs = _gs, gs = gs, root = root };
+      _gs_members = (gsName + "_GS").GetOrderedMembers();
+
+      Stack<string> treeGrps = new();
+      foreach (var member in _gs_members)
+      {
+        e.memberInfo = member;
+        e._GS_memberType = member.GetMemberType();
+        var declaringType = member.DeclaringType;
+        e._GS_fieldType = member.IsFld() ? e._GS_memberType : null;
+        e._GS_propType = member.IsProp() ? e._GS_memberType : null;
+        e.methodInfo = member.IsMethod() ? member.Method() : null;
+        e.attGS = member.AttGS();
+        e.isExternalLib = member.isExternal_Lib();
+        //generate e.uxml if is element, otherwise generate e.uxml for library. Then everything will be in the correct order.
+        bool isRenderMethod = member.IsMethod() && e.attGS != null && e.attGS.isGS_Render;
+        string typeStr = e._GS_memberType.ToString();
+        if (typeStr.StartsWith("GpuScript.")) typeStr = typeStr.After("GpuScript.");
+
+        if (typeStr == "class")
+        {
+          _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
+          Type[] classTypes = _GS_nestedTypes.Where(t => !t.IsValueType && !t.IsEnum).Select(t => t).ToArray();
+          e._GS_fieldType = classTypes.First(a => a.Name.After("+") == member.Name);
+        }
+
+
+        if (!e.isExternalLib && e.attGS != null && member.Name != "class" && !isRenderMethod && !e.attGS.GroupShared)
+        {
+          //e.treeGroup = treeGrps.Peek()?.memberInfo;
+          e.tree = treeGrps.Count == 0 ? "" : treeGrps.Peek();
+          UI_VisualElement.UXML_UI_Element(e, _gs_members);
+          //if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(e); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
+          if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(member.Name); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
+        }
+        else if (e.isExternalLib) //if is a library, insert UI
+        {
+          string uxml_file = $"{AssemblyPath(e._GS_memberType.ToString())}{e._GS_memberType}_UXML.uxml", ui0 = "<GpuScript.UI_GS ", ui1 = "</GpuScript.UI_GS>";
+          if (uxml_file.Exists())
+          {
+            string lib_t = uxml_file.ReadAllText(), lib_ui0 = "UI_TreeGroup_Level=\"", lib_ui1 = "\"";
+            if (lib_t.ContainsAll(ui0))
+            {
+              lib_t = lib_t.After(ui0).AfterIncluding("\n").BeforeLast(ui1).BeforeLast("\n");
+              int treeLevel_offset = 0;
+              var treeLevels = new List<int>();
+              for (int i = 0; i < _gs_members.Length; i++)
+              {
+                if (_gs_members[i].IsType(typeof(TreeGroup))) { treeLevel_offset++; treeLevels.Add(i); }
+                else if (_gs_members[i].IsType(typeof(TreeGroupEnd))) { treeLevel_offset--; treeLevels.RemoveAt(treeLevels.Count - 1); }
+                else if (_gs_members[i].IsType(e._GS_memberType)) break;
+              }
+              while (lib_t.Contains("UI_TreeGroup_Level=\""))
+              {
+                int treeLevel = lib_t.Between(lib_ui0, lib_ui1).To_int();
+                e.uxml.Add(lib_t.BeforeIncluding(lib_ui0), treeLevel + treeLevel_offset, lib_ui1);
+                if (treeLevel == 0) e.uxml.Add($" UI_TreeGroup_Parent=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
+                lib_t = lib_t.After(lib_ui0).After(lib_ui1);
+              }
+              e.uxml.Add(lib_t);
+            }
+          }
+        }
+      }
+      ui_items = items.ToArray();
+      in_Get_ui_items = false;
+      return e;
+    }
+#else
     public UI_Element Get_ui_items()
     {
       in_Get_ui_items = true;
@@ -558,8 +631,7 @@ public class GS_Window : EditorWindow
         e.methodInfo = member.IsMethod() ? member.Method() : null;
         e.attGS = member.AttGS();
         e.isExternalLib = member.isExternal_Lib();
-        //generate e.uxml if is element, otherwise generate e.uxml for library. Then everything will be in the correct order.
-        bool isRenderMethod = member.IsMethod() && e.attGS != null && e.attGS.isGS_Render;
+        bool isRenderMethod = member.IsMethod() && e.attGS != null && e.attGS.isGS_Render;//generate e.uxml if is element, otherwise generate e.uxml for library. Then everything will be in the correct order.
         string typeStr = e._GS_memberType.ToString();
         if (typeStr.StartsWith("GpuScript.")) typeStr = typeStr.After("GpuScript.");
 
@@ -604,6 +676,7 @@ public class GS_Window : EditorWindow
       in_Get_ui_items = false;
       return e;
     }
+#endif
 
     public IEnumerator Build_UXML_Coroutine()
     {
@@ -1156,7 +1229,6 @@ public class GS_Window : EditorWindow
           libI = libNames.Select((a, i) => new { a, i }).Where(a => m.methodName.After("vert_").StartsWith(a.a + "_")).Select(a => a.i).FirstOrDefault();
           var elseStr = i == 0 ? "" : "else ";
           if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;");
-          //vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) {{ o = {m.methodName}(i, j, o); o.tj.x = {libI}; }}");
           vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) o = {m.methodName}(i, j, o);");
           string methodDeclaration = $"public virtual v2f {m.methodName}(uint i, uint j, v2f o)";
           if (regions.DoesNotContain(methodDeclaration)) virtual_verts.Add($"\n  {methodDeclaration} => o;");
@@ -1811,6 +1883,7 @@ $"\n    {m_name}_To_UI();",
       "\n    if(data == null) return false;",
       "\n    foreach (var fld in data.GetType().GetFields(bindings)) if (fld != null && fld.FieldType == typeof(TreeGroup) && fld.GetValue(data) == null) fld.SetValue(data, new TreeGroup() { isChecked = true });",
       "\n    data_to_ui();", Load_UI,
+      "\n#if !NEW_UI",
       "\n    if (lib_parent_gs == this)",
       "\n    {",
       "\n      foreach (var lib in GetComponents<GS>())",
@@ -1820,6 +1893,7 @@ $"\n    {m_name}_To_UI();",
       "\n          lib.Load_UI();",
       "\n        }",
       "\n    }",
+      "\n#endif //!NEW_UI",
       "\n    ui_loaded = true;",
       "\n    return true;",
       "\n  }",
@@ -1851,9 +1925,8 @@ $"\n    {m_name}_To_UI();",
       compute_or_material_shader, kernels_,
       vertCode, virtual_verts, renderObject, fragCode,
       "\n}");
-
-      // if lib overrides an OnGrid method, add "base_" prefix to OnGrid method. Same for dataWrappers
-      var matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override)?)\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|#region|#endregion|\r\n}|\n})";
+     
+      var matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override)?)\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|#region|#endregion|\r\n}|\n})"; // if lib overrides an OnGrid method, add "base_" prefix to OnGrid method. Same for dataWrappers
       MatchCollection _cs_matches = _cs.ToString().RegexMatch(matchStr), lib_matches = _cs_lib_regions.ToString().RegexMatch(matchStr);
       var _cs_methods = new List_method_data();
       foreach (Match _cs_match in _cs_matches) { var _cs_m = new method_data("", _cs_match); if (_cs_m.name.DoesNotStartWithAny("Cpu_", "Gpu_")) _cs_methods.Add(_cs_m); }
@@ -2313,7 +2386,8 @@ $"\n    {m_name}_To_UI();",
     "\n    o.pos = o.color = o.tj = o.tk = f0000; o.normal = o.p0 = o.p1 = o.wPos = f000; o.uv = f00; o.ti = float4(i, j, 0, 0);",
     "\n    return vert_GS(i, j, o);",
     "\n  }");
-      shaderCode.Add(cginc, Enums_cginc, consts_cginc, Shader_Enums, compute_gStruct, declare_structs, compute_RWStructuredBuffers, compute_or_material_shader, "\n  Texture2D _PaletteTex;");
+      //shaderCode.Add(cginc, Enums_cginc, consts_cginc, Shader_Enums, compute_gStruct, declare_structs, compute_RWStructuredBuffers, compute_or_material_shader, "\n  Texture2D _PaletteTex;");
+      shaderCode.Add(cginc, Shader_Enums, compute_gStruct, declare_structs, compute_RWStructuredBuffers, compute_or_material_shader, "\n  Texture2D _PaletteTex;");
       var s = StrBldr().Add(
     $"Shader \"gs/{gsName}\"",
     "\n{",
@@ -2367,11 +2441,7 @@ $"\n    {m_name}_To_UI();",
             paletteTex.SetValue(script, palette);
           }
         }
-        catch (Exception)// e)
-        {
-          //Texture2D palette = "Assets/GS/Resources/Palettes/Rainbow.png".LoadAssetAtPath<Texture2D>();
-          //paletteTex.SetValue(script, palette);
-        }
+        catch (Exception) { }
       }
     }
 
@@ -2936,44 +3006,12 @@ $"\n    {m_name}_To_UI();",
       if (f.DoesNotContainAny("/gsQuandl/"))
         exportPaths.Add($"Assets{f.BeforeLast("/")}");
     }
-    AssetDatabase.ExportPackage(exportPaths.ToArray(), pkgFile, ExportPackageOptions.Recurse); // | ExportPackageOptions.IncludeDependencies);
+    AssetDatabase.ExportPackage(exportPaths.ToArray(), pkgFile, ExportPackageOptions.Recurse);
     dataPath.Run();
   }
 
   #endregion Package
 
-  //void SwitchPlatform() //if in Android mode, automatically "remove~" all unnecessary folders when generating APK.
-  //{
-  //  var android_folders = new List<string> { "Editor", "GS" };
-
-  //  if (info_platform.index == 1 && !isAndroid)
-  //  {
-  //    $"{AssetsPath}Models/".Rename($"{AssetsPath}Models~/");
-  //    $"{AssetsPath}Models.meta".DeleteFile();
-  //    $"{AssetsPath}Plugins/Chrome/".Rename($"{AssetsPath}Plugins/Chrome~/");
-  //    $"{AssetsPath}Plugins/Chrome.meta".DeleteFile();
-  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
-  //  }
-  //  else if (info_platform.index == 0 && isAndroid)
-  //  {
-  //    $"{AssetsPath}Models~/".Rename($"{AssetsPath}Models/");
-  //    $"{AssetsPath}Plugins/Chrome~/".Rename($"{AssetsPath}Plugins/Chrome/");
-  //    EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
-  //  }
-  //  bool isPhone = info_platform.index == 1;
-
-  //  exe_Apk.style.display = DisplayIf(isPhone);
-  //  exe_Apk_CMake.style.display = DisplayIf(isPhone && Show_exe_Apk_CMake);
-  //  exe_Parent.style.display = HideIf(isPhone);
-  //  exe_Build.style.display = HideIf(isPhone);
-  //  exe_Debug.style.display = HideIf(isPhone && !exe_Build.value);
-  //  exe_Run.style.display = HideIf(isPhone);
-  //  exe_Exe.style.display = HideIf(isPhone);
-  //  exe_Setup.style.display = HideIf(isPhone);
-  //  company.style.display = DisplayIf(isPhone);
-  //  password.style.display = DisplayIf(isPhone);
-  //  android_phonePath.style.display = DisplayIf(isPhone);
-  //}
   bool isWindowsSelected => info_platform.index == (int)PlatformType.Windows;
   bool isAndroidSelected => info_platform.index == (int)PlatformType.Android;
   bool isWebGpuSelected => info_platform.index == (int)PlatformType.WebGpu;

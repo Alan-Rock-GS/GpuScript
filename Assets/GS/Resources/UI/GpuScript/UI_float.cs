@@ -1,14 +1,73 @@
 using System;
 using System.Reflection;
+using UnityEngine;
 using UnityEngine.UIElements;
 using static GpuScript.GS;
 
 namespace GpuScript
 {
-	public class UI_float : UI_Slider_base
-	{
-		public float Slider_Pow_Val(float v) => clamp(round(is_Pow2_Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), range_Min, range_Max);
-		public float Slider_Log_Val(float v) => is_Pow2_Slider ? log10(abs(clamp(round(v, GetNearest(v)), range_Min, range_Max)) * 0.999f + 1) : v;
+#if NEW_UI
+  [UxmlElement]
+  public partial class UI_float : UI_Slider_base
+  {
+    public override bool Init(GS gs, params GS[] gss)
+    {
+      if (!base.Init(gs, gss)) return false;
+      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+      SliderV = v = val.To_float(); rangeMin = RangeMin.To_float(); rangeMax = RangeMax.To_float();
+      if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
+      return true;
+    }
+    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+    {
+      if (att == null) return;
+      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+      e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
+    }
+#elif !NEW_UI
+  public class UI_float : UI_Slider_base
+  {
+    public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_float(); return true; }
+    public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,
+      string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
+    {
+      base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
+      this.rangeMin = rangeMin.To_float(); this.rangeMax = rangeMax.To_float(); SliderV = val.To_float();
+      if (siUnit != siUnit.Null) { this.rangeMin *= convert(siUnit); this.rangeMax *= convert(siUnit); }
+    }
+    public new class UxmlFactory : UxmlFactory<UI_float, UxmlTraits> { }
+    public new class UxmlTraits : UI_VisualElement.UxmlTraits
+    {
+      UxmlStringAttributeDescription m_float_value = new UxmlStringAttributeDescription { name = "UI_float_value" };
+      UxmlStringAttributeDescription m_float_min = new UxmlStringAttributeDescription { name = "UI_float_min" };
+      UxmlStringAttributeDescription m_float_max = new UxmlStringAttributeDescription { name = "UI_float_max" };
+      UxmlStringAttributeDescription m_float_siFormat = new UxmlStringAttributeDescription { name = "UI_float_siFormat", defaultValue = "0.0000" };
+      UxmlStringAttributeDescription m_float_usFormat = new UxmlStringAttributeDescription { name = "UI_float_usFormat", defaultValue = "0.0000" };
+      UxmlStringAttributeDescription m_float_siUnit = new UxmlStringAttributeDescription { name = "UI_float_siUnit", defaultValue = "" };
+      UxmlStringAttributeDescription m_float_usUnit = new UxmlStringAttributeDescription { name = "UI_float_usUnit", defaultValue = "" };
+      UxmlStringAttributeDescription m_float_Unit = new UxmlStringAttributeDescription { name = "UI_float_Unit", defaultValue = "" };
+
+      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
+      {
+        base.Init(ve, bag, cc);
+        ((UI_float)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
+          m_float_value.GetValueFromBag(bag, cc), m_float_min.GetValueFromBag(bag, cc), m_float_max.GetValueFromBag(bag, cc),
+          m_float_siUnit.GetValueFromBag(bag, cc), m_float_usUnit.GetValueFromBag(bag, cc), m_float_Unit.GetValueFromBag(bag, cc),
+          m_float_siFormat.GetValueFromBag(bag, cc), m_float_usFormat.GetValueFromBag(bag, cc),
+          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
+          m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
+          m_TreeGroup_Parent.GetValueFromBag(bag, cc));
+      }
+    }
+		public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+		{
+			if (att == null) return;
+			UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+			e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
+		}
+#endif //NEW_UI
+    public float Slider_Pow_Val(float v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
+		public float Slider_Log_Val(float v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
 		public float SliderV { get => sliders[0] == null ? default : Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) sliders[0].value = Slider_Log_Val(value); } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
 		public UI_float() : base() { }
@@ -16,7 +75,6 @@ namespace GpuScript
 		public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_float())) { OnTextFieldChanged(o); previousValue = o.value.To_float(); changed = false; } } }
 		public static Type Get_Base_Type() => typeof(float);
 		public static bool IsType(Type type) => type == typeof(float);
-		public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_float(); return true; }
 		public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged, StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
 		{
 			StackFields(tData, typeStr, name);
@@ -26,12 +84,6 @@ namespace GpuScript
 		public static string className => MethodBase.GetCurrentMethod().DeclaringType.ToString().After("GpuScript.");
 		public static void UXML_UI_Element(UI_Element e) { UXML(e, e.attGS, e.memberInfo.Name, e.attGS.Name, className); e.uxml.Add($" />"); }
 		public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName) { UI_Slider_base.UXML(e, att, name, label, className); }
-		public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-		{
-			if (att == null) return;
-			UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-			e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-		}
 		public float _v0 = default;
 		public float _si; public float si { get => _si; set => v = value; }
 		public void Text(float val)
@@ -47,7 +99,7 @@ namespace GpuScript
 			set
 			{
 				if (any(isnan(value)) || any(isinf(value))) return;
-				var val = is_Pow10 ? round(pow10(round(log10(value)))) : is_Pow2 ? round(pow2(round(log2(value)))) : value;
+				var val = isPow10 ? round(pow10(round(log10(value)))) : isPow2 ? round(pow2(round(log2(value)))) : value;
 				if (Nearest > 0) val = round(val, Nearest);
 				Text(val);
 				_si = val;
@@ -62,9 +114,9 @@ namespace GpuScript
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null && textField != null)
 				textField.value = (siUnits ? iconvert(si / siConvert) : convert(si / siConvert)).ToString(format);
 		}
-		public override bool hasRange { get => range_Min < range_Max; }
-		float _range_Min; public float range_Min { get => _range_Min; set { _range_Min = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(_range_Min); } }
-		float _range_Max; public float range_Max { get => _range_Max; set { _range_Max = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(_range_Max); } }
+		public override bool hasRange { get => rangeMin < rangeMax; }
+		float _rangeMin; public float rangeMin { get => _rangeMin; set { _rangeMin = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(_rangeMin); } }
+		float _rangeMax; public float rangeMax { get => _rangeMax; set { _rangeMax = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(_rangeMax); } }
 
 		public float previousValue;
 		public override void OnValueChanged(ChangeEvent<float> evt)
@@ -85,40 +137,8 @@ namespace GpuScript
 			_si = val;
 			SliderV = val;
 		}
-		public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,
-			string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
-		{
-			base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
-			range_Min = rangeMin.To_float(); range_Max = rangeMax.To_float(); SliderV = val.To_float();
-			if (siUnit != siUnit.Null) { range_Min *= convert(siUnit); range_Max *= convert(siUnit); }
-		}
 
-		public new class UxmlFactory : UxmlFactory<UI_float, UxmlTraits> { }
-		public new class UxmlTraits : UI_VisualElement.UxmlTraits
-		{
-			UxmlStringAttributeDescription m_float_value = new UxmlStringAttributeDescription { name = "UI_float_value" };
-			UxmlStringAttributeDescription m_float_min = new UxmlStringAttributeDescription { name = "UI_float_min" };
-			UxmlStringAttributeDescription m_float_max = new UxmlStringAttributeDescription { name = "UI_float_max" };
-			UxmlStringAttributeDescription m_float_siFormat = new UxmlStringAttributeDescription { name = "UI_float_siFormat", defaultValue = "0.0000" };
-			UxmlStringAttributeDescription m_float_usFormat = new UxmlStringAttributeDescription { name = "UI_float_usFormat", defaultValue = "0.0000" };
-			UxmlStringAttributeDescription m_float_siUnit = new UxmlStringAttributeDescription { name = "UI_float_siUnit", defaultValue = "" };
-			UxmlStringAttributeDescription m_float_usUnit = new UxmlStringAttributeDescription { name = "UI_float_usUnit", defaultValue = "" };
-			UxmlStringAttributeDescription m_float_Unit = new UxmlStringAttributeDescription { name = "UI_float_Unit", defaultValue = "" };
-
-			public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-			{
-        base.Init(ve, bag, cc);
-				((UI_float)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-					m_float_value.GetValueFromBag(bag, cc), m_float_min.GetValueFromBag(bag, cc), m_float_max.GetValueFromBag(bag, cc),
-					m_float_siUnit.GetValueFromBag(bag, cc), m_float_usUnit.GetValueFromBag(bag, cc), m_float_Unit.GetValueFromBag(bag, cc),
-					m_float_siFormat.GetValueFromBag(bag, cc), m_float_usFormat.GetValueFromBag(bag, cc),
-					m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-					m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
-          m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-			}
-		}
-
-		public float2 range { get => float2(range_Min, range_Max); set { range_Min = value.x; range_Max = value.y; } }
+		public float2 range { get => float2(rangeMin, rangeMax); set { rangeMin = value.x; rangeMax = value.y; } }
 		public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }
 
 		public static implicit operator float(UI_float f) => f.si;

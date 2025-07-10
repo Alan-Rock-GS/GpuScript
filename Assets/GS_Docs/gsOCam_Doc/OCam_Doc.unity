@@ -2685,6 +2685,7 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    legendWidthRatio: 0
     tiltSpin:
       x: 0
       y: 0
@@ -2710,7 +2711,6 @@ MonoBehaviour:
     legendAxisTitle: 
     legendFormat: 
     legendSphereTitles: 
-    legendViewWidthPixels: 0
   g:
     BDraw_ABuff_IndexN: 0
     BDraw_ABuff_BitN: 0
@@ -2730,7 +2730,6 @@ MonoBehaviour:
     displayLegend: 0
     displayLegendPalette: 0
     paletteType: 0
-    legendViewWidthPixels: 0
     displayLegendBackground: 0
     legendSphereN: 0
     legendPaletteN: 0
@@ -2741,6 +2740,7 @@ MonoBehaviour:
     distSpeed: 0
     orthoSize: 0
     legendViewWidth: 0
+    legendWidthRatio: 0
     BDraw_boxColor:
       x: 0
       y: 0

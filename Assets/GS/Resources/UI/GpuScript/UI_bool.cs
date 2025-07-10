@@ -4,8 +4,59 @@ using UnityEngine.UIElements;
 
 namespace GpuScript
 {
+
+#if NEW_UI
+  [UxmlElement]
+  public partial class UI_bool : UI_VisualElement
+  {
+    public override bool Init(GS gs, params GS[] gss)
+    {
+      if (!base.Init(gs, gss)) return false;
+      base.Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
+      v = toggle.value;
+      //headerLabel?.HideIf(label.IsEmpty() || isGrid);
+      return true;
+    }
+    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+    {
+      if (att == null) return;
+      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+      e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
+    }
+    public override bool _isGrid { get => base._isGrid; set { base._isGrid = value; headerLabel?.HideIf(label.IsEmpty() || isGrid); } }
+#elif !NEW_UI
   public class UI_bool : UI_VisualElement
   {
+    public override bool Init(GS gs, params GS[] gss)
+    {
+      if (!base.Init(gs, gss)) return false;
+      v = toggle.value;
+      return true;
+    }
+    public void Build(string title, string description, bool val, bool isReadOnly, bool isGrid, string treeGroup_parent)
+    {
+      base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
+      toggle.value = val;
+      headerLabel?.HideIf(label.IsEmpty() || isGrid);
+    }
+    public new class UxmlFactory : UxmlFactory<UI_bool, UxmlTraits> { }
+    public new class UxmlTraits : UI_VisualElement.UxmlTraits
+    {
+      UxmlBoolAttributeDescription m_bool_Val = new UxmlBoolAttributeDescription { name = "UI_bool_value", defaultValue = false };
+      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
+      {
+        base.Init(ve, bag, cc);
+        ((UI_bool)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc), m_bool_Val.GetValueFromBag(bag, cc),
+          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
+      }
+    }
+    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+    {
+      if (att == null) return;
+      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
+    }
+#endif //NEW_UI
     public Label headerLabel;
     public VisualElement toggle_container;
     public Toggle toggle;
@@ -31,12 +82,6 @@ namespace GpuScript
     }
     public static Type Get_Base_Type() { return typeof(bool); }
     public static bool IsType(Type type) { return type == typeof(bool); }
-    public override bool Init(GS gs, params GS[] gss)
-    {
-      if (!base.Init(gs, gss)) return false;
-      v = toggle.value;
-      return true;
-    }
     public new static void _cs_Write(GS gs, StrBldr tData, StrBldr lateUpdate, StrBldr lateUpdate_ValuesChanged,
       StrBldr showIfs, StrBldr onValueChanged, AttGS attGS, string typeStr, string name)
     {
@@ -50,18 +95,6 @@ namespace GpuScript
     {
       UI_VisualElement.UXML(e, att, name, label, className);
       if (att.Val != null) e.uxml.Add($" {className}_value=\"{att.Val}\"");
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-    }
-    public void Build(string title, string description, bool val, bool isReadOnly, bool isGrid, string treeGroup_parent)
-    {
-      base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
-      toggle.value = val;
-      headerLabel?.HideIf(label.IsEmpty() || isGrid);
     }
     public override string label { get => base.label; set { base.label = value; if (headerLabel != null) headerLabel.text = value; } }
     public bool previousValue;
@@ -87,16 +120,5 @@ namespace GpuScript
     void OnValueChanged(ChangeEvent<bool> evt) { previousValue = evt.previousValue; v = evt.newValue; property?.SetValue(gs, v); }
 
     public override bool Changed { get => v != previousValue; set => previousValue = value ? !v : v; }
-    public new class UxmlFactory : UxmlFactory<UI_bool, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlBoolAttributeDescription m_bool_Val = new UxmlBoolAttributeDescription { name = "UI_bool_value", defaultValue = false };
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_bool)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc), m_bool_Val.GetValueFromBag(bag, cc),
-          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
   }
 }

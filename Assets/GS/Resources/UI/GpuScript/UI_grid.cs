@@ -9,26 +9,158 @@ using static GpuScript.GS;
 
 namespace GpuScript
 {
-  //[UxmlElement]
+#if NEW_UI
+  [UxmlElement]
+  public partial class UI_grid : UI_VisualElement
+  {
+    [UxmlAttribute] public uint dispRows { get; set; }
+    public bool isExpanded;
+    [UxmlAttribute] public bool isClass { get; set; }
+    public override bool Init(GS gs, params GS[] gss)
+    {
+      if (!base.Init(gs, gss)) return false;
+      uiGrid = gs.root?.Q<UI_grid>(name);
+      grid_Container = uiGrid?.Q<VisualElement>("Grid_Container");
+      header_Row = grid_Container?.Q<VisualElement>("Header_Row");
+      expandButton = header_Row?.Q<Button>("Expand_Button");
+      expandButton.RegisterCallback<ClickEvent>(expandButton_Clicked);
+      header_Buttons_Container = header_Row?.Q<VisualElement>("Header_Buttons_Container");
+      headerButtons = header_Buttons_Container.Query<UI_grid_header>().ToList();
+      headerButtons.ForEach(a => a.Init(gs));
+
+      for (int i = 0; i < headerButtons.Count; i++)
+      {
+        var headerButton = headerButtons[i];
+        headerButton.RegisterCallback<ClickEvent>((evt) => OnHeaderButtonClicked(evt));
+      }
+      footer_Container = grid_Container?.Q<VisualElement>("Footer_Container");
+      addRowButton = footer_Container?.Q<Button>("AddRow_Button");
+
+      addRowButton.UnregisterCallback<ClickEvent>(addRowButton_Clicked);
+      addRowButton.RegisterCallback<ClickEvent>(addRowButton_Clicked);
+
+      displayRows = grid_Container?.Query<VisualElement>().Where(a => a.name.StartsWith("Row_")).ToList();
+      RowItems = new List<List<UI_VisualElement>>();
+      rowNumberButtons = new List<Button>();
+      for (int i = 0; i < displayRows.Count; i++)
+      {
+        var displayRow = displayRows[i];
+        rowNumberButtons.Add(displayRow.Q<Button>("Number_Button"));
+        var rowNumber = rowNumberButtons[i];
+        rowNumber.RegisterCallback<ClickEvent>((evt) => OnRowNumberButtonClicked(evt));
+        rowNumber.RegisterCallback<KeyDownEvent>((evt) => OnRowNumberKeyDown(evt));
+        rowNumber.RegisterCallback<KeyUpEvent>((evt) => OnRowNumberKeyUp(evt));
+        RowItems.Add(displayRow.Query<UI_VisualElement>().ToList());
+        for (int j = 0; j < RowItems[i].Count; j++) { var item = RowItems[i][j]; item.RegisterGridCallbacks(gs, this, i, j); }
+      }
+      displayColumns = footer_Container.Query<UI_bool>().ToList();
+      displayColumns.ForEach(a => a.toggle.RegisterValueChangedCallback(OnDisplayColumnValueChanged));
+      displayColumns.ForEach(a => a.toggle.RegisterCallback<MouseEnterEvent>(OnMouseEnter));
+      displayColumns.ForEach(a => a.toggle.RegisterCallback<MouseLeaveEvent>(OnMouseLeave));
+
+      dispRowN = footer_Container.Query<UI_uint>();
+      dispRowN.gs = gs;
+      dispRowN.textField.RegisterValueChangedCallback(dispRowN_OnTextFieldChanged);// On_dispRowN_Changed);
+#if UNITY_STANDALONE_WIN
+      dispRowN.textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
+#endif //UNITY_STANDALONE_WIN
+      dispRowN.textField.RegisterValueChangedCallback(dispRowN.OnValueChanged);
+      dispRowN.textField.RegisterCallback<FocusOutEvent>(dispRowN.OnFocusOut);
+      dispRowN.textField.RegisterCallback<MouseCaptureEvent>(dispRowN.OnMouseCaptureEvent);
+      dispRowN.textField.RegisterCallback<MouseCaptureOutEvent>(dispRowN.OnMouseCaptureOutEvent);
+      dispRowN.v = (uint)DisplayRowN;
+
+      VScroll = uiGrid?.Q<Scroller>(); VScroll.lowValue = 0; VScroll.highValue = 1000000;
+      VScroll.RegisterCallback<ChangeEvent<float>>(OnVScrollChanged);
+      VScroll.RegisterCallback<FocusInEvent>(OnSliderFocusIn);
+      VScroll.RegisterCallback<FocusOutEvent>(OnSliderFocusOut);
+      this.gs ??= gs;
+      DrawGrid();
+      return true;
+    }
+    public UI_grid(string gridName, string gridLabel, string gridDescription, UI_TreeGroup gridParent, int index,
+      int displayRowN, GS gs, Func<int> rowN,
+      string[] fldNames, object[] ranges, string[] formats = null, bool[] displayCols = null) : base() { }
+
+    public static void UXML(UI_Element e, AttGS att, string name, string label, string typeName, MemberInfo[] _gs_members)
+    {
+      string fTypeStr = e._GS_memberType.ToString().Before("[]");
+      bool isClass = e._GS_memberType.IsClass;
+      var classMembers = fTypeStr.GetOrderedMembers();
+      uint displayRowN = GS.clamp((uint)att.DisplayRowN, 1, 32), maxRowN = 100;
+      float buttonWidth = GS.floor(GS.min(2, GS.log10(maxRowN) + 1)) * 10;
+      //e.uxml.Add($" style=\"flex-grow: 0; flex-direction: row; width: auto; flex-wrap: nowrap; flex-shrink: 1;\" UI_grid_DisplayRowN=\"{displayRowN}\" UI_grid_isClass=\"{isClass}\">");
+      e.uxml.Add($" style=\"flex-grow: 0; flex-direction: row; width: auto; flex-wrap: nowrap; flex-shrink: 1;\" disp-rows=\"{displayRowN}\" is-class=\"{isClass}\">");
+      UXML(e, 1, "<ui:VisualElement name=\"Grid_Container\" style=\"flex-grow: 0;\">");
+      {
+        UXML(e, 1, "<ui:VisualElement name=\"Header_Row\" style=\"flex-grow: 0; height: 20px; flex-direction: row;\">");
+        {
+          UXML(e, 1, $"<ui:Button text=\"{e.attGS.Name}...\" name=\"Expand_Button\" style=\"width: 150px; -unity-text-align: middle-center;\" />");
+          UXML(e, 0, "<ui:VisualElement name=\"Header_Buttons_Container\" style=\"flex-grow: 0; flex-direction: row; display: none;\">");
+          //UXML(e, 0, "<ui:VisualElement name=\"Header_Buttons_Container\" style=\"flex-grow: 0; flex-direction: row; display: flex;\">");
+          {
+            e.uxml_level++;
+            uint rowI = 0;
+            foreach (var classMember in classMembers)
+            {
+              var attGS = classMember.AttGS();
+              StrBldr units = new StrBldr();
+              if (attGS.siUnit != siUnit.Null) units.Add($" UI_grid_header_siUnit=\"{attGS.siUnit}\"");
+              if (attGS.usUnit != usUnit.Null) units.Add($" UI_grid_header_usUnit=\"{attGS.usUnit}\"");
+              if (attGS.Unit != Unit.Null) units.Add($" UI_grid_header_Unit=\"{attGS.Unit}\"");
+              UXML(e, 0, $"<GpuScript.UI_grid_header label=\"{attGS.Name}\" name=\"grid_header_Button_{classMember.Name}\" style=\"width: {buttonWidth}px; flex-grow: 0; flex-direction: column; display: flex;\"{units} />");
+              rowI++;
+            }
+          }
+          UXML(e, -1, "</ui:VisualElement>");
+        }
+        UXML(e, -1, "</ui:VisualElement>");
+
+        for (uint rowI = 0; rowI < 20; rowI++)
+        {
+          UXML(e, 0, $"<ui:VisualElement name=\"Row_{rowI + 1}\" style=\"flex-direction: row; display: none;\">");
+          //UXML(e, 0, $"<ui:VisualElement name=\"Row_{rowI + 1}\" style=\"flex-direction: row; display: {(rowI == 0 ? "flex" : "none")};\">");
+          {
+            UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"{rowI + 1}\" name=\"Number_Button\" style=\"width: {buttonWidth}px; -unity-text-align: middle-right;\" />");
+            foreach (var classMember in classMembers)
+            {
+              Type type = classMember.GetUnderlyingType();
+              e._GS_fieldType = type;
+              UI_VisualElement.UXML_UI_grid_type_member(e, type, classMember.AttGS(), classMember, rowI, buttonWidth);
+            }
+          }
+          UXML(e, -1, "</ui:VisualElement>");
+        }
+        UXML(e, 0, $"<ui:VisualElement name=\"Footer_Container\" style=\"flex-grow: 0; height: 20px; flex-direction: row; flex-wrap: wrap; display: none;\">");
+        //UXML(e, 0, $"<ui:VisualElement name=\"Footer_Container\" style=\"flex-grow: 0; height: 20px; flex-direction: row; flex-wrap: wrap; display: flex;\">");
+        {
+          UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"+\" name=\"AddRow_Button\" style=\"width: 20px; -unity-text-align: middle-center;\" />");
+          for (int i = 0; i < classMembers.Length; i++) UXML(e, 0, $"<GpuScript.UI_bool UI_bool_value=\"true\" is-grid=\"true\" />");
+          UXML(e, 0, $"<GpuScript.UI_uint UI_uint_value=\"20\" is-grid=\"true\" />");
+        }
+        UXML(e, -1, "</ui:VisualElement>");
+      }
+      UXML(e, -1, "</ui:VisualElement>");
+      UXML(e, 0, "<ui:Scroller high-value=\"100\" direction=\"Vertical\" value=\"42\"  style=\"display: none;\"/>");
+    }
+    public new static void UXML_UI_Element(UI_Element e, MemberInfo[] _gs_members)
+    {
+      AttGS att = e.attGS;
+      string name = e.memberInfo.Name, label = att.Name, typeName = className;
+      UI_VisualElement.UXML(e, att, name, label, className);
+      UXML(e, att, name, label, className, _gs_members);
+      UXML(e, -1, $"</GpuScript.{className}>");
+    }
+    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+    {
+      if (att == null) return;
+      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+      e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
+    }
+#elif !NEW_UI
   public class UI_grid : UI_VisualElement
   {
-    public object[][] grid_Data;
-    public VisualElement grid_Container, header_Row, footer_Container, header_Buttons_Container;
-    public Button expandButton, addRowButton;
-    public List<UI_bool> displayColumns;
-    public List<UI_grid_header> headerButtons;
-    public List<Button> rowNumberButtons;
-    public List<VisualElement> displayRows;
-    public List<List<UI_VisualElement>> RowItems;
-    public Scroller VScroll;
-    public UI_grid uiGrid;
-    public bool[] isRowSelected;
-    public string selectedRows;
-    public int StartRow, lastClickedRow;
-    public int DisplayRowN => dispRowN == null ? 20 : (int)dispRowN.v;
     public bool isExpanded = false, isClass;
-
-    public UI_grid() : base() { }
     public UI_grid(string gridName, string gridLabel, string gridDescription, UI_TreeGroup gridParent, int index,
       int displayRowN, GS gs, Func<int> rowN,
       string[] fldNames, object[] ranges, string[] formats = null, bool[] displayCols = null) : base()
@@ -82,7 +214,7 @@ namespace GpuScript
           if (ranges[j] is float2)
           {
             var r = (float2)ranges[j];
-            var f = new UI_float() { name = $"UI_float_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true, range_Min = r.x, range_Max = r.y, formatString = formats == null || formats[j].IsEmpty() ? "0.000" : formats[j] };
+            var f = new UI_float() { name = $"UI_float_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true, rangeMin = r.x, rangeMax = r.y, formatString = formats == null || formats[j].IsEmpty() ? "0.000" : formats[j] };
             f.headerLabel.style.display = DisplayStyle.None;
             f.style.width = f.textField.style.width = 80;
             f.siFormat = f.usFormat = f.formatString;
@@ -92,7 +224,7 @@ namespace GpuScript
           else if (ranges[j] is int2)
           {
             var r = (int2)ranges[j];
-            var f = new UI_int() { name = $"UI_int_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true, range_Min = r.x, range_Max = r.y };
+            var f = new UI_int() { name = $"UI_int_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true, rangeMin = r.x, rangeMax = r.y };
             f.headerLabel.style.display = DisplayStyle.None;
             f.style.width = f.textField.style.width = 80;
             row.Add(f);
@@ -130,9 +262,6 @@ namespace GpuScript
       Add(VScroll = new Scroller() { highValue = 100, direction = SliderDirection.Vertical });
       Init(gs);
     }
-    public UI_grid(string gridName, string gridLabelDescription, UI_TreeGroup gridParent, int index, int displayRowN, GS gs, Func<int> rowN, string fldNamesStr, object[] ranges, string[] formats = null)
-      : this(gridName, gridLabelDescription.Before("|"), gridLabelDescription.AfterOrEmpty("|"), gridParent, index, displayRowN, gs, rowN, fldNamesStr.Split("|"), ranges, formats) { }
-    public UI_uint dispRowN;
     public override bool Init(GS gs, params GS[] gss)
     {
       if (!base.Init(gs, gss)) return false;
@@ -197,8 +326,119 @@ namespace GpuScript
       DrawGrid();
       return true;
     }
+    public static void UXML(UI_Element e, AttGS att, string name, string label, string typeName, MemberInfo[] _gs_members)
+    {
+      string fTypeStr = e._GS_memberType.ToString().Before("[]");
+      bool isClass = e._GS_memberType.IsClass;
+      var classMembers = fTypeStr.GetOrderedMembers();
+      uint displayRowN = GS.clamp((uint)att.DisplayRowN, 1, 32), maxRowN = 100;
+      float buttonWidth = GS.floor(GS.min(2, GS.log10(maxRowN) + 1)) * 10;
+      e.uxml.Add($" style=\"flex-grow: 0; flex-direction: row; width: auto; flex-wrap: nowrap; flex-shrink: 1;\" UI_grid_DisplayRowN=\"{displayRowN}\" UI_grid_isClass=\"{isClass}\">");
+      UXML(e, 1, "<ui:VisualElement name=\"Grid_Container\" style=\"flex-grow: 0;\">");
+      {
+        UXML(e, 1, "<ui:VisualElement name=\"Header_Row\" style=\"flex-grow: 0; height: 20px; flex-direction: row;\">");
+        {
+          UXML(e, 1, $"<ui:Button text=\"{e.attGS.Name}...\" name=\"Expand_Button\" style=\"width: 150px; -unity-text-align: middle-center;\" />");
+          UXML(e, 0, "<ui:VisualElement name=\"Header_Buttons_Container\" style=\"flex-grow: 0; flex-direction: row; display: none;\">");
+          {
+            e.uxml_level++;
+            uint rowI = 0;
+            foreach (var classMember in classMembers)
+            {
+              var attGS = classMember.AttGS();
+              StrBldr units = new StrBldr();
+              if (attGS.siUnit != siUnit.Null) units.Add($" UI_grid_header_siUnit=\"{attGS.siUnit}\"");
+              if (attGS.usUnit != usUnit.Null) units.Add($" UI_grid_header_usUnit=\"{attGS.usUnit}\"");
+              if (attGS.Unit != Unit.Null) units.Add($" UI_grid_header_Unit=\"{attGS.Unit}\"");
+              UXML(e, 0, $"<GpuScript.UI_grid_header UI_Label=\"{attGS.Name}\" name=\"grid_header_Button_{classMember.Name}\" style=\"width: {buttonWidth}px; flex-grow: 0; flex-direction: column; display: flex;\"{units} />");
+              rowI++;
+            }
+          }
+          UXML(e, -1, "</ui:VisualElement>");
+        }
+        UXML(e, -1, "</ui:VisualElement>");
 
+        for (uint rowI = 0; rowI < 20; rowI++)
+        {
+          UXML(e, 0, $"<ui:VisualElement name=\"Row_{rowI + 1}\" style=\"flex-direction: row; display: none;\">");
+          {
+            UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"{rowI + 1}\" name=\"Number_Button\" style=\"width: {buttonWidth}px; -unity-text-align: middle-right;\" />");
+            foreach (var classMember in classMembers)
+            {
+              Type type = classMember.GetUnderlyingType();
+              e._GS_fieldType = type;
+              UI_VisualElement.UXML_UI_grid_type_member(e, type, classMember.AttGS(), classMember, rowI, buttonWidth);
+            }
+          }
+          UXML(e, -1, "</ui:VisualElement>");
+        }
+        UXML(e, 0, $"<ui:VisualElement name=\"Footer_Container\" style=\"flex-grow: 0; height: 20px; flex-direction: row; flex-wrap: wrap; display: none;\">");
+        {
+          UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"+\" name=\"AddRow_Button\" style=\"width: 20px; -unity-text-align: middle-center;\" />");
+          for (int i = 0; i < classMembers.Length; i++) UXML(e, 0, $"<GpuScript.UI_bool UI_bool_value=\"true\" UI_isGrid=\"true\" />");
+          UXML(e, 0, $"<GpuScript.UI_uint UI_uint_value=\"20\" UI_isGrid=\"true\" />");
+        }
+        UXML(e, -1, "</ui:VisualElement>");
+      }
+      UXML(e, -1, "</ui:VisualElement>");
+      UXML(e, 0, "<ui:Scroller high-value=\"100\" direction=\"Vertical\" value=\"42\"  style=\"display: none;\"/>");
+    }
+    public new static void UXML_UI_Element(UI_Element e, MemberInfo[] _gs_members)
+    {
+      AttGS att = e.attGS;
+      string name = e.memberInfo.Name, label = att.Name, typeName = className;
+      UI_VisualElement.UXML(e, att, name, label, className);
+      UXML(e, att, name, label, className, _gs_members);
+      UXML(e, -1, $"</GpuScript.{className}>");
+    }
+    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+    {
+      if (att == null) return;
+      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
+    }
+    public void Build(string title, string description, int displayRowN, bool isClass,
+      bool isReadOnly, bool isGrid, string treeGroup_parent)
+    {
+      Build(title, description, isReadOnly, isGrid, treeGroup_parent);
+      dispRowN ??= new UI_uint() { v = 20, isGrid = true };
+      this.isClass = isClass;
+    }
+    public new class UxmlFactory : UxmlFactory<UI_grid, UxmlTraits> { }
+    public new class UxmlTraits : UI_VisualElement.UxmlTraits
+    {
+      UxmlIntAttributeDescription m_grid_DisplayRowN = new UxmlIntAttributeDescription { name = "UI_grid_DisplayRowN", defaultValue = 20 };
+      UxmlBoolAttributeDescription m_grid_isClass = new UxmlBoolAttributeDescription { name = "UI_grid_isClass" };
+      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
+      {
+        base.Init(ve, bag, cc);
+        ((UI_grid)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
+          m_grid_DisplayRowN.GetValueFromBag(bag, cc), m_grid_isClass.GetValueFromBag(bag, cc),
+          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
+      }
+    }
+    //public UI_grid(string gridName, string gridLabelDescription, UI_TreeGroup gridParent, int index, int displayRowN, GS gs, Func<int> rowN, string fldNamesStr, object[] ranges, string[] formats = null)
+    //  : this(gridName, gridLabelDescription.Before("|"), gridLabelDescription.AfterOrEmpty("|"), gridParent, index, displayRowN, gs, rowN, fldNamesStr.Split("|"), ranges, formats) { }
+#endif //NEW_UI
+    public object[][] grid_Data;
+    public VisualElement grid_Container, header_Row, footer_Container, header_Buttons_Container;
+    public Button expandButton, addRowButton;
+    public List<UI_bool> displayColumns;
+    public List<UI_grid_header> headerButtons;
+    public List<Button> rowNumberButtons;
+    public List<VisualElement> displayRows;
+    public List<List<UI_VisualElement>> RowItems;
+    public Scroller VScroll;
+    public UI_grid uiGrid;
+    public bool[] isRowSelected;
+    public string selectedRows;
+    public int StartRow, lastClickedRow;
+    public int DisplayRowN => dispRowN == null ? 20 : (int)dispRowN.v;
 
+    public UI_grid() : base() { }
+    public UI_grid(string gridName, string gridLabelDescription, UI_TreeGroup gridParent, int index, int displayRowN, GS gs, Func<int> rowN, string fldNamesStr, object[] ranges, string[] formats = null)
+      : this(gridName, gridLabelDescription.Before("|"), gridLabelDescription.AfterOrEmpty("|"), gridParent, index, displayRowN, gs, rowN, fldNamesStr.Split("|"), ranges, formats) { }
+    public UI_uint dispRowN;
     public void dispRowN_OnTextFieldChanged(ChangeEvent<string> evt)
     {
       if (DisplayRowN > 20) dispRowN.v = 20;
@@ -208,10 +448,8 @@ namespace GpuScript
       if (VScroll != null) VScroll.value = 0;
       DrawGrid();
     }
-
     void OnSliderFocusIn(FocusInEvent evt) => GS.mouseInUI = GS.sliderHasFocus = GS.isGridVScroll = true;
     void OnSliderFocusOut(FocusOutEvent evt) => GS.mouseInUI = GS.sliderHasFocus = GS.isGridVScroll = false;
-
     public override void OnMouseEnter(MouseEnterEvent evt)
     {
       base.OnMouseEnter(evt);
@@ -240,7 +478,6 @@ namespace GpuScript
     public static float GetGridWidth(uint colN, bool displayVGrid) => 20 + colN * 100 + (displayVGrid ? 24 : 0);
     private void OnDisplayColumnValueChanged(ChangeEvent<bool> evt) { DrawGrid(); }
     public Func<int> RowN;
-    //public int arrayLength => RowN == null ? (RowN = Expression.Lambda<Func<int>>(Expression.Call(Expression.Constant(gs), $"{name}_GetGridArrayLength".GetMethod(gs))).Compile())() : RowN();
     public int arrayLength => RowN == null ? (RowN = $"{name}_GetGridArrayLength".GetMethodExpression<Func<int>>(gs))() : RowN();
     bool Display_VScroll => isExpanded && dispRowN.v < arrayLength;
     public void expandButton_Clicked(ClickEvent evt) { isExpanded = !isExpanded; DrawGrid(); }
@@ -339,101 +576,8 @@ namespace GpuScript
       }
     }
     public static string className => MethodBase.GetCurrentMethod().DeclaringType.ToString().After("GpuScript.");
-    public static void UXML(UI_Element e, AttGS att, string name, string label, string typeName, MemberInfo[] _gs_members)
-    {
-      string fTypeStr = e._GS_memberType.ToString().Before("[]");
-      bool isClass = e._GS_memberType.IsClass;
-      var classMembers = fTypeStr.GetOrderedMembers();
-      uint displayRowN = GS.clamp((uint)att.DisplayRowN, 1, 32), maxRowN = 100;
-      float buttonWidth = GS.floor(GS.min(2, GS.log10(maxRowN) + 1)) * 10;
-      e.uxml.Add($" style=\"flex-grow: 0; flex-direction: row; width: auto; flex-wrap: nowrap; flex-shrink: 1;\" UI_grid_DisplayRowN=\"{displayRowN}\" UI_grid_isClass=\"{isClass}\">");
-      UXML(e, 1, "<ui:VisualElement name=\"Grid_Container\" style=\"flex-grow: 0;\">");
-      {
-        UXML(e, 1, "<ui:VisualElement name=\"Header_Row\" style=\"flex-grow: 0; height: 20px; flex-direction: row;\">");
-        {
-          UXML(e, 1, $"<ui:Button text=\"{e.attGS.Name}...\" name=\"Expand_Button\" style=\"width: 150px; -unity-text-align: middle-center;\" />");
-          UXML(e, 0, "<ui:VisualElement name=\"Header_Buttons_Container\" style=\"flex-grow: 0; flex-direction: row; display: none;\">");
-          {
-            e.uxml_level++;
-            uint rowI = 0;
-            foreach (var classMember in classMembers)
-            {
-              var attGS = classMember.AttGS();
-              StrBldr units = new StrBldr();
-              if (attGS.siUnit != siUnit.Null) units.Add($" UI_grid_header_siUnit=\"{attGS.siUnit}\"");
-              if (attGS.usUnit != usUnit.Null) units.Add($" UI_grid_header_usUnit=\"{attGS.usUnit}\"");
-              if (attGS.Unit != Unit.Null) units.Add($" UI_grid_header_Unit=\"{attGS.Unit}\"");
-              UXML(e, 0, $"<GpuScript.UI_grid_header UI_Label=\"{attGS.Name}\" name=\"grid_header_Button_{classMember.Name}\" style=\"width: {buttonWidth}px; flex-grow: 0; flex-direction: column; display: flex;\"{units} />");
-              rowI++;
-            }
-          }
-          UXML(e, -1, "</ui:VisualElement>");
-        }
-        UXML(e, -1, "</ui:VisualElement>");
-
-        for (uint rowI = 0; rowI < 20; rowI++)
-        {
-          UXML(e, 0, $"<ui:VisualElement name=\"Row_{rowI + 1}\" style=\"flex-direction: row; display: none;\">");
-          {
-            UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"{rowI + 1}\" name=\"Number_Button\" style=\"width: {buttonWidth}px; -unity-text-align: middle-right;\" />");
-            foreach (var classMember in classMembers)
-            {
-              Type type = classMember.GetUnderlyingType();
-              e._GS_fieldType = type;
-              UI_VisualElement.UXML_UI_grid_type_member(e, type, classMember.AttGS(), classMember, rowI, buttonWidth);
-            }
-          }
-          UXML(e, -1, "</ui:VisualElement>");
-        }
-        UXML(e, 0, $"<ui:VisualElement name=\"Footer_Container\" style=\"flex-grow: 0; height: 20px; flex-direction: row; flex-wrap: wrap; display: none;\">");
-        {
-          UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"+\" name=\"AddRow_Button\" style=\"width: 20px; -unity-text-align: middle-center;\" />");
-          for (int i = 0; i < classMembers.Length; i++) UXML(e, 0, $"<GpuScript.UI_bool UI_bool_value=\"true\" UI_isGrid=\"true\" />");
-          UXML(e, 0, $"<GpuScript.UI_uint UI_uint_value=\"20\" UI_isGrid=\"true\" />");
-        }
-        UXML(e, -1, "</ui:VisualElement>");
-      }
-      UXML(e, -1, "</ui:VisualElement>");
-      UXML(e, 0, "<ui:Scroller high-value=\"100\" direction=\"Vertical\" value=\"42\"  style=\"display: none;\"/>");
-    }
-    public new static void UXML_UI_Element(UI_Element e, MemberInfo[] _gs_members)
-    {
-      AttGS att = e.attGS;
-      string name = e.memberInfo.Name, label = att.Name, typeName = className;
-      UI_VisualElement.UXML(e, att, name, label, className);
-      UXML(e, att, name, label, className, _gs_members);
-      UXML(e, -1, $"</GpuScript.{className}>");
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-    }
     public bool isSame(object buff) => true;
     public bool isDifferent(object buff) => !isSame(buff);
-    public void Build(string title, string description, int displayRowN, bool isClass,
-      bool isReadOnly, bool isGrid, string treeGroup_parent)
-    {
-      Build(title, description, isReadOnly, isGrid, treeGroup_parent);
-      dispRowN ??= new UI_uint() { v = 20, isGrid = true };
-      this.isClass = isClass;
-    }
-
-    public new class UxmlFactory : UxmlFactory<UI_grid, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlIntAttributeDescription m_grid_DisplayRowN = new UxmlIntAttributeDescription { name = "UI_grid_DisplayRowN", defaultValue = 20 };
-      UxmlBoolAttributeDescription m_grid_isClass = new UxmlBoolAttributeDescription { name = "UI_grid_isClass" };
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_grid)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-          m_grid_DisplayRowN.GetValueFromBag(bag, cc), m_grid_isClass.GetValueFromBag(bag, cc),
-          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
-    //public void OnHeaderButtonClicked(int col) => $"{name}_OnHeaderButtonClicked".InvokeMethod(gs, col + 1);
     public void OnHeaderButtonClicked(string label) => $"{name}_OnHeaderButtonClicked".InvokeMethod(gs, label);
     public void OnRowNumberButtonClicked(int row)
     {
@@ -466,12 +610,7 @@ namespace GpuScript
       else if (evt.isDownArrow()) $"{name}_OnDownArrow".InvokeMethod(gs);
       else if (evt.isKey()) $"{name}_OnKeyDown".InvokeMethod(gs);
     }
-
-    //void OnHeaderButtonClicked(ClickEvent evt) => headerButtons.Select((b, i) => (b, i)).Where(a => a.b.label == ((Button)evt.target).text).ForEach(a => OnHeaderButtonClicked(a.i));
     void OnHeaderButtonClicked(ClickEvent evt) => OnHeaderButtonClicked(((Button)evt.target).text);
-    //void OnRowNumberButtonClicked(ClickEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).ForEach(a => OnRowNumberButtonClicked(a.i + StartRow));
-    //void OnRowNumberKeyUp(KeyUpEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).ForEach(a => OnRowNumberKeyUp(a.i + StartRow, evt));
-    //void OnRowNumberKeyDown(KeyDownEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).ForEach(a => OnRowNumberKeyDown(a.i + StartRow, evt));
     void OnRowNumberButtonClicked(ClickEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).For(a => OnRowNumberButtonClicked(a.i + StartRow));
     void OnRowNumberKeyUp(KeyUpEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).For(a => OnRowNumberKeyUp(a.i + StartRow, evt));
     void OnRowNumberKeyDown(KeyDownEvent evt) => rowNumberButtons.Select((b, i) => (b, i)).Where(a => a.b == evt.target).For(a => OnRowNumberKeyDown(a.i + StartRow, evt));

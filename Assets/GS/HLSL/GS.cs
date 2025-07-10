@@ -20,6 +20,8 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 using GSharp;
+using Newtonsoft.Json.Linq;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -725,11 +727,113 @@ namespace GpuScript
     public static uint merge(uint i, uint iMax, float v, float vMax) => merge(i, iMax * u01, v, vMax * f01);
     public static int merge(int i, int iMax, float v, float vMax) => merge(i, iMax * i01, v, vMax * f01);
 
+
     //Interlocked: following work without conditional compiler options
+    //public static void InterlockedAdd(RWStructuredBuffer<int> a, uint I, int v) { a[I] += v; }
+    //public static void InterlockedAdd(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] += v; }
+    //public static void InterlockedAdd(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] += Is(v); }
+    //public static void InterlockedAnd(RWStructuredBuffer<int> a, uint I, int v) { a[I] &= v; }
+    //public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] &= v; }
+    //public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] &= Is(v); }
+    //public static void InterlockedAnd(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) & v); }
+    //public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+    //public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { uint aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+    //public static void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { if (a[I] == compare_v) a[I] = v; }
+    //public static void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { if (a[I] == compare_v) a[I] = v; }
+    //public static int InterlockedExchange(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
+    //public static uint InterlockedExchange(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; a[I] = v; return aI; }
+    //public static float InterlockedExchange(RWStructuredBuffer<float> a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
+    //public static void InterlockedMax(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; if (aI < v) a[I] = v; }
+    //public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; if (aI < v) a[I] = v; }
+    //public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, bool v) { uint aI = a[I]; if (aI < Is(v)) a[I] = Is(v); }
+    //public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, I, merge(i, iRange, v, vRange)); }
+    //public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMax(a, I, i, iMax * u01, v, vMax * f01); }
+    //public static void InterlockedMin(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; if (aI > v) a[I] = v; }
+    //public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; if (aI > v) a[I] = v; }
+    //public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, bool v) { uint aI = a[I]; if (aI > Is(v)) a[I] = Is(v); }
+    //public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
+    //public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMin(a, I, i, iMax * u01, v, vMax * f01); }
+    //public static void InterlockedOr(RWStructuredBuffer<int> a, uint I, int v) { a[I] |= v; }
+    //public static void InterlockedOr(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] |= v; }
+    //public static void InterlockedOr(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] |= Is(v); }
+    //public static void InterlockedOr(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) | v); }
+    //public static void InterlockedXor(RWStructuredBuffer<int> a, uint I, int v) { a[I] ^= v; }
+    //public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] ^= v; }
+    //public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] ^= Is(v); }
+    //public static void InterlockedXor(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) ^ v); }
+
+    public static void InterlockedAdd(ref int a, int v) { a += v; }
+    public static void InterlockedAdd(ref uint a, uint v) { a += v; }
+    public static void InterlockedAdd(ref uint a, bool v) { a += Is(v); }
+    public static void InterlockedAnd(ref int a, int v) { a &= v; }
+    public static void InterlockedAnd(ref uint a, uint v) { a &= v; }
+    public static void InterlockedAnd(ref uint a, bool v) { a &= Is(v); }
+    public static void InterlockedAnd(ref Color32 a, uint v) { a = u_c32(c32_u(a) & v); }
+    public static int InterlockedCompareExchange(ref int a, int compare_v, int v) { int aI = a; if (aI == compare_v) a = v; return aI; }
+    public static uint InterlockedCompareExchange(ref uint a, uint compare_v, uint v) { uint aI = a; if (aI == compare_v) a = v; return aI; }
+    public static void InterlockedCompareStore(ref int a, int compare_v, int v) { if (a == compare_v) a = v; }
+    public static void InterlockedCompareStore(ref uint a, uint compare_v, uint v) { if (a == compare_v) a = v; }
+    public static int InterlockedExchange(ref int a, int v) { int aI = a; a = v; return aI; }
+    public static uint InterlockedExchange(ref uint a, uint v) { uint aI = a; a = v; return aI; }
+    public static float InterlockedExchange(ref float a, float v) { float aI = a; a = v; return aI; }
+    public static void InterlockedMax(ref int a, int v) { int aI = a; if (aI < v) a = v; }
+    public static void InterlockedMax(ref uint a, uint v) { uint aI = a; if (aI < v) a = v; }
+    public static void InterlockedMax(ref uint a, bool v) { uint aI = a; if (aI < Is(v)) a = Is(v); }
+    //public static void InterlockedMax(ref uint a, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, merge(i, iRange, v, vRange)); }
+    //public static void InterlockedMax(ref uint a, uint i, uint iMax, float v, float vMax) { InterlockedMax(a, I, i, iMax * u01, v, vMax * f01); }
+    public static void InterlockedMin(ref int a, int v) { int aI = a; if (aI > v) a = v; }
+    public static void InterlockedMin(ref uint a, uint v) { uint aI = a; if (aI > v) a = v; }
+    public static void InterlockedMin(ref uint a, bool v) { uint aI = a; if (aI > Is(v)) a = Is(v); }
+    //public static void InterlockedMin(ref uint a, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
+    //public static void InterlockedMin(ref uint a, uint i, uint iMax, float v, float vMax) { InterlockedMin(a, I, i, iMax * u01, v, vMax * f01); }
+    public static void InterlockedOr(ref int a, int v) { a |= v; }
+    public static void InterlockedOr(ref uint a, uint v) { a |= v; }
+    public static void InterlockedOr(ref uint a, bool v) { a |= Is(v); }
+    public static void InterlockedOr(ref Color32 a, uint v) { a = u_c32(c32_u(a) | v); }
+    public static void InterlockedXor(ref int a, int v) { a ^= v; }
+    public static void InterlockedXor(ref uint a, uint v) { a ^= v; }
+    public static void InterlockedXor(ref uint a, bool v) { a ^= Is(v); }
+    public static void InterlockedXor(ref Color32 a, uint v) { a = u_c32(c32_u(a) ^ v); }
+
+    public static void InterlockedAdd(int[] a, uint I, int v) { a[I] += v; }
+    public static void InterlockedAdd(uint[] a, uint I, uint v) { a[I] += v; }
+    public static void InterlockedAdd(uint[] a, uint I, bool v) { a[I] += Is(v); }
+    public static void InterlockedAnd(int[] a, uint I, int v) { a[I] &= v; }
+    public static void InterlockedAnd(uint[] a, uint I, uint v) { a[I] &= v; }
+    public static void InterlockedAnd(uint[] a, uint I, bool v) { a[I] &= Is(v); }
+    public static void InterlockedAnd(Color32[] a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) & v); }
+    public static int InterlockedCompareExchange(int[] a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+    public static uint InterlockedCompareExchange(uint[] a, uint I, uint compare_v, uint v) { uint aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+    public static void InterlockedCompareStore(int[] a, uint I, int compare_v, int v) { if (a[I] == compare_v) a[I] = v; }
+    public static void InterlockedCompareStore(uint[] a, uint I, uint compare_v, uint v) { if (a[I] == compare_v) a[I] = v; }
+    public static int InterlockedExchange(int[] a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
+    public static uint InterlockedExchange(uint[] a, uint I, uint v) { uint aI = a[I]; a[I] = v; return aI; }
+    public static float InterlockedExchange(float[] a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
+    public static void InterlockedMax(int[] a, uint I, int v) { int aI = a[I]; if (aI < v) a[I] = v; }
+    public static void InterlockedMax(uint[] a, uint I, uint v) { uint aI = a[I]; if (aI < v) a[I] = v; }
+    public static void InterlockedMax(uint[] a, uint I, bool v) { uint aI = a[I]; if (aI < Is(v)) a[I] = Is(v); }
+    public static void InterlockedMax(uint[] a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, I, merge(i, iRange, v, vRange)); }
+    public static void InterlockedMax(uint[] a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMax(a, I, i, iMax * u01, v, vMax * f01); }
+    public static void InterlockedMin(int[] a, uint I, int v) { int aI = a[I]; if (aI > v) a[I] = v; }
+    public static void InterlockedMin(uint[] a, uint I, uint v) { uint aI = a[I]; if (aI > v) a[I] = v; }
+    public static void InterlockedMin(uint[] a, uint I, bool v) { uint aI = a[I]; if (aI > Is(v)) a[I] = Is(v); }
+    public static void InterlockedMin(uint[] a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
+    public static void InterlockedMin(uint[] a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMin(a, I, i, iMax * u01, v, vMax * f01); }
+    public static void InterlockedOr(int[] a, uint I, int v) { a[I] |= v; }
+    public static void InterlockedOr(uint[] a, uint I, uint v) { a[I] |= v; }
+    public static void InterlockedOr(uint[] a, uint I, bool v) { a[I] |= Is(v); }
+    public static void InterlockedOr(Color32[] a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) | v); }
+    public static void InterlockedXor(int[] a, uint I, int v) { a[I] ^= v; }
+    public static void InterlockedXor(uint[] a, uint I, uint v) { a[I] ^= v; }
+    public static void InterlockedXor(uint[] a, uint I, bool v) { a[I] ^= Is(v); }
+    public static void InterlockedXor(Color32[] a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) ^ v); }
+
     public static void InterlockedAdd(RWStructuredBuffer<int> a, uint I, int v) { a[I] += v; }
     public static void InterlockedAdd(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] += v; }
+    public static void InterlockedAdd(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] += Is(v); }
     public static void InterlockedAnd(RWStructuredBuffer<int> a, uint I, int v) { a[I] &= v; }
     public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] &= v; }
+    public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] &= Is(v); }
     public static void InterlockedAnd(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) & v); }
     public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
     public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { uint aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
@@ -740,18 +844,56 @@ namespace GpuScript
     public static float InterlockedExchange(RWStructuredBuffer<float> a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
     public static void InterlockedMax(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; if (aI < v) a[I] = v; }
     public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; if (aI < v) a[I] = v; }
+    public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, bool v) { uint aI = a[I]; if (aI < Is(v)) a[I] = Is(v); }
     public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, I, merge(i, iRange, v, vRange)); }
     public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMax(a, I, i, iMax * u01, v, vMax * f01); }
     public static void InterlockedMin(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; if (aI > v) a[I] = v; }
     public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; if (aI > v) a[I] = v; }
+    public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, bool v) { uint aI = a[I]; if (aI > Is(v)) a[I] = Is(v); }
     public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
     public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMin(a, I, i, iMax * u01, v, vMax * f01); }
     public static void InterlockedOr(RWStructuredBuffer<int> a, uint I, int v) { a[I] |= v; }
     public static void InterlockedOr(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] |= v; }
+    public static void InterlockedOr(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] |= Is(v); }
     public static void InterlockedOr(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) | v); }
     public static void InterlockedXor(RWStructuredBuffer<int> a, uint I, int v) { a[I] ^= v; }
     public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] ^= v; }
+    public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] ^= Is(v); }
     public static void InterlockedXor(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) ^ v); }
+
+
+    //Implement InterlockedMin and InterlockedMax for float buffers
+    //https://www.jeremyong.com/graphics/2023/09/05/f32-interlocked-min-max-hlsl/
+    //// Check isnan(value) before use.
+    //uint order_preserving_float_map(float value)
+    //{
+    //  // For negative values, the mask becomes 0xffffffff.
+    //  // For positive values, the mask becomes 0x80000000.
+    //  uint uvalue = asuint(value);
+    //  uint mask = -int(uvalue >> 31) | 0x80000000;
+    //  return uvalue ^ mask;
+    //}
+
+    //float inverse_order_preserving_float_map(uint value)
+    //{
+    //  // If the msb is set, the mask becomes 0x80000000.
+    //  // If the msb is unset, the mask becomes 0xffffffff.
+    //  uint mask = ((value >> 31) - 1) | 0x80000000;
+    //  return asfloat(value ^ mask);
+    //}
+    uint order_preserving_float_map(float value) { uint uvalue = asuint(value); return uvalue ^ ((uint)(-((int)(uvalue >> 31)) | 0x80000000)); }
+    float inverse_order_preserving_float_map(uint value) { return asfloat(value ^ (((value >> 31) - 1) | 0x80000000)); }
+
+    //Implement above Interlocked functions for groupshared
+
+    public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v)
+    {
+      if (v != 1) { int v0, v1; do { v0 = a[I]; v1 = v0 * v; } while (InterlockedCompareExchange(a, I, v0, v1) != v0); }
+    }
+    public static void InterlockedMultiply(RWStructuredBuffer<uint> a, uint I, uint v)
+    {
+      if (v != 1) { uint v0, v1; do { v0 = a[I]; v1 = v0 * v; } while (InterlockedCompareExchange(a, I, v0, v1) != v0); }
+    }
 
     public static T QuadReadLaneAt<T>(T sourceValue, uint quadLaneID) => default;
     public static T QuadReadAcrossDiagonal<T>(T localValue) => default;
@@ -1479,6 +1621,8 @@ namespace GpuScript
     public static uint upperTriangularIndex(uint2 ij, uint n) { if (ij.x > ij.y) ij = ij.yx; uint i = ij.x, j = ij.y; return n * (n - 1) / 2 - (n - i) * (n - i - 1) / 2 + j - i - 1; }
     public static uint upperTriangularIndex(uint i, uint j, uint n) { return upperTriangularIndex(uint2(i, j), n); }
     public static uint2 upperTriangularIndex(uint k, uint n) { uint n2 = n * (n - 1), i = n - 2 - (uint)(sqrt(4 * (n2 - k - k) - 7) / 2.0f - 0.5f), ni = n - i; return uint2(i, k + i + 1 - n2 / 2 + ni * (ni - 1) / 2); }
+
+    public static uint triangularN(uint n) { return n * (n - 1) / 2; }
 
     public static float amp_to_dB(float v) { return 20 * log10(v); }
     public static float dB_to_amp(float v) { return pow10(v / 20); }
@@ -2453,7 +2597,8 @@ namespace GpuScript
         else if (item is char) sb.Append(item.ToString());
         else if (item is Color c) sb.Append(c.r, ",", c.g, ",", c.b, ",", c.a);
         else if (item is TimeSpan t) sb.Append(ToTimeString(t.Ticks * 1e-7f));
-        else if (item is Stopwatch sw) sb.Append(ToTimeString(sw.ElapsedTicks / (float)Stopwatch.Frequency));
+        //else if (item is Stopwatch sw) sb.Append(ToTimeString(sw.ElapsedTicks / (float)Stopwatch.Frequency));
+        else if (item is Stopwatch sw) sb.Append(ToTimeString((float)sw.Elapsed.TotalSeconds));
         else if (item is DateTime dt) sb.Append(dt.ToShortDateString(), " ", dt.ToShortTimeString());
         else if (item is Enum) sb.Append(item.ToString());
         else if (item.GetType().IsValueType)
@@ -4152,7 +4297,7 @@ namespace GpuScript
       bool ok = true;
       try { mic_audio_clip = Microphone.Start(null, loop, secs, (int)audio_smpPerSec); }
       catch (Exception) { ok = false; }
-     return ok;
+      return ok;
     }
     public static int Mic_GetPosition() => Microphone.GetPosition(null);
     public static void Mic_End() { Microphone.End(null); Destroy(mic_audio_clip); mic_audio_clip = null; }
@@ -5072,9 +5217,10 @@ namespace GpuScript
 
     public static Stopwatch runtime, segmentTime;
     public static void InitClock() { if (runtime == null) { runtime = new Stopwatch(); segmentTime = new Stopwatch(); runtime.Restart(); segmentTime.Restart(); } }
-    public static float ClockSec_SoFar() { segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
-
-    public static float ClockSec_Segment() { float t = segmentTime.ElapsedTicks * rcp(Stopwatch.Frequency); segmentTime.Restart(); return t; }
+    //public static float ClockSec_SoFar() { segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
+    //public static float ClockSec_Segment() { float t = segmentTime.ElapsedTicks * rcp(Stopwatch.Frequency); segmentTime.Restart(); return t; }
+    public static float ClockSec_SoFar() { segmentTime.Restart(); return (float)runtime.Elapsed.TotalSeconds; }
+    public static float ClockSec_Segment() { float t = (float)segmentTime.Elapsed.TotalSeconds; segmentTime.Restart(); return t; }
     public static string ClockStr_Segment() => GS.ToTimeString(ClockSec_Segment());
     public static string ClockStr_SoFar() => GS.ToTimeString(ClockSec_SoFar());
     public static float ClockSec() { InitClock(); float t = ClockSec_SoFar(); runtime.Restart(); segmentTime.Restart(); return t; }

@@ -704,7 +704,8 @@ namespace GpuScript
 
         else if (item is Color c) sb.Append(c.r, ",", c.g, ",", c.b, ",", c.a);
         else if (item is TimeSpan t) sb.ToTimeString(t.Ticks * 1e-7f);
-        else if (item is Stopwatch sw) { sw.Stop(); sb.ToTimeString(sw.ElapsedTicks / (float)Stopwatch.Frequency); }
+        //else if (item is Stopwatch sw) { sw.Stop(); sb.ToTimeString(sw.ElapsedTicks / (float)Stopwatch.Frequency); }
+        else if (item is Stopwatch sw) { sw.Stop(); sb.ToTimeString((float)sw.Elapsed.TotalSeconds); }
         else if (item is DateTime dt) sb.Append(dt.ToShortDateString(), " ", dt.ToShortTimeString());
         else if (item.GetType().IsValueType && !item.GetType().IsPrimitive)
         {
@@ -1208,7 +1209,8 @@ namespace GpuScript
     public static T Clock<T>(this Func<T> a, string s) { var w = new Stopwatch(); w.Start(); T r = a(); w.Stop(); GS.print($"{s}, {w.ToTimeString()}"); return r; }
     public static float Clock(this Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
     public static void Clock(this Action a, string s) => GS.print($"{s}, {a.Clock().ToTimeString()}");
-    public static float Secs(this Stopwatch w) => w.ElapsedTicks / (float)Stopwatch.Frequency;
+    //public static float Secs(this Stopwatch w) => w.ElapsedTicks / (float)Stopwatch.Frequency;
+    public static float Secs(this Stopwatch w) => (float)w.Elapsed.TotalSeconds;
     public static string ToTimeString(this float secs) => ToTimeString(secs);
     public static string ToTimeString(this Stopwatch w) => ToTimeString(w.Secs());
     public static string ToTimeString(this long ticks) => ToTimeString(ticks / (float)Stopwatch.Frequency);

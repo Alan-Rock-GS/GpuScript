@@ -75,67 +75,6 @@ Shader "gs/gsFractal"
   #define BDraw_MINUS 45
   #define BDraw_SPACE 32
   #define g gFractal[0]
-  #define PaletteType_Rainbow	0
-  #define PaletteType_GradientRainbow	1
-  #define PaletteType_GradientRainbow10	2
-  #define PaletteType_GradientRainbow20	3
-  #define PaletteType_Heat	4
-  #define PaletteType_GradientHeat	5
-  #define PaletteType_WhiteRainbow	6
-  #define PaletteType_WhiteRainbow10	7
-  #define PaletteType_invRainbow	8
-  #define PaletteType_CT	9
-  #define PaletteType_Magenta	10
-  #define PaletteType_Blue	11
-  #define PaletteType_Cyan	12
-  #define PaletteType_Green	13
-  #define PaletteType_Yellow	14
-  #define PaletteType_Red	15
-  #define PaletteType_Gray	16
-  #define PaletteType_DarkGray	17
-  #define FractalType_Julia	0
-  #define FractalType_Mandelbrot	1
-  #define FractalType_Fractal_P	2
-  #define FractalType_Fractal_C	3
-  #define BDraw_Draw_Point	0
-  #define BDraw_Draw_Sphere	1
-  #define BDraw_Draw_Line	2
-  #define BDraw_Draw_Arrow	3
-  #define BDraw_Draw_Signal	4
-  #define BDraw_Draw_LineSegment	5
-  #define BDraw_Draw_Texture_2D	6
-  #define BDraw_Draw_Quad	7
-  #define BDraw_Draw_WebCam	8
-  #define BDraw_Draw_Mesh	9
-  #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
-  #define BDraw_TextAlignment_BottomLeft	0
-  #define BDraw_TextAlignment_CenterLeft	1
-  #define BDraw_TextAlignment_TopLeft	2
-  #define BDraw_TextAlignment_BottomCenter	3
-  #define BDraw_TextAlignment_CenterCenter	4
-  #define BDraw_TextAlignment_TopCenter	5
-  #define BDraw_TextAlignment_BottomRight	6
-  #define BDraw_TextAlignment_CenterRight	7
-  #define BDraw_TextAlignment_TopRight	8
-  #define BDraw_Text_QuadType_FrontOnly	0
-  #define BDraw_Text_QuadType_FrontBack	1
-  #define BDraw_Text_QuadType_Switch	2
-  #define BDraw_Text_QuadType_Arrow	3
-  #define BDraw_Text_QuadType_Billboard	4
-  #define Views_Lib_ProjectionMode_Automatic	0
-  #define Views_Lib_ProjectionMode_Perspective	1
-  #define Views_Lib_ProjectionMode_Orthographic	2
-  #define BDraw_Draw_Text3D 12
-  #define BDraw_LF 10
-  #define BDraw_TB 9
-  #define BDraw_ZERO 48
-  #define BDraw_NINE 57
-  #define BDraw_PERIOD 46
-  #define BDraw_COMMA 44
-  #define BDraw_PLUS 43
-  #define BDraw_MINUS 45
-  #define BDraw_SPACE 32
   struct GFractal
   {
     uint buffer_paletteType, fractalType, maxIterations, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, depthColorN, isOrtho, retrace;
