@@ -24,7 +24,8 @@ Shader "gs/gsVGrid_Doc"
   #define VGrid_Lib_BDraw_Draw_WebCam	8
   #define VGrid_Lib_BDraw_Draw_Mesh	9
   #define VGrid_Lib_BDraw_Draw_Number	10
-  #define VGrid_Lib_BDraw_Draw_N	11
+  #define VGrid_Lib_BDraw_Draw_Text3D	11
+  #define VGrid_Lib_BDraw_Draw_N	12
   #define VGrid_Lib_BDraw_TextAlignment_BottomLeft	0
   #define VGrid_Lib_BDraw_TextAlignment_CenterLeft	1
   #define VGrid_Lib_BDraw_TextAlignment_TopLeft	2
@@ -54,7 +55,6 @@ Shader "gs/gsVGrid_Doc"
   #define Views_Lib_ProjectionMode_Automatic	0
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
-  #define VGrid_Lib_BDraw_Draw_Text3D 12
   #define VGrid_Lib_BDraw_LF 10
   #define VGrid_Lib_BDraw_TB 9
   #define VGrid_Lib_BDraw_ZERO 48
@@ -65,57 +65,6 @@ Shader "gs/gsVGrid_Doc"
   #define VGrid_Lib_BDraw_MINUS 45
   #define VGrid_Lib_BDraw_SPACE 32
   #define g gVGrid_Doc[0]
-  #define VGrid_Lib_BDraw_Draw_Point	0
-  #define VGrid_Lib_BDraw_Draw_Sphere	1
-  #define VGrid_Lib_BDraw_Draw_Line	2
-  #define VGrid_Lib_BDraw_Draw_Arrow	3
-  #define VGrid_Lib_BDraw_Draw_Signal	4
-  #define VGrid_Lib_BDraw_Draw_LineSegment	5
-  #define VGrid_Lib_BDraw_Draw_Texture_2D	6
-  #define VGrid_Lib_BDraw_Draw_Quad	7
-  #define VGrid_Lib_BDraw_Draw_WebCam	8
-  #define VGrid_Lib_BDraw_Draw_Mesh	9
-  #define VGrid_Lib_BDraw_Draw_Number	10
-  #define VGrid_Lib_BDraw_Draw_N	11
-  #define VGrid_Lib_BDraw_TextAlignment_BottomLeft	0
-  #define VGrid_Lib_BDraw_TextAlignment_CenterLeft	1
-  #define VGrid_Lib_BDraw_TextAlignment_TopLeft	2
-  #define VGrid_Lib_BDraw_TextAlignment_BottomCenter	3
-  #define VGrid_Lib_BDraw_TextAlignment_CenterCenter	4
-  #define VGrid_Lib_BDraw_TextAlignment_TopCenter	5
-  #define VGrid_Lib_BDraw_TextAlignment_BottomRight	6
-  #define VGrid_Lib_BDraw_TextAlignment_CenterRight	7
-  #define VGrid_Lib_BDraw_TextAlignment_TopRight	8
-  #define VGrid_Lib_BDraw_Text_QuadType_FrontOnly	0
-  #define VGrid_Lib_BDraw_Text_QuadType_FrontBack	1
-  #define VGrid_Lib_BDraw_Text_QuadType_Switch	2
-  #define VGrid_Lib_BDraw_Text_QuadType_Arrow	3
-  #define VGrid_Lib_BDraw_Text_QuadType_Billboard	4
-  #define VGrid_Lib_PaletteType_Rainbow	0
-  #define VGrid_Lib_PaletteType_GradientRainbow	1
-  #define VGrid_Lib_PaletteType_GradientRainbow10	2
-  #define VGrid_Lib_PaletteType_GradientRainbow20	3
-  #define VGrid_Lib_PaletteType_Heat	4
-  #define VGrid_Lib_PaletteType_GradientHeat	5
-  #define VGrid_Lib_PaletteType_WhiteRainbow	6
-  #define VGrid_Lib_PaletteType_invRainbow	7
-  #define VGrid_Lib_PaletteType_Green	8
-  #define VGrid_Lib_PaletteType_Gray	9
-  #define VGrid_Lib_PaletteType_DarkGray	10
-  #define VGrid_Lib_PaletteType_CT	11
-  #define Views_Lib_ProjectionMode_Automatic	0
-  #define Views_Lib_ProjectionMode_Perspective	1
-  #define Views_Lib_ProjectionMode_Orthographic	2
-  #define VGrid_Lib_BDraw_Draw_Text3D 12
-  #define VGrid_Lib_BDraw_LF 10
-  #define VGrid_Lib_BDraw_TB 9
-  #define VGrid_Lib_BDraw_ZERO 48
-  #define VGrid_Lib_BDraw_NINE 57
-  #define VGrid_Lib_BDraw_PERIOD 46
-  #define VGrid_Lib_BDraw_COMMA 44
-  #define VGrid_Lib_BDraw_PLUS 43
-  #define VGrid_Lib_BDraw_MINUS 45
-  #define VGrid_Lib_BDraw_SPACE 32
   struct GVGrid_Doc
   {
     float sphere, cube, torus, box, roundBox, boxFrame, VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
@@ -221,7 +170,7 @@ Shader "gs/gsVGrid_Doc"
   float4 VGrid_Lib_BDraw_SignalColor(uint chI, uint smpI) { return YELLOW; }
   float VGrid_Lib_BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
   float4 VGrid_Lib_BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
-  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
+  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return f0000; }
   float4 frag_VGrid_Lib_BDraw_Signal(v2f i)
   {
     uint chI = VGrid_Lib_BDraw_o_i(i), SmpN = VGrid_Lib_BDraw_SignalSmpN(chI);
@@ -235,7 +184,7 @@ Shader "gs/gsVGrid_Doc"
     float4 marker = VGrid_Lib_BDraw_SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
-    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    if (d < thick) return float4(c.xyz * (1 - d / thick), c.w);
     return VGrid_Lib_BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_VGrid_Lib_GS(v2f i, float4 color)
@@ -367,9 +316,9 @@ Shader "gs/gsVGrid_Doc"
   v2f vert_GS(uint i, uint j, v2f o)
   {
     uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;
-    if (level == ++index) { o = vert_VGrid_Lib_BDraw_Text(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_VGrid_Lib_BDraw_Box(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_VGrid_Lib_DrawScreen(i, j, o); o.tj.x = 0; }
+    if (level == ++index) o = vert_VGrid_Lib_BDraw_Text(i, j, o);
+    else if (level == ++index) o = vert_VGrid_Lib_BDraw_Box(i, j, o);
+    else if (level == ++index) o = vert_VGrid_Lib_DrawScreen(i, j, o);
     return o;
   }
   float4 frag(v2f i) : SV_Target

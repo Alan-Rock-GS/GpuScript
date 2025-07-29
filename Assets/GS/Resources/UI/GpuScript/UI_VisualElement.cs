@@ -408,8 +408,9 @@ namespace GpuScript
       switch (unit)
       {
         case Unit.ns: case Unit.us: case Unit.ms: case Unit.s: case Unit.min: case Unit.hr: case Unit.day: case Unit.week: case Unit.month: case Unit.year: return Unit.s;
-        case Unit.deg: return Unit.deg;
-        case Unit.rad: return Unit.rad;
+				case Unit.deg: return Unit.deg;
+				case Unit.deg_per_sec: return Unit.deg_per_sec;
+				case Unit.rad: return Unit.rad;
         case Unit.bit: case Unit.Byte: case Unit.KB: case Unit.MB: case Unit.GB: case Unit.TB: case Unit.PB: return Unit.Byte;
         case Unit.bps: case Unit.Bps: case Unit.Kbps: case Unit.Mbps: case Unit.Gbps: case Unit.Tbps: case Unit.Pbps: case Unit.KBps: case Unit.MBps: case Unit.GBps: case Unit.TBps: case Unit.PBps: return Unit.Bps;
         case Unit.Hz: case Unit.kHz: case Unit.MHz: case Unit.GHz: case Unit.THz: return Unit.Hz;
@@ -801,8 +802,9 @@ namespace GpuScript
       {
         case Unit.s: return u == Unit.ns ? 1e+9f : u == Unit.us ? 1e+6f : u == Unit.ms ? 1e+3f : u == Unit.min ? 0.0166667f : u == Unit.hr ? 0.000277778f : u == Unit.day ? 1.15741e-5f : u == Unit.week ? 1.65344e-6f : u == Unit.month ? 3.80517e-7f : u == Unit.year ? 3.17098e-8f : float.NaN;
         case Unit.ns: case Unit.us: case Unit.ms: case Unit.min: case Unit.hr: case Unit.day: case Unit.week: case Unit.month: case Unit.year: return convert(Unit.s, Unit1) / convert(Unit.s, Unit0);
-        case Unit.deg: return u == Unit.rad ? 0.0174533f : float.NaN;
-        case Unit.rad: return convert(Unit.deg, Unit1) / convert(Unit.deg, Unit0);
+				case Unit.deg: return u == Unit.rad ? 0.0174533f : float.NaN;
+				case Unit.deg_per_sec: return u == Unit.rad ? 0.0174533f : 1;
+				case Unit.rad: return convert(Unit.deg, Unit1) / convert(Unit.deg, Unit0);
         case Unit.Byte: return u == Unit.bit ? 8f : u == Unit.KB ? 1e-3f : u == Unit.MB ? 1e-6f : u == Unit.GB ? 1e-9f : u == Unit.TB ? 1e-12f : u == Unit.PB ? 1e-16f : float.NaN;
         case Unit.bit: case Unit.KB: case Unit.MB: case Unit.GB: case Unit.TB: case Unit.PB: return convert(Unit.Byte, Unit1) / convert(Unit.Byte, Unit0);
         case Unit.Bps: return u == Unit.bps ? 8f : u == Unit.Kbps ? 8e-3f : u == Unit.Mbps ? 8e-6f : u == Unit.Gbps ? 8e-9f : u == Unit.Tbps ? 8e-12f : u == Unit.Pbps ? 8e-15f : u == Unit.KBps ? 1e-3f : u == Unit.MBps ? 1e-6f : u == Unit.GBps ? 1e-9f : u == Unit.TBps ? 1e-12f : u == Unit.PBps ? 1e-15f : float.NaN;
@@ -812,10 +814,11 @@ namespace GpuScript
         case Unit.FLOPS: return u == Unit.kFLOPS ? 1e-3f : u == Unit.MFLOPS ? 1e-6f : u == Unit.GFLOPS ? 1e-9f : u == Unit.TFLOPS ? 1e-12f : u == Unit.PFLOPS ? 1e-15f : u == Unit.EFLOPS ? 1e-18f : u == Unit.ZFLOPS ? 1e-21f : u == Unit.YFLOPS ? 1e-24f : float.NaN;
         case Unit.kFLOPS: case Unit.MFLOPS: case Unit.GFLOPS: case Unit.TFLOPS: case Unit.PFLOPS: case Unit.EFLOPS: case Unit.ZFLOPS: case Unit.YFLOPS: return convert(Unit.FLOPS, Unit1) / convert(Unit.FLOPS, Unit0);
       }
-      return float.NaN;
-    }
+			//return float.NaN;
+			return 1;
+		}
 
-    public bool isInGroup(params UI_TreeGroup[] grps)
+		public bool isInGroup(params UI_TreeGroup[] grps)
     {
       foreach (var grp in grps) if (treeGroup_parent == grp || (treeGroup_parent?.isInGroup(grp) ?? false)) return true;
       return false;

@@ -22,7 +22,8 @@
   #define BDraw_Draw_WebCam	8
   #define BDraw_Draw_Mesh	9
   #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
+  #define BDraw_Draw_Text3D	11
+  #define BDraw_Draw_N	12
   #define BDraw_TextAlignment_BottomLeft	0
   #define BDraw_TextAlignment_CenterLeft	1
   #define BDraw_TextAlignment_TopLeft	2
@@ -37,7 +38,6 @@
   #define BDraw_Text_QuadType_Switch	2
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
-  #define BDraw_Draw_Text3D 12
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -110,19 +110,13 @@
     }
     if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
+  [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { } } }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.starPathN) { }
-     
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
   void starPath(uint pathI, uint starI, uint v) { starPaths[(pathI + 1) * g.starN + (starI % g.starN)] = v; }
   uint bestPath(uint starI) { return starPaths[starI % g.starN]; }
   void bestPath(uint starI, uint v) { starPaths[starI % g.starN] = v; }
@@ -275,7 +269,7 @@
   #pragma kernel BDraw_ABuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
-  #pragma kernel Rand_grp_fill_1K
-  #pragma kernel Rand_grp_init_1K
-  #pragma kernel Rand_grp_init_1M
   #pragma kernel calc_reverse_or_transport
+  #pragma kernel Rand_grp_init_1M
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_fill_1K

@@ -13,7 +13,8 @@
   #define VGrid_Lib_BDraw_Draw_WebCam	8
   #define VGrid_Lib_BDraw_Draw_Mesh	9
   #define VGrid_Lib_BDraw_Draw_Number	10
-  #define VGrid_Lib_BDraw_Draw_N	11
+  #define VGrid_Lib_BDraw_Draw_Text3D	11
+  #define VGrid_Lib_BDraw_Draw_N	12
   #define VGrid_Lib_BDraw_TextAlignment_BottomLeft	0
   #define VGrid_Lib_BDraw_TextAlignment_CenterLeft	1
   #define VGrid_Lib_BDraw_TextAlignment_TopLeft	2
@@ -43,7 +44,6 @@
   #define Views_Lib_ProjectionMode_Automatic	0
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
-  #define VGrid_Lib_BDraw_Draw_Text3D 12
   #define VGrid_Lib_BDraw_LF 10
   #define VGrid_Lib_BDraw_TB 9
   #define VGrid_Lib_BDraw_ZERO 48

@@ -30,36 +30,36 @@ class gsFR_Smart_GS : _GS
   float[] a, X, Y, b, row_maxAbs;
   int[] ia, sums;
   uint[] P, uints;
-  void InitP() { Size(N); }
+  void InitP() => Size(N); 
 
   enum UInts { maxAbs, maxElementRow, maxElementVal, N };
 
-  void Find_row_maxAbs() { Size(N); }
-  void Find_maxAbs() { Size(1); }
-  void Find_maxElementRow() { Size(1); }
-  void Interlock_Find_maxElementVal() { Size(N); }
-  void Interlock_Find_maxElementRow() { Size(N); }
+  void Find_row_maxAbs() => Size(N); 
+  void Find_maxAbs() => Size(1); 
+  void Find_maxElementRow() => Size(1); 
+  void Interlock_Find_maxElementVal() => Size(N); 
+  void Interlock_Find_maxElementRow() => Size(N); 
 
-  void MakeLowerTriangleZeroAndFillWithL() { Size(N); }
-  void Divide_by_maxAbs() { Size(N * N); }
+  void MakeLowerTriangleZeroAndFillWithL() => Size(N); 
+  void Divide_by_maxAbs() => Size(N * N); 
 
-  void Find_rowMultiplier() { Size(1); }
-  void MakeElementZeroAndFillWithLowerMatrixElement() { Size(N); }
-  void Set_rowMultiplier() { Size(1); }
+  void Find_rowMultiplier() => Size(1); 
+  void MakeElementZeroAndFillWithLowerMatrixElement() => Size(N); 
+  void Set_rowMultiplier() => Size(1); 
 
-  //void Interlock_MakeElementZeroAndFillWithLowerMatrixElement() { Size(N); }
+  //void Interlock_MakeElementZeroAndFillWithLowerMatrixElement() => Size(N); 
 
-  void SolveYfromLYequalB() { Size(1); }
-  void SolveXfromUXequalY() { Size(1); }
+  void SolveYfromLYequalB() => Size(1); 
+  void SolveXfromUXequalY() => Size(1); 
 
-  void Interlock_Sum_SolveYfromLYequalB() { Size(N); }
-  void Interlock_Sum_SolveXfromUXequalY() { Size(N); }
-  void Interlock_SolveYfromLYequalB() { Size(1); }
-  void Interlock_SolveXfromUXequalY() { Size(1); }
+  void Interlock_Sum_SolveYfromLYequalB() => Size(N); 
+  void Interlock_Sum_SolveXfromUXequalY() => Size(N); 
+  void Interlock_SolveYfromLYequalB() => Size(1); 
+  void Interlock_SolveXfromUXequalY() => Size(1); 
 
   [GS_UI, AttGS(GS_Buffer.GroupShared)] float[] grp_f_4096 { set => Size(4096); }
-  void Zero_B() { Size(N); }
-  void A_times_B_to_X() { Size(N); }
+  void Zero_B() => Size(N); 
+  void A_times_B_to_X() => Size(N); 
 
   [GS_UI, AttGS("UI|User Interface")] TreeGroupEnd groupEnd_UI;
 }

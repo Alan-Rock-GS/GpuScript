@@ -50,42 +50,6 @@ Shader "gs/gsBDraw"
   #define MINUS 45
   #define SPACE 32
   #define g gBDraw[0]
-  #define Draw_Point	0
-  #define Draw_Sphere	1
-  #define Draw_Line	2
-  #define Draw_Arrow	3
-  #define Draw_Signal	4
-  #define Draw_LineSegment	5
-  #define Draw_Texture_2D	6
-  #define Draw_Quad	7
-  #define Draw_WebCam	8
-  #define Draw_Mesh	9
-  #define Draw_Number	10
-  #define Draw_Text3D	11
-  #define Draw_N	12
-  #define TextAlignment_BottomLeft	0
-  #define TextAlignment_CenterLeft	1
-  #define TextAlignment_TopLeft	2
-  #define TextAlignment_BottomCenter	3
-  #define TextAlignment_CenterCenter	4
-  #define TextAlignment_TopCenter	5
-  #define TextAlignment_BottomRight	6
-  #define TextAlignment_CenterRight	7
-  #define TextAlignment_TopRight	8
-  #define Text_QuadType_FrontOnly	0
-  #define Text_QuadType_FrontBack	1
-  #define Text_QuadType_Switch	2
-  #define Text_QuadType_Arrow	3
-  #define Text_QuadType_Billboard	4
-  #define LF 10
-  #define TB 9
-  #define ZERO 48
-  #define NINE 57
-  #define PERIOD 46
-  #define COMMA 44
-  #define PLUS 43
-  #define MINUS 45
-  #define SPACE 32
   struct GBDraw
   {
     uint ABuff_IndexN, ABuff_BitN, ABuff_N, ABuff_BitN1, ABuff_BitN2, omitText, includeUnicode, fontInfoN, textN, textCharN, boxEdgeN;
