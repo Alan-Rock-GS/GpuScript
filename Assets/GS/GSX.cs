@@ -71,6 +71,9 @@ namespace GpuScript
 		public static GameObject Active(this GameObject o, bool active) { if (o?.activeSelf != active) o?.SetActive(active); return o; }
 
 		public static float3 P(this GameObject o) => o.transform.position;
+		public static float3 P(this GameObject o,float3 p) => o.transform.position = p;
+		public static float3 localP(this GameObject o) => o.transform.localPosition;
+		public static float3 localP(this GameObject o, float3 p) => o.transform.localPosition = p;
 		public static float3 Angles(this GameObject o) => o.transform.eulerAngles;
 		public static void Angles(this GameObject o, float3 a) => o.transform.eulerAngles = a;
 		public static void Angles(this GameObject o, float x, float y, float z) => o.Angles(float3(x, y, z));

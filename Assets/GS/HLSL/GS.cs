@@ -1477,18 +1477,23 @@ namespace GpuScript
 		public static float3 lerp(float2 range, float3 w) { return lerp(range.x, range.y, w); }
 		public static float4 lerp(float2 range, float4 w) { return lerp(range.x, range.y, w); }
 
-		public static float3 pxy0(float2 p) { return float3(p, 0); }
-		public static float3 px0y(float2 p) { return float3(p.x, 0, p.y); }
-		public static float3 p0xy(float2 p) { return float3(0, p); }
-		public static float3 pyx0(float2 p) { return float3(p.yx, 0); }
-		public static float3 py0x(float2 p) { return float3(p.y, 0, p.x); }
-		public static float3 p0yx(float2 p) { return float3(0, p.yx); }
+		public static float3 xyO(float x, float y) { return float3(x, y, 0); }
+		public static float3 xyO(float2 p) { return float3(p, 0); }
+		public static float3 xOy(float2 p) { return float3(p.x, 0, p.y); }
+		public static float3 Oxy(float2 p) { return float3(0, p); }
+		public static float3 yxO(float2 p) { return float3(p.yx, 0); }
+		public static float3 yOx(float2 p) { return float3(p.y, 0, p.x); }
+		public static float3 Oyx(float2 p) { return float3(0, p.yx); }
 
 		//public static float Convert_Angle(float v, float mn, float mx) { return ((v + mx) % (mx - mn)) - mn; }
 		public static float Convert_180_180(float v) { return ((v + 540) % 360) - 180; }
 		public static float2 Convert_180_180(float2 v) { return ((v + 540) % 360) - 180; }
 		public static float3 Convert_180_180(float3 v) { return ((v + 540) % 360) - 180; }
 		public static float4 Convert_180_180(float4 v) { return ((v + 540) % 360) - 180; }
+		public static float degrees_180_180(float v) { return Convert_180_180(degrees(v)); }
+		public static float2 degrees_180_180(float2 v) { return Convert_180_180(degrees(v)); }
+		public static float3 degrees_180_180(float3 v) { return Convert_180_180(degrees(v)); }
+		public static float4 degrees_180_180(float4 v) { return Convert_180_180(degrees(v)); }
 
 
 		public static float tanDeg(float v) { return tan(degrees(v)); }
@@ -4621,6 +4626,16 @@ namespace GpuScript
 		}
 
 #if UNITY_STANDALONE_WIN
+
+		const int APPCOMMAND_VOLUME_MUTE = 0x80000, WM_APPCOMMAND = 0x319;
+		[DllImport("user32.dll")] public static extern IntPtr SendMessageW(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+		public static void ToggleMuteMasterVolume()
+		{
+			IntPtr handle = Process.GetCurrentProcess().MainWindowHandle; //GetForegroundWindow();
+			SendMessageW(handle, WM_APPCOMMAND, handle, (IntPtr)APPCOMMAND_VOLUME_MUTE);
+		}     // For system-wide control, you might use GetDesktopWindow() or find a specific window handle.
+
+
 		[DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();  //https://stackoverflow.com/questions/1163761/capture-screenshot-of-active-window
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)] public static extern IntPtr GetDesktopWindow();
 		[StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; }
