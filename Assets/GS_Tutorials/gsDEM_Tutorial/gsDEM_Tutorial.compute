@@ -23,7 +23,8 @@
   #define BDraw_Draw_WebCam	8
   #define BDraw_Draw_Mesh	9
   #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
+  #define BDraw_Draw_Text3D	11
+  #define BDraw_Draw_N	12
   #define BDraw_TextAlignment_BottomLeft	0
   #define BDraw_TextAlignment_CenterLeft	1
   #define BDraw_TextAlignment_TopLeft	2
@@ -38,7 +39,6 @@
   #define BDraw_Text_QuadType_Switch	2
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
-  #define BDraw_Draw_Text3D 12
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48

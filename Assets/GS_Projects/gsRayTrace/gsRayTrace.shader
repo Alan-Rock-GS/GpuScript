@@ -27,7 +27,8 @@ Shader "gs/gsRayTrace"
   #define BDraw_Draw_WebCam	8
   #define BDraw_Draw_Mesh	9
   #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
+  #define BDraw_Draw_Text3D	11
+  #define BDraw_Draw_N	12
   #define BDraw_TextAlignment_BottomLeft	0
   #define BDraw_TextAlignment_CenterLeft	1
   #define BDraw_TextAlignment_TopLeft	2
@@ -42,7 +43,6 @@ Shader "gs/gsRayTrace"
   #define BDraw_Text_QuadType_Switch	2
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
-  #define BDraw_Draw_Text3D 12
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -53,45 +53,6 @@ Shader "gs/gsRayTrace"
   #define BDraw_MINUS 45
   #define BDraw_SPACE 32
   #define g gRayTrace[0]
-  #define Views_Lib_ProjectionMode_Automatic	0
-  #define Views_Lib_ProjectionMode_Perspective	1
-  #define Views_Lib_ProjectionMode_Orthographic	2
-  #define BDraw_Draw_Point	0
-  #define BDraw_Draw_Sphere	1
-  #define BDraw_Draw_Line	2
-  #define BDraw_Draw_Arrow	3
-  #define BDraw_Draw_Signal	4
-  #define BDraw_Draw_LineSegment	5
-  #define BDraw_Draw_Texture_2D	6
-  #define BDraw_Draw_Quad	7
-  #define BDraw_Draw_WebCam	8
-  #define BDraw_Draw_Mesh	9
-  #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
-  #define BDraw_TextAlignment_BottomLeft	0
-  #define BDraw_TextAlignment_CenterLeft	1
-  #define BDraw_TextAlignment_TopLeft	2
-  #define BDraw_TextAlignment_BottomCenter	3
-  #define BDraw_TextAlignment_CenterCenter	4
-  #define BDraw_TextAlignment_TopCenter	5
-  #define BDraw_TextAlignment_BottomRight	6
-  #define BDraw_TextAlignment_CenterRight	7
-  #define BDraw_TextAlignment_TopRight	8
-  #define BDraw_Text_QuadType_FrontOnly	0
-  #define BDraw_Text_QuadType_FrontBack	1
-  #define BDraw_Text_QuadType_Switch	2
-  #define BDraw_Text_QuadType_Arrow	3
-  #define BDraw_Text_QuadType_Billboard	4
-  #define BDraw_Draw_Text3D 12
-  #define BDraw_LF 10
-  #define BDraw_TB 9
-  #define BDraw_ZERO 48
-  #define BDraw_NINE 57
-  #define BDraw_PERIOD 46
-  #define BDraw_COMMA 44
-  #define BDraw_PLUS 43
-  #define BDraw_MINUS 45
-  #define BDraw_SPACE 32
   struct GRayTrace
   {
     float sphereRadius, diffuseLight, shadows, orthoSize, maxDist, BDraw_fontSize, BDraw_boxThickness;

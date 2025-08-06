@@ -5,7 +5,6 @@ using System.Reflection;
 using UnityEngine.UIElements;
 namespace GpuScript
 {
-#if NEW_UI
   [UxmlElement]
   public partial class UI_strings : UI_VisualElement
   {
@@ -36,48 +35,6 @@ namespace GpuScript
       UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
       e.uxml.Add($" is-grid=\"true\" />");
     }
-#elif !NEW_UI
-  public class UI_strings : UI_VisualElement
-  {
-    public override bool Init(GS gs, params GS[] gss)
-    {
-      if (!base.Init(gs, gss)) return false;
-      if (dropdownField.choices.Count == 1 && dropdownField.choices[0].Contains("()")) { choiceMethod = gs.GetType().GetMethod(dropdownField.choices[0].Before("()"), GS.bindings); RefreshChoices(); }
-      v = dropdownField.value;
-      return true;
-    }
-    public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName)
-    {
-      UI_VisualElement.UXML(e, att, name, label, className);
-      if (att.Vals != null) e.uxml.Add(" UI_strings_choices=\"", att.Vals.ToString(), "\"");
-      if (att.Val != null) e.uxml.Add(" UI_strings_Val=\"", att.Val.ToString(), "\"");
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" UI_isGrid=\"true\" />");
-    }
-    public void Build(string title, string description, string choices, string val, bool isReadOnly, bool isGrid, string treeGroup_parent)
-    {
-      base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
-      dropdownField.choices = choices.Split("|").ToList();
-      dropdownField.value = val;
-    }
-    public new class UxmlFactory : UxmlFactory<UI_strings, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlStringAttributeDescription m_strings_choices = new UxmlStringAttributeDescription { name = "UI_strings_choices", defaultValue = "A|B|C" };
-      UxmlStringAttributeDescription m_strings_Val = new UxmlStringAttributeDescription { name = "UI_strings_Val", defaultValue = "values" };
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_strings)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-          m_strings_choices.GetValueFromBag(bag, cc), m_strings_Val.GetValueFromBag(bag, cc),
-          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
-#endif //NEW_UI
     public DropdownField dropdownField;
     public uint index { get => (uint)dropdownField.index; set { dropdownField.index = (int)value; v = dropdownField.text; } }
     public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)

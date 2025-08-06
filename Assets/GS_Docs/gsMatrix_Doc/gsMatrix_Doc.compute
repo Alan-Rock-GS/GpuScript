@@ -24,25 +24,8 @@
   RWStructuredBuffer<float> Matrix_A_matrix, Matrix_Xs, Matrix_Bs, a, X, Y, b, row_maxAbs;
   RWStructuredBuffer<uint> P, uints;
   [numthreads(numthreads1, 1, 1)] void InitP(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; P[i] = i; }  } }
-  [numthreads(numthreads1, 1, 1)] void A_times_B_to_X(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N)
-	{
-		uint i = id.x;
-	}
-	
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Zero_B(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { uint i = id.x; b[i] = 0; }
-	
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void A_times_B_to_X(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; } } }
+  [numthreads(numthreads1, 1, 1)] void Zero_B(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; b[i] = 0; } } }
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
   [numthreads(numthreads2, numthreads2, 1)] void Matrix_Get_A_matrix(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.Matrix_row_n && id.x < g.Matrix_col_m) { } } }
   [numthreads(numthreads2, numthreads2, 1)] void Matrix_Set_A_matrix(uint3 id : SV_DispatchThreadID)
@@ -108,102 +91,41 @@
     }
   }
   float B(uint i) { return b[P[i]]; }
-	
-  [numthreads(numthreads1, 1, 1)] void Interlock_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < 1)
-	{
-		float sum = sums[0] / 1000000.0f;
-		Y[g.focusedRow] = B(g.focusedRow) - sum;
-	}
-	
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void Interlock_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 1) { float sum = sums[0] / 1000000.0f; Y[g.focusedRow] = B(g.focusedRow) - sum; } } }
   uint Mat_Index(uint matI, uint i) { return id_to_i(matI, i, g.MatN, g.MatRowN); }
   int Matx(uint matI, uint i) { return Mat_x[Mat_Index(matI, i)]; }
   void Matx(uint matI, uint i, int V) { Mat_x[Mat_Index(matI, i)] = V; }
-  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_b(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 0); }
-	
-    }
-  }
-  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_x(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 1); }
-	
-    }
-  }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_b(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 0); } } }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y; Matx(matI, i, 1); } } }
   uint Ai(uint i, uint j) { return id_to_i(uint2(i, P[j]), g.N); }
-	
   float A(uint i, uint j) { return a[Ai(i, j)]; }
-	
-  [numthreads(numthreads1, 1, 1)] void Find_row_maxAbs(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { uint i = id.x, n = g.N; float v = fNegInf; for (uint j = g.focusedColumn; j < n; j++) v = max(v, abs(A(i, j))); row_maxAbs[i] = v; }
-	
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void Find_row_maxAbs(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x, n = g.N; float v = fNegInf; for (uint j = g.focusedColumn; j < n; j++) v = max(v, abs(A(i, j))); row_maxAbs[i] = v; } } }
   [numthreads(numthreads1, 1, 1)] void Find_maxElementRow(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (id.x < 1)
-	{
-		float maxV = fNegInf;
-		uint maxRow = 0;
-		for (uint i = g.focusedColumn; i < g.N; i++) { float v = abs(A(g.focusedColumn, i)); if (maxV < v) { maxV = v; maxRow = i; } }
-		uints[UInts_maxElementRow] = maxRow;
-	}
-	
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementRow(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
     {
-      if (id.x < g.N) { uint i = id.x; if (i >= g.focusedColumn && uints[UInts_maxElementVal] == roundu(abs(A(g.focusedColumn, i)) * 1000000)) uints[UInts_maxElementRow] = i; }
-	
+      float maxV = fNegInf;
+      uint maxRow = 0;
+      for (uint i = g.focusedColumn; i < g.N; i++) { float v = abs(A(g.focusedColumn, i)); if (maxV < v) { maxV = v; maxRow = i; } }
+      uints[UInts_maxElementRow] = maxRow;
+    }
     }
   }
-  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementVal(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.N) { uint i = id.x; if (i >= g.focusedColumn) InterlockedMax(uints, UInts_maxElementVal, roundu(abs(A(g.focusedColumn, i)) * 1000000)); }
-	
-    }
-  }
-  [numthreads(numthreads1, 1, 1)] void Find_rowMultiplier(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < 1)
-	{
-		g.rowMultiplier = A(g.focusedColumn, g.focusedRow) / A(g.focusedColumn, g.focusedColumn);
-	}
-	
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementRow(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; if (i >= g.focusedColumn && uints[UInts_maxElementVal] == roundu(abs(A(g.focusedColumn, i)) * 1000000)) uints[UInts_maxElementRow] = i; } } }
+  [numthreads(numthreads1, 1, 1)] void Interlock_Find_maxElementVal(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.N) { uint i = id.x; if (i >= g.focusedColumn) InterlockedMax(uints, UInts_maxElementVal, roundu(abs(A(g.focusedColumn, i)) * 1000000)); } } }
+  [numthreads(numthreads1, 1, 1)] void Find_rowMultiplier(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 1) { g.rowMultiplier = A(g.focusedColumn, g.focusedRow) / A(g.focusedColumn, g.focusedColumn); } } }
   [numthreads(numthreads1, 1, 1)] void Interlock_SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (id.x < 1)
-	{
-		float Arr = A(g.focusedRow, g.focusedRow);
-		if (Arr == 0) X[g.focusedRow] = 0;
-		else { float sum = sums[0] / 1000000.0f; X[g.focusedRow] = (Y[g.focusedRow] - sum) / Arr; }
-	}
-	
+    {
+      float Arr = A(g.focusedRow, g.focusedRow);
+      if (Arr == 0) X[g.focusedRow] = 0;
+      else { float sum = sums[0] / 1000000.0f; X[g.focusedRow] = (Y[g.focusedRow] - sum) / Arr; }
+    }
     }
   }
   [numthreads(numthreads1, 1, 1)] void Interlock_Sum_SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
@@ -211,12 +133,10 @@
     unchecked
     {
       if (id.x < g.N)
-	{
-		uint column = id.x;
-		if (column > g.focusedRow)
-			InterlockedAdd(sums, 0, roundi(X[column] * A(column, g.focusedRow) * 1000000));
-	}
-	
+    {
+      uint column = id.x;
+      if (column > g.focusedRow) InterlockedAdd(sums, 0, roundi(X[column] * A(column, g.focusedRow) * 1000000));
+    }
     }
   }
   [numthreads(numthreads1, 1, 1)] void Interlock_Sum_SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
@@ -224,12 +144,10 @@
     unchecked
     {
       if (id.x < g.N)
-	{
-		uint column = id.x;
-		if (column < g.focusedRow)
-			InterlockedAdd(sums, 0, roundi(Y[column] * A(column, g.focusedRow) * 1000000));
-	}
-	
+    {
+      uint column = id.x;
+      if (column < g.focusedRow) InterlockedAdd(sums, 0, roundi(Y[column] * A(column, g.focusedRow) * 1000000));
+    }
     }
   }
   [numthreads(numthreads1, 1, 1)] void SolveXfromUXequalY(uint3 id : SV_DispatchThreadID)
@@ -237,17 +155,16 @@
     unchecked
     {
       if (id.x < 1)
-	{
-		float Arr = A(g.focusedRow, g.focusedRow);
-		if (Arr == 0) X[g.focusedRow] = 0;
-		else
-		{
-			float sum = 0;
-			for (uint column = g.focusedRow + 1; column < g.N; column++) sum += X[column] * A(column, g.focusedRow);
-			X[g.focusedRow] = (Y[g.focusedRow] - sum) / Arr;
-		}
-	}
-	
+    {
+      float Arr = A(g.focusedRow, g.focusedRow);
+      if (Arr == 0) X[g.focusedRow] = 0;
+      else
+      {
+        float sum = 0;
+        for (uint column = g.focusedRow + 1; column < g.N; column++) sum += X[column] * A(column, g.focusedRow);
+        X[g.focusedRow] = (Y[g.focusedRow] - sum) / Arr;
+      }
+    }
     }
   }
   [numthreads(numthreads1, 1, 1)] void SolveYfromLYequalB(uint3 id : SV_DispatchThreadID)
@@ -255,25 +172,22 @@
     unchecked
     {
       if (id.x < 1)
-	{
-		float sum = 0;
-		for (uint column = 0; column < g.focusedRow; column++) sum += Y[column] * A(column, g.focusedRow);
-		Y[g.focusedRow] = B(g.focusedRow) - sum;
-	}
-	
+    {
+      float sum = 0;
+      for (uint column = 0; column < g.focusedRow; column++) sum += Y[column] * A(column, g.focusedRow);
+      Y[g.focusedRow] = B(g.focusedRow) - sum;
+    }
     }
   }
   void A(uint i, uint j, float v) { a[Ai(i, j)] = v; }
-	
   [numthreads(numthreads1, 1, 1)] void Set_rowMultiplier(uint3 id : SV_DispatchThreadID)
   {
     unchecked
     {
       if (id.x < 1)
-	{
-		A(g.focusedColumn, g.focusedRow, g.rowMultiplier); 
-	}
-	
+    {
+      A(g.focusedColumn, g.focusedRow, g.rowMultiplier); 
+    }
     }
   }
   [numthreads(numthreads1, 1, 1)] void MakeElementZeroAndFillWithLowerMatrixElement(uint3 id : SV_DispatchThreadID)
@@ -281,12 +195,11 @@
     unchecked
     {
       if (id.x < g.N)
-	{                        
-		uint i = id.x;         
-		if (i >= g.focusedColumn)
-			A(i, g.focusedRow, A(i, g.focusedRow) - g.rowMultiplier * A(i, g.focusedColumn));
-	}
-	
+    {                        
+      uint i = id.x;         
+      if (i >= g.focusedColumn)
+        A(i, g.focusedRow, A(i, g.focusedRow) - g.rowMultiplier * A(i, g.focusedColumn));
+    }
     }
   }
   uint MatA_Index(uint matI, uint i, uint colI) { return id_to_i(matI, i, colI, g.MatN, g.MatRowN); }
@@ -296,22 +209,14 @@
     unchecked
     {
       if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN)
-	{
-		uint matI = id.x, i = id.y, j = id.z;
-		InterlockedAdd(Mat_b, Mat_Index(matI, j), MatA(matI, i, j) * Matx(matI, j));
-	}
-	
+    {
+      uint matI = id.x, i = id.y, j = id.z;
+      InterlockedAdd(Mat_b, Mat_Index(matI, j), MatA(matI, i, j) * Matx(matI, j));
+    }
     }
   }
   void MatA(uint matI, uint i, uint j, int V) { Mat_A[MatA_Index(matI, i, j)] = V; }
-  [numthreads(numthreads3, numthreads3, numthreads3)] void Init_Mat_A(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y, j = id.z; MatA(matI, i, j, 1); }
-	
-    }
-  }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Init_Mat_A(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { uint matI = id.x, i = id.y, j = id.z; MatA(matI, i, j, 1); } } }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
@@ -322,14 +227,7 @@
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void Find_maxAbs(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < 1) { float v = fNegInf; for (uint i = g.focusedColumn; i < g.N; i++) v = max(v, row_maxAbs[i]); g.maxAbs = v; }
-	
-    }
-  }
+  [numthreads(numthreads1, 1, 1)] void Find_maxAbs(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 1) { float v = fNegInf; for (uint i = g.focusedColumn; i < g.N; i++) v = max(v, row_maxAbs[i]); g.maxAbs = v; } } }
   #pragma kernel InitP
   #pragma kernel Find_maxAbs
   #pragma kernel Find_row_maxAbs

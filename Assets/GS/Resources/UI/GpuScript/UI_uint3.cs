@@ -5,7 +5,6 @@ using static GpuScript.GS;
 
 namespace GpuScript
 {
-#if NEW_UI
   [UxmlElement]
   public partial class UI_uint3 : UI_Slider_base
   {
@@ -24,41 +23,6 @@ namespace GpuScript
       UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
       e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
     }
-#elif !NEW_UI
-  public class UI_uint3 : UI_Slider_base
-  {
-    public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_uint3(); return true; }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-    }
-    public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly, bool isGrid, bool isPow2Slider,
-      bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
-    {
-      base.Build(title, description, val, format, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
-      this.rangeMin = rangeMin.To_uint3(); this.rangeMax = rangeMax.To_uint3(); SliderV = val.To_uint3();
-      if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
-    }
-    public new class UxmlFactory : UxmlFactory<UI_uint3, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlStringAttributeDescription m_uint3_value = new UxmlStringAttributeDescription { name = "UI_uint3_value" };
-      UxmlStringAttributeDescription m_uint3_min = new UxmlStringAttributeDescription { name = "UI_uint3_min" };
-      UxmlStringAttributeDescription m_uint3_max = new UxmlStringAttributeDescription { name = "UI_uint3_max" };
-
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_uint3)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-            m_uint3_value.GetValueFromBag(bag, cc), m_uint3_min.GetValueFromBag(bag, cc), m_uint3_max.GetValueFromBag(bag, cc),
-            m_Format.GetValueFromBag(bag, cc), m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-            m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
-            m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
-#endif //NEW_UI
     public uint3 Slider_Pow_Val(float3 v) => clamp(roundu(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
     public float3 Slider_Log_Val(uint3 v) => isPow2Slider ? log10(clamp(roundu(v, GetNearest(v)), rangeMin, rangeMax) * 0.999f + 1) : (float3)v;
     public uint3 SliderV { get => Slider_Pow_Val(new float3(sliders[0].value, sliders[1].value, sliders[2].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; } }

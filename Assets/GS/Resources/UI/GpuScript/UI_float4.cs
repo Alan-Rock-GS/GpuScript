@@ -5,7 +5,6 @@ using static GpuScript.GS;
 
 namespace GpuScript
 {
-#if NEW_UI
   [UxmlElement]
   public partial class UI_float4 : UI_Slider_base
   {
@@ -23,47 +22,6 @@ namespace GpuScript
       UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
       e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
     }
-#elif !NEW_UI
-  public class UI_float4 : UI_Slider_base
-	{
-    public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value.To_float4(); return true; }
-    public void Build(string title, string description, string val, string rangeMin, string rangeMax, string _siUnit, string _usUnit, string _Unit,
-      string siFormat, string usFormat, bool isReadOnly, bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
-    {
-      base.Build(title, description, _siUnit, _usUnit, _Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
-      this.rangeMin = rangeMin.To_float4(); this.rangeMax = rangeMax.To_float4(); SliderV = val.To_float4();
-    }
-    public new class UxmlFactory : UxmlFactory<UI_float4, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlStringAttributeDescription m_float4_value = new UxmlStringAttributeDescription { name = "UI_float4_value" };
-      UxmlStringAttributeDescription m_float4_min = new UxmlStringAttributeDescription { name = "UI_float4_min" };
-      UxmlStringAttributeDescription m_float4_max = new UxmlStringAttributeDescription { name = "UI_float4_max" };
-      UxmlStringAttributeDescription m_float4_siFormat = new UxmlStringAttributeDescription { name = "UI_float4_siFormat", defaultValue = "0.0000" };
-      UxmlStringAttributeDescription m_float4_usFormat = new UxmlStringAttributeDescription { name = "UI_float4_usFormat", defaultValue = "0.0000" };
-      UxmlStringAttributeDescription m_float4_siUnit = new UxmlStringAttributeDescription { name = "UI_float4_siUnit", defaultValue = "" };
-      UxmlStringAttributeDescription m_float4_usUnit = new UxmlStringAttributeDescription { name = "UI_float4_usUnit", defaultValue = "" };
-      UxmlStringAttributeDescription m_float4_Unit = new UxmlStringAttributeDescription { name = "UI_float4_Unit", defaultValue = "" };
-
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_float4)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-          m_float4_value.GetValueFromBag(bag, cc), m_float4_min.GetValueFromBag(bag, cc), m_float4_max.GetValueFromBag(bag, cc),
-          m_float4_siUnit.GetValueFromBag(bag, cc), m_float4_usUnit.GetValueFromBag(bag, cc), m_float4_Unit.GetValueFromBag(bag, cc),
-          m_float4_siFormat.GetValueFromBag(bag, cc), m_float4_usFormat.GetValueFromBag(bag, cc),
-          m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-          m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
-          m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
-		public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-		{
-			if (att == null) return;
-			UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-			e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-		}
-#endif //NEW_UI
     public float4 Slider_Pow_Val(float4 v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
 		public float4 Slider_Log_Val(float4 v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
 		public float4 SliderV { get => Slider_Pow_Val(new float4(sliders[0].value, sliders[1].value, sliders[2].value, sliders[3].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; sliders[3].value = v.w; } }
@@ -132,8 +90,6 @@ namespace GpuScript
 			_si = val;
 			SliderV = val;
 		}
-
-		//public float4 siRange, usRange;
 		public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }
 
 		public static implicit operator float4(UI_float4 f) => f.si;

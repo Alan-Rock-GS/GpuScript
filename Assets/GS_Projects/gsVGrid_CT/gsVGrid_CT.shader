@@ -170,7 +170,7 @@ Shader "gs/gsVGrid_CT"
   float4 VGrid_Lib_BDraw_SignalColor(uint chI, uint smpI) { return YELLOW; }
   float VGrid_Lib_BDraw_SignalFillCrest(uint chI, uint smpI) { return 1; }
   float4 VGrid_Lib_BDraw_SignalMarker(uint chI, float smpI) { return f0000; }
-  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return float4(1, 1, 1, 0.2f); }
+  float4 VGrid_Lib_BDraw_SignalBackColor(uint chI, uint smpI) { return f0000; }
   float4 frag_VGrid_Lib_BDraw_Signal(v2f i)
   {
     uint chI = VGrid_Lib_BDraw_o_i(i), SmpN = VGrid_Lib_BDraw_SignalSmpN(chI);
@@ -184,7 +184,7 @@ Shader "gs/gsVGrid_CT"
     float4 marker = VGrid_Lib_BDraw_SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
-    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    if (d < thick) return float4(c.xyz * (1 - d / thick), c.w);
     return VGrid_Lib_BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_VGrid_Lib_GS(v2f i, float4 color)
@@ -316,9 +316,9 @@ Shader "gs/gsVGrid_CT"
   v2f vert_GS(uint i, uint j, v2f o)
   {
     uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;
-    if (level == ++index) { o = vert_VGrid_Lib_BDraw_Text(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_VGrid_Lib_BDraw_Box(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_VGrid_Lib_DrawScreen(i, j, o); o.tj.x = 0; }
+    if (level == ++index) o = vert_VGrid_Lib_BDraw_Text(i, j, o);
+    else if (level == ++index) o = vert_VGrid_Lib_BDraw_Box(i, j, o);
+    else if (level == ++index) o = vert_VGrid_Lib_DrawScreen(i, j, o);
     return o;
   }
   float4 frag(v2f i) : SV_Target

@@ -24,7 +24,8 @@ Shader "gs/gsAxes_Doc"
   #define Axes_Lib_BDraw_Draw_WebCam	8
   #define Axes_Lib_BDraw_Draw_Mesh	9
   #define Axes_Lib_BDraw_Draw_Number	10
-  #define Axes_Lib_BDraw_Draw_N	11
+  #define Axes_Lib_BDraw_Draw_Text3D	11
+  #define Axes_Lib_BDraw_Draw_N	12
   #define Axes_Lib_BDraw_TextAlignment_BottomLeft	0
   #define Axes_Lib_BDraw_TextAlignment_CenterLeft	1
   #define Axes_Lib_BDraw_TextAlignment_TopLeft	2
@@ -54,7 +55,6 @@ Shader "gs/gsAxes_Doc"
   #define Views_Lib_ProjectionMode_Automatic	0
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
-  #define Axes_Lib_BDraw_Draw_Text3D 12
   #define Axes_Lib_BDraw_LF 10
   #define Axes_Lib_BDraw_TB 9
   #define Axes_Lib_BDraw_ZERO 48
@@ -65,57 +65,6 @@ Shader "gs/gsAxes_Doc"
   #define Axes_Lib_BDraw_MINUS 45
   #define Axes_Lib_BDraw_SPACE 32
   #define g gAxes_Doc[0]
-  #define Axes_Lib_BDraw_Draw_Point	0
-  #define Axes_Lib_BDraw_Draw_Sphere	1
-  #define Axes_Lib_BDraw_Draw_Line	2
-  #define Axes_Lib_BDraw_Draw_Arrow	3
-  #define Axes_Lib_BDraw_Draw_Signal	4
-  #define Axes_Lib_BDraw_Draw_LineSegment	5
-  #define Axes_Lib_BDraw_Draw_Texture_2D	6
-  #define Axes_Lib_BDraw_Draw_Quad	7
-  #define Axes_Lib_BDraw_Draw_WebCam	8
-  #define Axes_Lib_BDraw_Draw_Mesh	9
-  #define Axes_Lib_BDraw_Draw_Number	10
-  #define Axes_Lib_BDraw_Draw_N	11
-  #define Axes_Lib_BDraw_TextAlignment_BottomLeft	0
-  #define Axes_Lib_BDraw_TextAlignment_CenterLeft	1
-  #define Axes_Lib_BDraw_TextAlignment_TopLeft	2
-  #define Axes_Lib_BDraw_TextAlignment_BottomCenter	3
-  #define Axes_Lib_BDraw_TextAlignment_CenterCenter	4
-  #define Axes_Lib_BDraw_TextAlignment_TopCenter	5
-  #define Axes_Lib_BDraw_TextAlignment_BottomRight	6
-  #define Axes_Lib_BDraw_TextAlignment_CenterRight	7
-  #define Axes_Lib_BDraw_TextAlignment_TopRight	8
-  #define Axes_Lib_BDraw_Text_QuadType_FrontOnly	0
-  #define Axes_Lib_BDraw_Text_QuadType_FrontBack	1
-  #define Axes_Lib_BDraw_Text_QuadType_Switch	2
-  #define Axes_Lib_BDraw_Text_QuadType_Arrow	3
-  #define Axes_Lib_BDraw_Text_QuadType_Billboard	4
-  #define Axes_Lib_PaletteType_Rainbow	0
-  #define Axes_Lib_PaletteType_GradientRainbow	1
-  #define Axes_Lib_PaletteType_GradientRainbow10	2
-  #define Axes_Lib_PaletteType_GradientRainbow20	3
-  #define Axes_Lib_PaletteType_Heat	4
-  #define Axes_Lib_PaletteType_GradientHeat	5
-  #define Axes_Lib_PaletteType_WhiteRainbow	6
-  #define Axes_Lib_PaletteType_invRainbow	7
-  #define Axes_Lib_PaletteType_Green	8
-  #define Axes_Lib_PaletteType_Gray	9
-  #define Axes_Lib_PaletteType_DarkGray	10
-  #define Axes_Lib_PaletteType_CT	11
-  #define Views_Lib_ProjectionMode_Automatic	0
-  #define Views_Lib_ProjectionMode_Perspective	1
-  #define Views_Lib_ProjectionMode_Orthographic	2
-  #define Axes_Lib_BDraw_Draw_Text3D 12
-  #define Axes_Lib_BDraw_LF 10
-  #define Axes_Lib_BDraw_TB 9
-  #define Axes_Lib_BDraw_ZERO 48
-  #define Axes_Lib_BDraw_NINE 57
-  #define Axes_Lib_BDraw_PERIOD 46
-  #define Axes_Lib_BDraw_COMMA 44
-  #define Axes_Lib_BDraw_PLUS 43
-  #define Axes_Lib_BDraw_MINUS 45
-  #define Axes_Lib_BDraw_SPACE 32
   struct GAxes_Doc
   {
     uint Axes_Lib_BDraw_ABuff_IndexN, Axes_Lib_BDraw_ABuff_BitN, Axes_Lib_BDraw_ABuff_N, Axes_Lib_BDraw_ABuff_BitN1, Axes_Lib_BDraw_ABuff_BitN2, Axes_Lib_BDraw_omitText, Axes_Lib_BDraw_includeUnicode, Axes_Lib_BDraw_fontInfoN, Axes_Lib_BDraw_textN, Axes_Lib_BDraw_textCharN, Axes_Lib_BDraw_boxEdgeN, Axes_Lib_drawGrid, Axes_Lib_drawBox, Axes_Lib_drawAxes, Axes_Lib_customAxesRangeN, Axes_Lib_zeroOrigin, Axes_Lib_buildText, Axes_Lib_showAxes, Axes_Lib_showOutline, Axes_Lib_showNormalizedAxes;

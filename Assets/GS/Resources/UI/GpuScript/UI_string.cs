@@ -6,7 +6,6 @@ using static GpuScript.GS;
 
 namespace GpuScript
 {
-#if NEW_UI
   [UxmlElement]
   public partial class UI_string : UI_VisualElement
   {
@@ -25,7 +24,6 @@ namespace GpuScript
       textField.value = val;
       textField.isReadOnly = isReadOnly;
       textField.isPasswordField = isPassword;
-      //if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
       return true;
     }
     public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName)
@@ -41,45 +39,6 @@ namespace GpuScript
       e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
     }
     public override bool _isGrid { get => base._isGrid; set { base._isGrid = value; headerLabel?.HideIf(label.IsEmpty() || isGrid); } }
-#elif !NEW_UI
-  public class UI_string : UI_VisualElement
-  {
-    public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField.value; return true; }
-    public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName)
-    {
-      UI_VisualElement.UXML(e, att, name, label, className);
-      if (att.Val != null) e.uxml.Add($" {className}_value=\"{att.Val}\"");
-      if (att.isPassword) e.uxml.Add($" UI_string_is_password=\"true\"");
-
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-    }
-    public void Build(string title, string description, string val, bool isReadOnly, bool isPassword, bool isGrid, string treeGroup_parent)
-    {
-      base.Build(title, description, isReadOnly, isGrid, treeGroup_parent);
-      textField.value = val;
-      textField.isReadOnly = isReadOnly;
-      textField.isPasswordField = isPassword;
-      headerLabel?.HideIf(label.IsEmpty() || isGrid);
-    }
-    public new class UxmlFactory : UxmlFactory<UI_string, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlStringAttributeDescription m_string_Val = new UxmlStringAttributeDescription { name = "UI_string_value", defaultValue = "" };
-      UxmlBoolAttributeDescription m_string_isPassword = new UxmlBoolAttributeDescription { name = "UI_string_is_password", defaultValue = false };
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_string)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc), m_string_Val.GetValueFromBag(bag, cc),
-          m_isReadOnly.GetValueFromBag(bag, cc), m_string_isPassword.GetValueFromBag(bag, cc),
-          m_isGrid.GetValueFromBag(bag, cc), m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
-#endif //NEW_UI
     public Label headerLabel;
     public TextField textField;
     public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
@@ -134,6 +93,5 @@ namespace GpuScript
       property?.SetValue(gs, textField.value);
     }
     public override bool Changed { get => textField != null ? textField.value != previousValue : false; set => previousValue = textField != null && !value ? textField.value : ""; }
-
   }
 }

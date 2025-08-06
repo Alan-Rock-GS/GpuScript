@@ -530,85 +530,6 @@ public class GS_Window : EditorWindow
 
 		public virtual string uxml_filename => $"{AssemblyPath(gsName)}{gsName}_UXML.uxml";
 
-#if NEW_UI
-    public UI_Element Get_ui_items()
-    {
-      in_Get_ui_items = true;
-      var items = new List<VisualElement>();
-
-      gameObject ??= FindOrCreate_GameObject(gsName);
-      _gs ??= gameObject.GetComponent<_GS>();
-      gs ??= gameObject.GetComponent<GS>();
-
-      UI_Element e = new UI_Element() { _gs = _gs, gs = gs, root = root };
-      _gs_members = (gsName + "_GS").GetOrderedMembers();
-
-      Stack<string> treeGrps = new();
-      foreach (var member in _gs_members)
-      {
-        e.memberInfo = member;
-        e._GS_memberType = member.GetMemberType();
-        var declaringType = member.DeclaringType;
-        e._GS_fieldType = member.IsFld() ? e._GS_memberType : null;
-        e._GS_propType = member.IsProp() ? e._GS_memberType : null;
-        e.methodInfo = member.IsMethod() ? member.Method() : null;
-        e.attGS = member.AttGS();
-        e.isExternalLib = member.isExternal_Lib();
-        //generate e.uxml if is element, otherwise generate e.uxml for library. Then everything will be in the correct order.
-        bool isRenderMethod = member.IsMethod() && e.attGS != null && e.attGS.isGS_Render;
-        string typeStr = e._GS_memberType.ToString();
-        if (typeStr.StartsWith("GpuScript.")) typeStr = typeStr.After("GpuScript.");
-
-        if (typeStr == "class")
-        {
-          _GS_nestedTypes = _GS_Type.GetNestedTypes(_GS_bindings);
-          Type[] classTypes = _GS_nestedTypes.Where(t => !t.IsValueType && !t.IsEnum).Select(t => t).ToArray();
-          e._GS_fieldType = classTypes.First(a => a.Name.After("+") == member.Name);
-        }
-
-
-        if (!e.isExternalLib && e.attGS != null && member.Name != "class" && !isRenderMethod && !e.attGS.GroupShared)
-        {
-          //e.treeGroup = treeGrps.Peek()?.memberInfo;
-          e.tree = treeGrps.Count == 0 ? "" : treeGrps.Peek();
-          UI_VisualElement.UXML_UI_Element(e, _gs_members);
-          //if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(e); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
-          if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(member.Name); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
-        }
-        else if (e.isExternalLib) //if is a library, insert UI
-        {
-          string uxml_file = $"{AssemblyPath(e._GS_memberType.ToString())}{e._GS_memberType}_UXML.uxml", ui0 = "<GpuScript.UI_GS ", ui1 = "</GpuScript.UI_GS>";
-          if (uxml_file.Exists())
-          {
-            string lib_t = uxml_file.ReadAllText(), lib_ui0 = "UI_TreeGroup_Level=\"", lib_ui1 = "\"";
-            if (lib_t.ContainsAll(ui0))
-            {
-              lib_t = lib_t.After(ui0).AfterIncluding("\n").BeforeLast(ui1).BeforeLast("\n");
-              int treeLevel_offset = 0;
-              var treeLevels = new List<int>();
-              for (int i = 0; i < _gs_members.Length; i++)
-              {
-                if (_gs_members[i].IsType(typeof(TreeGroup))) { treeLevel_offset++; treeLevels.Add(i); }
-                else if (_gs_members[i].IsType(typeof(TreeGroupEnd))) { treeLevel_offset--; treeLevels.RemoveAt(treeLevels.Count - 1); }
-                else if (_gs_members[i].IsType(e._GS_memberType)) break;
-              }
-              while (lib_t.Contains("UI_TreeGroup_Level=\""))
-              {
-                int treeLevel = lib_t.Between(lib_ui0, lib_ui1).To_int();
-                e.uxml.Add(lib_t.BeforeIncluding(lib_ui0), treeLevel + treeLevel_offset, lib_ui1);
-                if (treeLevel == 0) e.uxml.Add($" UI_TreeGroup_Parent=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
-                lib_t = lib_t.After(lib_ui0).After(lib_ui1);
-              }
-              e.uxml.Add(lib_t);
-            }
-          }
-        }
-      }
-      ui_items = items.ToArray();
-      in_Get_ui_items = false;
-      return e;
-    }
-#else
 		public UI_Element Get_ui_items()
 		{
 			in_Get_ui_items = true;
@@ -621,6 +542,7 @@ public class GS_Window : EditorWindow
 			UI_Element e = new UI_Element() { _gs = _gs, gs = gs, root = root };
 			_gs_members = (gsName + "_GS").GetOrderedMembers();
 
+			Stack<string> treeGrps = new();
 			foreach (var member in _gs_members)
 			{
 				e.memberInfo = member;
@@ -631,7 +553,8 @@ public class GS_Window : EditorWindow
 				e.methodInfo = member.IsMethod() ? member.Method() : null;
 				e.attGS = member.AttGS();
 				e.isExternalLib = member.isExternal_Lib();
-				bool isRenderMethod = member.IsMethod() && e.attGS != null && e.attGS.isGS_Render;//generate e.uxml if is element, otherwise generate e.uxml for library. Then everything will be in the correct order.
+				//generate e.uxml if is element, otherwise generate e.uxml for library. Then everything will be in the correct order.
+				bool isRenderMethod = member.IsMethod() && e.attGS != null && e.attGS.isGS_Render;
 				string typeStr = e._GS_memberType.ToString();
 				if (typeStr.StartsWith("GpuScript.")) typeStr = typeStr.After("GpuScript.");
 
@@ -641,14 +564,24 @@ public class GS_Window : EditorWindow
 					Type[] classTypes = _GS_nestedTypes.Where(t => !t.IsValueType && !t.IsEnum).Select(t => t).ToArray();
 					e._GS_fieldType = classTypes.First(a => a.Name.After("+") == member.Name);
 				}
+
+
 				if (!e.isExternalLib && e.attGS != null && member.Name != "class" && !isRenderMethod && !e.attGS.GroupShared)
+				{
+					//e.treeGroup = treeGrps.Peek()?.memberInfo;
+					e.tree = treeGrps.Count == 0 ? "" : treeGrps.Peek();
 					UI_VisualElement.UXML_UI_Element(e, _gs_members);
+					//if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(e); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
+					if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(member.Name); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
+				}
 				else if (e.isExternalLib) //if is a library, insert UI
 				{
 					string uxml_file = $"{AssemblyPath(e._GS_memberType.ToString())}{e._GS_memberType}_UXML.uxml", ui0 = "<GpuScript.UI_GS ", ui1 = "</GpuScript.UI_GS>";
 					if (uxml_file.Exists())
 					{
-						string lib_t = uxml_file.ReadAllText(), lib_ui0 = "UI_TreeGroup_Level=\"", lib_ui1 = "\"";
+						//string lib_t = uxml_file.ReadAllText(), lib_ui0 = "UI_TreeGroup_Level=\"", lib_ui1 = "\"";
+						string lib_t = uxml_file.ReadAllText(), lib_ui0 = "level=\"", lib_ui1 = "\"";
+
 						if (lib_t.ContainsAll(ui0))
 						{
 							lib_t = lib_t.After(ui0).AfterIncluding("\n").BeforeLast(ui1).BeforeLast("\n");
@@ -660,11 +593,13 @@ public class GS_Window : EditorWindow
 								else if (_gs_members[i].IsType(typeof(TreeGroupEnd))) { treeLevel_offset--; treeLevels.RemoveAt(treeLevels.Count - 1); }
 								else if (_gs_members[i].IsType(e._GS_memberType)) break;
 							}
-							while (lib_t.Contains("UI_TreeGroup_Level=\""))
+							//while (lib_t.Contains("UI_TreeGroup_Level=\""))
+							while (lib_t.Contains("level=\""))
 							{
 								int treeLevel = lib_t.Between(lib_ui0, lib_ui1).To_int();
 								e.uxml.Add(lib_t.BeforeIncluding(lib_ui0), treeLevel + treeLevel_offset, lib_ui1);
-								if (treeLevel == 0) e.uxml.Add($" UI_TreeGroup_Parent=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
+								//if (treeLevel == 0) e.uxml.Add($" UI_TreeGroup_Parent=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
+								if (treeLevel == 0) e.uxml.Add($" tree=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
 								lib_t = lib_t.After(lib_ui0).After(lib_ui1);
 							}
 							e.uxml.Add(lib_t);
@@ -676,7 +611,6 @@ public class GS_Window : EditorWindow
 			in_Get_ui_items = false;
 			return e;
 		}
-#endif
 
 		public IEnumerator Build_UXML_Coroutine()
 		{
@@ -1895,17 +1829,6 @@ $"\n    {m_name}_To_UI();",
 			"\n    if(data == null) return false;",
 			"\n    foreach (var fld in data.GetType().GetFields(bindings)) if (fld != null && fld.FieldType == typeof(TreeGroup) && fld.GetValue(data) == null) fld.SetValue(data, new TreeGroup() { isChecked = true });",
 			"\n    data_to_ui();", Load_UI,
-			"\n#if !NEW_UI",
-			"\n    if (lib_parent_gs == this)",
-			"\n    {",
-			"\n      foreach (var lib in GetComponents<GS>())",
-			"\n        if (lib != this && lib.GetType() != \"gsProject_Lib\".ToType())",
-			"\n        {",
-			"\n          lib.Build_UI();",
-			"\n          lib.Load_UI();",
-			"\n        }",
-			"\n    }",
-			"\n#endif //!NEW_UI",
 			"\n    ui_loaded = true;",
 			"\n    return true;",
 			"\n  }",

@@ -80,6 +80,7 @@ Shader "gs/gsRand_Doc"
   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
+  v2f vert_BDraw_Box(uint i, uint j, v2f o) { return o; }
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }
   void onRenderObject_LIN(uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { onRenderObject_LIN(true, _itemN, i, index, LIN); }
   uint3 onRenderObject_LIN(uint i) { uint3 LIN = u000; uint index = 0; onRenderObject_LIN(g.drawGroup == DrawGroup_Average || g.drawGroup == DrawGroup_PI_Area || g.drawGroup == DrawGroup_PI_Integral, 1, i, index, LIN); onRenderObject_LIN(g.drawGroup == DrawGroup_Average, 1, i, index, LIN); onRenderObject_LIN(g.drawGroup == DrawGroup_Average, 1, i, index, LIN); onRenderObject_LIN(g.drawGroup == DrawGroup_Average || g.drawGroup == DrawGroup_PI_Area || g.drawGroup == DrawGroup_PI_Integral, g.pntN, i, index, LIN); onRenderObject_LIN(g.drawGroup == DrawGroup_TSP, g.starN, i, index, LIN); onRenderObject_LIN(g.drawGroup == DrawGroup_TSP, g.starN, i, index, LIN); onRenderObject_LIN(13, i, index, LIN); onRenderObject_LIN(g.BDraw_textN, i, index, LIN); onRenderObject_LIN(g.BDraw_boxEdgeN, i, index, LIN); return LIN; }
@@ -87,10 +88,8 @@ Shader "gs/gsRand_Doc"
   uint bestPath(uint starI) { return starPaths[starI % g.starN]; }
   float4 palette(float v) { return paletteColor(_PaletteTex, v); }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
-  float3 BDraw_gridMin() { return f000; }
-  float3 BDraw_gridMax() { return f111; }
   uint BDraw_o_drawType(v2f o) { return roundu(o.ti.z); }
-  float4 frag_BDraw_Sphere(v2f i) { float2 uv = i.uv; float r = dot(uv, uv); float4 color = i.color; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_Sphere(v2f i) { float2 uv = i.uv; float r = dot(uv, uv); float4 color = i.color; if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_BDraw_Mesh(v2f i) { float3 p = i.wPos; float4 color = i.color; color.xyz += dot(i.normal, _WorldSpaceLightPos0.xyz) / 2; return saturate(color); }
   uint BDraw_o_i(v2f o) { return roundu(o.ti.x); }
   float4 frag_BDraw_Text(Texture2D t, RWStructuredBuffer<uint> _text, RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos, float BDraw_fontSize, uint quadType, float4 backColor, uint2 textIs, v2f i)
@@ -120,6 +119,7 @@ Shader "gs/gsRand_Doc"
     return color;
   }
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
+  bool BDraw_SignalQuad(uint chI) { return false; }
   v2f BDraw_o_i(uint i, v2f o) { o.ti.x = i; return o; }
   v2f BDraw_o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
   v2f BDraw_o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
@@ -132,9 +132,9 @@ Shader "gs/gsRand_Doc"
   float3 BDraw_quad(float3 p0, float3 p1, float3 p2, float3 p3, uint j) { return j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1; }
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   float BDraw_o_r(v2f o) { return o.ti.w; }
-  float4 frag_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_BDraw_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   uint BDraw_SignalSmpN(uint chI) { return g.pntN; }
   float BDraw_SignalThickness(uint chI, uint smpI) { return g.lineThickness; }
   float4 BDraw_SignalColor(uint chI, uint smpI) { return GREEN; }
@@ -154,8 +154,6 @@ Shader "gs/gsRand_Doc"
   v2f vert_Draw_Stars(uint i, uint j, v2f o) { return vert_BDraw_Sphere(stars[i], g.lineThickness * 2, YELLOW, i, j, o); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float r, uint j) { return BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j); }
-  v2f vert_BDraw_Signal(float3 p0, float3 p1, float r, uint i, uint j, v2f o) { return BDraw_o_i(i, BDraw_o_p0(p0, BDraw_o_p1(p1, BDraw_o_uv(f11 - BDraw_JQuadf(j).yx, BDraw_o_drawType(BDraw_Draw_Signal, BDraw_o_r(r, BDraw_o_pos_c(BDraw_LineArrow_p4(1, p0, p1, r, j), o))))))); }
-  v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { return vert_BDraw_Signal(float3(-1, 1.1f, 0), float3(1, 1.1f, 0), signal_panel_width(), i, j, o); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return BDraw_o_i(i, BDraw_o_p0(p0, BDraw_o_p1(p1, BDraw_o_r(r, BDraw_o_drawType(BDraw_Draw_Line, BDraw_o_color(color, BDraw_o_uv(BDraw_Line_uv(p0, p1, r, j), BDraw_o_pos_c(BDraw_LineArrow_p4(1, p0, p1, r, j), o)))))))); }
   v2f vert_Draw_Calc_Avg(uint i, uint j, v2f o) { float3 p = signal_panel_width() * float3(0, g.Avg_Val, -2); return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o); }
   v2f vert_Draw_Avg(uint i, uint j, v2f o) { float3 p = -signal_panel_width() * f001; return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o); }
@@ -172,7 +170,19 @@ Shader "gs/gsRand_Doc"
     if (i < 12) return vert_BDraw_BoxFrame(f___, f111, r, BLACK, i, j, o);
     else return vert_BDraw_Quad(f0__, f0_1, f011, f01_, float4(0, 0, 1, 0.25f), i, j, o);
   }
-  v2f vert_BDraw_Box(uint i, uint j, v2f o) { return vert_BDraw_BoxFrame(BDraw_gridMin(), BDraw_gridMax(), g.BDraw_boxThickness, g.BDraw_boxColor, i, j, o); }
+  float3 BDraw_SignalQuad_Min(uint chI) { return f000; }
+  float3 BDraw_SignalQuad_p0(uint chI) { return BDraw_SignalQuad_Min(chI); }
+  float3 BDraw_SignalQuad_Size(uint chI) { return f111; }
+  float3 BDraw_SignalQuad_p1(uint chI) { return BDraw_SignalQuad_p0(chI) + BDraw_SignalQuad_Size(chI) * f100; }
+  float3 BDraw_SignalQuad_p2(uint chI) { return BDraw_SignalQuad_p0(chI) + BDraw_SignalQuad_Size(chI) * f110; }
+  float3 BDraw_SignalQuad_p3(uint chI) { return BDraw_SignalQuad_p0(chI) + BDraw_SignalQuad_Size(chI) * f010; }
+  v2f vert_BDraw_Signal(float3 p0, float3 p1, float r, uint i, uint j, v2f o)
+  {
+    if (!BDraw_SignalQuad(i)) return BDraw_o_i(i, BDraw_o_p0(p0, BDraw_o_p1(p1, BDraw_o_uv(f11 - BDraw_JQuadf(j).yx, BDraw_o_drawType(BDraw_Draw_Signal, BDraw_o_r(r, BDraw_o_pos_c(BDraw_LineArrow_p4(1, p0, p1, r, j), o)))))));
+    float3 q0 = BDraw_SignalQuad_p0(i), q1 = BDraw_SignalQuad_p1(i), q2 = BDraw_SignalQuad_p2(i), q3 = BDraw_SignalQuad_p3(i);
+    return BDraw_o_p0(p0, BDraw_o_p1(p1, BDraw_o_r(distance(q0, q3), BDraw_o_drawType(BDraw_Draw_Signal, vert_BDraw_Quad(q0, q1, q2, q3, f1111, i, j, o)))));
+  }
+  v2f vert_Draw_Random_Signal(uint i, uint j, v2f o) { return vert_BDraw_Signal(float3(-1, 1.1f, 0), float3(1, 1.1f, 0), signal_panel_width(), i, j, o); }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
@@ -200,7 +210,7 @@ Shader "gs/gsRand_Doc"
     float4 marker = BDraw_SignalMarker(chI, smpI);
     if (marker.w > 0) return marker;
     if (crest >= 0 ? y > crest && y < v : y < crest && y > v) return c;
-    if (d < thick) return float4(c.xyz * (1 - d / thick), 1);
+    if (d < thick) return float4(c.xyz * (1 - d / thick), c.w);
     return BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_BDraw_GS(v2f i, float4 color)
@@ -322,15 +332,15 @@ Shader "gs/gsRand_Doc"
   v2f vert_GS(uint i, uint j, v2f o)
   {
     uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;
-    if (level == ++index) { o = vert_Draw_Random_Signal(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_Draw_Calc_Avg(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_Draw_Avg(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_Draw_Pnts(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_Draw_Stars(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_Draw_Star_Path(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_Draw_Stars_Border(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_BDraw_Text(i, j, o); o.tj.x = 0; }
-    else if (level == ++index) { o = vert_BDraw_Box(i, j, o); o.tj.x = 0; }
+    if (level == ++index) o = vert_Draw_Random_Signal(i, j, o);
+    else if (level == ++index) o = vert_Draw_Calc_Avg(i, j, o);
+    else if (level == ++index) o = vert_Draw_Avg(i, j, o);
+    else if (level == ++index) o = vert_Draw_Pnts(i, j, o);
+    else if (level == ++index) o = vert_Draw_Stars(i, j, o);
+    else if (level == ++index) o = vert_Draw_Star_Path(i, j, o);
+    else if (level == ++index) o = vert_Draw_Stars_Border(i, j, o);
+    else if (level == ++index) o = vert_BDraw_Text(i, j, o);
+    else if (level == ++index) o = vert_BDraw_Box(i, j, o);
     return o;
   }
   float4 frag(v2f i) : SV_Target

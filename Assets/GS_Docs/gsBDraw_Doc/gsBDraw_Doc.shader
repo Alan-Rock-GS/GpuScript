@@ -24,7 +24,8 @@ Shader "gs/gsBDraw_Doc"
   #define BDraw_Draw_WebCam	8
   #define BDraw_Draw_Mesh	9
   #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
+  #define BDraw_Draw_Text3D	11
+  #define BDraw_Draw_N	12
   #define BDraw_TextAlignment_BottomLeft	0
   #define BDraw_TextAlignment_CenterLeft	1
   #define BDraw_TextAlignment_TopLeft	2
@@ -39,8 +40,6 @@ Shader "gs/gsBDraw_Doc"
   #define BDraw_Text_QuadType_Switch	2
   #define BDraw_Text_QuadType_Arrow	3
   #define BDraw_Text_QuadType_Billboard	4
-  #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48
@@ -51,43 +50,6 @@ Shader "gs/gsBDraw_Doc"
   #define BDraw_MINUS 45
   #define BDraw_SPACE 32
   #define g gBDraw_Doc[0]
-  #define BDraw_Draw_Point	0
-  #define BDraw_Draw_Sphere	1
-  #define BDraw_Draw_Line	2
-  #define BDraw_Draw_Arrow	3
-  #define BDraw_Draw_Signal	4
-  #define BDraw_Draw_LineSegment	5
-  #define BDraw_Draw_Texture_2D	6
-  #define BDraw_Draw_Quad	7
-  #define BDraw_Draw_WebCam	8
-  #define BDraw_Draw_Mesh	9
-  #define BDraw_Draw_Number	10
-  #define BDraw_Draw_N	11
-  #define BDraw_TextAlignment_BottomLeft	0
-  #define BDraw_TextAlignment_CenterLeft	1
-  #define BDraw_TextAlignment_TopLeft	2
-  #define BDraw_TextAlignment_BottomCenter	3
-  #define BDraw_TextAlignment_CenterCenter	4
-  #define BDraw_TextAlignment_TopCenter	5
-  #define BDraw_TextAlignment_BottomRight	6
-  #define BDraw_TextAlignment_CenterRight	7
-  #define BDraw_TextAlignment_TopRight	8
-  #define BDraw_Text_QuadType_FrontOnly	0
-  #define BDraw_Text_QuadType_FrontBack	1
-  #define BDraw_Text_QuadType_Switch	2
-  #define BDraw_Text_QuadType_Arrow	3
-  #define BDraw_Text_QuadType_Billboard	4
-  #define BDraw_Draw_Text3D 12
-  #define BDraw_maxByteN 2097152
-  #define BDraw_LF 10
-  #define BDraw_TB 9
-  #define BDraw_ZERO 48
-  #define BDraw_NINE 57
-  #define BDraw_PERIOD 46
-  #define BDraw_COMMA 44
-  #define BDraw_PLUS 43
-  #define BDraw_MINUS 45
-  #define BDraw_SPACE 32
   struct GBDraw_Doc
   {
     float rotation_time, BDraw_fontSize, BDraw_boxThickness;
@@ -108,7 +70,7 @@ Shader "gs/gsBDraw_Doc"
   float4 palette(float v) { return paletteColor(_PaletteTex, v); }
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   uint BDraw_o_drawType(v2f o) { return roundu(o.ti.z); }
-  float4 frag_BDraw_Sphere(v2f i) { float2 uv = i.uv; float r = dot(uv, uv); float4 color = i.color; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_Sphere(v2f i) { float2 uv = i.uv; float r = dot(uv, uv); float4 color = i.color; if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_BDraw_Mesh(v2f i) { float3 p = i.wPos; float4 color = i.color; color.xyz += dot(i.normal, _WorldSpaceLightPos0.xyz) / 2; return saturate(color); }
   uint BDraw_o_i(v2f o) { return roundu(o.ti.x); }
   float4 frag_BDraw_Text(Texture2D t, RWStructuredBuffer<uint> _text, RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos, float BDraw_fontSize, uint quadType, float4 backColor, uint2 textIs, v2f i)
@@ -150,9 +112,9 @@ Shader "gs/gsBDraw_Doc"
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   v2f BDraw_o_r(float r, v2f o) { o.ti.w = r; return o; }
   float BDraw_o_r(v2f o) { return o.ti.w; }
-  float4 frag_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
-  float4 frag_BDraw_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = new float3(uv, r - 1), _LightDir = new float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
+  float4 frag_BDraw_LineSegment(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); uv.x = 0; r = dot(uv, uv) / r2; if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   uint BDraw_SignalSmpN(uint chI) { return 1024; }
   float BDraw_SignalThickness(uint chI, uint smpI) { return 0.004f; }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return 0; }

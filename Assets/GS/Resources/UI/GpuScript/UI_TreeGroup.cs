@@ -6,93 +6,40 @@ using UnityEngine.UIElements;
 
 namespace GpuScript
 {
-#if NEW_UI
-  [UxmlElement]
-  public partial class UI_TreeGroup : UI_VisualElement
-  {
-    int _level;
-    [UxmlAttribute]
-    public int level
-    {
-      get => _level;
-      set
-      {
-        _level = value;
-        //print($"level {level}, label {label}, label_Title is {(label_Title == null ? "null" : "ok")}");
-        label_Title.text = label;
-        int n3 = level % 3;
-        Color color = n3 == 0 ? GS.YELLOW : n3 == 1 ? GS.LIGHT_CYAN : GS.LIGHT_GREEN;
-        label_Indent.text = level == 0 ? "" : "".PadLeft(level, '-') + ">";// "-----";
-        float label_w = GS.UI_TextWidth(label_Indent.text), title_w = GS.UI_TextWidth(Label) * 1.3f;
-        Assign_style(label_Indent, width: label_w, maxwidth: label_w, background_color: color, display: level > 0);
-        Assign_style(label_Title, width: title_w, maxwidth: title_w, background_color: color);
-        float total_w = 20 + label_w + title_w;
-        style.width = total_w;
-        var ui_treeGroup = this.Q<VisualElement>("UI_TreeGroup"); if (ui_treeGroup != null) ui_treeGroup.style.width = total_w;
-      }
-    }
-    public static void UXML_UI_Element(UI_Element e)
-    {
-      //print($"UXML_UI_Element");
-      var ui_treeGroup = e.root?.Query<UI_TreeGroup>(e.memberInfo.Name).First();
-      if (e.isNull = ui_treeGroup == null) ui_treeGroup = new UI_TreeGroup() { name = e.memberInfo.Name, label = e.attGS.Name };
-      UI_VisualElement.UXML(e, e.attGS, e.memberInfo.Name, e.attGS.Name, className);
-      e.uxml.Add($" is-checked=\"true\" level=\"{e.level}\"");
-      e.level++;
-      e.uxml_level = e.level + 2;
-      e.uxml.Add($" />");
-    }
-#elif !NEW_UI
-  public class UI_TreeGroup : UI_VisualElement
-  {
-    public int level;
-    public static void UXML_UI_Element(UI_Element e)
-    {
-      var ui_treeGroup = e.root?.Query<UI_TreeGroup>(e.memberInfo.Name).First();
-      if (e.isNull = ui_treeGroup == null) ui_treeGroup = new UI_TreeGroup() { name = e.memberInfo.Name, label = e.attGS.Name };
-      UI_VisualElement.UXML(e, e.attGS, e.memberInfo.Name, e.attGS.Name, className);
-      var p = e.treeGroup;
-      e.treeGroup = ui_treeGroup;
-      e.treeGroup.treeGroup_parent = p;
-      e.treeGroup.treeGroup_parent_name = p?.name ?? "";
-      e.uxml.Add(" UI_TreeGroup_Checked=\"true\"");
-      e.uxml.Add($" UI_TreeGroup_Level=\"{e.level}\"");
-      e.level++;
-      e.uxml_level = e.level + 2;
-      e.uxml.Add($" />");
-    }
-    public void Build(string Label, string Description, string treeGroup_parent, bool isChecked, int level)
-    {
-      Build(Label, Description, false, treeGroup_parent);
-      toggle.value = isChecked;
-      this.level = level;
-      label_Title.text = Label;
-      int n3 = level % 3;
-      Color color = n3 == 0 ? GS.YELLOW : n3 == 1 ? GS.LIGHT_CYAN : GS.LIGHT_GREEN;
-      label_Indent.text = level == 0 ? "" : "".PadLeft(level, '-') + ">";// "-----";
-      float label_w = GS.UI_TextWidth(label_Indent.text);
-      float title_w = GS.UI_TextWidth(Label) * 1.3f;
-      Assign_style(label_Indent, width: label_w, maxwidth: label_w, background_color: color, display: level > 0);
-      Assign_style(label_Title, width: title_w, maxwidth: title_w, background_color: color);
-      float total_w = 20 + label_w + title_w;
-      style.width = total_w;
-      var ui_treeGroup = this.Q<VisualElement>("UI_TreeGroup");
-      if (ui_treeGroup != null) ui_treeGroup.style.width = total_w;
-    }
-    public new class UxmlFactory : UxmlFactory<UI_TreeGroup, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlBoolAttributeDescription m_TreeGroup_Checked = new UxmlBoolAttributeDescription { name = "UI_TreeGroup_Checked", defaultValue = false };
-      UxmlIntAttributeDescription m_TreeGroup_Level = new UxmlIntAttributeDescription { name = "UI_TreeGroup_Level", defaultValue = 0 };
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_TreeGroup)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-          m_TreeGroup_Parent.GetValueFromBag(bag, cc), m_TreeGroup_Checked.GetValueFromBag(bag, cc), m_TreeGroup_Level.GetValueFromBag(bag, cc));
-      }
-    }
-#endif //NEW_UI
-    public Label label_Indent, label_Title;
+	[UxmlElement]
+	public partial class UI_TreeGroup : UI_VisualElement
+	{
+		int _level;
+		[UxmlAttribute]
+		public int level
+		{
+			get => _level;
+			set
+			{
+				_level = value;
+				label_Title.text = label;
+				int n3 = level % 3;
+				Color color = n3 == 0 ? GS.YELLOW : n3 == 1 ? GS.LIGHT_CYAN : GS.LIGHT_GREEN;
+				label_Indent.text = level == 0 ? "" : "".PadLeft(level, '-') + ">";// "-----";
+				float label_w = GS.UI_TextWidth(label_Indent.text), title_w = GS.UI_TextWidth(Label) * 1.3f;
+				Assign_style(label_Indent, width: label_w, maxwidth: label_w, background_color: color, display: level > 0);
+				Assign_style(label_Title, width: title_w, maxwidth: title_w, background_color: color);
+				float total_w = 20 + label_w + title_w;
+				style.width = total_w;
+				var ui_treeGroup = this.Q<VisualElement>("UI_TreeGroup"); if (ui_treeGroup != null) ui_treeGroup.style.width = total_w;
+			}
+		}
+		public static void UXML_UI_Element(UI_Element e)
+		{
+			var ui_treeGroup = e.root?.Query<UI_TreeGroup>(e.memberInfo.Name).First();
+			if (e.isNull = ui_treeGroup == null) ui_treeGroup = new UI_TreeGroup() { name = e.memberInfo.Name, label = e.attGS.Name };
+			UI_VisualElement.UXML(e, e.attGS, e.memberInfo.Name, e.attGS.Name, className);
+			e.uxml.Add($" is-checked=\"true\" level=\"{e.level}\"");
+			e.level++;
+			e.uxml_level = e.level + 2;
+			e.uxml.Add($" />");
+		}
+		public Label label_Indent, label_Title;
 		public VisualElement toggle_container, tab;
 		public Toggle toggle;
 		public List<UI_VisualElement> ui_children = new List<UI_VisualElement>();
@@ -162,6 +109,6 @@ namespace GpuScript
 		public bool isDisplaying => display;
 		public void Display_Tree_If(bool v) { display = v; ShowHide_Tree(this, v); }
 		public override bool Changed { get => v != previousValue; set => previousValue = value ? !v : v; }
-		public bool isExpanded => v && isShowing && (treeGroup_parent?.isExpanded ?? true);
+		public bool isExpanded => treeGroup_parent == this ? true : isShowing && (toggle?.value ?? false) && (treeGroup_parent?.isExpanded ?? true);
 	}
 }

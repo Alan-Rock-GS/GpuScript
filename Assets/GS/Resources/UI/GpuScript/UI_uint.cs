@@ -5,7 +5,6 @@ using static GpuScript.GS;
 
 namespace GpuScript
 {
-#if NEW_UI
   [UxmlElement]
   public partial class UI_uint : UI_Slider_base
   {
@@ -24,41 +23,6 @@ namespace GpuScript
       UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
       e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
     }
-#elif !NEW_UI
-  public class UI_uint : UI_Slider_base
-  {
-    public override bool Init(GS gs, params GS[] gss) { if (!base.Init(gs, gss)) return false; v = textField_uint; return true; }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" UI_isGrid=\"true\" style=\"width: {width}px;\" />");
-    }
-    public void Build(string title, string description, string val, string rangeMin, string rangeMax, string format, bool isReadOnly,
-      bool isGrid, bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
-    {
-      base.Build(title, description, val, format, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, nearest, nearestDigit, treeGroup_parent);
-      this.rangeMin = rangeMin.To_uint(); this.rangeMax = rangeMax.To_uint(); SliderV = val.To_uint();
-      if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
-
-      
-    }
-    public new class UxmlFactory : UxmlFactory<UI_uint, UxmlTraits> { }
-    public new class UxmlTraits : UI_VisualElement.UxmlTraits
-    {
-      UxmlStringAttributeDescription m_uint_value = new UxmlStringAttributeDescription { name = "UI_uint_value" },
-        m_uint_min = new UxmlStringAttributeDescription { name = "UI_uint_min" }, m_uint_max = new UxmlStringAttributeDescription { name = "UI_uint_max" };
-      public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
-      {
-        base.Init(ve, bag, cc);
-        ((UI_uint)ve).Build(m_Label.GetValueFromBag(bag, cc), m_Description.GetValueFromBag(bag, cc),
-            m_uint_value.GetValueFromBag(bag, cc), m_uint_min.GetValueFromBag(bag, cc), m_uint_max.GetValueFromBag(bag, cc),
-            m_Format.GetValueFromBag(bag, cc), m_isReadOnly.GetValueFromBag(bag, cc), m_isGrid.GetValueFromBag(bag, cc), m_isPow2Slider.GetValueFromBag(bag, cc),
-            m_isPow10.GetValueFromBag(bag, cc), m_isPow2.GetValueFromBag(bag, cc), m_Nearest.GetValueFromBag(bag, cc), m_NearestDigit.GetValueFromBag(bag, cc),
-            m_TreeGroup_Parent.GetValueFromBag(bag, cc));
-      }
-    }
-#endif //NEW_UI
     public uint Slider_Pow_Val(float v) => clamp(roundu(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(flooru(v))), rangeMin, rangeMax);
     public float Slider_Log_Val(uint v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
     public uint SliderV { get => Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) sliders[0].value = Slider_Log_Val(value); } }
