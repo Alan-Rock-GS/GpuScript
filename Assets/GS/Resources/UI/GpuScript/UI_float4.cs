@@ -10,8 +10,8 @@ namespace GpuScript
   {
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
       SliderV = v = val.To_float4(); rangeMin = RangeMin.To_float4(); rangeMax = RangeMax.To_float4(); ;
       if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
       return true;
@@ -47,7 +47,7 @@ namespace GpuScript
 		{
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
 				textField.value = (siUnits ? convert(val / siConvert) : val * convert(GetUnitConversion(siUnit), usUnit)).ToString(format);
-			else if (Unit != Unit.Null) textField.value = (val * convert(GetUnitConversion(Unit), Unit)).ToString(format);
+			//else if (Unit != Unit.Null) textField.value = (val * convert(GetUnitConversion(Unit), Unit)).ToString(format);
 			else textField.value = val.ToString(format);
 		}
 		public float4 v
@@ -107,6 +107,10 @@ namespace GpuScript
 
 		public float4 deg { get => si * convert(Unit, Unit.deg); set => si = value / convert(Unit, Unit.deg); }
 		public float4 rad { get => si * convert(Unit, Unit.rad); set => si = value / convert(Unit, Unit.rad); }
+		public float4 deg_per_sec { get => si * convert(Unit, Unit.deg_per_sec); set => si = value / convert(Unit, Unit.deg_per_sec); }
+		public float4 rad_per_sec { get => si * convert(Unit, Unit.rad_per_sec); set => si = value / convert(Unit, Unit.rad_per_sec); }
+		public float4 rpm { get => si * convert(Unit, Unit.rpm); set => si = value / convert(Unit, Unit.rpm); }
+		public float4 rps { get => si * convert(Unit, Unit.rps); set => si = value / convert(Unit, Unit.rps); }
 
 		public float4 bit { get => si * convert(Unit, Unit.bit); set => si = value / convert(Unit, Unit.bit); }
 		public float4 Byte { get => si * convert(Unit, Unit.Byte); set => si = value / convert(Unit, Unit.Byte); }

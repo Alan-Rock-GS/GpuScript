@@ -26,7 +26,7 @@ namespace GpuScript
 		}
 		public override bool Init(GS gs, params GS[] gss)
 		{
-			base.Init(gs, gss);
+			if (!base.Init(gs, gss) && !isGrid) return false;
 			base.Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
 			headerLabel?.HideIf(label.IsEmpty() || isGrid);
 			SetLabel(isGrid);

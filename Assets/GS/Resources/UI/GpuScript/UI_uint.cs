@@ -10,9 +10,9 @@ namespace GpuScript
   {
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
-      SliderV = v = val.To_uint(); rangeMin = RangeMin.To_uint(); rangeMax = RangeMax.To_uint(); ;
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+      SliderV = v = _val.To_uint(); rangeMin = RangeMin.To_uint(); rangeMax = RangeMax.To_uint(); ;
       if (siUnit != siUnit.Null) { rangeMin *= roundu(convert(siUnit)); rangeMax *= roundu(convert(siUnit)); }
       if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
       return true;
@@ -43,16 +43,16 @@ namespace GpuScript
     public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName) { UI_Slider_base.UXML(e, att, name, label, className); }
     public string textField_value => textField.value.ReplaceAll("/", "");
     public uint textField_uint => textField_value.To_uint();
-    uint _v = default, val = default;
+    uint _v = default, _val = default;
     public uint v
     {
-      get => textField != null ? val = textField_uint : val;
+      get => textField != null ? _val = textField_uint : _val;
       set
       {
-        val = isPow10 ? roundu(pow10(round(log10(value)))) : isPow2 ? roundu(pow2(round(log2(value)))) : value;
-        if (Nearest > 0) val = roundu(val, Nearest);
-        Text(val);
-        if (hasRange) SliderV = val;
+        _val = isPow10 ? roundu(pow10(round(log10(value)))) : isPow2 ? roundu(pow2(round(log2(value)))) : value;
+        if (Nearest > 0) _val = roundu(_val, Nearest);
+        Text(_val);
+        if (hasRange) SliderV = _val;
       }
     }
     public void Text(float val) => textField.value = val.ToString(format);

@@ -62,7 +62,8 @@ namespace GpuScript
 			UXML(e, 0, $"<GpuScript.{typeName} name=\"{name}\"");
 			if (label.IsNotEmpty()) e.uxml.Add(" label=\"", label, "\"");
 			if (att.Description.IsNotEmpty()) e.uxml.Add($" description=\"{att.Description}\"");
-			if (att.readOnly) e.uxml.Add($" isReadonly=\"true\"");
+			//if (att.readOnly) e.uxml.Add($" isReadonly=\"true\"");
+			if (att.readOnly) e.uxml.Add($" is-read-only=\"true\"");
 			if (e.tree.IsNotEmpty()) e.uxml.Add($" tree=\"{e.tree}\"");
 			e.uxml.Add(" tabindex=\"-1\"");
 		}
@@ -87,6 +88,16 @@ namespace GpuScript
 		public virtual void OnUnitsChanged() { }
 		protected void Load() { Resources.Load<VisualTreeAsset>("UI/GpuScript/" + GetType().Name)?.CloneTree(this); }
 		public UI_VisualElement() { Load(); }
+		public UI_VisualElement(int rowI, AttGS att) : this()
+		{
+			var a = att;
+			var fldName = a.Name.ReplaceAll(" ", "_", "-", "_");
+			name = $"UI_float_{fldName}_{rowI + 1}";
+			description = a.Description;
+			isGrid = true;
+			isReadOnly = a.readOnly;
+		}
+
 		public PropertyInfo property;
 		public FieldInfo ui_field;
 		public GS gs;
@@ -305,7 +316,7 @@ namespace GpuScript
 			{
 				case Unit.ns: case Unit.us: case Unit.ms: case Unit.s: case Unit.min: case Unit.hr: case Unit.day: case Unit.week: case Unit.month: case Unit.year: return Unit.s;
 				case Unit.deg: return Unit.deg;
-				case Unit.deg_per_sec: return Unit.deg_per_sec;
+				case Unit.deg_per_sec: case Unit.rpm: case Unit.rps: return Unit.deg_per_sec;
 				case Unit.rad: return Unit.rad;
 				case Unit.bit: case Unit.Byte: case Unit.KB: case Unit.MB: case Unit.GB: case Unit.TB: case Unit.PB: return Unit.Byte;
 				case Unit.bps: case Unit.Bps: case Unit.Kbps: case Unit.Mbps: case Unit.Gbps: case Unit.Tbps: case Unit.Pbps: case Unit.KBps: case Unit.MBps: case Unit.GBps: case Unit.TBps: case Unit.PBps: return Unit.Bps;
@@ -699,7 +710,9 @@ namespace GpuScript
 				case Unit.s: return u == Unit.ns ? 1e+9f : u == Unit.us ? 1e+6f : u == Unit.ms ? 1e+3f : u == Unit.min ? 0.0166667f : u == Unit.hr ? 0.000277778f : u == Unit.day ? 1.15741e-5f : u == Unit.week ? 1.65344e-6f : u == Unit.month ? 3.80517e-7f : u == Unit.year ? 3.17098e-8f : float.NaN;
 				case Unit.ns: case Unit.us: case Unit.ms: case Unit.min: case Unit.hr: case Unit.day: case Unit.week: case Unit.month: case Unit.year: return convert(Unit.s, Unit1) / convert(Unit.s, Unit0);
 				case Unit.deg: return u == Unit.rad ? 0.0174533f : float.NaN;
-				case Unit.deg_per_sec: return u == Unit.rad ? 0.0174533f : 1;
+				//case Unit.deg_per_sec: return u == Unit.rad_per_sec ? 0.0174533f : u == Unit.rps ? 1/6f : u == Unit.rpm ? 1/360f : 1;
+				case Unit.deg_per_sec: return u == Unit.rad_per_sec ? 0.0174533f : u == Unit.rps ? 1 / 360f : u == Unit.rpm ? 1 / 6f : 1;
+				case Unit.rad_per_sec: case Unit.rpm: case Unit.rps: return convert(Unit.deg_per_sec, Unit1) / convert(Unit.deg_per_sec, Unit0);
 				case Unit.rad: return convert(Unit.deg, Unit1) / convert(Unit.deg, Unit0);
 				case Unit.Byte: return u == Unit.bit ? 8f : u == Unit.KB ? 1e-3f : u == Unit.MB ? 1e-6f : u == Unit.GB ? 1e-9f : u == Unit.TB ? 1e-12f : u == Unit.PB ? 1e-16f : float.NaN;
 				case Unit.bit: case Unit.KB: case Unit.MB: case Unit.GB: case Unit.TB: case Unit.PB: return convert(Unit.Byte, Unit1) / convert(Unit.Byte, Unit0);

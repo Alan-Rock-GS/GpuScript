@@ -71,7 +71,7 @@ namespace GpuScript
 		public static GameObject Active(this GameObject o, bool active) { if (o?.activeSelf != active) o?.SetActive(active); return o; }
 
 		public static float3 P(this GameObject o) => o.transform.position;
-		public static float3 P(this GameObject o,float3 p) => o.transform.position = p;
+		public static float3 P(this GameObject o, float3 p) => o.transform.position = p;
 		public static float3 localP(this GameObject o) => o.transform.localPosition;
 		public static float3 localP(this GameObject o, float3 p) => o.transform.localPosition = p;
 		public static float3 Angles(this GameObject o) => o.transform.eulerAngles;
@@ -509,8 +509,8 @@ namespace GpuScript
 
 		public static bool isNan(this float v) => float.IsNaN(v);
 		public static bool isNotNan(this float v) => !v.isNan();
-		public static float2 isNan(this float2 v) => new float2(float.IsNaN(v.x), float.IsNaN(v.y));
-		public static float3 isNan(this float3 v) => new float3(float.IsNaN(v.x), float.IsNaN(v.y), float.IsNaN(v.z));
+		public static float2 isNan(this float2 v) => float2(float.IsNaN(v.x), float.IsNaN(v.y));
+		public static float3 isNan(this float3 v) => float3(float.IsNaN(v.x), float.IsNaN(v.y), float.IsNaN(v.z));
 
 		//public static float Convert_180_180(this float v) => ((v + 180) % 360) - 180;
 
@@ -653,7 +653,12 @@ namespace GpuScript
 		public static uint uCount<T>(this IEnumerable<T> e, Func<T, bool> f) { uint num = 0; foreach (T item in e) if (f(item)) num++; return num; }
 
 		public static void For<T>(this IEnumerable<T> e, Action<T> a) { foreach (T v in e) a(v); }
-		public static IEnumerable<T> For<T>(this IEnumerable<T> e, Func<T, T> a) { foreach (T v in e) yield return a(v); }
+		public static IEnumerable<T> For<T>(this IEnumerable<T> e, Func<T, T> f) { foreach (T v in e) yield return f(v); }
+
+		public static int IndexOf<T>(this IEnumerable<T> e, Func<T, bool> p) { int i = 0; foreach (var a in e) { if (p.Invoke(a)) return i; i++; } return -1; }
+		public static IEnumerable<int> IndexesOf<T>(this IEnumerable<T> e, Func<T, bool> p) { int i = 0; foreach (var a in e) { if (p.Invoke(a)) yield return i; i++; } }
+		public static uint uIndexOf<T>(this IEnumerable<T> e, Func<T, bool> p) { uint i = 0; foreach (var a in e) { if (p.Invoke(a)) return i; i++; } return uint_max; }
+		public static IEnumerable<uint> uIndexesOf<T>(this IEnumerable<T> e, Func<T, bool> p) { uint i = 0; foreach (var a in e) { if (p.Invoke(a)) yield return i; i++; } }
 
 		public static IEnumerable<T> ItemBefore<T>(this IEnumerable<T> e, T i)
 		{
@@ -876,15 +881,15 @@ namespace GpuScript
 						val = new Vector2(x, y);
 					}
 				}
-				else if (toType == typeof(int2)) { if (val.GetType() == typeof(string)) val = new int2((string)val); }
-				else if (toType == typeof(int3)) { if (val.GetType() == typeof(string)) val = new int3((string)val); }
-				else if (toType == typeof(int4)) { if (val.GetType() == typeof(string)) val = new int4((string)val); }
-				else if (toType == typeof(uint2)) { if (val.GetType() == typeof(string)) val = new uint2((string)val); }
-				else if (toType == typeof(uint3)) { if (val.GetType() == typeof(string)) val = new uint3((string)val); }
-				else if (toType == typeof(uint4)) { if (val.GetType() == typeof(string)) val = new uint4((string)val); }
-				else if (toType == typeof(float2)) { if (val.GetType() == typeof(string)) val = new float2((string)val); }
-				else if (toType == typeof(float3)) { if (val.GetType() == typeof(string)) val = new float3((string)val); }
-				else if (toType == typeof(float4)) { if (val.GetType() == typeof(string)) val = new float4((string)val); }
+				else if (toType == typeof(int2)) { if (val.GetType() == typeof(string)) val = int2((string)val); }
+				else if (toType == typeof(int3)) { if (val.GetType() == typeof(string)) val = int3((string)val); }
+				else if (toType == typeof(int4)) { if (val.GetType() == typeof(string)) val = int4((string)val); }
+				else if (toType == typeof(uint2)) { if (val.GetType() == typeof(string)) val = uint2((string)val); }
+				else if (toType == typeof(uint3)) { if (val.GetType() == typeof(string)) val = uint3((string)val); }
+				else if (toType == typeof(uint4)) { if (val.GetType() == typeof(string)) val = uint4((string)val); }
+				else if (toType == typeof(float2)) { if (val.GetType() == typeof(string)) val = float2((string)val); }
+				else if (toType == typeof(float3)) { if (val.GetType() == typeof(string)) val = float3((string)val); }
+				else if (toType == typeof(float4)) { if (val.GetType() == typeof(string)) val = float4((string)val); }
 			}
 			catch (Exception e) { throw e; }
 			return val;
@@ -998,16 +1003,16 @@ namespace GpuScript
 				if (s.IsEmpty()) return f00;
 				s = s.ToLower();
 				string ch = s.Contains(",") ? "," : "~";
-				if (s.Contains(ch)) { string a = s.Before(ch), b = s.After(ch); return new float2(a.To_float(), b.To_float()); }
-				return new float2(s.To_float());
+				if (s.Contains(ch)) { string a = s.Before(ch), b = s.After(ch); return float2(a.To_float(), b.To_float()); }
+				return float2(s.To_float());
 			}
 			if (o is float2) return (float2)o;
 			if (o is int2) return (float2)((int2)o);
 			if (o is uint2) return (float2)((uint2)o);
-			if (o is float) return new float2((float)o);
-			if (o is int) return new float2((float)(int)o);
-			if (o is uint) return new float2((float)(uint)o);
-			if (o is double) return new float2((float)(double)o);
+			if (o is float) return float2((float)o);
+			if (o is int) return float2((float)(int)o);
+			if (o is uint) return float2((float)(uint)o);
+			if (o is double) return float2((float)(double)o);
 			return f00;
 		}
 
@@ -1021,18 +1026,18 @@ namespace GpuScript
 				if (s.Contains(ch))
 				{
 					string a = s.Before(ch), b = s.After(ch);
-					if (b.Contains(ch)) { string c = b.After(ch); b = b.Before(ch); return new float3(a.To_float(), b.To_float(), c.To_float()); }
+					if (b.Contains(ch)) { string c = b.After(ch); b = b.Before(ch); return float3(a.To_float(), b.To_float(), c.To_float()); }
 					float r = a.To_float(); //only 2 dimensions specified, assume this is shape radius and thickness
-					return new float3(r, r, b.To_float());
+					return float3(r, r, b.To_float());
 				}
-				return new float3(s.To_float());
+				return float3(s.To_float());
 			}
 			else if (o is float3) return (float3)o;
-			else if (o is float) return new float3((float)o);
-			else if (o is double) return new float3((float)(double)o);
-			else if (o is int) return new float3((float)(int)o);
-			else if (o is uint) return new float3((float)(uint)o);
-			else if (o is Color) { Color c = (Color)o; return new float3(c.r, c.g, c.b); }
+			else if (o is float) return float3((float)o);
+			else if (o is double) return float3((float)(double)o);
+			else if (o is int) return float3((float)(int)o);
+			else if (o is uint) return float3((float)(uint)o);
+			else if (o is Color) { Color c = (Color)o; return float3(c.r, c.g, c.b); }
 			return f000;
 		}
 
@@ -1156,7 +1161,7 @@ namespace GpuScript
 					{
 						string c = b.After(ch);
 						b = b.Before(ch);
-						if (c.Contains(ch)) { string d = c.After(ch); c = c.Before(ch); return new float4(a.To_float(), b.To_float(), c.To_float(), d.To_float()); }
+						if (c.Contains(ch)) { string d = c.After(ch); c = c.Before(ch); return float4(a.To_float(), b.To_float(), c.To_float(), d.To_float()); }
 					}
 				}
 				return new int4(s.To_int());
@@ -1164,11 +1169,11 @@ namespace GpuScript
 			if (o is int4) return (float4)(int4)o;
 			if (o is uint4) return (float4)(uint4)o;
 			else if (o is float3) return (float4)o;
-			else if (o is float) return new float4((float)o);
-			else if (o is double) return new float4((float)(double)o);
-			else if (o is int) return new float4((float)(int)o);
-			else if (o is uint) return new float4((float)(uint)o);
-			else if (o is Color) { Color c = (Color)o; return new float4(c.r, c.g, c.b, c.a); }
+			else if (o is float) return float4((float)o);
+			else if (o is double) return float4((float)(double)o);
+			else if (o is int) return float4((float)(int)o);
+			else if (o is uint) return float4((float)(uint)o);
+			else if (o is Color) { Color c = (Color)o; return float4(c.r, c.g, c.b, c.a); }
 			return f0000;
 		}
 
@@ -1226,7 +1231,19 @@ namespace GpuScript
 		public static void Clock(this Action a, string s) => GS.print($"{s}, {a.Clock().ToTimeString()}");
 		//public static float Secs(this Stopwatch w) => w.ElapsedTicks / (float)Stopwatch.Frequency;
 		public static float Secs(this Stopwatch w) => (float)w.Elapsed.TotalSeconds;
-		public static string ToTimeString(this float secs) => ToTimeString(secs);
+		//public static string ToTimeString(this float secs) => ToTimeString(new TimeSpan((long)(secs * 1e7f)));
+		public static string ToTimeString(this float secs)
+		{
+			//float days = secsToDays(secs), hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
+			//int Days = floori(days), Hours = floori(hrs), Minutes = floori(mins), Seconds = floori(s), Milliseconds = floori(ms);
+			//bool showDays = Days > 0, showHours = showDays || Hours > 0, showMinutes = showHours || Minutes > 0,
+			//	showSeconds = showMinutes || Seconds > 0, showMilliseconds = !showMinutes && Seconds < 10;
+			//return $"{(showDays ? $"{Days} days " : "")}{(showHours ? $"{Hours:00}:" : "")}{(showMinutes ? $"{Minutes:00}:" : "")}{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
+			float years = secsToYears(secs), months = frac(years) * 12, days = frac(years) * 365.25f, hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
+			int Years = floori(years), Months = floori(months), Days = floori(days), Hours = floori(hrs), Minutes = floori(mins), Seconds = floori(s), Milliseconds = floori(ms);
+			bool showYears = Years > 0, showMonths = showYears || Months > 0, showDays = showMonths || Days > 0, showHours = showDays || Hours > 0, showMinutes = showHours || Minutes > 0, showSeconds = showMinutes || Seconds > 0, showMilliseconds = !showMinutes && Seconds < 10;
+			return $"{(showYears ? $"{Years} Years " : "")}{(showMonths ? $"{Months} Months " : "")}{(showDays ? $"{Days} Days " : "")}{(showHours ? $"{Hours:00}:" : "")}{(showMinutes ? $"{Minutes:00}:" : "")}{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
+		}
 		public static string ToTimeString(this Stopwatch w) => ToTimeString(w.Secs());
 		public static string ToTimeString(this long ticks) => ToTimeString(ticks / (float)Stopwatch.Frequency);
 

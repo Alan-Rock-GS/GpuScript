@@ -10,9 +10,9 @@ namespace GpuScript
   {
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
-      SliderV = v = val.To_int2(); rangeMin = RangeMin.To_int2(); rangeMax = RangeMax.To_int2();
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+      SliderV = v = _val.To_int2(); rangeMin = RangeMin.To_int2(); rangeMax = RangeMax.To_int2();
       if (siUnit != siUnit.Null) { rangeMin *= roundi(convert(siUnit)); rangeMax *= roundi(convert(siUnit)); }
       if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
       return true;
@@ -42,15 +42,15 @@ namespace GpuScript
     public static string className => MethodBase.GetCurrentMethod().DeclaringType.ToString().After("GpuScript.");
     public static void UXML_UI_Element(UI_Element e) { UXML(e, e.attGS, e.memberInfo.Name, e.attGS.Name, className); e.uxml.Add($" />"); }
     public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName) { UI_Slider_base.UXML(e, att, name, label, className); }
-    int2 _v = default, val = default;
+    int2 _v = default, _val = default;
     public int2 v
     {
-      get => textField != null ? val = textField.value.To_int2() : val;
+      get => textField != null ? _val = textField.value.To_int2() : _val;
       set
       {
-        val = isPow10 ? roundi(pow10(round(log10((float2)value)))) : isPow2 ? roundi(pow2(round(log2((float2)value)))) : value;
-        if (Nearest > 0) val = roundi(val, Nearest);
-        if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val;
+        _val = isPow10 ? roundi(pow10(round(log10((float2)value)))) : isPow2 ? roundi(pow2(round(log2((float2)value)))) : value;
+        if (Nearest > 0) _val = roundi(_val, Nearest);
+        if (textField != null) textField.value = _val.ToString(format); if (hasRange) SliderV = _val;
       }
     }
     public override string textString => v.ToString(format);

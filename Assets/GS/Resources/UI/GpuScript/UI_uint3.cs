@@ -10,9 +10,9 @@ namespace GpuScript
   {
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
-      SliderV = v = val.To_uint3(); rangeMin = RangeMin.To_uint3(); rangeMax = RangeMax.To_uint3();
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+      SliderV = v = _val.To_uint3(); rangeMin = RangeMin.To_uint3(); rangeMax = RangeMax.To_uint3();
       if (siUnit != siUnit.Null) { rangeMin *= roundu(convert(siUnit)); rangeMax *= roundu(convert(siUnit)); }
       if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
       return true;
@@ -42,11 +42,11 @@ namespace GpuScript
     public static string className => MethodBase.GetCurrentMethod().DeclaringType.ToString().After("GpuScript.");
     public static void UXML_UI_Element(UI_Element e) { UXML(e, e.attGS, e.memberInfo.Name, e.attGS.Name, className); e.uxml.Add($" />"); }
     public static new void UXML(UI_Element e, AttGS att, string name, string label, string typeName) { UI_Slider_base.UXML(e, att, name, label, className); }
-    uint3 _v = default, val = default;
+    uint3 _v = default, _val = default;
     public uint3 v
     {
-      get => textField != null ? val = textField.value.To_uint3() : val;
-      set { val = isPow10 ? GS.roundu(GS.pow10(GS.round(GS.log10(value)))) : isPow2 ? GS.roundu(GS.pow2(GS.round(GS.log2(value)))) : value; if (textField != null) textField.value = val.ToString(format); if (hasRange) SliderV = val; }
+      get => textField != null ? _val = textField.value.To_uint3() : _val;
+      set { _val = isPow10 ? GS.roundu(GS.pow10(GS.round(GS.log10(value)))) : isPow2 ? GS.roundu(GS.pow2(GS.round(GS.log2(value)))) : value; if (textField != null) textField.value = _val.ToString(format); if (hasRange) SliderV = _val; }
     }
     public override string textString => v.ToString(format);
     public override object v_obj { get => v; set => v = value.To_uint3(); }

@@ -6,27 +6,79 @@ using static GpuScript.GS;
 namespace GpuScript
 {
 	[UxmlElement]
-  public partial class UI_float : UI_Slider_base
-  {
-    public override bool Init(GS gs, params GS[] gss)
-    {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
-      SliderV = v = val.To_float(); rangeMin = RangeMin.To_float(); rangeMax = RangeMax.To_float();
-      if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
-      return true;
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
-    }
+	public partial class UI_float : UI_Slider_base
+	{
+		public override bool Init(GS gs, params GS[] gss)
+		{
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+			SliderV = v = val.To_float(); rangeMin = RangeMin.To_float(); rangeMax = RangeMax.To_float();
+			if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
+			return true;
+		}
+		public UI_float() : base() { }
+		//public UI_float(int rowI, AttGS att) : base(rowI, att)
+		//{
+		//	var a = att;
+		//	var fldName = a.Name.ReplaceAll(" ", "_", "-", "_");
+		//	//var r = float2(a.Min, a.Max);
+		//	name = $"UI_float_{fldName}_{rowI + 1}";
+		//	description = a.Description;
+		//	//range = r;
+		//	isGrid = true;
+		//	//Registration();
+		//	//rangeMin = r.x;
+		//	//rangeMax = r.y;
+		//	range = float2(a.Min, a.Max);
+		//	isReadOnly = a.readOnly;
+		//	//print($"hasRange = {hasRange}");
+
+		//	//formatString = a?.Format ?? "0.000";
+		//	//headerLabel.style.display = DisplayStyle.None;
+		//	//style.width = textField.style.width = 80;
+		//	//siFormat = usFormat = formatString;
+		//	//style.overflow = Overflow.Hidden;
+
+		//	////if (ranges[j] is float2)
+		//	////{
+		//	//var r = (float2)ranges[j];
+		//	//var f = new UI_float() { name = $"UI_float_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true, rangeMin = r.x, rangeMax = r.y, formatString = formats == null || formats[j].IsEmpty() ? "0.000" : formats[j] };
+		//	//f.headerLabel.style.display = DisplayStyle.None;
+		//	//f.style.width = f.textField.style.width = 80;
+		//	//f.siFormat = f.usFormat = f.formatString;
+		//	//row.Add(f);
+		//	//RowItems[i].Add(f);
+		//	////}
+		//	////else if (ranges[j] is int2)
+		//	////{
+		//	////	var r = (int2)ranges[j];
+		//	////	var f = new UI_int() { name = $"UI_int_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true, rangeMin = r.x, rangeMax = r.y };
+		//	////	f.headerLabel.style.display = DisplayStyle.None;
+		//	////	f.style.width = f.textField.style.width = 80;
+		//	////	row.Add(f);
+		//	////	RowItems[i].Add(f);
+		//	////}
+		//	////else if (ranges[j] is bool2)
+		//	////{
+		//	////	var f = new UI_bool() { name = $"UI_bool_{fldNames[j]}_{i + 1}", gs = gs, isGrid = true };
+		//	////	f.headerLabel.style.display = DisplayStyle.None;
+		//	////	f.style.width = f.headerLabel.style.width = 20;
+		//	////	row.Add(f);
+		//	////	RowItems[i].Add(f);
+		//	////}
+
+		//}
+		public UI_float(int rowI, AttGS att) : base(rowI, att) { var a = att; range = float2(a.Min, a.Max); }
+		public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+		{
+			if (att == null) return;
+			UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+			e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px; overflow: hidden;\" />");
+		}
 		public float Slider_Pow_Val(float v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
 		public float Slider_Log_Val(float v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
 		public float SliderV { get => sliders[0] == null ? default : Slider_Pow_Val(sliders[0].value); set { if (sliders[0] != null) sliders[0].value = Slider_Log_Val(value); } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
-		public UI_float() : base() { }
 		public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_float(); } }
 		public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_float())) { OnTextFieldChanged(o); previousValue = o.value.To_float(); changed = false; } } }
 		public static Type Get_Base_Type() => typeof(float);
@@ -46,7 +98,6 @@ namespace GpuScript
 		{
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
 				textField.value = (siUnits ? convert(val / siConvert) : val * convert(GetUnitConversion(siUnit), usUnit)).ToString(format);
-			else if (Unit != Unit.Null) textField.value = (val * convert(GetUnitConversion(Unit), Unit)).ToString(format);
 			else textField.value = val.ToString(format);
 		}
 		public float v
@@ -77,7 +128,7 @@ namespace GpuScript
 		public float previousValue;
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
-			if (evt.currentTarget is Slider && textField != null)
+			if (evt.currentTarget is Slider && textField != null && hasRange)
 			{
 				float val = SliderV;
 				Text(val);
@@ -111,8 +162,11 @@ namespace GpuScript
 		public float year { get => si * convert(Unit, Unit.year); set => si = value / convert(Unit, Unit.year); }
 
 		public float deg { get => si * convert(Unit, Unit.deg); set => si = value / convert(Unit, Unit.deg); }
-		public float deg_per_sec { get => si * convert(Unit, Unit.deg); set => si = value / convert(Unit, Unit.deg); }
 		public float rad { get => si * convert(Unit, Unit.rad); set => si = value / convert(Unit, Unit.rad); }
+		public float deg_per_sec { get => si * convert(Unit, Unit.deg_per_sec); set => si = value / convert(Unit, Unit.deg_per_sec); }
+		public float rad_per_sec { get => si * convert(Unit, Unit.rad_per_sec); set => si = value / convert(Unit, Unit.rad_per_sec); }
+		public float rpm { get => si * convert(Unit, Unit.rpm); set => si = value / convert(Unit, Unit.rpm); }
+		public float rps { get => si * convert(Unit, Unit.rps); set => si = value / convert(Unit, Unit.rps); }
 
 		public float bit { get => si * convert(Unit, Unit.bit); set => si = value / convert(Unit, Unit.bit); }
 		public float Byte { get => si * convert(Unit, Unit.Byte); set => si = value / convert(Unit, Unit.Byte); }

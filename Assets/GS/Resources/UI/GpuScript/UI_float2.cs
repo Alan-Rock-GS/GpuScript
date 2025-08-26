@@ -10,8 +10,8 @@ namespace GpuScript
   {
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
       SliderV = v = val.To_float2(); rangeMin = RangeMin.To_float2(); rangeMax = RangeMax.To_float2();
       if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
       if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
@@ -28,6 +28,10 @@ namespace GpuScript
 		public float2 SliderV { get => Slider_Pow_Val(new float2(sliders[0].value, sliders[1].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") };
 		public UI_float2() : base() { }
+		//public UI_float2(AttGS att) : base(att)
+		//{
+
+		//}
 		public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_float2(); } }
 		public override void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { base.OnMouseCaptureOutEvent(evt); if (evt == null || evt.currentTarget is TextField) { var o = textField; if (changed && any(previousValue != o.value.To_float2())) { OnTextFieldChanged(o); previousValue = o.value.To_float2(); changed = false; } } }
 		public static Type Get_Base_Type() => typeof(float2);
@@ -48,7 +52,7 @@ namespace GpuScript
 		{
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
 				textField.value = (siUnits ? convert(val / siConvert) : val * convert(GetUnitConversion(siUnit), usUnit)).ToString(format);
-			else if (Unit != Unit.Null) textField.value = (val * convert(GetUnitConversion(Unit), Unit)).ToString(format);
+			//else if (Unit != Unit.Null) textField.value = (val * convert(GetUnitConversion(Unit), Unit)).ToString(format);
 			else textField.value = val.ToString(format);
 		}
 
@@ -131,6 +135,10 @@ namespace GpuScript
 
 		public float2 deg { get => si * convert(Unit, Unit.deg); set => si = value / convert(Unit, Unit.deg); }
 		public float2 rad { get => si * convert(Unit, Unit.rad); set => si = value / convert(Unit, Unit.rad); }
+		public float2 deg_per_sec { get => si * convert(Unit, Unit.deg_per_sec); set => si = value / convert(Unit, Unit.deg_per_sec); }
+		public float2 rad_per_sec { get => si * convert(Unit, Unit.rad_per_sec); set => si = value / convert(Unit, Unit.rad_per_sec); }
+		public float2 rpm { get => si * convert(Unit, Unit.rpm); set => si = value / convert(Unit, Unit.rpm); }
+		public float2 rps { get => si * convert(Unit, Unit.rps); set => si = value / convert(Unit, Unit.rps); }
 
 		public float2 bit { get => si * convert(Unit, Unit.bit); set => si = value / convert(Unit, Unit.bit); }
 		public float2 Byte { get => si * convert(Unit, Unit.Byte); set => si = value / convert(Unit, Unit.Byte); }

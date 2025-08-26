@@ -1821,6 +1821,13 @@ namespace GpuScript
 		public static uint min_max_decay_N(float mn, float mx, float decay) { return ceilu(abs(ln(mn / mx) / ln(decay))); }
 		public static float min_max_N_decay(float mn, float mx, uint n) { return exp(ln(mn / mx) / n); }
 
+		public static float secsToMinutes(float secs) { return secs / 60; }
+		public static float secsToHours(float secs) { return secsToMinutes(secs) / 60; }
+		public static float secsToDays(float secs) { return secsToHours(secs) / 24; }
+		public static float secsToWeeks(float secs) { return secsToDays(secs) / 7; }
+		public static float secsToYears(float secs) { return secsToDays(secs) / 365.25f; }
+		public static float secsToMonths(float secs) { return secsToYears(secs) / 12; }
+
 		//>>>>> GpuScript Code Extensions. The above section contains code that runs on both compute shaders and material shaders, but is not in HLSL
 
 
@@ -2978,6 +2985,7 @@ namespace GpuScript
 		public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1, 1));
 		public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint2 n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1));
 		public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int2 n) => Dispatch(kernelIndex, kernelFunction, uint3(n, 1));
+		public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint3 n) => Dispatch(kernelIndex, kernelFunction, n);
 		public void Gpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int3 n) => Dispatch(kernelIndex, kernelFunction, (uint3)n);
 		public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint n, params object[] vals) => Cpu(kernelIndex, kernelFunction, uint3(n, 1, 1), vals);
 		public void Cpu(int kernelIndex, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, int n, params object[] vals) => Cpu(kernelIndex, kernelFunction, uint3(n, 1, 1), vals);
@@ -3959,6 +3967,8 @@ namespace GpuScript
 		//public static uint3 asuint(float3 x) => uint3(asuint(x.x), asuint(x.y), asuint(x.z));
 		//public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
 
+		public static AttGS AttGS(params object[] vals) => new AttGS(vals);
+
 		//allow structs to be declared without new keyword, prevents Non-invocable member ... cannot be used like a method
 		public static bool2 bool2(bool x) => new bool2(x, x);
 		public static bool2 bool2(bool x, bool y) => new bool2(x, y);
@@ -4178,6 +4188,7 @@ namespace GpuScript
 
 		[HideInInspector] public bool isInitBuffers = false;
 
+		[HideInInspector] public bool in_data_to_ui; 
 		public virtual void data_to_ui() { }
 		public virtual void ui_to_data() { }
 		public virtual bool Load_UI_As(string path, string projectName) => true;
@@ -5060,15 +5071,25 @@ namespace GpuScript
 		}
 		public Texture2D LoadPalette(string paletteName, ref RWStructuredBuffer<Color32> texBuff) => LoadTexture($"Palettes/{paletteName}", ref texBuff);
 
-		protected WebCamTexture GetWebCamTexture(bool front = false)
+		protected WebCamTexture GetWebCamTexture(WebCamTexture webCamTexture, bool front, int w, int h, int fps)
 		{
 			string frontCamName = "", backCamName = "";
 			foreach (var device in WebCamTexture.devices) if (device.isFrontFacing) frontCamName = device.name; else backCamName = device.name;
-			var webCamTexture = new WebCamTexture(front || backCamName == "" ? frontCamName : backCamName, 1280, 720, 30); //6.4 x 3.6
+			if (webCamTexture) { webCamTexture.Stop(); DestroyImmediate(webCamTexture); }
+			webCamTexture = new WebCamTexture(front || backCamName == "" ? frontCamName : backCamName, w, h, fps); //6.4 x 3.6
 			if (webCamTexture && webCamTexture.deviceName != "no camera available.")
 				webCamTexture.Play();
 			return webCamTexture;
 		}
+		protected WebCamTexture GetWebCamTexture(WebCamTexture webCamTexture, bool front = false) => GetWebCamTexture(webCamTexture, front, 1280, 720, 30);
+		//{
+		//	string frontCamName = "", backCamName = "";
+		//	foreach (var device in WebCamTexture.devices) if (device.isFrontFacing) frontCamName = device.name; else backCamName = device.name;
+		//	var webCamTexture = new WebCamTexture(front || backCamName == "" ? frontCamName : backCamName, 1280, 720, 30); //6.4 x 3.6
+		//	if (webCamTexture && webCamTexture.deviceName != "no camera available.")
+		//		webCamTexture.Play();
+		//	return webCamTexture;
+		//}
 
 		WebCamTexture GetWebCamTexture(int camI)
 		{

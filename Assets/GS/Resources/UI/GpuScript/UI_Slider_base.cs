@@ -61,6 +61,7 @@ namespace GpuScript
 			bool isPow2Slider, bool isPow10, bool isPow2, float nearest, bool nearestDigit, string treeGroup_parent)
 		{
 			Build(title, description, isReadOnly, isGrid, treeGroup_parent);
+			if (textField != null) { textField.value = val; textField.isReadOnly = isReadOnly; }
 			if (usUnit == usUnit.Null && siUnit != siUnit.Null) usUnit = Match(siUnit); else if (usUnit != usUnit.Null && siUnit == siUnit.Null) siUnit = Match(usUnit);
 			if (unitLabel != null) { unitLabel.text = unit; unitLabel.HideIf(unit.IsEmpty() || isGrid); }
 			if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
@@ -105,17 +106,41 @@ namespace GpuScript
 		public float3 GetNearest(float3 v) => NearestDigit ? pow10(floor(log10(v))) : float3(Nearest);
 		public float4 GetNearest(float4 v) => NearestDigit ? pow10(floor(log10(v))) : float4(Nearest);
 		public virtual Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
+		void OnTextFieldChanged(ChangeEvent<string> evt) { OnTextFieldChanged(textField); }
+		public override float ui_width { get => UI_TextWidth(textString); set => style.width = textField.style.width = value; }
+		public override Color BackgroundColor { get => base.BackgroundColor; set => textField.Q<TextElement>().style.backgroundColor = new StyleColor(_BackgroundColor = value); }
 		public override void RegisterGridCallbacks(GS gs, UI_grid grid, int gridRow, int gridCol)
 		{
 			base.RegisterGridCallbacks(gs, grid, gridRow, gridCol);
-			textField.RegisterValueChangedCallback(OnTextFieldChanged);
+			RegisterCallback<MouseEnterEvent>(OnMouseEnter);
+			RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
+			container = this.Q<VisualElement>("container");
+			headerLabel = container.Q<Label>(nameof(headerLabel));
+			headerLabel.RegisterCallback<ClickEvent>(OnClickEvent);
+			textField = container.Q<TextField>();
+#if UNITY_STANDALONE_WIN
+			textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
+#endif //UNITY_STANDALONE_WIN
+			textField.RegisterValueChangedCallback(OnValueChanged);
+			textField.RegisterCallback<FocusOutEvent>(OnFocusOut);
+			textField.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
+			textField.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOutEvent);
+			textField.RegisterCallback<KeyDownEvent>(OnKeyDownEvent, TrickleDown.TrickleDown);
+			unitLabel = container.Q<Label>(nameof(unitLabel));
+			unitLabel?.RegisterCallback<ClickEvent>(On_unitLabel_click);
+			sliders = GetSliders();
+			foreach (var slider in sliders)
+			{
+				slider.RegisterValueChangedCallback(OnValueChanged);
+				slider.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
+				slider.RegisterCallback<FocusInEvent>(OnSliderFocusIn);
+				slider.RegisterCallback<FocusOutEvent>(OnSliderFocusOut);
+				slider.RegisterCallback<KeyDownEvent>(OnSliderKeyDown);
+				slider.RegisterCallback<KeyUpEvent>(OnSliderKeyUp);
+			}
+			Init(gs);
 		}
-		void OnTextFieldChanged(ChangeEvent<string> evt) { }
-		public override float ui_width { get => UI_TextWidth(textString); set => style.width = textField.style.width = value; }
-
-		public override Color BackgroundColor { get => base.BackgroundColor; set => textField.Q<TextElement>().style.backgroundColor = new StyleColor(_BackgroundColor = value); }
-
-		public UI_Slider_base() : base()
+		public void Registration()
 		{
 			RegisterCallback<MouseEnterEvent>(OnMouseEnter);
 			RegisterCallback<MouseLeaveEvent>(OnMouseLeave);
@@ -130,10 +155,7 @@ namespace GpuScript
 			textField.RegisterCallback<FocusOutEvent>(OnFocusOut);
 			textField.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
 			textField.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOutEvent);
-
-			//textField.RegisterCallback<ChangeEvent<string>>(OnChangeEvent);
 			textField.RegisterCallback<KeyDownEvent>(OnKeyDownEvent, TrickleDown.TrickleDown);
-
 			unitLabel = container.Q<Label>(nameof(unitLabel));
 			unitLabel?.RegisterCallback<ClickEvent>(On_unitLabel_click);
 			sliders = GetSliders();
@@ -147,6 +169,8 @@ namespace GpuScript
 				slider.RegisterCallback<KeyUpEvent>(OnSliderKeyUp);
 			}
 		}
+		public UI_Slider_base(int rowI, AttGS att) : base(rowI, att) { style.overflow = Overflow.Hidden; }
+		public UI_Slider_base() : base() { Registration(); }
 		string validChars = "0123456789.+-,";
 		bool stop, isReturn, isNum, isLetter, isNone;
 		bool isNumber(KeyDownEvent evt) => validChars.IndexOf(evt.character) >= 0;
@@ -154,12 +178,13 @@ namespace GpuScript
 		{
 			if (isNumber(evt)) { isNum = true; isLetter = false; }
 			else if (evt.keyCode.IsAny(KeyCode.Return, KeyCode.Backspace, KeyCode.Delete, KeyCode.LeftArrow, KeyCode.RightArrow)) { isReturn = true; isLetter = false; }
+			else if (evt.ctrlKey && evt.keyCode.IsAny(KeyCode.A, KeyCode.C, KeyCode.V)) { isReturn = true; isLetter = false; }
 			else if (evt.keyCode == KeyCode.None) isNone = true;
 			else isLetter = true;
 			if (isLetter) evt.StopPropagation();
 			if (isNone) { if (isLetter) evt.StopPropagation(); isNum = isReturn = isLetter = isNone = false; }
 		}
-		void OnClickEvent(ClickEvent evt) => ShowSliders = hasRange ? !ShowSliders : ShowSliders;
+		void OnClickEvent(ClickEvent evt) => ShowSliders = hasRange && !isReadOnly ? !ShowSliders : ShowSliders;
 		public bool ShiftKey;
 		public void OnSliderKeyDown(KeyDownEvent evt) { if (evt.shiftKey) ShiftKey = true; }
 		public void OnSliderKeyUp(KeyUpEvent evt) { if (evt.shiftKey) ShiftKey = false; }
@@ -167,11 +192,11 @@ namespace GpuScript
 		protected bool ShowSliders { get => sliders.Length > 0 ? sliders[0].style.display == DisplayStyle.Flex : false; set { foreach (var slider in sliders) slider.DisplayIf(value); grid?.DrawGrid(); } }
 		public override void OnMouseEnter(MouseEnterEvent evt) { base.OnMouseEnter(evt); mouseInside = true; }
 		public override void OnMouseLeave(MouseLeaveEvent evt) { base.OnMouseLeave(evt); mouseInside = false; }
-		public virtual void OnMouseCaptureEvent(MouseCaptureEvent evt) { mouseDown = hasFocus = true; if (hasRange) ShowSliders = true; }
-		public virtual void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { mouseDown = hasFocus = false; if (hasRange && !mouseInside) ShowSliders = false; }
+		public virtual void OnMouseCaptureEvent(MouseCaptureEvent evt) { mouseDown = hasFocus = true; if (hasRange && !isReadOnly) ShowSliders = true; }
+		public virtual void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { mouseDown = hasFocus = false; if (hasRange && !isReadOnly && !mouseInside) ShowSliders = false; }
 		public void OnFocusOut(FocusOutEvent evt) { OnMouseCaptureOutEvent(null); }
 		public void OnSliderFocusIn(FocusInEvent evt) { sliderHasFocus = true; }
-		public void OnSliderFocusOut(FocusOutEvent evt) { if (hasRange && !mouseInside) ShowSliders = false; sliderHasFocus = mouseInUI = false; }
+		public void OnSliderFocusOut(FocusOutEvent evt) { if (hasRange && !isReadOnly && !mouseInside) ShowSliders = false; sliderHasFocus = mouseInUI = false; }
 
 		public float siConvert => siUnit != siUnit.Null ? convert(siUnit) : 1;
 		public override void OnUnitsChanged() { if (unitLabel != null) unitLabel.text = unit; ShowSliders = false; }

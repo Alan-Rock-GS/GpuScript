@@ -612,10 +612,47 @@ public class GS_Window : EditorWindow
 			return e;
 		}
 
-		public IEnumerator Build_UXML_Coroutine()
+		//	public IEnumerator Build_UXML_Coroutine()
+		//	{
+		//		print("Build_UXML_Coroutine a");
+		//		if (_GS_Code.DoesNotContain("[GS_UI, AttGS(\"")) yield break;
+		//		print("Build_UXML_Coroutine b");
+		//		if (!Get_uiDocument()) yield break;
+		//		print("Build_UXML_Coroutine c");
+		//		if (root == null || UI_GS == null)
+		//		{
+		//			var uxml = StrBldr().AddLines(
+		//"<ui:UXML xmlns:ui=\"UnityEngine.UIElements\" xmlns:uie=\"UnityEditor.UIElements\" editor-extension-mode=\"False\">",
+		//$"    <Style src=\"project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid={new_uxml_guid()}&amp;type=3#{gsName}_USS\" />",
+		//"    <ui:VisualElement name=\"Root\" style=\"flex-grow: 1; -unity-font: resource(&apos;Arial Font/arial Unicode&apos;);\">",
+		//"        <GpuScript.UI_GS name=\"UI_GS\" style=\"width: auto; flex-wrap: wrap; flex-grow: 1;\">",
+		//"        </GpuScript.UI_GS>",
+		//"        <ui:ProgressBar picking-mode=\"Ignore\" name=\"Progress\" label=\"Progress\" value=\"0\" low-value=\"0\" high-value=\"100\" title=\"\" style=\"flex-grow: 0; min-height: 24px; width: 100%;\" />",
+		//"    </ui:VisualElement>",
+		//"</ui:UXML>");
+
+		//			if (uxml_filename.WriteAllText_IfChanged(uxml)) { }
+
+		//			root = uiDocument.rootVisualElement?.Q<VisualElement>("Root");
+		//		}
+		//		UI_GS = uiDocument.rootVisualElement?.Q("UI_GS") ?? new VisualElement();
+		//		Build_USS_File();
+
+		//		string t = uxml_filename.ReadAllText(), ui0 = "<GpuScript.UI_GS ", ui1 = "</GpuScript.UI_GS>";
+		//		if (t.ContainsAll(ui0))
+		//		{
+		//			StrBldr t0 = StrBldr(t.BeforeIncluding(ui0), t.Between(ui0, "\n")), t1 = StrBldr(t.Before(ui1).AfterLastIncluding("\n"), t.AfterIncluding(ui1));
+		//			UI_Element e = Get_ui_items();
+		//			e.uxml = StrBldr(t0, e.uxml, t1);
+		//			if (uxml_filename.WriteAllText_IfChanged(e.uxml)) { }
+		//		}
+		//		print("Build_UXML_Coroutine z");
+		//	}
+
+		public void Build_UXML()
 		{
-			if (_GS_Code.DoesNotContain("[GS_UI, AttGS(\"")) yield break;
-			if (!Get_uiDocument()) yield break;
+			if (_GS_Code.DoesNotContain("[GS_UI, AttGS(\"")) return;
+			if (!Get_uiDocument()) return;
 			if (root == null || UI_GS == null)
 			{
 				var uxml = StrBldr().AddLines(
@@ -644,6 +681,7 @@ public class GS_Window : EditorWindow
 				if (uxml_filename.WriteAllText_IfChanged(e.uxml)) { }
 			}
 		}
+
 
 		public StrBldr Enums, Enums_cginc, AssignEnums, Shader_Enums;
 		public string[] AllEnumItems = new string[0];
@@ -1068,6 +1106,14 @@ public class GS_Window : EditorWindow
 						string numThreads = dimensionN <= 1 ? "numthreads1, 1, 1" : dimensionN == 2 ? "numthreads2, numthreads2, 1" : "numthreads3, numthreads3, numthreads3";
 						string thread1 = Replace_dot_with_underscore(threadN[0]), thread2 = Replace_dot_with_underscore(threadN[1]), thread3 = Replace_dot_with_underscore(threadN[2]);
 
+
+						if (thread1.ToString().Contains("using GpuScript;"))
+						{
+							print($"Error:, thread1 = {thread1}");
+							thread1 = threadN[0];
+						}
+
+
 						var (id_less, id_to_i) = StrBldr();
 						if (dimension.z == 1) id_less.Add($"id.z < {thread3} && ");
 						if (dimension.y == 1) id_less.Add($"{(dimension.x == 1 ? "id.y" : "id.z")} < {thread2} && "); else if (dimension.y == 2) id_less.Add($"id.yz < {thread2} && ");
@@ -1089,6 +1135,13 @@ public class GS_Window : EditorWindow
 						string kernel_return = sync ? "IEnumerator" : "void";
 						string kernel_coroutine = sync ? "yield return StartCoroutine(" : "";
 						id_less.Set($"if ({id_less}) ");
+
+
+						if (id_less.ToString().Contains("using GpuScript;"))
+						{
+							print($"Error:, id_less = {id_less}");
+						}
+
 						kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ unchecked {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }} }}");
 						if (libKernels.DoesNotContain(k.methodName + "_GS"))
 							kernels_.Add($"\n  public virtual {kernel_return} {k.methodName}_GS({args}) {{{(sync ? " yield return null;" : "")} }}");
@@ -1151,7 +1204,7 @@ public class GS_Window : EditorWindow
 
 			var (vertDrawSegments, virtual_verts, vertCode, s_frag, fragCode) = StrBldr();
 			string regions = _cs_lib_regions;
-			int libI = 0;
+			//int libI = 0;
 			var libNames = lib_flds.Select(a => a.Name).ToList();
 			for (int i = 0; i < libNames.Count; i++)//detect if lib is or has BDraw, and make that libI == 0
 				if (_GS_Code.Contains($"{libNames[i]}_BDraw_")) { if (i > 0) { var item = libNames[i]; libNames.RemoveAt(i); libNames.Insert(0, item); } break; }
@@ -1162,7 +1215,8 @@ public class GS_Window : EditorWindow
 
 				if (m != null)
 				{
-					libI = libNames.Select((a, i) => new { a, i }).Where(a => m.methodName.After("vert_").StartsWith(a.a + "_")).Select(a => a.i).FirstOrDefault();
+					//libI = libNames.Select((a, i) => new { a, i }).Where(a => m.methodName.After("vert_").StartsWith(a.a + "_")).Select(a => a.i).FirstOrDefault();
+					//libI = libNames.IndexOf(a => m.methodName.After("vert_").StartsWith(a + "_"));
 					var elseStr = i == 0 ? "" : "else ";
 					if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;");
 					vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) o = {m.methodName}(i, j, o);");
@@ -1183,7 +1237,7 @@ public class GS_Window : EditorWindow
 "\n  }");
 
 			s_frag.Set("color;");
-			libI = 0;
+			//libI = 0;
 			foreach (var lib_fld in lib_flds)
 				if (lib_fld.isInternal_Lib() && lib_fld.Name.IsAny("VGrid_Lib", "Axes_Lib", "Mesh_Lib", "BDraw")) s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
 
@@ -1245,7 +1299,6 @@ public class GS_Window : EditorWindow
 						dataWrappers.Add($"\n  public virtual {typ} {n} {{ get => {r}; set {{ if ({compare}) {{ {assignFld}ValuesChanged = gChanged = true; }} }} }}");
 				}
 			}
-
 			_GS_fields?.Where(a => a.FieldType == typeof(TreeGroup)).For(f => dataWrappers.Add($"\n  public bool {f.Name} {{ get => UI_{f.Name}?.v ?? false; set {{ if (UI_{f.Name} != null) UI_{f.Name}.v = value; }} }}"));
 
 			StrBldr G_Str = StrBldr("\n  [HideInInspector] public G", Name, " g; public G", Name, " G { get { g", Name, ".GetData(); return g", Name, "[0]; } }");
@@ -1256,8 +1309,22 @@ public class GS_Window : EditorWindow
 			StackFields(tData, "bool", "siUnits");
 
 			var (ui_to_data, Load_UI, data_to_ui, data_to_ui_Defaults, gridWrapper, OnGrid, onMethodClicked, clickedMethods, colSort) = StrBldr();
-
 			ui_to_data.Add($"\n    data.siUnits = siUnits;");
+
+			var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();
+			foreach (var lib_fld in lib_flds)
+				if (lib_fld.isInternal_Lib())
+				{
+					s_LateUpdate0.Add($"\n    {lib_fld.Name}_LateUpdate0_GS();");
+					s_LateUpdate1.Add($"\n    {lib_fld.Name}_LateUpdate1_GS();");
+					s_Update0.Add($"\n    {lib_fld.Name}_Update0_GS();");
+					s_Update1.Add($"\n    {lib_fld.Name}_Update1_GS();");
+					s_start0_GS.Add($"\n    {lib_fld.Name}_Start0_GS();");
+					s_start1_GS.Add($"\n    {lib_fld.Name}_Start1_GS();");
+					s_onValueChanged.Add($"\n    {lib_fld.Name}_OnValueChanged_GS();");
+					s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
+				}
+
 			if (_gs_members != null)
 				foreach (var gs_member in _gs_members)
 				{
@@ -1561,7 +1628,8 @@ $"\n    {m_name}_To_UI();",
 
 		$"\n  public virtual int[] {m_name}_SelectedRows",
 		"\n  {",
-		$"\n    get => UI_grid_{m_name}.isRowSelected.Select((a, i) => new {{ a, i }}).Where(a => a.a).Select(a => a.i).ToArray();",
+		//$"\n    get => UI_grid_{m_name}.isRowSelected.Select((a, i) => new {{ a, i }}).Where(a => a.a).Select(a => a.i).ToArray();",
+		$"\n    get => UI_grid_{m_name}.isRowSelected.IndexesOf(a => a).ToArray();",
 		"\n    set",
 		"\n    {",
 		$"\n      for (int i = 0; i < {m_name}.Length; i++) UI_grid_{m_name}.isRowSelected[i] = false;",
@@ -1641,6 +1709,7 @@ $"\n    {m_name}_To_UI();",
 		"\n  }",
 		"");
 										data_to_ui.Add(
+											$"\n    in_data_to_ui = true;",
 											$"\n    UI_{m_name} = new _UI_{className}(this);",
 											$"\n    \"{m_name}_To_UI\".InvokeMethod(this);",
 											$"\n    for (int i = 0; i < data.{m_name}_DisplayCols?.Length && i < UI_grid_{m_name}.displayColumns.Count; i++)",
@@ -1651,13 +1720,14 @@ $"\n    {m_name}_To_UI();",
 											$"\n        UI_grid_{m_name}.headerButtons[i].unitLabel.style.display = DisplayIf(item.siUnit != siUnit.Null || item.usUnit != usUnit.Null || item.Unit != Unit.Null);",
 											 "\n    }",
 											$"\n    UI_grid_{m_name}.VScroll.value = data.{m_name}_VScroll;",
+											$"\n    in_data_to_ui = false;",
 											$"\n    UI_grid_{m_name}.dispRowN.v = data.{m_name}_DisplayRowN == 0 ? 20 : data.{m_name}_DisplayRowN;",
 											$"\n    UI_grid_{m_name}.isExpanded = data.{m_name}_isExpanded;",
 											$"\n    UI_grid_{m_name}.selectedRows = data.{m_name}_selectedRows;",
 											$"\n    UI_grid_{m_name}.lastClickedRow = data.{m_name}_lastClickedRow;",
 											$"\n    {m_name} ??= new {m_typeStr} {{ }};",
 											$"\n    UI_grid_{m_name}.isRowSelected = data.{m_name}_selectedRows.RangeStr_to_bools({m_name}.Length);",
-											$"\n    UI_grid_{m_name}.DrawGrid();",
+											//$"\n    UI_grid_{m_name}.DrawGrid();",
 											"");
 										var arrayWrappers = StrBldr();
 										row = 0;
@@ -1674,7 +1744,7 @@ $"\n    {m_name}_To_UI();",
 												arrayWrappers.Add($"\n      public UI_{typeStr} UI_{arrayFld.Name} => gs.UI_grid_{m_name}.RowItems[row][{row++}] as UI_{typeStr};",
 																					$" public {typeStr} {arrayFld.Name} {{ get => UI_{arrayFld.Name}.v; set => UI_{arrayFld.Name}.v = value; }}");
 										}
-
+										s_start1_GS.Add($"\n    UI_grid_{m_name}.DrawGrid();");
 										gridWrapper.Add(
 		$"\n  public class _UI_{className}",
 		"\n  {",
@@ -1756,22 +1826,53 @@ $"\n    {m_name}_To_UI();",
 			tData.Add("\n  }");
 			OnGrid.Add(clickedMethods);
 
-			var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();
+			//var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();
 
-			foreach (var lib_fld in lib_flds)
-				if (lib_fld.isInternal_Lib())
-				{
-					s_LateUpdate0.Add($"\n    {lib_fld.Name}_LateUpdate0_GS();");
-					s_LateUpdate1.Add($"\n    {lib_fld.Name}_LateUpdate1_GS();");
-					s_Update0.Add($"\n    {lib_fld.Name}_Update0_GS();");
-					s_Update1.Add($"\n    {lib_fld.Name}_Update1_GS();");
-					s_start0_GS.Add($"\n    {lib_fld.Name}_Start0_GS();");
-					s_start1_GS.Add($"\n    {lib_fld.Name}_Start1_GS();");
-					s_onValueChanged.Add($"\n    {lib_fld.Name}_OnValueChanged_GS();");
-					s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
-				}
+			//foreach (var lib_fld in lib_flds)
+			//	if (lib_fld.isInternal_Lib())
+			//	{
+			//		s_LateUpdate0.Add($"\n    {lib_fld.Name}_LateUpdate0_GS();");
+			//		s_LateUpdate1.Add($"\n    {lib_fld.Name}_LateUpdate1_GS();");
+			//		s_Update0.Add($"\n    {lib_fld.Name}_Update0_GS();");
+			//		s_Update1.Add($"\n    {lib_fld.Name}_Update1_GS();");
+			//		s_start0_GS.Add($"\n    {lib_fld.Name}_Start0_GS();");
+			//		s_start1_GS.Add($"\n    {lib_fld.Name}_Start1_GS();");
+			//		s_onValueChanged.Add($"\n    {lib_fld.Name}_OnValueChanged_GS();");
+			//		s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
+			//	}
 
 			if (uiDocument && gsName != "gsReport_Lib") s_onValueChanged.Add("\n    var type = \"gsReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
+
+
+			////s_start1_GS.Add($"\n    UI_grid_flts.DrawGrid();");
+			//if (_gs_members != null)
+			//	foreach (var gs_member in _gs_members)
+			//	{
+			//		if (gs_member.IsFld() || gs_member.IsClass())
+			//		{
+			//			Type gs_memberType = gs_member.GetMemberType();
+			//			string m_typeStr = gs_memberType.SimplifyType();
+			//			FieldInfo _GS_field = gs_member.IsFld() ? gs_member.Fld() : null;
+			//			//PropertyInfo _GS_prop = gs_member.IsProp() ? gs_member.Prop() : null;
+			//			//MethodInfo _GS_method = gs_member.IsMethod() ? gs_member.Method() : null;
+			//			Type _GS_fieldType = _GS_field?.FieldType;
+
+			//			if (m_typeStr != nameof(TreeGroupEnd))
+			//			{
+			//				if (!_GS_fieldType.isNestedClass())
+			//				{
+			//					if (_GS_fieldType.IsArray)
+			//					{
+			//						if (_GS_fieldType.IsClass)
+			//						{
+			//							string m_name = gs_member.Name;
+			//							s_start1_GS.Add($"\n    UI_grid_{m_name}.DrawGrid();");
+			//						}
+			//					}
+			//				}
+			//			}
+			//		}
+			//	}
 
 			virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
 				s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()", s_OnApplicationQuit, "OnApplicationQuit_GS()");
@@ -1797,9 +1898,13 @@ $"\n    {m_name}_To_UI();",
 			"\n  {",
 			"\n    if (data == null) return;", ui_to_data,
 			"\n  }",
+			//"\n  public bool in_data_to_ui;",
 			"\n  public override void data_to_ui()",
 			"\n  {", data_to_ui_Defaults,
 			"\n    if (data == null) return;", data_to_ui,
+			//"\n    if (data == null) return;",
+			//"\n    in_data_to_ui = true;", data_to_ui,
+			//"\n    in_data_to_ui = false;", 
 			"\n  }", OnGrid,
 			"\n  public virtual void Save(string path, string projectName)",
 			"\n  {",
@@ -1956,7 +2061,6 @@ $"\n    {m_name}_To_UI();",
 				if (m.name.DoesNotStartWithAny("Cpu_", "Gpu_"))
 					methods.Add(m);
 			}
-
 			//var GS_kernel_matches = _GS_Code.RegexMatch(@"\bvoid (.*?)\(\) \{ Size\(");
 			//for (int i = methods.Count - 1; i >= 0; i--)//remove kernel methods in _cs that are not in _GS
 			//{
@@ -1983,7 +2087,6 @@ $"\n    {m_name}_To_UI();",
 				if (methods.FirstOrDefault(a => a.methodName == methodName) == null)
 					methods.Add(new method_data(Name, methodName));
 			}
-
 			foreach (Match match in cs_method_matches)// replace virtual _cs methods with override code from cs, add methods in cs not in _cs
 			{
 				method_data override_code = new method_data(Name, match);
@@ -2054,11 +2157,22 @@ $"\n    {m_name}_To_UI();",
 			//}
 			foreach (var m in kernel_methods)
 			{
-				string nm = m.name.Between("g" + Name + "_", "_GS"), items = _GS_Code.After($"void {nm}()").Before("\n"), size = items.Between("Size(", ");");
+				//string nm = m.name.Between("g" + Name + "_", "_GS"), items = _GS_Code.After($"void {nm}()").Before("\n"), size = items.Between("Size(", ");");
+				string nm = m.name.Between("g" + Name + "_", "_GS");
+				string items = _GS_Code.Contains($"void {nm}()") ? _GS_Code.After($"void {nm}()").Before("\n") : "Size(1);";
+				//string items;
+				//string srch_str = $"void {nm}()";
+				//if (_GS_Code.Contains(srch_str))
+				//	items = _GS_Code.After(srch_str).Before("\n");
+				//else
+				//{
+				//	srch_str
+				//}
+				string size = items.Between("Size(", ");");
+
 				m.SetSizeInfo(GetSizeInfo(size));
 				m.sync = items.ContainsAny("Sync();", "SyncSize(");
 			}
-
 			foreach (var method in kernel_methods)
 				method.SetReadWriteBuffers();
 			Topological_Sort(compute_include_methods);
@@ -2199,7 +2313,9 @@ $"\n    {m_name}_To_UI();",
 				ForceRecompile();
 				yield return null;
 			}
-			if (!changed)
+			//print($"D, changed = {changed}");
+
+			//if (!changed) //removed this so that shaders recompile when .cs file changes
 			{
 				bool added_scripts = false;
 				foreach (var lib_fld in lib_flds)
@@ -2235,21 +2351,21 @@ $"\n    {m_name}_To_UI();",
 					foreach (var f in gs.GetType().GetFields(bindings).Where(a => a.FieldType.IsType(typeof(GS)) && a.GetValue(gs) == null))
 						f.SetValue(gs, FindGameObject(f.Name)?.GetComponent<GS>() ?? null);
 
-				yield return This.StartCoroutine(Build_UXML_Coroutine());
+				//yield return This.StartCoroutine(Build_UXML_Coroutine());
+				Build_UXML();
 				GetReadWriteBuffers();
 				compileTimeStr.Add($", GetReadWriteBuffers: {ClockSec_Segment():0.##} sec");
-
 				_cs_Write();
 
 				compileTimeStr.Add($", _cs_Write: {ClockSec_Segment():0.##} sec");
 				compute_Write();
+
 				compileTimeStr.Add($", compute: {ClockSec_Segment():0.##} sec");
 				shader_Write();
 				compileTimeStr.Add($", shader: {ClockSec_Segment():0.##} sec");
 				if (GS_Window.This.gsClass_Run.value) EditorApplication.EnterPlaymode(); //else Beep(0.5f, 1000);
 				compileTimeStr.Add($"\nBuilt {Name}: {ClockSec_SoFar():0.##} sec");
 				print(compileTimeStr);
-
 			}
 			AssetDatabase.Refresh();
 		}

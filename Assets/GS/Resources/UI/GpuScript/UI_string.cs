@@ -19,8 +19,8 @@ namespace GpuScript
     }
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
       textField.value = val;
       textField.isReadOnly = isReadOnly;
       textField.isPasswordField = isPassword;

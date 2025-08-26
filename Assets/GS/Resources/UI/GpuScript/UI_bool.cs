@@ -9,7 +9,7 @@ namespace GpuScript
 	{
 		public override bool Init(GS gs, params GS[] gss)
 		{
-			if (!base.Init(gs, gss)) return false;
+			if (!base.Init(gs, gss) && !isGrid) return false;
 			base.Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
 			v = toggle.value;
 			return true;

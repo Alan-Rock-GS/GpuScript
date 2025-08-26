@@ -10,8 +10,8 @@ namespace GpuScript
 	{
     public override bool Init(GS gs, params GS[] gss)
     {
-      if (!base.Init(gs, gss)) return false;
-      Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
+			if (!base.Init(gs, gss) && !isGrid) return false;
+			Build(label, description, isReadOnly, isGrid, treeGroup_parent?.name);
       var m = gs.GetType().GetMethod(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
       if (m != null) method = m;
       return true;

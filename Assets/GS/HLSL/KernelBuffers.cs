@@ -31,7 +31,7 @@ namespace GpuScript
   {
     Null,
     ns, us, ms, s, min, hr, day, week, month, year,
-    deg, rad, deg_per_sec,
+    deg, rad, deg_per_sec, rad_per_sec, rpm, rps,
     bit, Byte, KB, MB, GB, TB, PB,
     bps, Kbps, Mbps, Gbps, Tbps, Pbps, Bps, KBps, MBps, GBps, TBps, PBps,
     FLOPS, kFLOPS, MFLOPS, GFLOPS, TFLOPS, PFLOPS, EFLOPS, ZFLOPS, YFLOPS,
