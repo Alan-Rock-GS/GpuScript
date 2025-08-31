@@ -1610,6 +1610,7 @@ $"\n    {m_name}_To_UI();",
 		"\n  {",
 		$"\n    if (!ui_loaded) return;",
 		$"\n    var UI_grid = UI_grid_{m_name};",
+		 //"\n		if (UI_grid.isBuilding) return;\r\n",
 		$"\n    int startRow = UI_grid.StartRow;", grid_OnValueChanged,
 		"\n  }",
 

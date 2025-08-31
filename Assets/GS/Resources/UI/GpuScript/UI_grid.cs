@@ -632,8 +632,8 @@ namespace GpuScript
 		public Scroller VScroll;
 		public UI_grid uiGrid;
 		public bool[] isRowSelected;
-		public string selectedRows;
-		public int StartRow, lastClickedRow;
+		[HideInInspector] public string selectedRows;
+		[HideInInspector] public int StartRow, lastClickedRow;
 
 		public UI_uint dispRowN;
 		public int DisplayRowN => (int)dispRows;

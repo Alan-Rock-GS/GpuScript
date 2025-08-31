@@ -88,8 +88,10 @@ namespace GpuScript
 		public virtual void OnUnitsChanged() { }
 		protected void Load() { Resources.Load<VisualTreeAsset>("UI/GpuScript/" + GetType().Name)?.CloneTree(this); }
 		public UI_VisualElement() { Load(); }
+		public bool isBuilding = false;
 		public UI_VisualElement(int rowI, AttGS att) : this()
 		{
+			isBuilding = true;
 			var a = att;
 			var fldName = a.Name.ReplaceAll(" ", "_", "-", "_");
 			name = $"UI_float_{fldName}_{rowI + 1}";

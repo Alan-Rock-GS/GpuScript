@@ -122,12 +122,13 @@ namespace GpuScript
 				textField.value = (siUnits ? iconvert(si / siConvert) : convert(si / siConvert)).ToString(format);
 		}
 		public override bool hasRange { get => rangeMin < rangeMax; }
-		float _rangeMin; public float rangeMin { get => _rangeMin; set { _rangeMin = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(_rangeMin); } }
-		float _rangeMax; public float rangeMax { get => _rangeMax; set { _rangeMax = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(_rangeMax); } }
+		float _rangeMin; public float rangeMin { get => _rangeMin; set { _rangeMin = value; if (sliders != null && sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].lowValue = Slider_Log_Val(_rangeMin); } }
+		float _rangeMax; public float rangeMax { get => _rangeMax; set { _rangeMax = value; if (sliders != null && sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(_rangeMax); } }
 
 		public float previousValue;
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
+			if (isBuilding) { isBuilding = false; return; }
 			if (evt.currentTarget is Slider && textField != null && hasRange)
 			{
 				float val = SliderV;
