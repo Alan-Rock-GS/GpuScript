@@ -1518,7 +1518,19 @@ $"\n    {m_name} = label switch",
 													grid_ShowIf.Add($"\n    if (col == {m_name}_{fldName}_Col) return {att.ShowIf.ToString().ReplaceAll("False", "false", "True", "true")};");
 												if (fldTyp == typeof(bool)) ui_to_array.Add($"\n      row.{fldName}{v} = ui.{fldName}.To_uint();");
 												else ui_to_array.Add($"\n      row.{fldName}{v} = {enumCast}ui.{fldName};");
-												grid_item_OnValueChanged.Add($"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue) {{ }}");
+												//grid_item_OnValueChanged.Add($"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue) {{ }}");
+												grid_item_OnValueChanged.Add(
+$"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue)",
+ "\n  {",
+$"\n    var grid = UI_grid_{m_name};",
+ "\n    if (grid.isRowSelected[row])",
+ "\n    {",
+ "\n    	bool changed = false;",
+ "\n    	for (int i = 0; i < min(grid.RowItems.Count, grid.isRowSelected.Length); i++)",
+$"\n    		if (i != row && grid.isRowSelected[i]) {{ {m_name}[i].{fldName} = {m_name}[row].{fldName}; changed = true; }}",
+$"\n    	if (changed) {m_name}_To_UI();",
+ "\n    }",
+ "\n  }");
 
 												if (attGS.ColumnSorting)
 												{
@@ -2369,6 +2381,7 @@ $"\n    {m_name}_To_UI();",
 				print(compileTimeStr);
 			}
 			AssetDatabase.Refresh();
+			SaveScene();
 		}
 		public WaitForSeconds WaitForSeconds(float seconds) => new WaitForSeconds(seconds);
 
@@ -2415,7 +2428,9 @@ $"\n    {m_name}_To_UI();",
 			foreach (var k in kernel_methods) s.Add($"\n  #pragma kernel {k.methodName}");
 			foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
 			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
-			if (compute_filename.WriteAllTextAscii_IfChanged(s)) print($"{compute_filename} changed"); else print($"{compute_filename} did not change");
+			//if (compute_filename.WriteAllTextAscii_IfChanged(s)) print($"{compute_filename} changed"); else print($"{compute_filename} did not change");
+			compute_filename.WriteAllTextAscii_IfChanged(s);
+
 			if (gs.computeShader == null)
 				gs.computeShader = compute_filename.LoadAssetAtPath<ComputeShader>();
 		}

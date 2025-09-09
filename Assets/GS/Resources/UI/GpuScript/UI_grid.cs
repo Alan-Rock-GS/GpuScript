@@ -643,6 +643,7 @@ namespace GpuScript
 		public UI_grid() : base() { }
 		public void dispRowN_OnTextFieldChanged(ChangeEvent<string> evt)
 		{
+			dispRows = evt.newValue.To_uint();
 			if (DisplayRowN > 20) dispRowN.v = dispRows;
 			StartRow = 0;
 			if (gs != null)

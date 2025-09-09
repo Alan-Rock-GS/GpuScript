@@ -400,6 +400,15 @@ namespace GpuScript
 		//Blocks execution of all threads in a group until all group shared accesses have been completed and all threads in the group have reached this call.
 		public WaitForEndOfFrame GroupMemoryBarrierWithGroupSync() { sync++; return null; }
 
+		/// <summary>
+		/// Same as GroupMemoryBarrierWithGroupSync()
+		/// </summary>
+		public WaitForEndOfFrame GrpSync() { sync++; return null; }
+		/// <summary>
+		/// Same as AllMemoryBarrierWithGroupSync() followed by yield return GroupMemoryBarrierWithGroupSync()
+		/// </summary>
+		public WaitForEndOfFrame DataSync() { sync++; return null; }
+
 		//isfinite - test whether or not a scalar or each vector component is a finite value
 		public static bool isfinite(float x) => abs(x) < float.PositiveInfinity;
 		public static float2 isfinite(float2 x) => abs(x) < float.PositiveInfinity;
@@ -2411,6 +2420,9 @@ namespace GpuScript
 		public static float Secs(Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
 		public float TimeAction(uint n, Action a, Unit unit) => For(n).Select(i => Secs(a)).Min() * UI_VisualElement.convert(Unit.s, unit);
 		public string TimeAction_Str(uint n, Action a, Unit unit) => $"{TimeAction(n, a, unit):#,##0} {unit.ToLabel()}";
+		public Stopwatch stopwatch;
+		public void TimeCode() { stopwatch = new Stopwatch(); stopwatch.Start(); }
+		public float TimeCode(Unit unit) { stopwatch.Stop(); return stopwatch.Secs() * UI_VisualElement.convert(Unit.s, unit); }
 
 		public static void swap<T>(ref T a, ref T b) { T t = a; a = b; b = t; }
 
@@ -3209,6 +3221,7 @@ namespace GpuScript
 		void Dispatch(int kernel, KernelFunction_groupThreadID_groupID_dispatchThreadID_groupIndex kernelFunction, uint x, uint y, uint z)
 		{
 			uint3 numthreads = kernelFunction.numthreads(), iter = uint3(x, y, z), dispatch = iter / numthreads + ceilu((iter % numthreads) / (float3)numthreads);
+			//if (numthreads.y == 32) { numthreads.y = 3; dispatch = iter / numthreads + ceilu((iter % numthreads) / (float3)numthreads); }
 			if (all(dispatch > 0) && computeShader != null)
 				computeShader.Dispatch(kernel, (int)dispatch.x, (int)dispatch.y, (int)dispatch.z);
 		}
@@ -4188,7 +4201,7 @@ namespace GpuScript
 
 		[HideInInspector] public bool isInitBuffers = false;
 
-		[HideInInspector] public bool in_data_to_ui; 
+		[HideInInspector] public bool in_data_to_ui;
 		public virtual void data_to_ui() { }
 		public virtual void ui_to_data() { }
 		public virtual bool Load_UI_As(string path, string projectName) => true;

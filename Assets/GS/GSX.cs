@@ -1249,7 +1249,7 @@ namespace GpuScript
 			float years = secsToYears(secs), months = frac(years) * 12, days = frac(years) * 365.25f, hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
 			int Years = floori(years), Months = floori(months), Days = floori(days) - floori(Months / 12f * 365.25f), Hours = floori(hrs), Minutes = floori(mins), Seconds = floori(s), Milliseconds = floori(ms);
 			bool showYears = Years > 0, showMonths = showYears || Months > 0, showDays = showMonths || Days > 0, showHours = showDays || Hours > 0, showMinutes = showHours || Minutes > 0, showSeconds = showMinutes || Seconds > 0, showMilliseconds = !showMinutes && Seconds < 10;
-			return $"{(showYears ? $"{Years} Year{(Years == 1 ? "" : "s")} " : "")}{(showMonths ? $"{Months} Month{(Months == 1 ? "" : "s")} " : "")}{(showDays ? $"{Days} Day{(Days == 1 ? "" : "s")} " : "")}{(showHours ? $"{Hours:00}:" : "")}{(showMinutes ? $"{Minutes:00}:" : "")}{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
+			return $"{(showYears ? $"{Years} Year{(Years == 1 ? "" : "s")} " : "")}{(showMonths ? $"{Months} Month{(Months == 1 ? "" : "s")} " : "")}{(showDays ? $"{Days} Day{(Days == 1 ? "" : "s")} " : "")}{(showHours ? $"{Hours:00}" : "00")}:{(showMinutes ? $"{Minutes:00}" : "00")}:{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
 		}
 		public static string ToTimeString(this Stopwatch w) => ToTimeString(w.Secs());
 		public static string ToTimeString(this long ticks) => ToTimeString(ticks / (float)Stopwatch.Frequency);
