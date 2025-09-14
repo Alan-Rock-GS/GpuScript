@@ -1527,7 +1527,11 @@ $"\n    var grid = UI_grid_{m_name};",
  "\n    {",
  "\n    	bool changed = false;",
  "\n    	for (int i = 0; i < min(grid.RowItems.Count, grid.isRowSelected.Length); i++)",
-$"\n    		if (i != row && grid.isRowSelected[i]) {{ {m_name}[i].{fldName} = {m_name}[row].{fldName}; changed = true; }}",
+//$"\n    		if (i != row && grid.isRowSelected[i]) {{ {m_name}[i].{fldName} = {m_name}[row].{fldName}; changed = true; }}",
+//$"\n    		if (i != row && grid.isRowSelected[i]) {{ {m_name}[i].Data.{fldName} = {m_name}[row].{fldName}; changed = true; }}",
+$"\n    		if (i != row && grid.isRowSelected[i]) {{ var t = {m_name}[i]; t.{fldName} = {m_name}[row].{fldName}; {m_name}[i] = t; changed = true; }}",
+//if (i != row && grid.isRowSelected[i]) { var t = segYFolders[i]; t.segy_include = segYFolders[row].segy_include; segYFolders[i] = t; changed = true; }
+
 $"\n    	if (changed) {m_name}_To_UI();",
  "\n    }",
  "\n  }");
