@@ -1,4 +1,4 @@
-// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 480
+// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 527
 
 
 //#pragma use_dxc
@@ -165,10 +165,16 @@
 #define uint23 8388607
 #define float_NegativeInfinity -3.4e38
 #define float_PositiveInfinity  3.4e38
+
 #define PI 3.14159265f
 #define PIo2 1.570796327f
 #define PIo4 0.785398163f
 #define TwoPI 6.28318531f
+#define dPI 3.14159265358979323846
+#define dPIo2 1.57079632679489661923
+#define dPIo4 0.785398163397448
+#define dTwoPI 6.283185307179586
+
 #define EPS 1e-6f
 #define Sqrt2 1.414213562f
 #define Sqrt3 1.732050808f
@@ -258,6 +264,7 @@
 #define u_f4(v) (float4((v) >> 24, ((v) >> 16) & 0xff, ((v) >> 8) & 0xff, (v) & 0xff) * 3.92156862745098e-3f)
 #define c32_u(c) (c)
 #define u_c32(u) (u)
+
 
 #define f00 float2(0, 0)
 #define f01 float2(0, 1)
@@ -532,10 +539,7 @@
 
 #define fTetra float3(1, 0.816496581f, 0.866025404f)
 
-
 #define paletteColor(_PaletteTex, v) tex2Dlod(_PaletteTex, f1000 * clamp(v, 0.01f, 0.99f))
-//#define paletteColor(_PaletteTex, v) tex2D(_PaletteTex, f10 * clamp(v, 0.01f, 0.99f))
-
 
 #define Matrix4x4 float4x4
 
@@ -586,7 +590,6 @@ struct PGA2 { float s; float3 e, E; float p; };
 #define pga2_e20 Wedge(pga2_e2, pga2_e0) 
 #define pga2_e12 Wedge(pga2_e1, pga2_e2) 
 #define pga2_e012 Wedge(pga2_e0, pga2_e1, pga2_e2)
-
 
 #include "../../GS/HLSL/GS.cs"
 

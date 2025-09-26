@@ -21,6 +21,8 @@ using Newtonsoft.Json;
 using UnityEngine.Networking;
 using GSharp;
 using Newtonsoft.Json.Linq;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
+
 
 
 #if UNITY_EDITOR
@@ -58,36 +60,18 @@ namespace GpuScript
 			return 0;
 		}
 
-		public void asuint(double value, out uint lowbits, out uint highbits)
+		public static void asuint(double value, out uint lowbits, out uint highbits)
 		{
 			byte[] bytes = BitConverter.GetBytes(value);
 			lowbits = (uint)((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]);
 			highbits = (uint)((bytes[7] << 24) | (bytes[6] << 16) | (bytes[5] << 8) | bytes[4]);
 		}
 
-		public double asdouble(uint lowbits, uint highbits)
+		public static double asdouble(uint lowbits, uint highbits)
 		{
 			byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
 			return BitConverter.ToDouble(b2, 0);
 		}
-
-		//[StructLayout(LayoutKind.Explicit)] internal struct IntFloatUnion { [FieldOffset(0)] public int intValue; [FieldOffset(0)] public float floatValue; }
-		//public static int asint(uint x) => (int)x;
-		//public static int2 asint(uint2 x) => int2((int)x.x, (int)x.y);
-		//public static int3 asint(uint3 x) => int3((int)x.x, (int)x.y, (int)x.z);
-		//public static int4 asint(uint4 x) => int4((int)x.x, (int)x.y, (int)x.z, (int)x.w);
-		//public static int asint(float x) { IntFloatUnion u; u.intValue = 0; u.floatValue = x; return u.intValue; }
-		//public static int2 asint(float2 x) => int2(asint(x.x), asint(x.y));
-		//public static int3 asint(float3 x) => int3(asint(x.x), asint(x.y), asint(x.z));
-		//public static int4 asint(float4 x) => int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w));
-		//public static uint asuint(int x) => (uint)x;
-		//public static uint2 asuint(int2 x) => uint2((uint)x.x, (uint)x.y);
-		//public static uint3 asuint(int3 x) => uint3((uint)x.x, (uint)x.y, (uint)x.z);
-		//public static uint4 asuint(int4 x) => uint4((uint)x.x, (uint)x.y, (uint)x.z, (uint)x.w);
-		//public static uint asuint(float x) => (uint)asint(x);
-		//public static uint2 asuint(float2 x) => uint2(asuint(x.x), asuint(x.y));
-		//public static uint3 asuint(float3 x) => uint3(asuint(x.x), asuint(x.y), asuint(x.z));
-		//public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
 
 		//Interprets the bit pattern of x as an integer.
 		public static int asint(float v) => BitConverter.ToInt32(BitConverter.GetBytes(v));
@@ -570,7 +554,6 @@ namespace GpuScript
 		public static float4 pow(float4 a, float4 b) => float4(pow(a.x, b.x), pow(a.y, b.y), pow(a.z, b.z), pow(a.w, b.w));
 
 		//radians - converts values of scalars and vectors from degrees to radians
-		public static double radians(double v) => Mathf.Deg2Rad * v;
 		public static float radians(float v) => Mathf.Deg2Rad * v;
 		public static float2 radians(float2 v) => float2(radians(v.x), radians(v.y));
 		public static float3 radians(float3 v) => float3(radians(v.x), radians(v.y), radians(v.z));
@@ -726,6 +709,10 @@ namespace GpuScript
 		public static float2 trunc(float2 v) => float2(trunc(v.x), trunc(v.y));
 		public static float3 trunc(float3 v) => float3(trunc(v.x), trunc(v.y), trunc(v.z));
 		public static float4 trunc(float4 v) => float4(trunc(v.x), trunc(v.y), trunc(v.z), trunc(v.w));
+		public static double trunc(double v) => v < 0 ? -floor(-v) : floor(v);
+		public static double2 trunc(double2 v) => double2(trunc(v.x), trunc(v.y));
+		public static double3 trunc(double3 v) => double3(trunc(v.x), trunc(v.y), trunc(v.z));
+		public static double4 trunc(double4 v) => double4(trunc(v.x), trunc(v.y), trunc(v.z), trunc(v.w));
 
 		public static uint mask(int highBit, int lowBit) => (uint)(highBit >= 31 ? 0xffffffffu << lowBit : (0xffffffffu << (highBit + 1)) ^ (0xffffffffu << lowBit));
 		public static int extract_int(uint v, int highBit, int lowBit) => (int)((v & mask(highBit, lowBit)) >> lowBit);
@@ -739,43 +726,6 @@ namespace GpuScript
 
 
 		//Interlocked: following work without conditional compiler options
-		//public static void InterlockedAdd(RWStructuredBuffer<int> a, uint I, int v) { a[I] += v; }
-		//public static void InterlockedAdd(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] += v; }
-		//public static void InterlockedAdd(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] += Is(v); }
-		//public static void InterlockedAnd(RWStructuredBuffer<int> a, uint I, int v) { a[I] &= v; }
-		//public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] &= v; }
-		//public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] &= Is(v); }
-		//public static void InterlockedAnd(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) & v); }
-		//public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
-		//public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { uint aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
-		//public static void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { if (a[I] == compare_v) a[I] = v; }
-		//public static void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { if (a[I] == compare_v) a[I] = v; }
-		//public static int InterlockedExchange(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
-		//public static uint InterlockedExchange(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; a[I] = v; return aI; }
-		//public static float InterlockedExchange(RWStructuredBuffer<float> a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
-		//public static void InterlockedMax(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; if (aI < v) a[I] = v; }
-		//public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; if (aI < v) a[I] = v; }
-		//public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, bool v) { uint aI = a[I]; if (aI < Is(v)) a[I] = Is(v); }
-		//public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, I, merge(i, iRange, v, vRange)); }
-		//public static void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMax(a, I, i, iMax * u01, v, vMax * f01); }
-		//public static void InterlockedMin(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; if (aI > v) a[I] = v; }
-		//public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; if (aI > v) a[I] = v; }
-		//public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, bool v) { uint aI = a[I]; if (aI > Is(v)) a[I] = Is(v); }
-		//public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
-		//public static void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint iMax, float v, float vMax) { InterlockedMin(a, I, i, iMax * u01, v, vMax * f01); }
-		//public static void InterlockedOr(RWStructuredBuffer<int> a, uint I, int v) { a[I] |= v; }
-		//public static void InterlockedOr(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] |= v; }
-		//public static void InterlockedOr(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] |= Is(v); }
-		//public static void InterlockedOr(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) | v); }
-		//public static void InterlockedXor(RWStructuredBuffer<int> a, uint I, int v) { a[I] ^= v; }
-		//public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] ^= v; }
-		//public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] ^= Is(v); }
-		//public static void InterlockedXor(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) ^ v); }
-
-
-
-
-
 		public static void InterlockedAdd(ref int a, int v) { a += v; }
 		public static void InterlockedAdd(ref uint a, uint v) { a += v; }
 		public static void InterlockedAdd(ref uint a, bool v) { a += Is(v); }
@@ -793,13 +743,9 @@ namespace GpuScript
 		public static void InterlockedMax(ref int a, int v) { int aI = a; if (aI < v) a = v; }
 		public static void InterlockedMax(ref uint a, uint v) { uint aI = a; if (aI < v) a = v; }
 		public static void InterlockedMax(ref uint a, bool v) { uint aI = a; if (aI < Is(v)) a = Is(v); }
-		//public static void InterlockedMax(ref uint a, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, merge(i, iRange, v, vRange)); }
-		//public static void InterlockedMax(ref uint a, uint i, uint iMax, float v, float vMax) { InterlockedMax(a, I, i, iMax * u01, v, vMax * f01); }
 		public static void InterlockedMin(ref int a, int v) { int aI = a; if (aI > v) a = v; }
 		public static void InterlockedMin(ref uint a, uint v) { uint aI = a; if (aI > v) a = v; }
 		public static void InterlockedMin(ref uint a, bool v) { uint aI = a; if (aI > Is(v)) a = Is(v); }
-		//public static void InterlockedMin(ref uint a, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
-		//public static void InterlockedMin(ref uint a, uint i, uint iMax, float v, float vMax) { InterlockedMin(a, I, i, iMax * u01, v, vMax * f01); }
 		public static void InterlockedOr(ref int a, int v) { a |= v; }
 		public static void InterlockedOr(ref uint a, uint v) { a |= v; }
 		public static void InterlockedOr(ref uint a, bool v) { a |= Is(v); }
@@ -874,12 +820,6 @@ namespace GpuScript
 		public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, uint v) { a[I] ^= v; }
 		public static void InterlockedXor(RWStructuredBuffer<uint> a, uint I, bool v) { a[I] ^= Is(v); }
 		public static void InterlockedXor(RWStructuredBuffer<Color32> a, uint I, uint v) { a[I] = u_c32(c32_u(a[I]) ^ v); }
-
-
-
-
-
-
 
 		//Implement InterlockedMin and InterlockedMax for float buffers
 		//https://www.jeremyong.com/graphics/2023/09/05/f32-interlocked-min-max-hlsl/
@@ -1073,7 +1013,6 @@ namespace GpuScript
 		public static float2 floor(float2 v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
 		public static float3 floor(float3 v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
 		public static float4 floor(float4 v, float nearest) { return nearest == 0 || isnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
-
 
 		//https://gist.github.com/paniq/3afdb420b5d94bf99e36
 		public static float3 tetnorm(float3 v) { return sqrt(v * float3(csum(v), csum(v.yz), v.z)); }
@@ -1325,6 +1264,9 @@ namespace GpuScript
 		public static float3 rotateZXYDeg(float3 p, float3 deg) { return rotateYDeg(rotateXDeg(rotateZDeg(p, deg.z), deg.x), deg.y); }
 		public static float3 rotateYXZDeg(float3 p, float3 deg) { return rotateZDeg(rotateXDeg(rotateYDeg(p, deg.y), deg.x), deg.z); }
 
+		public static void rotateXDegOffset(float3 p, float deg, float3 q) { p -= q; rotateX(p, radians(deg)); p += q; }
+
+
 		public static float3 rotateAxisDeg(float3 p, float3 axis1, float rot1, float3 axis2, float rot2, float3 axis3, float rot3) { return rotateDeg(rotateDeg(rotateDeg(p, rot1, axis1), rot2, axis2), rot3, axis3); }
 		public static float3 unrotateAxisDeg(float3 p, float3 axis1, float rot1, float3 axis2, float rot2, float3 axis3, float rot3) { return rotateDeg(rotateDeg(rotateDeg(p, -rot3, axis3), -rot2, axis2), -rot1, axis1); }
 
@@ -1486,24 +1428,69 @@ namespace GpuScript
 		public static float3 lerp(float2 range, float3 w) { return lerp(range.x, range.y, w); }
 		public static float4 lerp(float2 range, float4 w) { return lerp(range.x, range.y, w); }
 
+		public static float3 xOO(float x) { return float3(x, 0, 0); }
+		public static float3 OxO(float x) { return float3(0, x, 0); }
+		public static float3 OOx(float x) { return float3(0, 0, x); }
 		public static float3 xyO(float x, float y) { return float3(x, y, 0); }
+		public static float3 OOx(float2 p) { return float3(0, 0, p.x); }
 		public static float3 xyO(float2 p) { return float3(p, 0); }
 		public static float3 xOy(float2 p) { return float3(p.x, 0, p.y); }
 		public static float3 Oxy(float2 p) { return float3(0, p); }
 		public static float3 yxO(float2 p) { return float3(p.yx, 0); }
 		public static float3 yOx(float2 p) { return float3(p.y, 0, p.x); }
 		public static float3 Oyx(float2 p) { return float3(0, p.yx); }
+		public static float3 OOx(float3 p) { return float3(0, 0, p.x); }
+		public static float3 xyO(float3 p) { return float3(p.xy, 0); }
+		public static float3 xOy(float3 p) { return float3(p.x, 0, p.y); }
+		public static float3 Oxy(float3 p) { return float3(0, p.xy); }
+		public static float3 yxO(float3 p) { return float3(p.yx, 0); }
+		public static float3 yOx(float3 p) { return float3(p.y, 0, p.x); }
+		public static float3 Oyx(float3 p) { return float3(0, p.yx); }
 
-		//public static float Convert_Angle(float v, float mn, float mx) { return ((v + mx) % (mx - mn)) - mn; }
+		public static float mod(float a, float b) { return fmod(a, b); }
+		public static float2 mod(float2 a, float2 b) { return fmod(a, b); }
+		public static float3 mod(float3 a, float3 b) { return fmod(a, b); }
+		public static float3 mod(float3 a, float b) { return fmod(a, b); }
+		public static float4 mod(float4 a, float4 b) { return fmod(a, b); }
+		public static double mod(double a, double b) { return a - b * trunc(a / b); }
+		public static double2 mod(double2 a, double2 b) { return a - b * trunc(a / b); }
+		public static double3 mod(double3 a, double3 b) { return a - b * trunc(a / b); }
+		public static double3 mod(double3 a, double b) { return a - b * trunc(a / b); }
+		public static double4 mod(double4 a, double4 b) { return a - b * trunc(a / b); }
+
+		public static double dRadians(double v) { return 0.0174532925199433 * v; }
+
 		public static float Convert_180_180(float v) { return ((v + 540) % 360) - 180; }
 		public static float2 Convert_180_180(float2 v) { return ((v + 540) % 360) - 180; }
 		public static float3 Convert_180_180(float3 v) { return ((v + 540) % 360) - 180; }
 		public static float4 Convert_180_180(float4 v) { return ((v + 540) % 360) - 180; }
+		public static double Convert_PI_PI(double t) { return (t = mod(t, dTwoPI)) >= dPI ? t - dTwoPI : t < -dPI ? t + dTwoPI : t; }
+
 		public static float degrees_180_180(float v) { return Convert_180_180(degrees(v)); }
 		public static float2 degrees_180_180(float2 v) { return Convert_180_180(degrees(v)); }
 		public static float3 degrees_180_180(float3 v) { return Convert_180_180(degrees(v)); }
 		public static float4 degrees_180_180(float4 v) { return Convert_180_180(degrees(v)); }
 
+		public static double dsin(double t)
+		{
+			t = Convert_PI_PI(t);
+			double t2 = t * t; //only 7 terms are required with argument reduction
+			return t * (1 + t2 / 6.0 * (-1 + t2 / 20.0 * (1 + t2 / 42.0 * (-1 + t2 / 72.0 * (1 + t2 / 110.0 * (-1 + t2 / 156.0 * (1 - t2 / 210.0)))))));
+		}
+		public static double dcos(double x) { return dsin(x + dPIo2); }
+		public static double dexp(double x)
+		{
+			return 1 + x * (1 + x / 2 * (1 + x / 3 * (1 + x / 4 * (1 + x / 5 * (1 + x / 6 * (1 + x / 7 * (1 + x / 8 *
+				(1 + x / 9 * (1 + x / 10 * (1 + x / 11 * (1 + x / 12) * (1 + x / 13) * (1 + x / 14) * (1 + x / 15) *
+				(1 + x / 16) * (1 + x / 17) * (1 + x / 18) * (1 + x / 19)))))))))));
+		}
+		//public static double dexp(double x)
+		//{
+		//	return 1 + x * (1 + x / 2 * (1 + x / 3 * (1 + x / 4 * (1 + x / 5 * (1 + x / 6 * (1 + x / 7 * (1 + x / 8 *
+		//		(1 + x / 9 * (1 + x / 10 * (1 + x / 11 * (1 + x / 12)))))))))));
+		//}
+
+		public static double uint2_to_double(uint2 v) { return asdouble(v.x, v.y); }
 
 		public static float tanDeg(float v) { return tan(degrees(v)); }
 
@@ -1739,7 +1726,6 @@ namespace GpuScript
 		}
 
 
-		//public static int extent(uint2 v) { return (int)(v.y - v.x); }
 		public static uint extent(uint2 v) { return v.y - v.x; }
 		public static int extent(int2 v) { return v.y - v.x; }
 		public static float extent(float2 v) { return v.y - v.x; }
@@ -1838,8 +1824,6 @@ namespace GpuScript
 		public static float secsToMonths(float secs) { return secsToYears(secs) / 12; }
 
 		//>>>>> GpuScript Code Extensions. The above section contains code that runs on both compute shaders and material shaders, but is not in HLSL
-
-
 
 		//PGA
 		//https://github.com/EricLengyel/Terathon-Math-Library/blob/8f8e54bc1c9e143b57f33d770f14714356442503/TSVector2D.h
@@ -2313,14 +2297,8 @@ namespace GpuScript
 		//public static PGA3 point_on_torus3(float s, float t) { PGA3 to = torus3(s, t, 0.25f, pga3_e12, 0.6f, pga3_e31); return Mul3(to, pga3_e123, Reverse3(to)); }
 
 
-
-
-
 		//# if !gs_shader && !gs_compute //C# code
 		//Region HLSL (GLSL, Cg)
-
-
-
 
 		public static uint maxAxis(uint3 a) { float x = a.x, y = a.y, z = a.z; return x > y && x > z ? 0 : y > x && x > z ? 1u : 2u; }
 		public static uint midAxis(uint3 a) { float x = a.x, y = a.y, z = a.z; return (x > y && x < z) || (x < y && x > z) ? 0 : (y > x && y < z) || (y < x && y > z) ? 1u : 2u; }
@@ -2388,12 +2366,9 @@ namespace GpuScript
 		public float ln2gain(float a, float b) { return ln2(gain(a, b) + 1); }
 		public float ln2gain_to_gain(float ln_gain) { return pow2(ln_gain) - 1; }
 
-
 #if !gs_compute && !gs_shader //C# code
 		//<<<<< GpuScript Code Extensions. This section contains code that runs on both compute shaders and material shaders, but is not in HLSL
 
-		//public static IEnumerable<int> For(int a, int b, int d = 1) { for (; a < b; a += d) yield return a; }
-		//public static IEnumerable<int> For(int b) => For(0, b, 1);
 		public static IEnumerable<int> For(int a, int b, int d = 1) { if ((d = abs(d)) != 0) { if (a < b) for (; a < b; a += d) yield return a; else if (a > b) for (a -= d; a >= b; a -= d) yield return a; } }
 		public static IEnumerable<int> For(int b) => For(0, b, 1);
 		public static IEnumerable<uint> For(uint a, uint b, int d = 1) { uint dx = (uint)abs(d); if (dx > 0) { if (a < b) for (; a < b; a += dx) yield return a; else if (a > b) for (a -= dx; a >= b; a -= dx) yield return a; } }
@@ -2434,7 +2409,6 @@ namespace GpuScript
 		{
 			get
 			{
-				//if (_uiDocument == null) _uiDocument = gameObject.GetComponent<UIDocument>();
 				_uiDocument ??= gameObject.GetComponent<UIDocument>();
 				if (_uiDocument == null) { gameObject.AddComponent<UIDocument>(); _uiDocument = gameObject.GetComponent<UIDocument>(); }
 				return _uiDocument;
@@ -2464,7 +2438,6 @@ namespace GpuScript
 			if (Get_uiDocument())
 			{
 				var children = UI_GS?.Q<VisualElement>().Children();
-				//if (children != null) { ui_elements = children.ToList(); foreach (UI_VisualElement u in children) u.Init(this, gss); }
 				if (children != null) { ui_elements = children.ToList(); foreach (VisualElement u in children) if (u is UI_VisualElement) ((UI_VisualElement)u).Init(this, gss); }
 			}
 		}
@@ -2645,7 +2618,6 @@ namespace GpuScript
 				else if (item is char) sb.Append(item.ToString());
 				else if (item is Color c) sb.Append(c.r, ",", c.g, ",", c.b, ",", c.a);
 				else if (item is TimeSpan t) sb.Append(ToTimeString(t.Ticks * 1e-7f));
-				//else if (item is Stopwatch sw) sb.Append(ToTimeString(sw.ElapsedTicks / (float)Stopwatch.Frequency));
 				else if (item is Stopwatch sw) sb.Append(ToTimeString((float)sw.Elapsed.TotalSeconds));
 				else if (item is DateTime dt) sb.Append(dt.ToShortDateString(), " ", dt.ToShortTimeString());
 				else if (item is Enum) sb.Append(item.ToString());
@@ -3464,10 +3436,16 @@ namespace GpuScript
 		public const int uint23 = 8388607;
 		public const float float_NegativeInfinity = -3.4e38f;
 		public const float float_PositiveInfinity = 3.4e38f;
+
 		public const float PI = 3.14159265f;
 		public const float PIo2 = 1.570796327f;
 		public const float PIo4 = 0.785398163f;
 		public const float TwoPI = 6.28318531f;
+		public const double dPI = 3.14159265358979323846;
+		public const double dPIo2 = 1.57079632679489661923;
+		public const double dPIo4 = 0.785398163397448;
+		public const double dTwoPI = 6.283185307179586;
+
 		public const float Sqrt2PI = 2.506628275f;
 		public const float rcpSqrt2PI = 0.39894228f;
 
@@ -3948,38 +3926,6 @@ namespace GpuScript
 		public static float distance(float4 a, float4 b) { float4 v = a - b; return sqrt(dot(v, v)); }
 		public static double distance(double a, double b) => abs(a - b);
 
-		//public void asuint(double value, out uint lowbits, out uint highbits)
-		//{
-		//	byte[] bytes = BitConverter.GetBytes(value);
-		//	lowbits = (uint)((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]);
-		//	highbits = (uint)((bytes[7] << 24) | (bytes[6] << 16) | (bytes[5] << 8) | bytes[4]);
-		//}
-
-		//public double asdouble(uint lowbits, uint highbits)
-		//{
-		//	byte[] b0 = BitConverter.GetBytes(lowbits), b1 = BitConverter.GetBytes(highbits), b2 = Concat(b0, b1);
-		//	return BitConverter.ToDouble(b2, 0);
-		//}
-
-		//[StructLayout(LayoutKind.Explicit)] internal struct IntFloatUnion { [FieldOffset(0)] public int intValue; [FieldOffset(0)] public float floatValue; }
-
-		//public static int asint(uint x) => (int)x;
-		//public static int2 asint(uint2 x) => int2((int)x.x, (int)x.y);
-		//public static int3 asint(uint3 x) => int3((int)x.x, (int)x.y, (int)x.z);
-		//public static int4 asint(uint4 x) => int4((int)x.x, (int)x.y, (int)x.z, (int)x.w);
-		//public static int asint(float x) { IntFloatUnion u; u.intValue = 0; u.floatValue = x; return u.intValue; }
-		//public static int2 asint(float2 x) => int2(asint(x.x), asint(x.y));
-		//public static int3 asint(float3 x) => int3(asint(x.x), asint(x.y), asint(x.z));
-		//public static int4 asint(float4 x) => int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w));
-		//public static uint asuint(int x) => (uint)x;
-		//public static uint2 asuint(int2 x) => uint2((uint)x.x, (uint)x.y);
-		//public static uint3 asuint(int3 x) => uint3((uint)x.x, (uint)x.y, (uint)x.z);
-		//public static uint4 asuint(int4 x) => uint4((uint)x.x, (uint)x.y, (uint)x.z, (uint)x.w);
-		//public static uint asuint(float x) => (uint)asint(x);
-		//public static uint2 asuint(float2 x) => uint2(asuint(x.x), asuint(x.y));
-		//public static uint3 asuint(float3 x) => uint3(asuint(x.x), asuint(x.y), asuint(x.z));
-		//public static uint4 asuint(float4 x) => uint4(asuint(x.x), asuint(x.y), asuint(x.z), asuint(x.w));
-
 		public static AttGS AttGS(params object[] vals) => new AttGS(vals);
 
 		//allow structs to be declared without new keyword, prevents Non-invocable member ... cannot be used like a method
@@ -4388,10 +4334,16 @@ namespace GpuScript
 			}
 		}
 
-		public virtual float3 MouseHitPnt(int layer)
+		public virtual RaycastHit MouseHit(int layer = 0)
 		{
 			RaycastHit hit;
-			return Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition), out hit, float_PositiveInfinity, 1 << layer) ? (float3)hit.point : fNegInf3;
+			Physics.Raycast(mainCam.ScreenPointToRay(Input.mousePosition), out hit, float_PositiveInfinity, 1 << layer);
+			return hit;
+		}
+		public virtual float3 MouseHitPnt(int layer = 0)
+		{
+			RaycastHit hit = MouseHit(layer);
+			return hit.collider != null ? (float3)hit.point : fNegInf3;
 		}
 
 		[HideInInspector]
@@ -4662,7 +4614,11 @@ namespace GpuScript
 
 		[DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();  //https://stackoverflow.com/questions/1163761/capture-screenshot-of-active-window
 		[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)] public static extern IntPtr GetDesktopWindow();
-		[StructLayout(LayoutKind.Sequential)] private struct Rect { public int Left, Top, Right, Bottom; }
+		[StructLayout(LayoutKind.Sequential)]
+		private struct Rect
+		{
+			public int Left, Top, Right, Bottom;
+		}
 		[DllImport("user32.dll")] private static extern IntPtr GetWindowRect(IntPtr hWnd, ref Rect rect);
 		public static System.Drawing.Image CaptureDesktop() => CaptureWindow(GetDesktopWindow());
 		public static System.Drawing.Bitmap CaptureActiveWindow() => CaptureWindow(GetForegroundWindow());
@@ -5120,9 +5076,9 @@ namespace GpuScript
 		public bool Update_webCamTexture(WebCamTexture webCam, GameObject plane = null)
 		{
 			bool camUpdated = false;
-			if (webCam && webCam.didUpdateThisFrame)
+			if (webCam && webCam.didUpdateThisFrame && plane != null)
 			{
-				var sharedMaterial = plane?.GetComponent<Renderer>().sharedMaterial;
+				var sharedMaterial = plane?.GetComponent<Renderer>()?.sharedMaterial;
 				if (sharedMaterial) sharedMaterial.mainTexture = webCam;
 				camUpdated = true;
 			}
@@ -5206,7 +5162,11 @@ namespace GpuScript
 			return ss;
 		}
 
-		[StructLayout(LayoutKind.Sequential)] struct LASTINPUTINFO { [MarshalAs(UnmanagedType.U4)] public UInt32 cbSize, dwTime; }
+		[StructLayout(LayoutKind.Sequential)]
+		struct LASTINPUTINFO
+		{
+			[MarshalAs(UnmanagedType.U4)] public UInt32 cbSize, dwTime;
+		}
 		[DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
 		public float Idle_time_in_secs()
 		{
@@ -5290,8 +5250,6 @@ namespace GpuScript
 
 		public static Stopwatch runtime, segmentTime;
 		public static void InitClock() { if (runtime == null) { runtime = new Stopwatch(); segmentTime = new Stopwatch(); runtime.Restart(); segmentTime.Restart(); } }
-		//public static float ClockSec_SoFar() { segmentTime.Restart(); return runtime.ElapsedTicks * rcp(Stopwatch.Frequency); }
-		//public static float ClockSec_Segment() { float t = segmentTime.ElapsedTicks * rcp(Stopwatch.Frequency); segmentTime.Restart(); return t; }
 		public static float ClockSec_SoFar() { segmentTime.Restart(); return (float)runtime.Elapsed.TotalSeconds; }
 		public static float ClockSec_Segment() { float t = (float)segmentTime.Elapsed.TotalSeconds; segmentTime.Restart(); return t; }
 		public static string ClockStr_Segment() => GS.ToTimeString(ClockSec_Segment());
@@ -5373,7 +5331,6 @@ namespace GpuScript
 		public Sync Start_Sync(IEnumerator routine) => syncs.Add(new Sync(routine));
 		//endregion Sync
 
-		//public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GS_Android" };
 		public static string[] GS_Assemblies => new string[] { "GS_Libs", "GS_Docs", "GS_Projects", "GS_Development", "GS_Tutorials", "GSA_Libs", "GSA_Docs", "GSA_Projects" };
 		public T Add_Component_to_gameObject<T>() where T : Component => gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
 		public List<string> NewStrList => new();

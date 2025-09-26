@@ -1981,6 +1981,9 @@ $"\n    {m_name}_To_UI();",
 			"", showIfs, dataWrappers, uiWrappers, tData, initBuffers, base_groupshared, declare_classes, classArrays,
 			compute_or_material_shader, kernels_,
 			vertCode, virtual_verts, renderObject, fragCode,
+			//"\n  public uint2 d_asuint(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }",
+			"\n  public uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }",
+			//"\n  public double uint2_to_double(uint2 v) => asdouble(v.x, v.y);",
 			"\n}");
 
 			var matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override)?)\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|#region|#endregion|\r\n}|\n})"; // if lib overrides an OnGrid method, add "base_" prefix to OnGrid method. Same for dataWrappers

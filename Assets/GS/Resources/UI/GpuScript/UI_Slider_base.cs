@@ -44,7 +44,7 @@ namespace GpuScript
 			if (att.Min != null) e.uxml.Add($" range-min=\"{att.Min}\" range-max=\"{att.Max}\"");
 			if (att.is_Pow2_Slider) e.uxml.Add($" is-pow2-slider=\"true\"");
 			if (att.is_Pow_10) e.uxml.Add($" is-pow10=\"true\"");
-			if (att.is_Pow_2) e.uxml.Add($" is-powPow2=\"true\"");
+			if (att.is_Pow_2) e.uxml.Add($" is-pow2=\"true\"");
 			if (att.Nearest != 0) e.uxml.Add($" nearest=\"{att.Nearest}\"");
 			if (att.NearestDigit) e.uxml.Add($" nearest-digit=\"true\"");
 			if (att.Val != null) e.uxml.Add($" val=\"{att.Val}\"");
