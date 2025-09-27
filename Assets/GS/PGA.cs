@@ -1,10 +1,6 @@
 
-//using System;
 using GpuScript;
 using System.Text;
-//using UnityEngine;
-//using System.Runtime.CompilerServices;
-//using System.ComponentModel;
 
 namespace GSharp
 {

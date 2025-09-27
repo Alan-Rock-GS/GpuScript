@@ -2421,9 +2421,15 @@ $"\n    {m_name}_To_UI();",
 				if (m.code.Trim().IsEmpty()) m.code = " { }";
 				if (m.isKernel)
 				{
+					m.code = m.code.RegexReplace(@"(\w+)\[\]\s+(\w+)\s*=\s*new\s+(\w+)\[(\d+)\];?", @$"$3 $2[$4];"); //fix array declarations
 					if (m.sync) { }
 					else if (m.code.DoesNotContain("\n")) m.code = $" {{ unchecked {{ if ({m.id_less}){m.code} }} }}";
-					else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    unchecked\n    {{\n      if ({m.id_less}){m.code}\n    }}\n  }}"; }
+					else
+					{
+						if (m.code.EndsWith("\n\t")) m.code = m.code.BeforeLast("\n\t");
+						m.code = $"\n\t{{\n\t\tunchecked\n\t\t{{\n\t\t\tif ({m.id_less}){m.code.ReplaceAll("\n", "\n\t\t")}\n\t\t}}\n\t}}";
+					}
+					//else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    unchecked\n    {{\n      if ({m.id_less}){m.code}\n    }}\n  }}"; }
 
 					m.code = AddG(m.code);
 					if (m.sync) s.Add("\n  [numthreads(", m.numThreads, ")] void ", m.methodName, "(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)", m.code.RegexReplace(@"\byield return ", ""));
@@ -2434,7 +2440,8 @@ $"\n    {m_name}_To_UI();",
 
 			foreach (var k in kernel_methods) s.Add($"\n  #pragma kernel {k.methodName}");
 			foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
-			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
+			//s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
+			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "", "Int64", "int64_t");
 			//if (compute_filename.WriteAllTextAscii_IfChanged(s)) print($"{compute_filename} changed"); else print($"{compute_filename} did not change");
 			compute_filename.WriteAllTextAscii_IfChanged(s);
 
@@ -2509,7 +2516,8 @@ $"\n    {m_name}_To_UI();",
 
 			foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
 
-			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
+			//s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
+			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "", "Int64", "int64_t");
 
 			if (shader_filename.WriteAllTextAscii_IfChanged(s)) { }
 			gs.material ??= material_filename.LoadAssetAtPath<Material>();

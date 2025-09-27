@@ -2,12 +2,8 @@
 using System.IO;
 using System.Xml;
 using System.Linq;
-using System.Xml.Linq;
-using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
-
-using UnityEditor;
 using UnityEngine;
 
 public class LinuxPreferenceProvider : BasePreferenceProvider
