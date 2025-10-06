@@ -115,7 +115,11 @@ namespace GpuScript
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
 			else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
 			_si = val;
-			SliderV = val;
+			if (!hasRange)
+			{
+				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+			}
+			else SliderV = val;
 		}
 
 		public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }

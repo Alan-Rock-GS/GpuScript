@@ -118,7 +118,15 @@ namespace GpuScript
 
 		public virtual object v_obj { get; set; }
 
-		protected void SetPropertyValue(object val) { if (property != null) property.SetValue(gs, val); else if (isGrid && gs != null) grid_OnValueChanged(); gs?.OnValueChanged(); }
+		//protected void SetPropertyValue(object val) { if (property != null) property.SetValue(gs, val); else if (isGrid && gs != null) grid_OnValueChanged(); gs?.OnValueChanged(); }
+		protected void SetPropertyValue(object val)
+		{
+			if (property != null)
+				property.SetValue(gs, val);
+			else if (isGrid && gs != null)
+				grid_OnValueChanged();
+			gs?.OnValueChanged();
+		}
 
 		protected Color _BackgroundColor = WHITE;
 		public virtual Color BackgroundColor { get => _BackgroundColor; set => _BackgroundColor = value; }

@@ -5068,13 +5068,27 @@ namespace GpuScript
 			return webCamTexture;
 		}
 
-		public bool Update_webCamTexture(WebCamTexture webCam, GameObject plane = null)
+		//public bool Update_webCamTexture(WebCamTexture webCam, GameObject plane = null)
+		//{
+		//	bool camUpdated = false;
+		//	if (webCam && webCam.didUpdateThisFrame && plane != null)
+		//	{
+		//		var sharedMaterial = plane?.GetComponent<Renderer>()?.sharedMaterial;
+		//		if (sharedMaterial) sharedMaterial.mainTexture = webCam;
+		//		camUpdated = true;
+		//	}
+		//	return camUpdated;
+		//}
+		public bool Update_webCamTexture(WebCamTexture webCam, params GameObject[] planes)
 		{
 			bool camUpdated = false;
-			if (webCam && webCam.didUpdateThisFrame && plane != null)
+			if (webCam && webCam.didUpdateThisFrame)// && plane != null)
 			{
-				var sharedMaterial = plane?.GetComponent<Renderer>()?.sharedMaterial;
-				if (sharedMaterial) sharedMaterial.mainTexture = webCam;
+				foreach(var plane in planes)
+				{
+					var sharedMaterial = plane?.GetComponent<Renderer>()?.sharedMaterial;
+					if (sharedMaterial) sharedMaterial.mainTexture = webCam;
+				}
 				camUpdated = true;
 			}
 			return camUpdated;
@@ -5352,8 +5366,48 @@ namespace GpuScript
 		public float _lerp(float a, float b, float w) => lerp(a, b, w);
 
 		public bool IsOnly(uint i, params bool[] vs) { vs[i] = !vs[i]; bool r = !vs.Any(v => v); vs[i] = !vs[i]; return r; }
+
+		public virtual bool IgnoreReportCommand(string name) => false;
 	}
 }
+
+/// <summary>
+/// Put the following line above a variable that you want to convert
+/// 	[JsonConverter(typeof(FloatToIntConverter))]
+/// </summary>
+public class FloatToIntConverter : JsonConverter<int>
+{
+	//public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	//{
+	//	if (reader.TokenType == JsonTokenType.Number)
+	//	{
+	//		// Read as a double and then cast to int, handling potential precision loss
+	//		return (int)reader.GetDouble();
+	//	}
+	//	throw new JsonException("Expected number for int conversion.");
+	//}
+
+	public override int ReadJson(JsonReader reader, Type objectType, int existingValue, bool hasExistingValue, JsonSerializer serializer)
+	{
+		if (reader.TokenType == JsonToken.Float)
+		{
+			// Read as a double and then cast to int, handling potential precision loss
+			return (int)reader.ReadAsDouble();
+		}
+		throw new JsonException("Expected number for int conversion.");
+	}
+
+	//public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
+	//{
+	//	writer.WriteNumberValue(value);
+	//}
+
+	public override void WriteJson(JsonWriter writer, int value, JsonSerializer serializer)
+	{
+		writer.WriteValue(value);
+	}
+}
+
 #endif //!gs_compute && !gs_shader //C# code
 
 //run code from string, could be really good for Geometric Algebra

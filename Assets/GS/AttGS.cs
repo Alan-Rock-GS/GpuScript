@@ -50,7 +50,7 @@ namespace GpuScript
 		public Unit Unit;
 		public siUnit siUnit;
 		public usUnit usUnit;
-		public bool readOnly, isSingleRow, fixedLength, useScrollbar, isSerialize, isPassword, GroupShared, FullRace, HalfRace;
+		public bool readOnly, isSingleRow, fixedLength, useScrollbar, isSerialize, isPassword, GroupShared, FullRace, HalfRace; //, ignoreReportCommand
 		public int DisplayRowN;
 		public bool ColumnSorting;
 		public List<object> Size;
@@ -113,6 +113,7 @@ namespace GpuScript
 						case UI.usFormat: usFormat = vals[++i].ToString(); break;
 						case UI.siFormat: siFormat = vals[++i].ToString(); break;
 						case UI.ReadOnly: readOnly = true; break;
+						//case UI.IgnoreReportCommand: ignoreReportCommand = true; break;
 						case UI.Pow2_Slider: is_Pow2_Slider = true; break;
 						case UI.IsPow10: is_Pow_10 = true; break;
 						case UI.IsPow2: is_Pow_2 = true; break;
@@ -238,7 +239,7 @@ namespace GpuScript
 		Range, usRange, siRange,
 		Val, ValRange, usValRange, siValRange, Vals, usVal, siVal,
 		Format, usFormat, siFormat,
-		ReadOnly,
+		ReadOnly, //IgnoreReportCommand,
 		ShowIf, HideIf,
 		Single, DisplayRowN, NoScroll, FixedLength,
 		Serialize,

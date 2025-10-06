@@ -214,7 +214,11 @@ namespace GpuScript
 		public virtual bool hasRange => false;
 		public override bool _isReadOnly { get => base._isReadOnly; set { base._isReadOnly = value; if (textField != null) textField.isReadOnly = value; } }
 		protected bool changed;
-		public void OnValueChanged(ChangeEvent<string> evt) { if (evt.currentTarget is TextField) changed = true; }
+		public void OnValueChanged(ChangeEvent<string> evt)
+		{
+			if (evt.currentTarget is TextField)
+				changed = true;
+		}
 		public virtual void OnValueChanged(ChangeEvent<float> evt)
 		{
 			if (evt.currentTarget is Slider && textField != null)

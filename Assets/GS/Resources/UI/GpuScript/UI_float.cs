@@ -126,6 +126,17 @@ namespace GpuScript
 		float _rangeMax; public float rangeMax { get => _rangeMax; set { _rangeMax = value; if (sliders != null && sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(_rangeMax); } }
 
 		public float previousValue;
+		//public override void OnValueChanged(ChangeEvent<float> evt)
+		//{
+		//	if (isBuilding) { isBuilding = false; return; }
+		//	if (evt.currentTarget is Slider && textField != null && hasRange)
+		//	{
+		//		float val = SliderV;
+		//		Text(val);
+		//		_si = val;
+		//		if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+		//	}
+		//}
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
 			if (isBuilding) { isBuilding = false; return; }
@@ -143,7 +154,13 @@ namespace GpuScript
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
 			else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
 			_si = val;
-			SliderV = val;
+			//SliderV = val;
+
+			if (!hasRange)
+			{
+				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+			}
+			else SliderV = val;
 		}
 
 		public float2 range { get => float2(rangeMin, rangeMax); set { rangeMin = value.x; rangeMax = value.y; } }
