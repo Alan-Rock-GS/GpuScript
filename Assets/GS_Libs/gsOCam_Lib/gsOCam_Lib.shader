@@ -188,11 +188,12 @@ Shader "gs/gsOCam_Lib"
   float3 BDraw_quad(float3 p0, float3 p1, float3 p2, float3 p3, uint j) { return j % 5 == 0 ? p3 : j == 1 ? p2 : j == 4 ? p0 : p1; }
   v2f vert_BDraw_Quad(float3 p0, float3 p1, float3 p2, float3 p3, float4 color, uint i, uint j, v2f o) { float3 p = BDraw_quad(p0, p1, p2, p3, j); return BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Texture_2D, BDraw_o_normal(cross(p1 - p0, p0 - p3), BDraw_o_uv(float2(BDraw_wrapJ(j, 2), BDraw_wrapJ(j, 4)), BDraw_o_wPos(p, BDraw_o_pos_c(p, BDraw_o_color(color, o))))))); }
   v2f vert_Draw_Legend(uint i, uint j, v2f o)
-  {
-    float w = 0.4f, h = 8, y0 = g.legendSphereN * 0.4f - h / 2, y1 = h / 2;
-    float3 c = f110 * 10000, p0 = c + float3(w, y0, 0), p1 = p0 + f100 * w, p2 = p1 + (y1 - y0) * f010, p3 = p0 + (y1 - y0) * f010;
-    return BDraw_o_drawType(DrawType_Legend, vert_BDraw_Quad(p0, p1, p2, p3, WHITE, i, j, o));
-  }
+	{
+		float w = 0.4f, h = 8, y0 = g.legendSphereN * 0.4f - h / 2, y1 = h / 2;
+		float3 c = f110 * 10000, p0 = c + float3(w, y0, 0), p1 = p0 + f100 * w, p2 = p1 + (y1 - y0) * f010, p3 = p0 + (y1 - y0) * f010;
+		return BDraw_o_drawType(DrawType_Legend, vert_BDraw_Quad(p0, p1, p2, p3, WHITE, i, j, o));
+	}
+	
   v2f BDraw_o_p0(float3 p0, v2f o) { o.p0 = p0; return o; }
   v2f BDraw_o_p1(float3 p1, v2f o) { o.p1 = p1; return o; }
   uint2 BDraw_JQuadu(uint j) { return uint2(j + 2, j + 1) / 3 % 2; }
@@ -200,16 +201,17 @@ Shader "gs/gsOCam_Lib"
   float4 BDraw_Sphere_quadPoint(float r, uint j) { return r * float4(2 * BDraw_JQuadf(j) - 1, 0, 0); }
   v2f vert_BDraw_Sphere(float3 p, float r, float4 color, uint i, uint j, v2f o) { float4 q = BDraw_Sphere_quadPoint(r, j); return BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Sphere, BDraw_o_color(color, BDraw_o_normal(-f001, BDraw_o_uv(q.xy / r, BDraw_o_pos_PV(p, q, BDraw_o_wPos(p, o))))))); }
   v2f vert_Legend(uint i, uint j, v2f o)
-  {
-    if (i < g.legendSphereN)
-    {
-      float3 c = f110 * 10000;
-      float y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
-      return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, legendSphereColors[i], i, j, o);
-    }
-    else if (Is(g.legendPaletteN)) return vert_Draw_Legend(i, j, o);
-    return o;
-  }
+	{
+		if (i < g.legendSphereN)
+		{
+			float3 c = f110 * 10000;
+			float y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
+			return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, legendSphereColors[i], i, j, o);
+		}
+		else if (Is(g.legendPaletteN)) return vert_Draw_Legend(i, j, o);
+		return o;
+	}
+	
   float2 BDraw_LineArrow_uv(float dpf, float3 p0, float3 p1, float r, uint j) { float2 p = BDraw_JQuadf(j); return float2((length(p1 - p0) + 2 * r) * (1 - p.y) - r, (1 - 2 * p.x) * r * dpf); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float3 p3, float r, uint j) { float2 p = BDraw_JQuadf(j); float3 dp = normalize(cross(p1 - p0, p3 - p0)) * r * dpf; return float4(p.y * (p0 - p1) + p1 + dp * (1 - 2 * p.x), 1); }
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float r, uint j) { return BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j); }

@@ -261,9 +261,13 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 17ff3dca74bc2854d9c60786394b6ceb, type: 3}
   m_SortingOrder: 0
+  m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!114 &1450646906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288,6 +292,7 @@ MonoBehaviour:
   sync: 0
   render: 1
   isInitBuffers: 0
+  in_data_to_ui: 0
   loadedProjectPath: 
   touch2Dist0: 0
   maxTouch2Dist: 210
@@ -4625,25 +4630,25 @@ MonoBehaviour:
   - 0
   - 0
   _PaletteTex: {fileID: 0}
-  kernel_InitP: 0
-  kernel_Find_row_maxAbs: 0
-  kernel_Find_maxAbs: 0
-  kernel_Find_maxElementRow: 0
-  kernel_Interlock_Find_maxElementVal: 0
-  kernel_Interlock_Find_maxElementRow: 0
-  kernel_MakeLowerTriangleZeroAndFillWithL: 0
-  kernel_Divide_by_maxAbs: 0
-  kernel_Find_rowMultiplier: 0
-  kernel_MakeElementZeroAndFillWithLowerMatrixElement: 0
-  kernel_Set_rowMultiplier: 0
-  kernel_SolveYfromLYequalB: 0
-  kernel_SolveXfromUXequalY: 0
-  kernel_Interlock_Sum_SolveYfromLYequalB: 0
-  kernel_Interlock_Sum_SolveXfromUXequalY: 0
-  kernel_Interlock_SolveYfromLYequalB: 0
-  kernel_Interlock_SolveXfromUXequalY: 0
-  kernel_Zero_B: 0
   kernel_A_times_B_to_X: 0
+  kernel_Zero_B: 0
+  kernel_Interlock_SolveXfromUXequalY: 0
+  kernel_Interlock_SolveYfromLYequalB: 0
+  kernel_Interlock_Sum_SolveXfromUXequalY: 0
+  kernel_Interlock_Sum_SolveYfromLYequalB: 0
+  kernel_SolveXfromUXequalY: 0
+  kernel_SolveYfromLYequalB: 0
+  kernel_Set_rowMultiplier: 0
+  kernel_MakeElementZeroAndFillWithLowerMatrixElement: 0
+  kernel_Find_rowMultiplier: 0
+  kernel_Divide_by_maxAbs: 0
+  kernel_MakeLowerTriangleZeroAndFillWithL: 0
+  kernel_Interlock_Find_maxElementRow: 0
+  kernel_Interlock_Find_maxElementVal: 0
+  kernel_Find_maxElementRow: 0
+  kernel_Find_maxAbs: 0
+  kernel_Find_row_maxAbs: 0
+  kernel_InitP: 0
 --- !u!114 &1450646907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4681,14 +4686,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2038024565}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1

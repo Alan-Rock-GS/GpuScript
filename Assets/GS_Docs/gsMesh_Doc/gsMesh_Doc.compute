@@ -57,7 +57,7 @@
   #pragma use_dxc
   struct GMesh_Doc
   {
-    float sphere, cube, torus, box, roundBox, boxFrame, Mesh_Lib_BDraw_fontSize, Mesh_Lib_BDraw_boxThickness, Mesh_Lib_resolution, Mesh_Lib_boxLineThickness, Mesh_Lib_axesOpacity, Mesh_Lib_GridLineThickness, Mesh_Lib_opacity, Mesh_Lib_meshVal, Mesh_Lib_orthoSize, Mesh_Lib_maxDist, Mesh_Lib_minResolution;
+    float sphere, cube, Torus, box, roundBox, boxFrame, Mesh_Lib_BDraw_fontSize, Mesh_Lib_BDraw_boxThickness, Mesh_Lib_resolution, Mesh_Lib_boxLineThickness, Mesh_Lib_axesOpacity, Mesh_Lib_GridLineThickness, Mesh_Lib_opacity, Mesh_Lib_meshVal, Mesh_Lib_orthoSize, Mesh_Lib_maxDist, Mesh_Lib_minResolution;
     uint Mesh_Lib_BDraw_ABuff_IndexN, Mesh_Lib_BDraw_ABuff_BitN, Mesh_Lib_BDraw_ABuff_N, Mesh_Lib_BDraw_ABuff_BitN1, Mesh_Lib_BDraw_ABuff_BitN2, Mesh_Lib_BDraw_omitText, Mesh_Lib_BDraw_includeUnicode, Mesh_Lib_BDraw_fontInfoN, Mesh_Lib_BDraw_textN, Mesh_Lib_BDraw_textCharN, Mesh_Lib_BDraw_boxEdgeN, Mesh_Lib_drawGrid, Mesh_Lib_drawBox, Mesh_Lib_drawAxes, Mesh_Lib_customAxesRangeN, Mesh_Lib_zeroOrigin, Mesh_Lib_drawSurface, Mesh_Lib_GridDrawFront, Mesh_Lib_GridDrawBack, Mesh_Lib_show_slices, Mesh_Lib_paletteType, Mesh_Lib_reCalc, Mesh_Lib_buildText, Mesh_Lib_isOrtho, Mesh_Lib_showMeshVal, Mesh_Lib_showMeshRange, Mesh_Lib_showOutline, Mesh_Lib_showSurface, Mesh_Lib_showAxes, Mesh_Lib_showNormalizedAxes, Mesh_Lib_retrace;
     float4 Mesh_Lib_BDraw_boxColor;
     float2 Mesh_Lib_GridX, Mesh_Lib_GridY, Mesh_Lib_GridZ, Mesh_Lib_textSize, Mesh_Lib_paletteRange;
@@ -129,43 +129,43 @@
   Mesh_Lib_BDraw_TextInfo Mesh_Lib_BDraw_textInfo(uint i) { return Mesh_Lib_BDraw_textInfos[i]; }
   void Mesh_Lib_BDraw_textInfo(uint i, Mesh_Lib_BDraw_TextInfo t) { Mesh_Lib_BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void Mesh_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.Mesh_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        Mesh_Lib_BDraw_TextInfo t = Mesh_Lib_BDraw_textInfo(0), ti = Mesh_Lib_BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        Mesh_Lib_BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.Mesh_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      Mesh_Lib_BDraw_TextInfo t = Mesh_Lib_BDraw_textInfo(0), ti = Mesh_Lib_BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      Mesh_Lib_BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 Mesh_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : Mesh_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.Mesh_Lib_BDraw_ABuff_IndexN ? Mesh_Lib_BDraw_ABuff_Indexes[textI] : g.Mesh_Lib_BDraw_textCharN); }
   uint Mesh_Lib_BDraw_Byte(uint i) { return TextByte(Mesh_Lib_BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void Mesh_Lib_BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.Mesh_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      Mesh_Lib_BDraw_TextInfo ti = Mesh_Lib_BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = Mesh_Lib_BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Mesh_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += Mesh_Lib_BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.Mesh_Lib_BDraw_fontSize;
-      ti.uvSize = t;
-      Mesh_Lib_BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.Mesh_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    Mesh_Lib_BDraw_TextInfo ti = Mesh_Lib_BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = Mesh_Lib_BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Mesh_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += Mesh_Lib_BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.Mesh_Lib_BDraw_fontSize;
+		    ti.uvSize = t;
+		    Mesh_Lib_BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   float3 Mesh_Lib_gridMin() { return float3(g.Mesh_Lib_GridX.x, g.Mesh_Lib_GridY.x, g.Mesh_Lib_GridZ.x); }
   float3 Mesh_Lib_NodeLocation3(uint3 id) { return id * g.Mesh_Lib_resolution + Mesh_Lib_gridMin(); }
   float sdSphere(float3 p, float s) { return (length(p) - s) * 0.866f; }
@@ -303,20 +303,20 @@
   }
   [numthreads(numthreads2, numthreads2, 1)] void Mesh_Lib_Grid_Simple_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.Mesh_Lib_viewSize)) { Mesh_Lib_TraceRay(id); } } }
   [numthreads(numthreads3, numthreads3, numthreads3)] void Mesh_Lib_Grid_Calc_Vals(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (all(id < g.Mesh_Lib_nodeN))
-    {
-      float3 p = Mesh_Lib_NodeLocation3(id);
-      float torus_v = sdTorus(p, 0.33f, 0), sphere_v = sdSphere(p), cube_v = sdCube(p), box_v = 0.3f + sdBox(p, f111 / 3),
-        roundBox_v = 0.3f + sdRoundBox(p, f111 / 3, 0.05f), boxFrame_v = 0.3f + sdBoxFrame(p, f111 / 3, 0.05f),
-        d = max(0.001f, g.torus + g.sphere + g.cube + g.box + g.roundBox + g.boxFrame),
-        v = (g.torus * torus_v + g.sphere * sphere_v + g.cube * cube_v + g.box * box_v + g.roundBox * roundBox_v + g.boxFrame * boxFrame_v) / d;
-      Mesh_Lib_Val3(id, v);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (all(id < g.Mesh_Lib_nodeN))
+		  {
+		    float3 p = Mesh_Lib_NodeLocation3(id);
+		    float torus_v = sdTorus(p, 0.33f, 0), sphere_v = sdSphere(p), cube_v = sdCube(p), box_v = 0.3f + sdBox(p, f111 / 3),
+		      roundBox_v = 0.3f + sdRoundBox(p, f111 / 3, 0.05f), boxFrame_v = 0.3f + sdBoxFrame(p, f111 / 3, 0.05f),
+		      d = max(0.001f, g.Torus + g.sphere + g.cube + g.box + g.roundBox + g.boxFrame),
+		      v = (g.Torus * torus_v + g.sphere * sphere_v + g.cube * cube_v + g.box * box_v + g.roundBox * roundBox_v + g.boxFrame * boxFrame_v) / d;
+		    Mesh_Lib_Val3(id, v);
+		  }
+		}
+	}
   #pragma kernel Mesh_Lib_Grid_Calc_Vals
   #pragma kernel Mesh_Lib_BDraw_ABuff_GetIndexes
   #pragma kernel Mesh_Lib_BDraw_ABuff_IncSums

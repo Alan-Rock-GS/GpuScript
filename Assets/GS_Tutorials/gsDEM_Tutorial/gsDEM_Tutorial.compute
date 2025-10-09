@@ -118,107 +118,107 @@
   }
   void AddForce(uint nodeI, float3 node_force) { int3 iForce = roundi(node_force * 1e3f); if (any(iForce != i000)) { uint forceI = nodeI * 3; InterlockedAdd(forces, forceI + 0, iForce.x); InterlockedAdd(forces, forceI + 1, iForce.y); InterlockedAdd(forces, forceI + 2, iForce.z); } }
   [numthreads(numthreads1, 1, 1)] void check_collisions(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.nodeN * (g.nodeN - 1) / 2)
-    {
-      uint i = id.x;
-      uint2 u = upperTriangularIndex(i, g.nodeN);
-      if (extent(u) > 1 || u.x == g.nodeN - 2)
-      {
-        Node node0 = nodes[u.x], node1 = nodes[u.y];
-        float dist = distance(node0.position, node1.position);
-        if (dist < g.resolution)
-        {
-          float3 node_force = f000;
-          calc_link_force(node0, node1, g.resolution, node_force);
-          AddForce(u.x, node_force);
-          AddForce(u.y, -node_force);
-          InterlockedMax(uints, UInts_maxForce, roundu(length(node_force) * 1e3f));
-        }
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN * (g.nodeN - 1) / 2)
+		  {
+		    uint i = id.x;
+		    uint2 u = upperTriangularIndex(i, g.nodeN);
+		    if (extent(u) > 1 || u.x == g.nodeN - 2)
+		    {
+		      Node node0 = nodes[u.x], node1 = nodes[u.y];
+		      float dist = distance(node0.position, node1.position);
+		      if (dist < g.resolution)
+		      {
+		        float3 node_force = f000;
+		        calc_link_force(node0, node1, g.resolution, node_force);
+		        AddForce(u.x, node_force);
+		        AddForce(u.y, -node_force);
+		        InterlockedMax(uints, UInts_maxForce, roundu(length(node_force) * 1e3f));
+		      }
+		    }
+		  }
+		}
+	}
   void force(uint nodeI, float3 f) { uint i = nodeI * 3; int3 v = roundi(f * 1e3f); forces[i] = v.x; forces[i + 1] = v.y; forces[i + 2] = v.z; }
   [numthreads(numthreads1, 1, 1)] void zero_forces(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.nodeN)
-    {
-      uint i = id.x; Node node = nodes[i]; node.velocity0 = node.velocity; node.position0 = node.position; nodes[i] = node;
-      force(i, f000);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x; Node node = nodes[i]; node.velocity0 = node.velocity; node.position0 = node.position; nodes[i] = node;
+		    force(i, f000);
+		  }
+		}
+	}
   uint velocityConstraint(uint u, uint3 vI) { return (u & ~8u) | (vI.x << 2) | (vI.y << 1) | vI.z; }
   uint validLink(uint u, uint lnkI, bool v) { return SetBit(u, lnkI + 3u, Is(v)); }
   uint3 getLink_FCC(uint3 id, uint3 _nodeN, uint lnkI) { return TetraLinkID_FCC(id, _nodeN, lnkI); }
   uint getLink_FCC(uint i, uint3 _nodeN, uint lnkI) { return TetraLinkI_FCC(i, _nodeN, lnkI); }
   [numthreads(numthreads1, 1, 1)] void BuildNodes(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.nodeN)
-    {
-      uint i = id.x;
-      Node node = nodes[i];
-      node.position = i * g.resolution * f010;
-      uint u = 0;
-      if (i < g.nodeN - 1) u = velocityConstraint(u, u111);
-      for (uint lnkI = 0; lnkI < 1; lnkI++) u = validLink(u, lnkI, all(getLink_FCC(id, g.nodeN3, lnkI) < g.nodeN));
-      node.u = u;
-      float r = g.resolution / 2, r2 = r * r, r3 = r * r2, unitWeight_N_per_m3 = 26500, restitution = 0.01f, volume_m3 = 4 * r3 * PI / 3 * 1.35f,
-        mass_N = unitWeight_N_per_m3 * volume_m3 / gravity_m_per_s2, modulus = 1e6f, stiffness = modulus * PI * r / 4, en = -ln(restitution),
-        damping = 2 * en * sqrt(stiffness * mass_N / (PI * PI + en * en));
-      node.mass = mass_N; node.stiff = stiffness; node.damp = damping;
-      node.velocity = f000; node.position0 = node.position; node.velocity0 = node.velocity;
-      nodes[i] = node;
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x;
+		    Node node = nodes[i];
+		    node.position = i * g.resolution * f010;
+		    uint u = 0;
+		    if (i < g.nodeN - 1) u = velocityConstraint(u, u111);
+		    for (uint lnkI = 0; lnkI < 1; lnkI++) u = validLink(u, lnkI, all(getLink_FCC(id, g.nodeN3, lnkI) < g.nodeN));
+		    node.u = u;
+		    float r = g.resolution / 2, r2 = r * r, r3 = r * r2, unitWeight_N_per_m3 = 26500, restitution = 0.01f, volume_m3 = 4 * r3 * PI / 3 * 1.35f,
+		      mass_N = unitWeight_N_per_m3 * volume_m3 / gravity_m_per_s2, modulus = 1e6f, stiffness = modulus * PI * r / 4, en = -ln(restitution),
+		      damping = 2 * en * sqrt(stiffness * mass_N / (PI * PI + en * en));
+		    node.mass = mass_N; node.stiff = stiffness; node.damp = damping;
+		    node.velocity = f000; node.position0 = node.position; node.velocity0 = node.velocity;
+		    nodes[i] = node;
+		  }
+		}
+	}
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      BDraw_TextInfo ti = BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.BDraw_fontSize;
-      ti.uvSize = t;
-      BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
   uint BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_ABuff_N && BDraw_ABuff_IsBitOn(i)) << (int)j); }
   [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
@@ -242,46 +242,46 @@
   bool getLinkNode_FCC(uint dm_nodeI, uint lnkI, inout uint lnkNodeI, inout Node linkNode) { lnkNodeI = getLinkNodeI_FCC(dm_nodeI, lnkI); bool ok = lnkNodeI != uint_max; if (ok) linkNode = nodes[lnkNodeI]; return ok; }
   bool getLinkNode_FCC(uint dm_nodeI, uint lnkI, inout Node linkNode) { uint lnkNodeI = uint_max; return getLinkNode_FCC(dm_nodeI, lnkI, lnkNodeI, linkNode); }
   [numthreads(numthreads1, 1, 1)] void calc_forces(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.nodeN)
-    {
-      uint i = id.x;
-      Node node = nodes[i];
-      float3 node_force = f000;
-      bool isGridNode = i < g.nodeN;
-      Node linkNode = node;
-      if (isGridNode)
-        for (uint lnkI = 0; lnkI < 12; lnkI++)
-          if (getLinkNode_FCC(i, lnkI, linkNode))
-            calc_link_force(node, linkNode, g.resolution, node_force);
-      node_force.y -= node.mass * gravity_m_per_s2;
-      InterlockedMax(uints, UInts_maxForce, roundu(length(node_force) * 1e3f));
-      AddForce(i, node_force);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x;
+		    Node node = nodes[i];
+		    float3 node_force = f000;
+		    bool isGridNode = i < g.nodeN;
+		    Node linkNode = node;
+		    if (isGridNode)
+		      for (uint lnkI = 0; lnkI < 12; lnkI++)
+		        if (getLinkNode_FCC(i, lnkI, linkNode))
+		          calc_link_force(node, linkNode, g.resolution, node_force);
+		    node_force.y -= node.mass * gravity_m_per_s2;
+		    InterlockedMax(uints, UInts_maxForce, roundu(length(node_force) * 1e3f));
+		    AddForce(i, node_force);
+		  }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void move_nodes(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.nodeN)
-    {
-      uint i = id.x;
-      Node node = nodes[i];
-      float3 node_force = force(i);
-      bool isGridNode = i < g.nodeN;
-      float restitution = 0.01f, minMass = node.mass, minRestitution = restitution, maxVel = 10, maxStiffness = node.stiff, minDamping = minRestitution;
-      float timeStep = sqrt(minMass) / maxStiffness / maxVel * minDamping * 30000;
-      node.velocity = node.velocity0 + node_force * timeStep / node.mass;
-      node.velocity *= 0.99f; 
-      if (isGridNode) node.velocity *= velocityConstraint_u_FCC(node.u);
-      node.position = node.position0 + node.velocity * timeStep;
-      nodes[i] = node;
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x;
+		    Node node = nodes[i];
+		    float3 node_force = force(i);
+		    bool isGridNode = i < g.nodeN;
+		    float restitution = 0.01f, minMass = node.mass, minRestitution = restitution, maxVel = 10, maxStiffness = node.stiff, minDamping = minRestitution;
+		    float timeStep = sqrt(minMass) / maxStiffness / maxVel * minDamping * 30000;
+		    node.velocity = node.velocity0 + node_force * timeStep / node.mass;
+		    node.velocity *= 0.99f; 
+		    if (isGridNode) node.velocity *= velocityConstraint_u_FCC(node.u);
+		    node.position = node.position0 + node.velocity * timeStep;
+		    nodes[i] = node;
+		  }
+		}
+	}
   #pragma kernel move_nodes
   #pragma kernel check_collisions
   #pragma kernel calc_forces

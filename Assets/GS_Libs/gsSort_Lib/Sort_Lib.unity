@@ -176,6 +176,7 @@ MonoBehaviour:
   sync: 0
   render: 1
   isInitBuffers: 0
+  in_data_to_ui: 0
   loadedProjectPath: 
   touch2Dist0: 0
   maxTouch2Dist: 210
@@ -392,7 +393,7 @@ MonoBehaviour:
   already_quited: 0
   lateUpdateI: 0
   _PaletteTex: {fileID: 0}
-  kernel_set_sorts: 0
+  kernel_counts_to_sorts: 0
   kernel_add_counts_triangle: 0
   kernel_init_counts: 0
 --- !u!114 &1363933886

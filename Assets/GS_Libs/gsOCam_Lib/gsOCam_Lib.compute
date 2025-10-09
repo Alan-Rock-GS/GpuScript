@@ -116,43 +116,43 @@
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      BDraw_TextInfo ti = BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.BDraw_fontSize;
-      ti.uvSize = t;
-      BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
   uint BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_ABuff_N && BDraw_ABuff_IsBitOn(i)) << (int)j); }
   [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)

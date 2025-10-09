@@ -57,7 +57,7 @@
   #pragma use_dxc
   struct GVGrid_Doc
   {
-    float sphere, cube, torus, box, roundBox, boxFrame, VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
+    float sphere, cube, Torus, box, roundBox, boxFrame, VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
     uint VGrid_Lib_BDraw_ABuff_IndexN, VGrid_Lib_BDraw_ABuff_BitN, VGrid_Lib_BDraw_ABuff_N, VGrid_Lib_BDraw_ABuff_BitN1, VGrid_Lib_BDraw_ABuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
     float4 VGrid_Lib_BDraw_boxColor;
     float2 VGrid_Lib_GridX, VGrid_Lib_GridY, VGrid_Lib_GridZ, VGrid_Lib_textSize, VGrid_Lib_paletteRange, VGrid_Lib_meshRange;
@@ -129,43 +129,43 @@
   VGrid_Lib_BDraw_TextInfo VGrid_Lib_BDraw_textInfo(uint i) { return VGrid_Lib_BDraw_textInfos[i]; }
   void VGrid_Lib_BDraw_textInfo(uint i, VGrid_Lib_BDraw_TextInfo t) { VGrid_Lib_BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.VGrid_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        VGrid_Lib_BDraw_TextInfo t = VGrid_Lib_BDraw_textInfo(0), ti = VGrid_Lib_BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        VGrid_Lib_BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.VGrid_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      VGrid_Lib_BDraw_TextInfo t = VGrid_Lib_BDraw_textInfo(0), ti = VGrid_Lib_BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      VGrid_Lib_BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 VGrid_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : VGrid_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.VGrid_Lib_BDraw_ABuff_IndexN ? VGrid_Lib_BDraw_ABuff_Indexes[textI] : g.VGrid_Lib_BDraw_textCharN); }
   uint VGrid_Lib_BDraw_Byte(uint i) { return TextByte(VGrid_Lib_BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.VGrid_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      VGrid_Lib_BDraw_TextInfo ti = VGrid_Lib_BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = VGrid_Lib_BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = VGrid_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += VGrid_Lib_BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.VGrid_Lib_BDraw_fontSize;
-      ti.uvSize = t;
-      VGrid_Lib_BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.VGrid_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    VGrid_Lib_BDraw_TextInfo ti = VGrid_Lib_BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = VGrid_Lib_BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = VGrid_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += VGrid_Lib_BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.VGrid_Lib_BDraw_fontSize;
+		    ti.uvSize = t;
+		    VGrid_Lib_BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   float3 VGrid_Lib_gridMin() { return float3(g.VGrid_Lib_GridX.x, g.VGrid_Lib_GridY.x, g.VGrid_Lib_GridZ.x); }
   float3 VGrid_Lib_NodeLocation3(uint3 id) { return id * g.VGrid_Lib_resolution + VGrid_Lib_gridMin(); }
   float sdSphere(float3 p, float s) { return (length(p) - s) * 0.866f; }
@@ -367,20 +367,20 @@
   [numthreads(numthreads2, numthreads2, 1)] void VGrid_Lib_Grid_Simple_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.VGrid_Lib_viewSize)) { VGrid_Lib_TraceRay(id, true); } } }
   [numthreads(numthreads2, numthreads2, 1)] void VGrid_Lib_Grid_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.VGrid_Lib_viewSize)) { VGrid_Lib_TraceRay(id, false); } } }
   [numthreads(numthreads3, numthreads3, numthreads3)] void VGrid_Lib_Grid_Calc_Vals(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (all(id < g.VGrid_Lib_nodeN))
-    {
-      float3 p = VGrid_Lib_NodeLocation3(id);
-      float torus_v = sdTorus(p, 0.33f, 0), sphere_v = sdSphere(p), cube_v = sdCube(p), box_v = 0.3f + sdBox(p, f111 / 3),
-        roundBox_v = 0.3f + sdRoundBox(p, f111 / 3, 0.05f), boxFrame_v = 0.3f + sdBoxFrame(p, f111 / 3, 0.05f), 
-        d = max(0.001f, g.torus + g.sphere + g.cube + g.box + g.roundBox + g.boxFrame), 
-        v = (g.torus * torus_v + g.sphere * sphere_v + g.cube * cube_v + g.box * box_v + g.roundBox * roundBox_v + g.boxFrame * boxFrame_v) / d;
-      VGrid_Lib_Val3(id, v);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (all(id < g.VGrid_Lib_nodeN))
+		  {
+		    float3 p = VGrid_Lib_NodeLocation3(id);
+		    float torus_v = sdTorus(p, 0.33f, 0), sphere_v = sdSphere(p), cube_v = sdCube(p), box_v = 0.3f + sdBox(p, f111 / 3),
+		      roundBox_v = 0.3f + sdRoundBox(p, f111 / 3, 0.05f), boxFrame_v = 0.3f + sdBoxFrame(p, f111 / 3, 0.05f), 
+		      d = max(0.001f, g.Torus + g.sphere + g.cube + g.box + g.roundBox + g.boxFrame), 
+		      v = (g.Torus * torus_v + g.sphere * sphere_v + g.cube * cube_v + g.box * box_v + g.roundBox * roundBox_v + g.boxFrame * boxFrame_v) / d;
+		    VGrid_Lib_Val3(id, v);
+		  }
+		}
+	}
   #pragma kernel VGrid_Lib_Grid_Calc_Vals
   #pragma kernel VGrid_Lib_BDraw_ABuff_GetIndexes
   #pragma kernel VGrid_Lib_BDraw_ABuff_IncSums

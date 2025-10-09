@@ -144,14 +144,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 138768605}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 0
     m_Resolution: -1
@@ -229,6 +229,7 @@ GameObject:
   - component: {fileID: 337311217}
   - component: {fileID: 337311216}
   - component: {fileID: 337311215}
+  - component: {fileID: 337311220}
   m_Layer: 0
   m_Name: gsProject_Doc
   m_TagString: Untagged
@@ -260,6 +261,7 @@ MonoBehaviour:
   sync: 0
   render: 1
   isInitBuffers: 0
+  in_data_to_ui: 0
   loadedProjectPath: 
   touch2Dist0: 0
   maxTouch2Dist: 210
@@ -576,6 +578,7 @@ MonoBehaviour:
   sync: 0
   render: 1
   isInitBuffers: 0
+  in_data_to_ui: 0
   loadedProjectPath: 
   touch2Dist0: 0
   maxTouch2Dist: 210
@@ -820,6 +823,7 @@ MonoBehaviour:
   sync: 0
   render: 1
   isInitBuffers: 0
+  in_data_to_ui: 0
   loadedProjectPath: 
   touch2Dist0: 0
   maxTouch2Dist: 210
@@ -1061,6 +1065,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &337311220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 337311214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: a64302c2b81fd3b449678afffdc420b0, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: f4b07da6001c5394695d8c7b7726c08d, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &1553965233
 GameObject:
   m_ObjectHideFlags: 0

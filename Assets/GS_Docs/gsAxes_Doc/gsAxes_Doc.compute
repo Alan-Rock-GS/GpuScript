@@ -110,43 +110,43 @@
   Axes_Lib_BDraw_TextInfo Axes_Lib_BDraw_textInfo(uint i) { return Axes_Lib_BDraw_textInfos[i]; }
   void Axes_Lib_BDraw_textInfo(uint i, Axes_Lib_BDraw_TextInfo t) { Axes_Lib_BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.Axes_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        Axes_Lib_BDraw_TextInfo t = Axes_Lib_BDraw_textInfo(0), ti = Axes_Lib_BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        Axes_Lib_BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.Axes_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      Axes_Lib_BDraw_TextInfo t = Axes_Lib_BDraw_textInfo(0), ti = Axes_Lib_BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      Axes_Lib_BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 Axes_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : Axes_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.Axes_Lib_BDraw_ABuff_IndexN ? Axes_Lib_BDraw_ABuff_Indexes[textI] : g.Axes_Lib_BDraw_textCharN); }
   uint Axes_Lib_BDraw_Byte(uint i) { return TextByte(Axes_Lib_BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.Axes_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      Axes_Lib_BDraw_TextInfo ti = Axes_Lib_BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = Axes_Lib_BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Axes_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += Axes_Lib_BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.Axes_Lib_BDraw_fontSize;
-      ti.uvSize = t;
-      Axes_Lib_BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.Axes_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    Axes_Lib_BDraw_TextInfo ti = Axes_Lib_BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = Axes_Lib_BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = Axes_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += Axes_Lib_BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.Axes_Lib_BDraw_fontSize;
+		    ti.uvSize = t;
+		    Axes_Lib_BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   bool Axes_Lib_BDraw_ABuff_IsBitOn(uint i) { uint c = Axes_Lib_BDraw_Byte(i); return c == Axes_Lib_BDraw_TB || c == Axes_Lib_BDraw_LF; }
   uint Axes_Lib_BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.Axes_Lib_BDraw_ABuff_N && Axes_Lib_BDraw_ABuff_IsBitOn(i)) << (int)j); }
   [numthreads(numthreads1, 1, 1)] void Axes_Lib_BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)

@@ -127,14 +127,15 @@ Shader "gs/gsVGrid_Lib"
   uint2 pixDepthColor(uint i) { return depthColors[i]; }
   uint2 pixDepthColor(uint2 id) { return pixDepthColor(id_to_i(id, g.viewSize)); }
   TRay CreateShaderCameraRay(float2 _uv)
-  {
-    TRay ray;
-    ray.origin = mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * _uv / float2(aspect(g.viewSize), 1), 0, 1) : f0001).xyz;
-    ray.direction = normalize(mul(g.camToWorld, float4(mul(g.cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
-    ray.color = f0000;
-    ray.dist = 0;
-    return ray;
-  }
+	{
+		TRay ray;
+		ray.origin = mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * _uv / float2(aspect(g.viewSize), 1), 0, 1) : f0001).xyz;
+		ray.direction = normalize(mul(g.camToWorld, float4(mul(g.cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
+		ray.color = f0000;
+		ray.dist = 0;
+		return ray;
+	}
+	
   float pixDepth(uint2 dc) { return dc.x / (float)uint_max * (g.maxDist - 2); }
   float4 pixColor(uint2 dc) { return c32_f4(u_c32(dc.y)); }
   float BDraw_o_r(v2f o) { return o.ti.w; }
@@ -165,23 +166,23 @@ Shader "gs/gsVGrid_Lib"
     return BDraw_SignalBackColor(chI, SmpI);
   }
   float4 frag_GS(v2f i, float4 color)
-  {
-    switch (BDraw_o_drawType(i))
-    {
-      case uint_max: Discard(0); break;
-      case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
-      case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
-      case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
-      case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
-      case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
-      case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
-      case BDraw_Draw_Text3D:
-        BDraw_TextInfo t = BDraw_textInfo(BDraw_o_i(i));
-        color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
-        break;
-    }
-    return color;
-  }
+	{
+		switch (BDraw_o_drawType(i))
+		{
+			case uint_max: Discard(0); break;
+			case BDraw_Draw_Sphere: color = frag_BDraw_Sphere(i); break;
+			case BDraw_Draw_Line: color = frag_BDraw_Line(i); break;
+			case BDraw_Draw_Arrow: color = frag_BDraw_Arrow(i); break;
+			case BDraw_Draw_Signal: color = frag_BDraw_Signal(i); break;
+			case BDraw_Draw_LineSegment: color = frag_BDraw_LineSegment(i); break;
+			case BDraw_Draw_Mesh: color = frag_BDraw_Mesh(i); break;
+			case BDraw_Draw_Text3D:
+				BDraw_TextInfo t = BDraw_textInfo(BDraw_o_i(i));
+				color = frag_BDraw_Text(BDraw_fontTexture, BDraw_tab_delimeted_text, BDraw_fontInfos, g.BDraw_fontSize, t.quadType, t.backColor, BDraw_Get_text_indexes(t.textI), i);
+				break;
+		}
+		return color;
+	}
   float BDraw_wrapJ(uint j, uint n) { return ((j + n) % 6) / 3; }
   v2f BDraw_o_i(uint i, v2f o) { o.ti.x = i; return o; }
   v2f BDraw_o_drawType(uint drawType, v2f o) { o.ti.z = drawType; return o; }
@@ -192,12 +193,13 @@ Shader "gs/gsVGrid_Lib"
   v2f BDraw_o_pos(float4 pos, v2f o) { o.pos = pos; return o; }
   v2f vert_BDraw_Point(float3 p, float4 color, uint i, v2f o) { return BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Point, BDraw_o_color(color, BDraw_o_pos(UnityObjectToClipPos(float4(p, 1)), o)))); }
   v2f vert_DrawScreen(uint i, uint j, v2f o)
-  {
-    uint2 id = i_to_id(i, g.viewSize), dc = pixDepthColor(i);
-    float2 uv = (id + f11 * 0.5f) / g.viewSize * 2 - 1;
-    TRay ray = CreateShaderCameraRay(uv);
-    return vert_BDraw_Point(ray.origin + pixDepth(dc) * ray.direction, pixColor(dc), i, o);
-  }
+	{
+		uint2 id = i_to_id(i, g.viewSize), dc = pixDepthColor(i);
+		float2 uv = (id + f11 * 0.5f) / g.viewSize * 2 - 1;
+		TRay ray = CreateShaderCameraRay(uv);
+		return vert_BDraw_Point(ray.origin + pixDepth(dc) * ray.direction, pixColor(dc), i, o);
+	}
+	
   v2f BDraw_o_pos_PV(float3 p, float4 q, v2f o) { return BDraw_o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o); }
   v2f BDraw_o_pos_c(float4 c, v2f o) { return BDraw_o_pos(UnityObjectToClipPos(c), o); }
   v2f BDraw_o_pos_c(float3 c, v2f o) { return BDraw_o_pos(UnityObjectToClipPos(c), o); }

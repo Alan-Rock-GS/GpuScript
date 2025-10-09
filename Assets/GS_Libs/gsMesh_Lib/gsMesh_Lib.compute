@@ -115,43 +115,43 @@
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      BDraw_TextInfo ti = BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.BDraw_fontSize;
-      ti.uvSize = t;
-      BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   TRay CreateRayHit() { TRay hit; hit.origin = f000; hit.dist = fPosInf; hit.direction = f000; hit.color = f0000; return hit; }
   float3 gridMin() { return float3(g.GridX.x, g.GridY.x, g.GridZ.x); }
   float3 NodeLocation3(uint3 id) { return id * g.resolution + gridMin(); }
@@ -227,17 +227,17 @@
   float3 Val(float3 p, float d) { return float3(Val(p + f100 * d), Val(p + f010 * d), Val(p + f001 * d)); }
   void Val3(uint3 id, float v) { Val(NodeI(id), v); }
   [numthreads(numthreads3, numthreads3, numthreads3)] void Grid_Calc_Vals(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (all(id < g.nodeN))
-    {
-      float3 p = NodeLocation3(id);
-      float R = 0.3333f, v = sqr(length(p.xz) - R) + sqr(p.y);
-      Val3(id, v * 10);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (all(id < g.nodeN))
+		  {
+		    float3 p = NodeLocation3(id);
+		    float R = 0.3333f, v = sqr(length(p.xz) - R) + sqr(p.y);
+		    Val3(id, v * 10);
+		  }
+		}
+	}
   float3 Normal(float3 p)
   {
     float r = g.resolution * 0.5f, margin = r * 0.02f;

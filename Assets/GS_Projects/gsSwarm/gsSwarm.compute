@@ -74,19 +74,19 @@
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<uint4> Rand_rs;
   [numthreads(numthreads1, 1, 1)] void moveParticles(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.particleN)
-    {
-      uint i = id.x;
-      Particle p = particles[i];
-      p.velocity += g.mouseStrength * normalize(g.mousePosition - p.position) * g.deltaTime / max(10.0f, distance(g.mousePosition, p.position));
-      p.position += p.velocity * g.deltaTime;
-      particles[i] = p;
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.particleN)
+		  {
+		    uint i = id.x;
+		    Particle p = particles[i];
+		    p.velocity += g.mouseStrength * normalize(g.mousePosition - p.position) * g.deltaTime / max(10.0f, distance(g.mousePosition, p.position));
+		    p.position += p.velocity * g.deltaTime;
+		    particles[i] = p;
+		  }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
   [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Sums[i] += BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.BDraw_ABuff_BitN - 1) g.BDraw_ABuff_IndexN = BDraw_ABuff_Sums[i]; } } }
@@ -124,51 +124,51 @@
     }
     if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
   }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i % g.BDraw_textN]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i % g.BDraw_textN] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      BDraw_TextInfo ti = BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.BDraw_fontSize;
-      ti.uvSize = t;
-      BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   float3 Rand_onSphere_(float a, float b) { return rotateX(rotateZ(f100, acos(a * 2 - 1)), b * TwoPI); }
   float3 Rand_onCircle_(float a) { return rotateZ(f100, a * TwoPI); }
   bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
@@ -202,23 +202,23 @@
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
   [numthreads(numthreads1, 1, 1)] void initParticles(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.Rand_N)
-    {
-      uint i = id.x + g.randomArrayI;
-      if (i < g.particleN)
-      {
-        Particle p = particles[i];
-        p.position = g.particleDistribution == ParticleDistribution_inSphere ? Rand_inSphere(id.x) : g.particleDistribution == ParticleDistribution_onSphere ? Rand_onSphere(id.x) : g.particleDistribution == ParticleDistribution_inCube ? Rand_inCube(id.x) : g.particleDistribution == ParticleDistribution_inCircle ? Rand_inCircle(id.x) : g.particleDistribution == ParticleDistribution_onCircle ? Rand_onCircle(id.x) : f100 * Rand_Float(id.x);
-        p.velocity = p.position * g.initialSpeed;
-        p.position *= g.initialSpread;
-        particles[i] = p;
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.Rand_N)
+		  {
+		    uint i = id.x + g.randomArrayI;
+		    if (i < g.particleN)
+		    {
+		      Particle p = particles[i];
+		      p.position = g.particleDistribution == ParticleDistribution_inSphere ? Rand_inSphere(id.x) : g.particleDistribution == ParticleDistribution_onSphere ? Rand_onSphere(id.x) : g.particleDistribution == ParticleDistribution_inCube ? Rand_inCube(id.x) : g.particleDistribution == ParticleDistribution_inCircle ? Rand_inCircle(id.x) : g.particleDistribution == ParticleDistribution_onCircle ? Rand_onCircle(id.x) : f100 * Rand_Float(id.x);
+		      p.velocity = p.position * g.initialSpeed;
+		      p.position *= g.initialSpread;
+		      particles[i] = p;
+		    }
+		  }
+		}
+	}
   #pragma kernel moveParticles
   #pragma kernel initParticles
   #pragma kernel Rand_initState
@@ -233,6 +233,6 @@
   #pragma kernel BDraw_ABuff_Get_Bits
   #pragma kernel BDraw_setDefaultTextInfo
   #pragma kernel BDraw_getTextInfo
-  #pragma kernel Rand_grp_init_1M
-  #pragma kernel Rand_grp_init_1K
   #pragma kernel Rand_grp_fill_1K
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_init_1M

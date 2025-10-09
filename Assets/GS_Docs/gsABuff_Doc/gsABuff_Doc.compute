@@ -20,16 +20,16 @@
   [numthreads(numthreads1, 1, 1)] void InitSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { Sums[id.x] = countbits(Bits[id.x]); } } }
   [numthreads(numthreads1, 1, 1)] void Init_Bits_32(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BitN) { Bits[id.x] = 0; } } }
   [numthreads(numthreads2, numthreads2, 1)] void calc_primes(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.y < g.pjN / 2 && id.x < g.piN / 2)
-    {
-      uint i = id.x, j = id.y + 2, i2 = i * 2 + 1, j2 = id.y * 2 + 3;
-      if (i2 > j2 && (i2 % j2) == 0) InterlockedAnd(ABuff_Bits, i / 32, ~(1u << (int)(i % 32)));
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.y < g.pjN / 2 && id.x < g.piN / 2)
+		  {
+		    uint i = id.x, j = id.y + 2, i2 = i * 2 + 1, j2 = id.y * 2 + 3;
+		    if (i2 > j2 && (i2 % j2) == 0) InterlockedAnd(ABuff_Bits, i / 32, ~(1u << (int)(i % 32)));
+		  }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void init_Primes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.ABuff_BitN) { ABuff_Bits[id.x] = uint_max; } } }
   [numthreads(numthreads1, 1, 1)] void ABuff_Get_Existing_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
   {

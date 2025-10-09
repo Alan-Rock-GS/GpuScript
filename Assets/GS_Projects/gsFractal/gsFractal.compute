@@ -125,43 +125,43 @@
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      BDraw_TextInfo ti = BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.BDraw_fontSize;
-      ti.uvSize = t;
-      BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; return ray; }
   TRay CreateCameraRay(float2 uv)
   {
@@ -208,33 +208,33 @@
   void pix_c32(uint2 id, Color32 c) { pix_u(id, c32_u(c)); }
   void pix_f3(uint2 id, float3 c) { pix_c32(id, f4_c32(float4(c, 1))); }
   [numthreads(numthreads2, numthreads2, 1)] void traceRay(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (all(id.xy < g.screenSize))
-    {
-      float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
-      TRay ray = CreateCameraRay(uv);
-      float3 pixColor;
-      TRayHit hit = Trace(ray);
-      if (hit.distance == fPosInf)
-      {
-        float phi = atan2(ray.direction.x, -ray.direction.z) * 0.5f, theta = acos(ray.direction.y);
-        float2 p = float2(phi, theta) * -rcp(PI) + 1;
-        int2 pixId = floori(p * g.skyboxSize);
-        uint pixI = id_to_i(pixId, g.skyboxSize);
-        pixColor = c32_f4(skyboxBuffer[pixI]).xyz;
-      }
-      else
-      {
-        float2 q = (ray.origin + ray.direction * hit.distance).xz * 0.01f;
-        if (g.fractalType == FractalType_Mandelbrot) pixColor = Mandelbrot_Color(q); else if (g.fractalType == FractalType_Fractal_C) pixColor = fractal_C(q); else if (g.fractalType == FractalType_Fractal_P) pixColor = fractal_P(q); else pixColor = Julia_Color(q);
-      }
-      pix_f3(id.xy, pixColor);
-      pixDepth_f(id.xy, hit.distance);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (all(id.xy < g.screenSize))
+		  {
+		    float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
+		    TRay ray = CreateCameraRay(uv);
+		    float3 pixColor;
+		    TRayHit hit = Trace(ray);
+		    if (hit.distance == fPosInf)
+		    {
+		      float phi = atan2(ray.direction.x, -ray.direction.z) * 0.5f, theta = acos(ray.direction.y);
+		      float2 p = float2(phi, theta) * -rcp(PI) + 1;
+		      int2 pixId = floori(p * g.skyboxSize);
+		      uint pixI = id_to_i(pixId, g.skyboxSize);
+		      pixColor = c32_f4(skyboxBuffer[pixI]).xyz;
+		    }
+		    else
+		    {
+		      float2 q = (ray.origin + ray.direction * hit.distance).xz * 0.01f;
+		      if (g.fractalType == FractalType_Mandelbrot) pixColor = Mandelbrot_Color(q); else if (g.fractalType == FractalType_Fractal_C) pixColor = fractal_C(q); else if (g.fractalType == FractalType_Fractal_P) pixColor = fractal_P(q); else pixColor = Julia_Color(q);
+		    }
+		    pix_f3(id.xy, pixColor);
+		    pixDepth_f(id.xy, hit.distance);
+		  }
+		}
+	}
   #pragma kernel traceRay
   #pragma kernel BDraw_ABuff_GetIndexes
   #pragma kernel BDraw_ABuff_IncSums

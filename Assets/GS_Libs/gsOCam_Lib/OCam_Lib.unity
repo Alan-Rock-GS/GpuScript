@@ -154,9 +154,13 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 02c1ede504524504a8b607085683fab4, type: 3}
   m_SortingOrder: 0
+  m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!4 &10098268
 Transform:
   m_ObjectHideFlags: 0
@@ -196,6 +200,7 @@ MonoBehaviour:
   sync: 0
   render: 1
   isInitBuffers: 0
+  in_data_to_ui: 0
   loadedProjectPath: 
   touch2Dist0: 0
   maxTouch2Dist: 210
@@ -426,6 +431,7 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    legendWidthRatio: 0
     tiltSpin:
       x: 0
       y: 0
@@ -451,7 +457,6 @@ MonoBehaviour:
     legendAxisTitle: 
     legendFormat: 
     legendSphereTitles: 
-    legendViewWidthPixels: 0
   g:
     BDraw_ABuff_IndexN: 0
     BDraw_ABuff_BitN: 0
@@ -471,7 +476,6 @@ MonoBehaviour:
     displayLegend: 0
     displayLegendPalette: 0
     paletteType: 0
-    legendViewWidthPixels: 0
     displayLegendBackground: 0
     legendSphereN: 0
     legendPaletteN: 0
@@ -482,6 +486,7 @@ MonoBehaviour:
     distSpeed: 0
     orthoSize: 0
     legendViewWidth: 0
+    legendWidthRatio: 0
     BDraw_boxColor:
       x: 0
       y: 0

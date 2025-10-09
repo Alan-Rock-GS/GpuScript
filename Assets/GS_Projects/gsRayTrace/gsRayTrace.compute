@@ -106,43 +106,43 @@
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
   uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.BDraw_textN)
-    {
-      uint i = id.x;
-      BDraw_TextInfo ti = BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.BDraw_fontSize;
-      ti.uvSize = t;
-      BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; ray.energy = f111; ray.specular = f000; ray.diffuse = 0; return ray; }
 	
   TRay CreateCameraRay(float2 uv) { return CreateRay(mul(g.camToWorld, g.isOrtho ? float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1) : f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz)); }
@@ -276,29 +276,28 @@
 	}
 	
   [numthreads(numthreads2, numthreads2, 1)] void traceRay(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (all(id.xy < g.screenSize))
 	{
-		float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
-		TRay ray = CreateCameraRay(uv);
-		float3 pixColor = f000;
-		float minDist = g.maxDist;
-		for (uint traceI = 0; traceI < 8; traceI++)
+		unchecked
 		{
-			TRayHit hit = Trace(ray);
-			if (traceI == 0) minDist = hit.distance;
-			pixColor += ray.energy * Shade(ray, hit);
-			if (all(ray.energy == 0)) break;
+			if (all(id.xy < g.screenSize))
+			{
+				float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
+				TRay ray = CreateCameraRay(uv);
+				float3 pixColor = f000;
+				float minDist = g.maxDist;
+				for (uint traceI = 0; traceI < 8; traceI++)
+				{
+					TRayHit hit = Trace(ray);
+					if (traceI == 0) minDist = hit.distance;
+					pixColor += ray.energy * Shade(ray, hit);
+					if (all(ray.energy == 0)) break;
+				}
+				pixColor = max(pixColor, g.objectColor * 0.1f);
+				pix_f3(id.xy, pixColor);
+				pixDepth_f(id.xy, minDist);
+			}
 		}
-		pixColor = max(pixColor, g.objectColor * 0.1f);
-		pix_f3(id.xy, pixColor);
-		pixDepth_f(id.xy, minDist);
 	}
-	
-    }
-  }
   #pragma kernel traceRay
   #pragma kernel BDraw_ABuff_GetIndexes
   #pragma kernel BDraw_ABuff_IncSums

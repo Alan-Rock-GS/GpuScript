@@ -81,19 +81,19 @@
   RWStructuredBuffer<Color32> VGrid_Lib_paletteBuffer;
   RWStructuredBuffer<float> VGrid_Lib_Vals;
   [numthreads(numthreads2, numthreads2, 1)] void CT_loadTexture(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (all(id.xy < g.CT_textureSize))
-    {
-      uint2 size = g.CT_textureSize;
-      uint pixBytesI = product(size) * g.CT_textureI / 4 + (id.y * size.x + id.x) / 4;
-      uint i = id_to_i(id, size), TextureI = i * 3 / 4, byteI = i * 3 % 4, v = (CT_imageTexture[TextureI] >> (8 * (int)byteI)) & 0xff;
-      v = v << ((int)i % 4 * 8);
-      InterlockedOr(CT_pixBytes, pixBytesI, v);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (all(id.xy < g.CT_textureSize))
+		  {
+		    uint2 size = g.CT_textureSize;
+		    uint pixBytesI = product(size) * g.CT_textureI / 4 + (id.y * size.x + id.x) / 4;
+		    uint i = id_to_i(id, size), TextureI = i * 3 / 4, byteI = i * 3 % 4, v = (CT_imageTexture[TextureI] >> (8 * (int)byteI)) & 0xff;
+		    v = v << ((int)i % 4 * 8);
+		    InterlockedOr(CT_pixBytes, pixBytesI, v);
+		  }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void CT_init_pixBytes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.CT_pixBytesSize) { CT_pixBytes[id.x] = 0; } } }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : VGrid_Lib_BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = VGrid_Lib_BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); VGrid_Lib_BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) VGrid_Lib_BDraw_ABuff_Sums[i] += VGrid_Lib_BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.VGrid_Lib_BDraw_ABuff_BitN - 1) g.VGrid_Lib_BDraw_ABuff_IndexN = VGrid_Lib_BDraw_ABuff_Sums[i]; } } }
@@ -136,43 +136,43 @@
   VGrid_Lib_BDraw_TextInfo VGrid_Lib_BDraw_textInfo(uint i) { return VGrid_Lib_BDraw_textInfos[i]; }
   void VGrid_Lib_BDraw_textInfo(uint i, VGrid_Lib_BDraw_TextInfo t) { VGrid_Lib_BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.VGrid_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      if (i > 0)
-      {
-        VGrid_Lib_BDraw_TextInfo t = VGrid_Lib_BDraw_textInfo(0), ti = VGrid_Lib_BDraw_textInfo(i);
-        ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
-        ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
-        VGrid_Lib_BDraw_textInfo(i, ti);
-      }
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.VGrid_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      VGrid_Lib_BDraw_TextInfo t = VGrid_Lib_BDraw_textInfo(0), ti = VGrid_Lib_BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      VGrid_Lib_BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
   uint2 VGrid_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : VGrid_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.VGrid_Lib_BDraw_ABuff_IndexN ? VGrid_Lib_BDraw_ABuff_Indexes[textI] : g.VGrid_Lib_BDraw_textCharN); }
   uint VGrid_Lib_BDraw_Byte(uint i) { return TextByte(VGrid_Lib_BDraw_tab_delimeted_text, i); }
   [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.VGrid_Lib_BDraw_textN)
-    {
-      uint i = id.x;
-      VGrid_Lib_BDraw_TextInfo ti = VGrid_Lib_BDraw_textInfo(i);
-      ti.textI = i;
-      ti.uvSize = f01;
-      uint2 textIs = VGrid_Lib_BDraw_Get_text_indexes(i);
-      float2 t = ti.uvSize;
-      for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = VGrid_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += VGrid_Lib_BDraw_fontInfos[byteI].advance; } }
-      t.x /= g.VGrid_Lib_BDraw_fontSize;
-      ti.uvSize = t;
-      VGrid_Lib_BDraw_textInfo(i, ti);
-    }
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.VGrid_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    VGrid_Lib_BDraw_TextInfo ti = VGrid_Lib_BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = VGrid_Lib_BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = VGrid_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += VGrid_Lib_BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.VGrid_Lib_BDraw_fontSize;
+		    ti.uvSize = t;
+		    VGrid_Lib_BDraw_textInfo(i, ti);
+		  }
+		}
+	}
   float VGrid_Lib_Val(uint i) { return VGrid_Lib_Vals[i]; }
   float3 VGrid_Lib_gridMin() { return float3(g.VGrid_Lib_GridX.x, g.VGrid_Lib_GridY.x, g.VGrid_Lib_GridZ.x); }
   float3 VGrid_Lib_NodeLocation3(uint3 id) { return id * g.VGrid_Lib_resolution + VGrid_Lib_gridMin(); }

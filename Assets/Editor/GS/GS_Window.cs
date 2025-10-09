@@ -1311,7 +1311,8 @@ public class GS_Window : EditorWindow
 			var (ui_to_data, Load_UI, data_to_ui, data_to_ui_Defaults, gridWrapper, OnGrid, onMethodClicked, clickedMethods, colSort) = StrBldr();
 			ui_to_data.Add($"\n    data.siUnits = siUnits;");
 
-			var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();
+			var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1,
+				s_OnApplicationQuit0, s_OnApplicationQuit1, s_OnUnitsChanged0, s_OnUnitsChanged1) = StrBldr();
 			foreach (var lib_fld in lib_flds)
 				if (lib_fld.isInternal_Lib())
 				{
@@ -1322,7 +1323,10 @@ public class GS_Window : EditorWindow
 					s_start0_GS.Add($"\n    {lib_fld.Name}_Start0_GS();");
 					s_start1_GS.Add($"\n    {lib_fld.Name}_Start1_GS();");
 					s_onValueChanged.Add($"\n    {lib_fld.Name}_OnValueChanged_GS();");
-					s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
+					s_OnApplicationQuit0.Add($"\n    {lib_fld.Name}_OnApplicationQuit0_GS();");
+					s_OnApplicationQuit1.Add($"\n    {lib_fld.Name}_OnApplicationQuit1_GS();");
+					s_OnUnitsChanged0.Add($"\n    {lib_fld.Name}_OnUnitsChanged0_GS();");
+					s_OnUnitsChanged1.Add($"\n    {lib_fld.Name}_OnUnitsChanged1_GS();");
 				}
 
 			if (_gs_members != null)
@@ -1626,7 +1630,7 @@ $"\n    {m_name}_To_UI();",
 		"\n  {",
 		$"\n    if (!ui_loaded) return;",
 		$"\n    var UI_grid = UI_grid_{m_name};",
-		 //"\n		if (UI_grid.isBuilding) return;\r\n",
+		//"\n		if (UI_grid.isBuilding) return;\r\n",
 		$"\n    int startRow = UI_grid.StartRow;", grid_OnValueChanged,
 		"\n  }",
 
@@ -1843,56 +1847,12 @@ $"\n    {m_name}_To_UI();",
 			tData.Add("\n  }");
 			OnGrid.Add(clickedMethods);
 
-			//var (s_start0_GS, s_start1_GS, s_onValueChanged, s_LateUpdate0, s_LateUpdate1, s_Update0, s_Update1, s_OnApplicationQuit) = StrBldr();
-
-			//foreach (var lib_fld in lib_flds)
-			//	if (lib_fld.isInternal_Lib())
-			//	{
-			//		s_LateUpdate0.Add($"\n    {lib_fld.Name}_LateUpdate0_GS();");
-			//		s_LateUpdate1.Add($"\n    {lib_fld.Name}_LateUpdate1_GS();");
-			//		s_Update0.Add($"\n    {lib_fld.Name}_Update0_GS();");
-			//		s_Update1.Add($"\n    {lib_fld.Name}_Update1_GS();");
-			//		s_start0_GS.Add($"\n    {lib_fld.Name}_Start0_GS();");
-			//		s_start1_GS.Add($"\n    {lib_fld.Name}_Start1_GS();");
-			//		s_onValueChanged.Add($"\n    {lib_fld.Name}_OnValueChanged_GS();");
-			//		s_OnApplicationQuit.Add($"\n    {lib_fld.Name}_OnApplicationQuit_GS();");
-			//	}
-
 			if (uiDocument && gsName != "gsReport_Lib") s_onValueChanged.Add("\n    var type = \"gsReport_Lib\".ToType();\n    if (type != null) ((GS)GetComponent(type))?.OnValueChanged_GS();\r\n");
 
-
-			////s_start1_GS.Add($"\n    UI_grid_flts.DrawGrid();");
-			//if (_gs_members != null)
-			//	foreach (var gs_member in _gs_members)
-			//	{
-			//		if (gs_member.IsFld() || gs_member.IsClass())
-			//		{
-			//			Type gs_memberType = gs_member.GetMemberType();
-			//			string m_typeStr = gs_memberType.SimplifyType();
-			//			FieldInfo _GS_field = gs_member.IsFld() ? gs_member.Fld() : null;
-			//			//PropertyInfo _GS_prop = gs_member.IsProp() ? gs_member.Prop() : null;
-			//			//MethodInfo _GS_method = gs_member.IsMethod() ? gs_member.Method() : null;
-			//			Type _GS_fieldType = _GS_field?.FieldType;
-
-			//			if (m_typeStr != nameof(TreeGroupEnd))
-			//			{
-			//				if (!_GS_fieldType.isNestedClass())
-			//				{
-			//					if (_GS_fieldType.IsArray)
-			//					{
-			//						if (_GS_fieldType.IsClass)
-			//						{
-			//							string m_name = gs_member.Name;
-			//							s_start1_GS.Add($"\n    UI_grid_{m_name}.DrawGrid();");
-			//						}
-			//					}
-			//				}
-			//			}
-			//		}
-			//	}
-
 			virtual_method(s_start0_GS, "Start0_GS()", s_start1_GS, "Start1_GS()", s_LateUpdate0, "LateUpdate0_GS()", s_LateUpdate1, "LateUpdate1_GS()",
-				s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()", s_OnApplicationQuit, "OnApplicationQuit_GS()");
+				s_Update0, "Update0_GS()", s_Update1, "Update1_GS()", s_onValueChanged, "OnValueChanged_GS()",
+				s_OnApplicationQuit0, "OnApplicationQuit0_GS()", s_OnApplicationQuit1, "OnApplicationQuit1_GS()",
+				s_OnUnitsChanged0, "OnUnitsChanged0_GS()", s_OnUnitsChanged1, "OnUnitsChanged1_GS()");
 
 			StrBldr _cs = StrBldr().Add(_cs_includes,
 		 $"\npublic class gs{Name}_ : GS", libInterfaces,
@@ -1910,7 +1870,8 @@ $"\n    {m_name}_To_UI();",
 			"\n    base.onLoaded();", libOnLoaded,
 			"\n  }",
 			"\n  [HideInInspector] public bool already_quited = false;",
-			"\n  public override void OnApplicationQuit() { Save_UI(); OnApplicationQuit_GS(); base.OnApplicationQuit(); already_quited = true; }", s_OnApplicationQuit, gridWrapper,
+			"\n  public override void OnApplicationQuit() { Save_UI(); OnApplicationQuit0_GS(); base.OnApplicationQuit(); OnApplicationQuit1_GS(); already_quited = true; }", s_OnApplicationQuit0, s_OnApplicationQuit1,
+			"\n  public override void OnUnitsChanged() { OnUnitsChanged0_GS(); base.OnUnitsChanged(); OnUnitsChanged1_GS(); }", s_OnUnitsChanged0, s_OnUnitsChanged1, gridWrapper,
 			"\n  public override void ui_to_data()",
 			"\n  {",
 			"\n    if (data == null) return;", ui_to_data,
@@ -1973,6 +1934,10 @@ $"\n    {m_name}_To_UI();",
 			"\n    Update0_GS();", update,
 			"\n    Update1_GS();",
 			"\n  }", s_Update0, s_Update1,
+
+			//"\n  public override void OnApplicationQuit() { Save_UI(); OnApplicationQuit0_GS(); base.OnApplicationQuit(); OnApplicationQuit1_GS(); already_quited = true; }", s_OnApplicationQuit0, s_OnApplicationQuit1,
+			//"\n  public override void OnUnitsChanged() { base.OnUnitsChanged(); OnUnitsChanged_GS(); }", s_OnUnitsChanged0, s_OnUnitsChanged1, gridWrapper,
+
 			"\n  public override void OnValueChanged()",
 			"\n  {",
 			"\n    if (!ui_loaded) return;",
@@ -2630,7 +2595,7 @@ $"\n    {m_name}_To_UI();",
 
 			var vMeths = _methods.Where(_m => _m.name.DoesNotStartWithAny("Cpu_", "Gpu_", "onRenderObject_", "vert_", "frag_", "base_")
 				&& _m.inheritance.IsNotEmpty()
-				&& _m.name.IsNotAny("Awake", "Start", "LateUpdate", "Update", "OnValueChanged", "InitBuffers", " OnApplicationQuit",
+				&& _m.name.IsNotAny("Awake", "Start", "LateUpdate", "Update", "OnValueChanged", "InitBuffers", " OnApplicationQuit", " OnUnitsChanged",
 					"ui_to_data", "data_to_ui", "Load_UI", "Save_UI", "onRenderObject", "Load_UI_As", "Save_UI_As")
 				&& _m.code.Between("{", "}").Trim().IsNotEmpty() && methods.FirstOrDefault(m => m.name == _m.name && m.argN == _m.argN) == null).ToArray();
 
@@ -2665,8 +2630,11 @@ $"\n    {m_name}_To_UI();",
 
 			StrBldr _s = StrBldr();
 			foreach (var m in _methods)// add base_VGrid_InitBuffers0_GS(); from _cs_Code
+																 //if (m.name.IsAny("InitBuffers0_GS", "InitBuffers1_GS", "LateUpdate0_GS", "LateUpdate1_GS", "Update0_GS", "Update1_GS",
+																 //	"Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit", "OnUnitsChanged", "Load_UI", "Save_UI"))
 				if (m.name.IsAny("InitBuffers0_GS", "InitBuffers1_GS", "LateUpdate0_GS", "LateUpdate1_GS", "Update0_GS", "Update1_GS",
-					"Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit", "Load_UI", "Save_UI"))
+					"Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit0_GS", "OnApplicationQuit1_GS",
+					"OnUnitsChanged0_GS", "OnUnitsChanged1_GS", "Load_UI", "Save_UI"))
 					_s.Add($"\n  public virtual {m.return_type} base_{Name}_{m.name}({m.args}){m.code.TrimEnd()}");
 				else if (m.name == "frag_GS")
 					_s.Add($"\n  public virtual {m.return_type} base_frag_{Name}_GS({m.args}){m.code.TrimEnd()}");
@@ -2718,8 +2686,8 @@ $"\n    {m_name}_To_UI();",
 
 			Insert_GS_methods(ref cs_Code, "void InitBuffers0_GS()", "void InitBuffers1_GS()", "void LateUpdate0_GS()", "void LateUpdate1_GS()",
 				"void Update0_GS()", "void Update1_GS()", "void Start0_GS()", "void Start1_GS()", "void OnValueChanged_GS()",
-				"void OnApplicationQuit_GS()", "void onRenderObject_GS(ref bool render, ref bool cpu)",
-				"float4 frag_GS(v2f i, float4 color) { return color; }");
+				"void OnApplicationQuit0_GS()", "void OnApplicationQuit1_GS()", "void OnUnitsChanged0_GS()", "void OnUnitsChanged1_GS()", 
+				"void onRenderObject_GS(ref bool render, ref bool cpu)", "float4 frag_GS(v2f i, float4 color) { return color; }");
 
 			foreach (var c in classList) cs_Code = cs_Code.RegexReplace($@"\b{c}_", $"{Name}_{c}_");
 

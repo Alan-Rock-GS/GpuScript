@@ -61,13 +61,12 @@
 	}
 	
   [numthreads(numthreads1, 1, 1)] void Calc_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
-  {
-    unchecked
-    {
-      if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin(ints, 0, i); InterlockedMax(ints, 1, i); InterlockedAdd(ints, 2, 1); }
-	
-    }
-  }
+	{
+		unchecked
+		{
+			if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin(ints, 0, i); InterlockedMax(ints, 1, i); InterlockedAdd(ints, 2, 1); }
+		}
+	}
   #pragma kernel Calc_Min_Max_Sum3
   #pragma kernel Calc_Min_Max_Sum
   #pragma kernel Init_ints
