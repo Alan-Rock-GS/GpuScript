@@ -142,11 +142,13 @@ Shader "gs/gsFractal"
   v2f BDraw_o_normal(float3 normal, v2f o) { o.normal = normal; return o; }
   v2f BDraw_o_uv(float2 uv, v2f o) { o.uv = uv; return o; }
   TRay CreateRay(float3 origin, float3 direction) { TRay ray; ray.origin = origin; ray.direction = direction; return ray; }
+	
   TRay CreateCameraRay(float2 uv)
-  {
-    if (g.isOrtho) return CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
-    return CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
-  }
+	{
+		if (g.isOrtho) return CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
+		return CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
+	}
+	
   v2f BDraw_o_pos(float4 pos, v2f o) { o.pos = pos; return o; }
   v2f vert_BDraw_Point(float3 p, float4 color, uint i, v2f o) { return BDraw_o_i(i, BDraw_o_drawType(BDraw_Draw_Point, BDraw_o_color(color, BDraw_o_pos(UnityObjectToClipPos(float4(p, 1)), o)))); }
   v2f BDraw_o_pos_PV(float3 p, float4 q, v2f o) { return BDraw_o_pos(mul(UNITY_MATRIX_P, mul(UNITY_MATRIX_V, float4(p, 1)) + q), o); }
@@ -157,13 +159,13 @@ Shader "gs/gsFractal"
   uint pix_u(uint2 id) { return depthColor[id_to_i(id, g.screenSize) + product(g.screenSize)]; }
   Color32 pix_c32(uint2 id) { return u_c32(pix_u(id)); }
   v2f vert_DrawScreen(uint i, uint j, v2f o)
-  {
-    uint2 id = i_to_id(i, g.screenSize);
-    float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
-    TRay ray = CreateCameraRay(uv);
-    o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
-    return o;
-  }
+	{
+		uint2 id = i_to_id(i, g.screenSize);
+		float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
+		TRay ray = CreateCameraRay(uv);
+		o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
+		return o;
+	}
   float BDraw_o_r(v2f o) { return o.ti.w; }
   float4 frag_BDraw_Line(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
   float4 frag_BDraw_Arrow(v2f i) { float3 p0 = i.p0, p1 = i.p1; float lineRadius = BDraw_o_r(i); float2 uv = i.uv; float r = dot(uv, uv), r2 = lineRadius * lineRadius; float4 color = i.color; float3 p10 = p1 - p0; float lp10 = length(p10); if (uv.x < 0) r /= r2; else if (uv.x > lp10 - lineRadius * 3 && abs(uv.y) > lineRadius) { uv.x -= lp10; uv = rotate_sc(uv, -sign(uv.y) * 0.5f, 0.866025404f); uv.x = 0; r = dot(uv, uv) / r2; } else if (uv.x > lp10) { uv.x -= lp10; r = dot(uv, uv) / r2; } else { uv.x = 0; r = dot(uv, uv) / r2; } if (r > 1.0f || color.a == 0) return f0000; float3 n = float3(uv, r - 1), _LightDir = float3(0.321f, 0.766f, -0.557f); float lightAmp = max(0.0f, dot(n, _LightDir)); float4 diffuse_Light = (lightAmp + UNITY_LIGHTMODEL_AMBIENT) * color; float spec = max(0, (lightAmp - 0.95f) / 0.05f); color = lerp(diffuse_Light, f1111, spec / 4); color.a = 1; return color; }
