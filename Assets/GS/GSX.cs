@@ -917,6 +917,10 @@ namespace GpuScript
 			else if (v is string && ((string)v).IsEmpty()) return 0;
 			try { return Convert.ToSingle(v); } catch (Exception) { return 0; }
 		}
+		public static double To_double(this object v)
+		{
+			if (v == null) return 0; else if (v is string && ((string)v).IsEmpty()) return 0; try { return Convert.ToDouble(v); } catch (Exception) { return 0; }
+		}
 
 		public static int To_int(this object o)
 		{
@@ -925,6 +929,85 @@ namespace GpuScript
 			try { v = Convert.ToInt32(o); } catch (Exception) { try { v = floori(Convert.ToSingle(o)); } catch (Exception) { v = 0; } }
 			return v;
 		}
+
+		public static double2 To_double2(this object o)
+		{
+			if (o == null) return f00;
+			if (o is string)
+			{
+				string s = (string)o;
+				if (s.IsEmpty()) return f00;
+				s = s.ToLower();
+				string ch = s.Contains(",") ? "," : "~";
+				if (s.Contains(ch)) { string a = s.Before(ch), b = s.After(ch); return double2(a.To_double(), b.To_double()); }
+				return double2(s.To_double());
+			}
+			if (o is double2) return (double2)o;
+			if (o is int2) return (double2)(int2)o;
+			if (o is uint2) return (double2)(uint2)o;
+			if (o is double) return double2((double)o);
+			if (o is int) return double2((double)(int)o);
+			if (o is uint) return double2((double)(uint)o);
+			if (o is double) return double2((double)(double)o);
+			return f00;
+		}
+
+		public static double3 To_double3(this object o)
+		{
+			if (o is string)
+			{
+				string s = (string)o;
+				s = s.ToLower();
+				string ch = s.Contains(",") ? "," : " ";
+				if (s.Contains(ch))
+				{
+					string a = s.Before(ch), b = s.After(ch);
+					if (b.Contains(ch)) { string c = b.After(ch); b = b.Before(ch); return double3(a.To_double(), b.To_double(), c.To_double()); }
+					double r = a.To_double(); //only 2 dimensions specified, assume this is shape radius and thickness
+					return double3(r, r, b.To_double());
+				}
+				return double3(s.To_double());
+			}
+			else if (o is double3) return (double3)o;
+			else if (o is double) return double3((double)o);
+			else if (o is double) return double3((double)(double)o);
+			else if (o is int) return double3((double)(int)o);
+			else if (o is uint) return double3((double)(uint)o);
+			else if (o is Color) { Color c = (Color)o; return double3(c.r, c.g, c.b); }
+			return d000;
+		}
+
+		public static double4 To_double4(this object o)
+		{
+			if (o is string)
+			{
+				string s = (string)o;
+				s = s.ToLower();
+				string ch = s.Contains(",") ? "," : " ";
+				if (s.Contains(ch))
+				{
+					string a = s.Before(ch), b = s.After(ch);
+					if (b.Contains(ch))
+					{
+						string c = b.After(ch);
+						b = b.Before(ch);
+						if (c.Contains(ch)) { string d = c.After(ch); c = c.Before(ch); return double4(a.To_double(), b.To_double(), c.To_double(), d.To_double()); }
+					}
+				}
+				return new int4(s.To_int());
+			}
+			if (o is int4) return (double4)(int4)o;
+			if (o is uint4) return (double4)(uint4)o;
+			else if (o is double3) return (double4)o;
+			else if (o is double) return double4((double)o);
+			else if (o is double) return double4((double)(double)o);
+			else if (o is int) return double4((double)(int)o);
+			else if (o is uint) return double4((double)(uint)o);
+			else if (o is Color) { Color c = (Color)o; return double4(c.r, c.g, c.b, c.a); }
+			return d0000;
+		}
+
+
 
 		public static uint To_uint(this object o)
 		{
@@ -1460,7 +1543,8 @@ namespace GpuScript
 
 		public static FieldInfo GetField(this List<FieldInfo> flds, string fldName) => flds.FirstOrDefault(a => a.Name == fldName);
 		public static FieldInfo GetField(this FieldInfo[] flds, string fldName) => flds.FirstOrDefault(a => a.Name == fldName);
-		public static string GetTypeName(this Type t) => t.Name.Replace("UInt32", "uint").Replace("Int32", "int").Replace("Boolean", "bool").Replace("String", "string").Replace("Single", "float");
+		//public static string GetTypeName(this Type t) => t.Name.Replace("UInt32", "uint").Replace("Int32", "int").Replace("Boolean", "bool").Replace("String", "string").Replace("Single", "float");
+		public static string GetTypeName(this Type t) => t.Name.ReplaceAll("UInt32", "uint", "Int32", "int", "Boolean", "bool", "String", "string", "Single", "float", "Double", "double");
 		public static string GetTypeName(this FieldInfo f) => f.FieldType.GetTypeName();
 		public static string GetTypeName(this PropertyInfo p) => p.PropertyType.GetTypeName();
 		public static string GetTypeName(this MemberInfo p) => p.GetMemberType().GetTypeName();

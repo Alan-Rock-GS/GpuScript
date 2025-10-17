@@ -105,6 +105,19 @@ namespace GpuScript
 		public float2 GetNearest(float2 v) => NearestDigit ? pow10(floor(log10(v))) : float2(Nearest);
 		public float3 GetNearest(float3 v) => NearestDigit ? pow10(floor(log10(v))) : float3(Nearest);
 		public float4 GetNearest(float4 v) => NearestDigit ? pow10(floor(log10(v))) : float4(Nearest);
+		//public int GetNearest(int v) => roundi(GetNearest((float)v));
+		//public int2 GetNearest(int2 v) => roundi(GetNearest((float2)v));
+		//public int3 GetNearest(int3 v) => roundi(GetNearest((float3)v));
+		//public int4 GetNearest(int4 v) => roundi(GetNearest((float4)v));
+		//public double dGetNearest(double v) => NearestDigit ? dpow10(dfloor(dlog10(v))) : Nearest;
+		//public double2 dGetNearest(double2 v) => NearestDigit ? dpow10(dfloor(dlog10(v))) : double2(Nearest);
+		//public double3 dGetNearest(double3 v) => NearestDigit ? dpow10(dfloor(dlog10(v))) : double3(Nearest);
+		//public double4 dGetNearest(double4 v) => NearestDigit ? dpow10(dfloor(dlog10(v))) : double4(Nearest);
+		public double GetNearest(double v) => NearestDigit ? pow10(floor(log10(v))) : Nearest;
+		public double2 GetNearest(double2 v) => NearestDigit ? pow10(floor(log10(v))) : double2(Nearest);
+		public double3 GetNearest(double3 v) => NearestDigit ? pow10(floor(log10(v))) : double3(Nearest);
+		public double4 GetNearest(double4 v) => NearestDigit ? pow10(floor(log10(v))) : double4(Nearest);
+
 		public virtual Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
 		void OnTextFieldChanged(ChangeEvent<string> evt) { OnTextFieldChanged(textField); }
 		public override float ui_width { get => UI_TextWidth(textString); set => style.width = textField.style.width = value; }
@@ -224,6 +237,18 @@ namespace GpuScript
 			if (evt.currentTarget is Slider && textField != null)
 			{
 				float val = default;
+				for (int i = 0; i < sliders.Length; i++) val = sliders[i].value;
+				textField.value = val.ToString(format);
+				property?.SetValue(gs, val);
+				if (isGrid) grid.grid_OnValueChanged();
+				gs?.OnValueChanged();
+			}
+		}
+		public virtual void OnValueChanged(ChangeEvent<double> evt)
+		{
+			if (evt.currentTarget is Slider && textField != null)
+			{
+				double val = default;
 				for (int i = 0; i < sliders.Length; i++) val = sliders[i].value;
 				textField.value = val.ToString(format);
 				property?.SetValue(gs, val);

@@ -13,6 +13,9 @@ Shader "gs/gsFractal"
         #include "UnityCG.cginc"
         #include "Lighting.cginc"
         #include "../../GS/GS_Shader.cginc"
+  #define ComputeType_Graphics	0
+  #define ComputeType_Float	1
+  #define ComputeType_Double	2
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -77,7 +80,7 @@ Shader "gs/gsFractal"
   #define g gFractal[0]
   struct GFractal
   {
-    uint buffer_paletteType, fractalType, maxIterations, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, depthColorN, isOrtho, retrace;
+    uint computeType, buffer_paletteType, fractalType, maxIterations, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, depthColorN, isOrtho, retrace;
     float2 julia_c;
     float BDraw_fontSize, BDraw_boxThickness, orthoSize, maxDist;
     float4 BDraw_boxColor, directionalLight;
@@ -145,8 +148,10 @@ Shader "gs/gsFractal"
 	
   TRay CreateCameraRay(float2 uv)
 	{
-		if (g.isOrtho) return CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
-		return CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
+		TRay ray;
+		if (g.isOrtho) ray = CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
+		else ray = CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
+		return ray;
 	}
 	
   v2f BDraw_o_pos(float4 pos, v2f o) { o.pos = pos; return o; }
@@ -160,10 +165,20 @@ Shader "gs/gsFractal"
   Color32 pix_c32(uint2 id) { return u_c32(pix_u(id)); }
   v2f vert_DrawScreen(uint i, uint j, v2f o)
 	{
-		uint2 id = i_to_id(i, g.screenSize);
-		float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
-		TRay ray = CreateCameraRay(uv);
-		o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
+		if (g.computeType == ComputeType_Float)
+		{
+			uint2 id = i_to_id(i, g.screenSize);
+			float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
+			TRay ray = CreateCameraRay(uv);
+			o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
+		}
+		else if (g.computeType == ComputeType_Double)
+		{
+			uint2 id = i_to_id(i, g.screenSize);
+			float2 uv = (id + f11 * 0.5f) / g.screenSize * 2 - 1;
+			TRay ray = CreateCameraRay(uv);
+			o = vert_BDraw_Point(ray.origin + pixDepth_f(id) * ray.direction, c32_f4(pix_c32(id)), i, o);
+		}
 		return o;
 	}
   float BDraw_o_r(v2f o) { return o.ti.w; }

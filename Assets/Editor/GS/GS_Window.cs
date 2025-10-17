@@ -2866,7 +2866,8 @@ $"\n    {m_name}_To_UI();",
 			string s = f.ReadAllTextAscii();
 			string versionStr = s.Between("// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC", "\n");
 			int version = versionStr.IsEmpty() ? 1 : versionStr.After("Update: ").To_int() + 1;
-			f.WriteAllTextAscii($"// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: {version}\n" + s.After("\n"));
+			//f.WriteAllTextAscii($"// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: {version}\n" + s.After("\n"));
+			f.WriteAllTextAscii($"// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: {version}\r\n" + s.After("\n"));
 		}
 	}
 	void Update_cginc_Files() { Update_cginc_Version("GS", "GS_Compute", "GS_Shader"); }

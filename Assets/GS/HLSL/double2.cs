@@ -12,8 +12,9 @@ namespace GpuScript
 
     public override string ToString() => $"{x}{separator}{y}";
 
-    public static explicit operator double2(int2 p) => double2(p.x, p.y);
-    public static implicit operator float2(double2 p) => float2(p.x, p.y);
+		public static explicit operator double2(int2 p) => double2(p.x, p.y);
+		public static explicit operator double2(uint2 p) => double2(p.x, p.y);
+		public static implicit operator float2(double2 p) => float2(p.x, p.y);
     public static implicit operator double2(float2 p) => double2(p.x, p.y);
 
     public Type GetType(int index) => typeof(double);
@@ -106,7 +107,9 @@ namespace GpuScript
     public override int GetHashCode() => ToString().GetHashCode();
     public static bool operator ==(double2 a, double2 b) => a.Equals(b);
     public static bool operator !=(double2 a, double2 b) => !(a == b);
-    public static bool operator <(double2 a, double2 b) => a.x < b.x && a.y < b.y;
+		public static double2 operator ==(double2 a, double b) => double2(Is(a.x.Equals(b)), Is(a.y.Equals(b)));
+		public static double2 operator !=(double2 a, double b) => 1 - (a == b);
+		public static bool operator <(double2 a, double2 b) => a.x < b.x && a.y < b.y;
     public static bool operator >(double2 a, double2 b) => a.x > b.x && a.y > b.y;
     public static bool operator <=(double2 a, double2 b) => a.x <= b.x && a.y <= b.y;
     public static bool operator >=(double2 a, double2 b) => a.x >= b.x && a.y >= b.y;
@@ -114,30 +117,64 @@ namespace GpuScript
     public bool AboutEquals(double2 a) => AboutEquals(a, EPS);
     public bool AboutEquals(double2 a, double eps) => (this == a) || (x.AboutEqual(a.x, eps) && y.AboutEqual(a.y, eps));
 
-    public static double2 operator +(double2 a, double2 b) => double2(a.x + b.x, a.y + b.y);
-    public static double2 operator +(float2 a, double2 b) => double2(a.x + b.x, a.y + b.y);
+		public static double2 operator +(double2 a, double2 b) => double2(a.x + b.x, a.y + b.y);
+		public static double2 operator +(int2 a, double2 b) => double2(a.x + b.x, a.y + b.y);
+		public static double2 operator +(double2 a, int2 b) => double2(a.x + b.x, a.y + b.y);
+		public static double2 operator +(uint2 a, double2 b) => double2(a.x + b.x, a.y + b.y);
+		public static double2 operator +(double2 a, uint2 b) => double2(a.x + b.x, a.y + b.y);
+		public static double2 operator +(float2 a, double2 b) => double2(a.x + b.x, a.y + b.y);
     public static double2 operator +(double2 a, float2 b) => double2(a.x + b.x, a.y + b.y);
-    public static double2 operator +(double2 a, int2 b) => double2(a.x + b.x, a.y + b.y);
-    public static double2 operator +(double2 a, double b) => double2(a.x + b, a.y + b);
-    public static double2 operator +(double a, double2 b) => b + a;
-    public static double2 operator -(double2 a) => double2(-a.x, -a.y);
-    public static double2 operator -(double2 a, double2 b) => double2(a.x - b.x, a.y - b.y);
-    public static double2 operator -(double2 a, int2 b) => double2(a.x - b.x, a.y - b.y);
+		public static double2 operator +(double2 a, double b) => double2(a.x + b, a.y + b);
+		public static double2 operator +(double a, double2 b) => b + a;
+		public static double2 operator +(double2 a, float b) => double2(a.x + b, a.y + b);
+		public static double2 operator +(float a, double2 b) => b + a;
+		public static double2 operator +(double2 a, int b) => double2(a.x + b, a.y + b);
+		public static double2 operator +(int a, double2 b) => b + a;
+		public static double2 operator +(double2 a, uint b) => double2(a.x + b, a.y + b);
+		public static double2 operator +(uint a, double2 b) => b + a;
+		public static double2 operator -(double2 a) => double2(-a.x, -a.y);
+		public static double2 operator -(double2 a, double2 b) => double2(a.x - b.x, a.y - b.y);
+		public static double2 operator -(double2 a, float2 b) => double2(a.x - b.x, a.y - b.y);
+		public static double2 operator -(float2 a, double2 b) => double2(a.x - b.x, a.y - b.y);
+		public static double2 operator -(double2 a, int2 b) => double2(a.x - b.x, a.y - b.y);
     public static double2 operator -(int2 a, double2 b) => double2(a.x - b.x, a.y - b.y);
-    public static double2 operator -(double2 a, double b) => double2(a.x - b, a.y - b);
-    public static double2 operator -(double a, double2 b) => double2(a - b.x, a - b.y);
-    public static double2 operator *(double2 a, double2 b) => double2(a.x * b.x, a.y * b.y);
-    public static double2 operator *(double2 a, int2 b) => double2(a.x * b.x, a.y * b.y);
-    public static double2 operator *(int2 a, double2 b) => double2(a.x * b.x, a.y * b.y);
-    public static double2 operator *(double2 a, double b) => double2(a.x * b, a.y * b);
-    public static double2 operator *(double a, double2 b) => b * a;
-    public static double2 operator /(double2 a, double2 b) => double2(a.x / b.x, a.y / b.y);
-    public static double2 operator /(double2 a, float2 b) => double2(a.x / b.x, a.y / b.y);
+		public static double2 operator -(double2 a, double b) => double2(a.x - b, a.y - b);
+		public static double2 operator -(double a, double2 b) => double2(a - b.x, a - b.y);
+		public static double2 operator -(double2 a, float b) => double2(a.x - b, a.y - b);
+		public static double2 operator -(float a, double2 b) => double2(a - b.x, a - b.y);
+		public static double2 operator -(double2 a, int b) => double2(a.x - b, a.y - b);
+		public static double2 operator -(int a, double2 b) => double2(a - b.x, a - b.y);
+		public static double2 operator *(double2 a, double2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(double2 a, float2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(float2 a, double2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(double2 a, int2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(int2 a, double2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(double2 a, uint2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(uint2 a, double2 b) => double2(a.x * b.x, a.y * b.y);
+		public static double2 operator *(double2 a, double b) => double2(a.x * b, a.y * b);
+		public static double2 operator *(double a, double2 b) => b * a;
+		public static double2 operator *(double2 a, float b) => double2(a.x * b, a.y * b);
+		public static double2 operator *(float a, double2 b) => b * a;
+		public static double2 operator *(double2 a, int b) => double2(a.x * b, a.y * b);
+		public static double2 operator *(int a, double2 b) => b * a;
+		public static double2 operator *(double2 a, uint b) => double2(a.x * b, a.y * b);
+		public static double2 operator *(uint a, double2 b) => b * a;
+		public static double2 operator /(double2 a, double2 b) => double2(a.x / b.x, a.y / b.y);
+		public static double2 operator /(uint2 a, double2 b) => double2(a.x / b.x, a.y / b.y);
+		public static double2 operator /(double2 a, uint2 b) => double2(a.x / b.x, a.y / b.y);
+		public static double2 operator /(int2 a, double2 b) => double2(a.x / b.x, a.y / b.y);
+		public static double2 operator /(double2 a, int2 b) => double2(a.x / b.x, a.y / b.y);
+		public static double2 operator /(double2 a, float2 b) => double2(a.x / b.x, a.y / b.y);
     public static double2 operator /(float2 a, double2 b) => double2(a.x / b.x, a.y / b.y);
-    public static double2 operator /(double2 a, int2 b) => double2(a.x / b.x, a.y / b.y);
-    public static double2 operator /(double2 a, double b) => double2(a.x / b, a.y / b);
-    public static double2 operator /(double a, double2 b) => double2(a / b.x, a / b.y);
-    public static double2 operator ^(double2 a, int b)
+		public static double2 operator /(double2 a, double b) => double2(a.x / b, a.y / b);
+		public static double2 operator /(double a, double2 b) => double2(a / b.x, a / b.y);
+		public static double2 operator /(double2 a, float b) => double2(a.x / b, a.y / b);
+		public static double2 operator /(float a, double2 b) => double2(a / b.x, a / b.y);
+		public static double2 operator /(double2 a, int b) => double2(a.x / b, a.y / b);
+		public static double2 operator /(int a, double2 b) => double2(a / b.x, a / b.y);
+		public static double2 operator /(double2 a, uint b) => double2(a.x / b, a.y / b);
+		public static double2 operator /(uint a, double2 b) => double2(a / b.x, a / b.y);
+		public static double2 operator ^(double2 a, int b)
     {
       switch (b)
       {

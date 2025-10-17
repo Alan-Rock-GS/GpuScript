@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GS/Resources/UI/GpuScript/gs_USS%201.uss?fileID=7433441132597879392&amp;guid=c0fe7db28bde1f0459efde04b8cdfcfd&amp;type=3#gs_USS 1"/>
+    <ui:VisualElement name="UI_float3" style="flex-grow: 0; background-color: rgba(0, 0, 0, 0);">
+        <ui:VisualElement name="container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row; width: auto; display: flex; height: 20px; min-height: 20px;">
+            <ui:Label text="double3" name="headerLabel" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; flex-grow: 0; flex-shrink: 1; padding-left: 2px; padding-right: 2px; min-width: 100px; -unity-text-align: lower-right;"/>
+            <ui:TextField picking-mode="Ignore" value="50, 50, 50" style="flex-grow: 0; width: auto; flex-shrink: 1; min-width: 100px;"/>
+            <ui:Label text="m" name="unitLabel" style="background-color: rgb(188, 188, 188); width: auto; height: 20px; display: none;"/>
+        </ui:VisualElement>
+        <ui:Slider picking-mode="Ignore" value="50" high-value="100" name="slider_x" style="width: auto; flex-grow: 1; height: 24px; display: none;"/>
+        <ui:Slider picking-mode="Ignore" value="50" high-value="100" name="slider_y" style="width: auto; flex-grow: 1; height: 24px; display: none;"/>
+        <ui:Slider picking-mode="Ignore" value="50" high-value="100" name="slider_z" style="width: auto; flex-grow: 1; height: 24px; display: none;"/>
+    </ui:VisualElement>
+</ui:UXML>

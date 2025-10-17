@@ -24,7 +24,7 @@ namespace GpuScript
       e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
     }
     public uint3 Slider_Pow_Val(float3 v) => clamp(roundu(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
-    public float3 Slider_Log_Val(uint3 v) => isPow2Slider ? log10(clamp(roundu(v, GetNearest(v)), rangeMin, rangeMax) * 0.999f + 1) : (float3)v;
+    public float3 Slider_Log_Val(uint3 v) => isPow2Slider ? log10(clamp(roundu(v, GetNearest((float3)v)), rangeMin, rangeMax) * 0.999f + 1) : (float3)v;
     public uint3 SliderV { get => Slider_Pow_Val(new float3(sliders[0].value, sliders[1].value, sliders[2].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; } }
     public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y"), this.Q<Slider>("slider_z") }; 
     public UI_uint3() : base() { }
@@ -46,7 +46,7 @@ namespace GpuScript
     public uint3 v
     {
       get => textField != null ? _val = textField.value.To_uint3() : _val;
-      set { _val = isPow10 ? GS.roundu(GS.pow10(GS.round(GS.log10(value)))) : isPow2 ? GS.roundu(GS.pow2(GS.round(GS.log2(value)))) : value; if (textField != null) textField.value = _val.ToString(format); if (hasRange) SliderV = _val; }
+      set { _val = isPow10 ? GS.roundu(GS.pow10(GS.round(GS.log10((float3)value)))) : isPow2 ? GS.roundu(GS.pow2(GS.round(GS.log2(value)))) : value; if (textField != null) textField.value = _val.ToString(format); if (hasRange) SliderV = _val; }
     }
     public override string textString => v.ToString(format);
     public override object v_obj { get => v; set => v = value.To_uint3(); }

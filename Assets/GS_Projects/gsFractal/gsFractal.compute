@@ -2,6 +2,9 @@
   #include "UnityCG.cginc"
   #include "Lighting.cginc"
   #include "../../GS/GS_Compute.cginc"
+  #define ComputeType_Graphics	0
+  #define ComputeType_Float	1
+  #define ComputeType_Double	2
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -67,7 +70,7 @@
   #pragma use_dxc
   struct GFractal
   {
-    uint buffer_paletteType, fractalType, maxIterations, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, depthColorN, isOrtho, retrace;
+    uint computeType, buffer_paletteType, fractalType, maxIterations, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, depthColorN, isOrtho, retrace;
     float2 julia_c;
     float BDraw_fontSize, BDraw_boxThickness, orthoSize, maxDist;
     float4 BDraw_boxColor, directionalLight;
@@ -166,8 +169,10 @@
 	
   TRay CreateCameraRay(float2 uv)
 	{
-		if (g.isOrtho) return CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
-		return CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
+		TRay ray;
+		if (g.isOrtho) ray = CreateRay(mul(g.camToWorld, float4(g.orthoSize * uv * float2(raspect(g.screenSize), 1), 0, 1)).xyz, f0_0);
+		else ray = CreateRay(mul(g.camToWorld, f0001).xyz, normalize(mul(g.camToWorld, float4(mul(g.camInvProjection, float4(uv, 0, 1)).xyz, 0)).xyz));
+		return ray;
 	}
 	
   TRayHit IntersectGroundPlane(TRay ray, TRayHit bestHit)
@@ -197,7 +202,21 @@
     if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
   }
   [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; } } } }
+  double2 dComplexMultiply(double2 a, double2 b) { return double2(a.x * b.x - a.y * b.y, a.x * b.y + b.x * a.y); }
+	
   float4 paletteBufferColor(float v) { return c32_f4(paletteBuffer[roundu(clamp(v * 255, 0, 255))]); }
+  float3 dFractal_Color(float2 p, float2 c)
+	{
+		uint i;
+		double2 dp = p;
+		for (i = 0; i < g.maxIterations && dlength2(dp) < 4; i++) dp = dComplexMultiply(dp, dp) + c;
+		return paletteBufferColor(i / (float)g.maxIterations).xyz;
+	}
+	
+  float3 dMandelbrot_Color(float2 p) { return dFractal_Color(f00, p); }
+  float3 dfractal_C(float2 p) { return dFractal_Color(g.julia_c, p); }
+  float3 dfractal_P(float2 p) { return dFractal_Color(p, p); }
+  float3 dJulia_Color(float2 p) { return dFractal_Color(p, g.julia_c); }
   float3 Fractal_Color(float2 p, float2 c)
 	{
 		uint i;
@@ -240,6 +259,39 @@
 			}
 		}
 	}
+  [numthreads(numthreads2, numthreads2, 1)] void dtraceRay(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (all(id.xy < g.screenSize))
+			{
+				float2 uv = (id.xy + 0.5f) / g.screenSize * 2 - 1;
+				TRay ray = CreateCameraRay(uv);
+				float3 pixColor;
+				TRayHit hit = Trace(ray);
+				if (hit.distance == fPosInf)
+				{
+					float phi = atan2(ray.direction.x, -ray.direction.z) * 0.5f, theta = acos(ray.direction.y);
+					float2 p = float2(phi, theta) * -rcp(PI) + 1;
+					int2 pixId = floori(p * g.skyboxSize);
+					uint pixI = id_to_i(pixId, g.skyboxSize);
+					pixColor = c32_f4(skyboxBuffer[pixI]).xyz;
+				}
+				else
+				{
+					float2 q = (ray.origin + ray.direction * hit.distance).xz * 0.01f;
+					if (g.fractalType == FractalType_Mandelbrot) pixColor = dMandelbrot_Color(q);
+					else if (g.fractalType == FractalType_Fractal_C) pixColor = dfractal_C(q);
+					else if (g.fractalType == FractalType_Fractal_P) pixColor = dfractal_P(q);
+					else pixColor = dJulia_Color(q);
+				}
+				pixColor /= 2;
+				pix_f3(id.xy, pixColor);
+				pixDepth_f(id.xy, hit.distance);
+			}
+		}
+	}
+  #pragma kernel dtraceRay
   #pragma kernel traceRay
   #pragma kernel BDraw_ABuff_GetIndexes
   #pragma kernel BDraw_ABuff_IncSums

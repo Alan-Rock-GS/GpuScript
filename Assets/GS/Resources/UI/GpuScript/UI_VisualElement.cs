@@ -579,15 +579,23 @@ namespace GpuScript
 			return 0;
 		}
 
-		public float convert() => convert(siUnit, usUnit);
 		public float iconvert(float v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
 		public float2 iconvert(float2 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
 		public float3 iconvert(float3 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
 		public float4 iconvert(float4 v) => usUnits && siUnit == siUnit.C ? C_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8f - 459.67f : v / (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+		public double diconvert(double v) => usUnits && siUnit == siUnit.C ? dC_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8 - 459.67 : v / (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
+		public double2 diconvert(double2 v) => usUnits && siUnit == siUnit.C ? dC_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8 - 459.67 : v / (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
+		public double3 diconvert(double3 v) => usUnits && siUnit == siUnit.C ? dC_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8 - 459.67 : v / (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
+		public double4 diconvert(double4 v) => usUnits && siUnit == siUnit.C ? dC_to_F(v) : usUnits && siUnit == siUnit.K ? v * 1.8 - 459.67 : v / (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
 		public float convert(float v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
 		public float2 convert(float2 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
 		public float3 convert(float3 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
 		public float4 convert(float4 v) => usUnits && siUnit == siUnit.C ? F_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67f) / 1.8f : v * (siUnits || usUnit == 0 ? 1 : convert(siUnit, usUnit));
+		public double dconvert() => dconvert(siUnit, usUnit);
+		public double dconvert(double v) => usUnits && siUnit == siUnit.C ? dF_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67) / 1.8 : v * (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
+		public double2 dconvert(double2 v) => usUnits && siUnit == siUnit.C ? dF_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67) / 1.8 : v * (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
+		public double3 dconvert(double3 v) => usUnits && siUnit == siUnit.C ? dF_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67) / 1.8 : v * (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
+		public double4 dconvert(double4 v) => usUnits && siUnit == siUnit.C ? dF_to_C(v) : usUnits && siUnit == siUnit.K ? (v + 459.67) / 1.8 : v * (siUnits || usUnit == 0 ? 1 : dconvert(siUnit, usUnit));
 		public static float convert(siUnit siUnit) => convert(siUnit, GetUnitConversion(siUnit));
 		public static float convert(siUnit siUnit, usUnit usUnit)
 		{
@@ -595,6 +603,55 @@ namespace GpuScript
 			switch (siUnit)
 			{
 				case siUnit.m: return u == usUnit.mi ? 0.000621371f : u == usUnit.yd ? 1.09361f : u == usUnit.ft ? 3.28084f : u == usUnit.inch ? 39.3701f : u == usUnit.mil ? 39370.1f : u == usUnit.microinch ? 39370100f : u == usUnit.angstrom ? 1e10f : u == usUnit.point ? 2845.27559055116f : u == usUnit.nmi ? 0.000539957f : u == usUnit.fathom ? 0.546807f : u == usUnit.ua ? 6.68459e-12f : u == usUnit.ly ? 1.057e-16f : u == usUnit.pc ? 3.24078e-17f : float.NaN;//length
+				case siUnit.km: case siUnit.cm: case siUnit.mm: case siUnit.um: case siUnit.nm: case siUnit.pm: return convert(siUnit.m, usUnit) / convert(siUnit.m, siUnit);
+				case siUnit.m2: return u == usUnit.mi2 ? 3.86102e-7f : u == usUnit.acre ? 0.000247105f : u == usUnit.yd2 ? 1.19599f : u == usUnit.ft2 ? 10.7639f : u == usUnit.in2 ? 1550f : float.NaN;//area ha=hectare
+				case siUnit.km2: case siUnit.ha: case siUnit.cm2: case siUnit.mm2: return convert(siUnit.m2, usUnit) / convert(siUnit.m2, siUnit);
+				case siUnit.m3: return u == usUnit.in3 ? 61023.7f : u == usUnit.ft3 ? 35.3147f : u == usUnit.yd3 ? 1.30795f : u == usUnit.acre_ft ? 0.000810714f : u == usUnit.bbl ? 6.28981f : u == usUnit.bu ? 28.3776f : u == usUnit.gal ? 264.172f : u == usUnit.qt ? 1056.69f : u == usUnit.pt ? 2113.38f : u == usUnit.cup ? 4226.75f : u == usUnit.tbsp ? 67628f : u == usUnit.tsp ? 202884f : u == usUnit.fl_oz ? 33814f : float.NaN;//Volume  bbl=oil-barrel, bu=bushel
+				case siUnit.cm3: case siUnit.mm3: case siUnit.l: case siUnit.ml: return convert(siUnit.m3, usUnit) / convert(siUnit.m3, siUnit);
+				case siUnit.mps: return u == usUnit.mph ? 2.23694f : u == usUnit.kn ? 1.94384f : u == usUnit.ftps ? 3.28084f : float.NaN;//speed: kn = knot
+				case siUnit.kph: case siUnit.kn: return convert(siUnit.mps, usUnit) / convert(siUnit.mps, siUnit);
+				case siUnit.mps2: return u == usUnit.ftps2 ? 3.28084f : u == usUnit.inps2 ? 39.3701f : float.NaN;//acceleration
+				case siUnit.m3ps: return u == usUnit.ft3ps ? 35.3147f : u == usUnit.ft3pmin ? 2118.88f : u == usUnit.yd3pmin ? 78.477f : u == usUnit.galpmin ? 15850.3f : u == usUnit.galpday ? 2.282e+7f : float.NaN;//flow rate
+				case siUnit.lps: case siUnit.lpd: return convert(siUnit.m3ps, usUnit) / convert(siUnit.m3ps, siUnit);
+				case siUnit.kmpl: return u == usUnit.mpg ? 2.35215f : float.NaN;//fuel efficiency
+				case siUnit.kg: return u == usUnit.ton ? 0.00110231f : u == usUnit.lb ? 2.20462f : u == usUnit.oz ? 35.274f : u == usUnit.grain ? 15432.4f : float.NaN;//weight
+				case siUnit.ton: case siUnit.g: case siUnit.mg: case siUnit.ug: return convert(siUnit.kg, usUnit) / convert(siUnit.kg, siUnit);
+				case siUnit.kg_m: return u == usUnit.lb_ft ? 7.2330138512099f : float.NaN;//moment of mass
+				case siUnit.kgpm3: return u == usUnit.tonpyd3 ? 0.000842777f : u == usUnit.lbpft3 ? 0.062428f : float.NaN; //density
+				case siUnit.Npm3: case siUnit.Tpm3: return convert(siUnit.kgpm3, usUnit) / convert(siUnit.kgpm3, siUnit);
+				case siUnit.gpL: return u == usUnit.lbpgal ? 0.0083454042651525f : u == usUnit.ozpgal ? 0.133526f : float.NaN;//concentration
+				case siUnit.kg_mps: return u == usUnit.lb_ftps ? 7.23301385f : float.NaN;//momentum
+				case siUnit.kg_m2: return u == usUnit.lb_ft2 ? 23.73036f : float.NaN;//moment of inertia
+				case siUnit.N: return u == usUnit.lbf ? 0.224809f : u == usUnit.poundal ? 7.23301f : float.NaN;//force
+				case siUnit.Nm: return u == usUnit.lbf_ft ? 0.737562f : u == usUnit.lbf_in ? 8.850745792f : float.NaN;//torque
+				case siUnit.kPa: return u == usUnit.psf ? 20.885434273039f : u == usUnit.torr ? 7.50062f : u == usUnit.psi ? 0.145038f : u == usUnit.atm ? 0.00986923f : u == usUnit.bar ? 0.01f : u == usUnit.mbar ? 10f : u == usUnit.ksi ? 0.0001450377f : float.NaN;//pressure
+				case siUnit.Pa: case siUnit.MPa: case siUnit.GPa: case siUnit.Npm2: return convert(siUnit.kPa, usUnit) / convert(siUnit.kPa, siUnit);
+				case siUnit.mPa_s: return u == usUnit.centipoise ? 1f : float.NaN;//viscosity (dynamic)
+				case siUnit.mm2ps: return u == usUnit.centistokes ? 1f : float.NaN;//Viscosity (kinematic)
+				case siUnit.kJ: return u == usUnit.kWh ? 0.00027777777777778f : u == usUnit.cal ? 238.8458966275f : u == usUnit.Cal ? 0.2388458966275f : u == usUnit.BTU ? 0.94708628903179f : u == usUnit.therm ? 9.4708628903179E-6f : u == usUnit.hph ? 0.0003725f : u == usUnit.ft_lbf ? 737.562f : float.NaN; //Energy, work, heat
+				case siUnit.J: case siUnit.MJ: return convert(siUnit.kJ, usUnit) / convert(siUnit.kJ, siUnit);
+				case siUnit.W: return u == usUnit.BTUps ? 0.000947817f : u == usUnit.BTUphr ? 3.412142f : u == usUnit.hp ? 0.00134102f : u == usUnit.ft_lbfps ? 0.737562149f : float.NaN;//Power
+				case siUnit.kW: return convert(siUnit.W, usUnit) / convert(siUnit.W, siUnit);
+				case siUnit.Wpm_K: return u == usUnit.BTU_inphr_ft2F ? 6.933471263f : float.NaN;//Thermal conductivity
+				case siUnit.Wpm2_K: return u == usUnit.BTUphrft2F ? 0.176110194f : float.NaN;//Coefficient of heat transfer
+				case siUnit.kJpK: return u == usUnit.BTUpF ? 0.526564938f : float.NaN;//Heat capacity
+				case siUnit.kJpkg_K: return u == usUnit.BTUplbF ? 0.238845897f : float.NaN;//Specific heat capacity 
+				case siUnit.Apm: return u == usUnit.oersted ? 0.012566371f : float.NaN;//Magnetic field strength
+				case siUnit.nWb: return u == usUnit.maxwell ? 0.1f : float.NaN;//Magnetic flux
+				case siUnit.mT: return u == usUnit.gauss ? 10f : float.NaN;//Magnetic flux density
+				case siUnit.Coulomb: return u == usUnit.Ah ? 0.000277778f : float.NaN;//Electric charge
+				case siUnit.cdpm2: return u == usUnit.lambert ? 0.000314159f : u == usUnit.cdpin2 ? 0.00064516f : float.NaN;//Luminance
+				case siUnit.lx: return u == usUnit.fc ? 0.092903044f : u == usUnit.phot ? 0.0001f : float.NaN;// Luminous exitance, Illuminance
+				case siUnit.MBq: return u == usUnit.Curie ? 2.7027E-05f : float.NaN;//Activity (of a radionuclide)
+			}
+			return float.NaN;
+		}
+		public static double dconvert(siUnit siUnit, usUnit usUnit)
+		{
+			var u = usUnit;
+			switch (siUnit)
+			{
+				case siUnit.m: return u == usUnit.mi ? 0.000621371192 : u == usUnit.yd ? 1.09361f : u == usUnit.ft ? 3.28084f : u == usUnit.inch ? 39.3701f : u == usUnit.mil ? 39370.1f : u == usUnit.microinch ? 39370100f : u == usUnit.angstrom ? 1e10f : u == usUnit.point ? 2845.27559055116f : u == usUnit.nmi ? 0.000539957f : u == usUnit.fathom ? 0.546807f : u == usUnit.ua ? 6.68459e-12f : u == usUnit.ly ? 1.057e-16f : u == usUnit.pc ? 3.24078e-17f : float.NaN;//length
 				case siUnit.km: case siUnit.cm: case siUnit.mm: case siUnit.um: case siUnit.nm: case siUnit.pm: return convert(siUnit.m, usUnit) / convert(siUnit.m, siUnit);
 				case siUnit.m2: return u == usUnit.mi2 ? 3.86102e-7f : u == usUnit.acre ? 0.000247105f : u == usUnit.yd2 ? 1.19599f : u == usUnit.ft2 ? 10.7639f : u == usUnit.in2 ? 1550f : float.NaN;//area ha=hectare
 				case siUnit.km2: case siUnit.ha: case siUnit.cm2: case siUnit.mm2: return convert(siUnit.m2, usUnit) / convert(siUnit.m2, siUnit);

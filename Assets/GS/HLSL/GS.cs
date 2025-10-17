@@ -28,6 +28,109 @@ namespace GpuScript
 {
 	public class GS : MonoBehaviour
 	{
+		//public static double dfloor(double v) { return v >= 0 || (double)(long)v == v ? (int)v : (int)v - 1; }
+		////public static double dfloor(double v) { return v >= 0 || (double)(int)v == v ? (int)v : (int)v - 1; }
+
+		public static double log(double v) => Math.Log(v);
+		public static double2 log(double2 v) => double2(log(v.x), log(v.y));
+		public static double3 log(double3 v) => double3(log(v.x), log(v.y), log(v.z));
+		public static double4 log(double4 v) => double4(log(v.x), log(v.y), log(v.z), log(v.w));
+		public static double ln(double v) { return log(v); }
+		public static double2 ln(double2 v) { return log(v); }
+		public static double3 ln(double3 v) { return log(v); }
+		public static double4 ln(double4 v) { return log(v); }
+
+		public static double exp(double v) => Math.Exp(v);
+		public static double2 exp(double2 v) => double2(exp(v.x), exp(v.y));
+		public static double3 exp(double3 v) => double3(exp(v.x), exp(v.y), exp(v.z));
+		public static double4 exp(double4 v) => double4(exp(v.x), exp(v.y), exp(v.z), exp(v.w));
+
+		public static uint dasuint(double v) => BitConverter.ToUInt32(BitConverter.GetBytes(v));
+		public static uint2 dasuint(double2 v) => uint2(dasuint(v.x), dasuint(v.y));
+		public static uint3 dasuint(double3 v) => uint3(dasuint(v.x), dasuint(v.y), dasuint(v.z));
+		public static uint4 dasuint(double4 v) => uint4(dasuint(v.x), dasuint(v.y), dasuint(v.z), dasuint(v.w));
+		public static bool disnan(double x) => (dasuint(x) & 0x7FFFFFFF) > 0x7F800000;
+		public static uint2 disnan(double2 x) => (dasuint(x) & 0x7FFFFFFF) > 0x7F800000;
+		public static uint3 disnan(double3 x) => (dasuint(x) & 0x7FFFFFFF) > 0x7F800000;
+		public static uint4 disnan(double4 x) => (dasuint(x) & 0x7FFFFFFF) > 0x7F800000;
+		//public static double dC_to_F(double temp_C) => temp_C * 1.8 + 32;
+		public static int droundi(double v, int nearest) => nearest == 0 || isnan(nearest) ? roundi(v) : roundi(v / nearest) * nearest;
+		public static uint droundu(double v, uint nearest) => nearest == 0 || isnan(nearest) ? roundu(v) : roundu(v / nearest) * nearest;
+		public static double dround(double v, double nearest) => nearest == 0 || disnan(nearest) ? v : dround(v / nearest) * nearest;
+		public static double dround(double v) => Math.Round(v);
+		public static double2 dround(double2 v) => double2(dround(v.x), dround(v.y));
+		public static double3 dround(double3 v) => double3(dround(v.x), dround(v.y), dround(v.z));
+		public static double4 dround(double4 v) => double4(dround(v.x), dround(v.y), dround(v.z), dround(v.w));
+		public static double2 dround(double2 v, double nearest) { return nearest == 0 || disnan(nearest) ? v : dround(v / nearest) * nearest; }
+		public static double3 dround(double3 v, double nearest) { return nearest == 0 || disnan(nearest) ? v : dround(v / nearest) * nearest; }
+		public static double4 dround(double4 v, double nearest) { return nearest == 0 || disnan(nearest) ? v : dround(v / nearest) * nearest; }
+		public static double2 dround(double2 v, double2 nearest) { return any(nearest == d00) || any(disnan(nearest)) ? v : dround(v / nearest) * nearest; }
+		public static double3 dround(double3 v, double3 nearest) { return any(nearest == d000) || any(disnan(nearest)) ? v : dround(v / nearest) * nearest; }
+		public static double4 dround(double4 v, double4 nearest) { return any(nearest == d0000) || any(disnan(nearest)) ? v : dround(v / nearest) * nearest; }
+		public static double floor(double v, double nearest) { return nearest == 0 || disnan(nearest) ? floor(v) : floor(v / nearest) * nearest; }
+		public static double2 floor(double2 v) => double2(floor(v.x), floor(v.y));
+		public static double3 floor(double3 v) => double3(floor(v.x), floor(v.y), floor(v.z));
+		public static double4 floor(double4 v) => double4(floor(v.x), floor(v.y), floor(v.z), floor(v.w));
+		//public static double dfloor(double v) => Math.Floor(v);
+		public static double dfloor(double v, double nearest) { return nearest == 0 || disnan(nearest) ? dfloor(v) : dfloor(v / nearest) * nearest; }
+		public static double2 dfloor(double2 v) => double2(dfloor(v.x), dfloor(v.y));
+		public static double3 dfloor(double3 v) => double3(dfloor(v.x), dfloor(v.y), dfloor(v.z));
+		public static double4 dfloor(double4 v) => double4(dfloor(v.x), dfloor(v.y), dfloor(v.z), dfloor(v.w));
+		//public double dfloor(double v, double nearest) { return nearest == 0 || disnan(nearest) ? dfloor(v) : dfloor(v / nearest) * nearest; }
+		//public double2 dfloor(double2 v) => double2(dfloor(v.x), dfloor(v.y));
+		//public double3 dfloor(double3 v) => double3(dfloor(v.x), dfloor(v.y), dfloor(v.z));
+		//public double4 dfloor(double4 v) => double4(dfloor(v.x), dfloor(v.y), dfloor(v.z), dfloor(v.w));
+
+
+		public static double dabs(double v) => v < 0 ? -v : v;
+		public static double2 dabs(double2 v) => double2(dabs(v.x), dabs(v.y));
+		public static double3 dabs(double3 v) => double3(dabs(v.x), dabs(v.y), dabs(v.z));
+		public static double4 dabs(double4 v) => double4(dabs(v.x), dabs(v.y), dabs(v.z), dabs(v.w));
+		public static double dpow(double x, double y) => Math.Pow(x, y);
+		public static double dlog2(double v) => Math.Log(v) / LN2;
+		public static double2 dlog2(double2 v) => double2(dlog2(v.x), dlog2(v.y));
+		public static double3 dlog2(double3 v) => double3(dlog2(v.x), dlog2(v.y), dlog2(v.z));
+		public static double4 dlog2(double4 v) => double4(dlog2(v.x), dlog2(v.y), dlog2(v.z), dlog2(v.w));
+		public static double dpow2(double v) => dpow(2, v);
+		public static double2 dpow2(double2 v) { return double2(dpow2(v.x), dpow2(v.y)); }
+		public static double3 dpow2(double3 v) { return double3(dpow2(v.x), dpow2(v.y), dpow2(v.z)); }
+		public static double4 dpow2(double4 v) { return double4(dpow2(v.x), dpow2(v.y), dpow2(v.z), dpow2(v.w)); }
+		public static double pow10(double v) => dpow(10, v);
+		public static double2 pow10(double2 v) { return double2(pow10(v.x), pow10(v.y)); }
+		public static double3 pow10(double3 v) { return double3(pow10(v.x), pow10(v.y), pow10(v.z)); }
+		public static double4 pow10(double4 v) { return double4(pow10(v.x), pow10(v.y), pow10(v.z), pow10(v.w)); }
+		public static double dpow10(double v) => dpow(10, v);
+		public static double2 dpow10(double2 v) { return double2(dpow10(v.x), dpow10(v.y)); }
+		public static double3 dpow10(double3 v) { return double3(dpow10(v.x), dpow10(v.y), dpow10(v.z)); }
+		public static double4 dpow10(double4 v) { return double4(dpow10(v.x), dpow10(v.y), dpow10(v.z), dpow10(v.w)); }
+		public static double log10(double v) => Math.Log10(v);
+		public static double2 log10(double2 v) => double2(log10(v.x), log10(v.y));
+		public static double3 log10(double3 v) => double3(log10(v.x), log10(v.y), log10(v.z));
+		public static double4 log10(double4 v) => double4(log10(v.x), log10(v.y), log10(v.z), log10(v.w));
+		public static double dlog10(double v) => Math.Log10(v);
+		public static double2 dlog10(double2 v) => double2(dlog10(v.x), dlog10(v.y));
+		public static double3 dlog10(double3 v) => double3(dlog10(v.x), dlog10(v.y), dlog10(v.z));
+		public static double4 dlog10(double4 v) => double4(dlog10(v.x), dlog10(v.y), dlog10(v.z), dlog10(v.w));
+		public static double dmin(double a, double b) => Math.Min(a, b);
+		public static double2 dmin(double2 a, double2 b) => double2(dmin(a.x, b.x), dmin(a.y, b.y));
+		public static double3 dmin(double3 a, double3 b) => double3(dmin(a.x, b.x), dmin(a.y, b.y), dmin(a.z, b.z));
+		public static double4 dmin(double4 a, double4 b) => double4(dmin(a.x, b.x), dmin(a.y, b.y), dmin(a.z, b.z), dmin(a.w, b.w));
+		public static double dmax(double a, double b) => Math.Max(a, b);
+		public static double2 dmax(double2 a, double2 b) => double2(dmax(a.x, b.x), dmax(a.y, b.y));
+		public static double3 dmax(double3 a, double3 b) => double3(dmax(a.x, b.x), dmax(a.y, b.y), dmax(a.z, b.z));
+		public static double3 dmax(double3 a, double b) => double3(dmax(a.x, b), dmax(a.y, b), dmax(a.z, b));
+		public static double4 dmax(double4 a, double4 b) => double4(dmax(a.x, b.x), dmax(a.y, b.y), dmax(a.z, b.z), dmax(a.w, b.w));
+		public static double dclamp(double v, double minV, double maxV) => dmin(dmax(v, minV), maxV);
+		public static double2 dclamp(double2 v, double2 minV, double2 maxV) => dmin(dmax(v, minV), maxV);
+		public static double3 dclamp(double3 v, double3 minV, double3 maxV) => dmin(dmax(v, minV), maxV);
+		public static double3 dclamp(double3 v, double minV, double maxV) => dmin(dmax(v, double3(minV, minV, minV)), double3(maxV, maxV, maxV));
+		public static double4 dclamp(double4 v, double4 minV, double4 maxV) => dmin(dmax(v, minV), maxV);
+		public static bool dany(double2 v) => v.x != 0 || v.y != 0;
+		public static bool dany(double3 v) => v.x != 0 || v.y != 0 || v.z != 0;
+		public static bool dany(double4 v) => v.x != 0 || v.y != 0 || v.z != 0 || v.w != 0;
+
+
+
 		//Interprets the bit pattern of x as a floating-point number.
 		public static float asfloat(int v) => BitConverter.ToSingle(BitConverter.GetBytes(v));
 		public static float2 asfloat(int2 v) => float2(asfloat(v.x), asfloat(v.y));
@@ -398,6 +501,10 @@ namespace GpuScript
 		public static float2 isinf(float2 x) => abs(x) == float.PositiveInfinity;
 		public static float3 isinf(float3 x) => abs(x) == float.PositiveInfinity;
 		public static float4 isinf(float4 x) => abs(x) == float.PositiveInfinity;
+		public static bool disinf(double x) => dabs(x) == double.PositiveInfinity;
+		public static double2 disinf(double2 x) => dabs(x) == double.PositiveInfinity;
+		public static double3 disinf(double3 x) => dabs(x) == double.PositiveInfinity;
+		public static double4 disinf(double4 x) => dabs(x) == double.PositiveInfinity;
 		//isnan - test whether or not a scalar or each vector component is not-a-number
 		public static bool isnan(float x) => (asuint(x) & 0x7FFFFFFF) > 0x7F800000;
 		public static uint2 isnan(float2 x) => (asuint(x) & 0x7FFFFFFF) > 0x7F800000;
@@ -610,7 +717,7 @@ namespace GpuScript
 		public uint reversebits(int v) => reversebits((uint)v);
 
 		//round - returns the rounded value of scalars or vectors
-		public static double round(double v) => Math.Round(v);
+		//public static double round(double v) => Math.Round(v);
 		public static float round(float v) => Mathf.Round(v);
 		public static float2 round(float2 v) => float2(round(v.x), round(v.y));
 		public static float3 round(float3 v) => float3(round(v.x), round(v.y), round(v.z));
@@ -870,6 +977,7 @@ namespace GpuScript
 		//public static float2 rotate_sc(float2 p, float s, float c) { return float2(c * p.x + s * p.y, c * p.y - s * p.x); }
 
 #endif //!gs_compute && !gs_shader  //region code in both compute shader and material shader
+
 
 		public static void swap(ref int a, ref int b) { a ^= b ^ (b = a); }
 		public static void swap(ref int2 a, ref int2 b) { a ^= b ^ (b = a); }
@@ -1162,6 +1270,8 @@ namespace GpuScript
 		public static float2 pow10(float2 v) { return float2(pow10(v.x), pow10(v.y)); }
 		public static float3 pow10(float3 v) { return float3(pow10(v.x), pow10(v.y), pow10(v.z)); }
 		public static float4 pow10(float4 v) { return float4(pow10(v.x), pow10(v.y), pow10(v.z), pow10(v.w)); }
+
+
 
 		public static int pow2(int v) { return 1 << v; }
 		public static int2 pow2(int2 v) { return int2(pow2(v.x), pow2(v.y)); }
@@ -1466,6 +1576,40 @@ namespace GpuScript
 		public static float3 degrees_180_180(float3 v) { return Convert_180_180(degrees(v)); }
 		public static float4 degrees_180_180(float4 v) { return Convert_180_180(degrees(v)); }
 
+		//public static double dfloor(double v) { return v >= 0 || (double)(long)v == v ? (int)v : (int)v - 1; }
+
+		//#if !gs_shader && !gs_compute
+#if !gs_compute
+		public static double dfloor(double v) { return v >= 0 || (double)(int)v == v ? (int)v : (int)v - 1; }
+		public static double dceil(double v) { return v >= 0 || (double)(int)v == v ? (int)v : (int)v + 1; }
+#elif !gs_shader
+    public static double dfloor(double v) { return v >= 0 || (double)(long)v == v ? (int)v : (int)v - 1; }
+		public static double dceil(double v) { return v >= 0 || (double)(long)v == v ? (int)v : (int)v + 1; }
+		//public virtual double dfloor(double v) { return v >= 0 || (double)(int)v == v ? (int)v : (int)v - 1; }
+#endif
+		public static double2 dceil(double2 v) { return double2(dceil(v.x), dceil(v.y)); }
+		public static double3 dceil(double3 v) { return double3(dceil(v.x), dceil(v.y), dceil(v.z)); }
+		public static double4 dceil(double4 v) { return double4(dceil(v.x), dceil(v.y), dceil(v.z), dceil(v.w)); }
+
+		public static int dceili(double v) { return (int)dceil(v); }
+		public static int2 dceili(double2 v) { return int2(dceil(v.x), dceil(v.y)); }
+		public static int3 dceili(double3 v) { return int3(dceil(v.x), dceil(v.y), dceil(v.z)); }
+		public static int4 dceili(double4 v) { return int4(dceil(v.x), dceil(v.y), dceil(v.z), dceil(v.w)); }
+		public static uint dceilu(double v) { return (uint)dceil(v); }
+		public static uint2 dceilu(double2 v) { return int2(dceil(v.x), dceil(v.y)); }
+		public static uint3 dceilu(double3 v) { return int3(dceil(v.x), dceil(v.y), dceil(v.z)); }
+		public static uint4 dceilu(double4 v) { return int4(dceil(v.x), dceil(v.y), dceil(v.z), dceil(v.w)); }
+
+		public static double ddot(double a, double b) { return a * b; }
+		public static double ddot(double2 a, double2 b) { return a.x * b.x + a.y * b.y; }
+		public static double ddot(double3 a, double3 b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+		public static double ddot(double4 a, double4 b) { return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w; }
+		public static double dlength2(double v) { return v * v; }
+		public static double dlength2(double2 v) { return ddot(v, v); }
+		public static double dlength2(double3 v) { return ddot(v, v); }
+		public static double dlength2(double4 v) { return ddot(v, v); }
+
+
 		public static double dsin(double t)
 		{
 			t = Convert_PI_PI(t);
@@ -1473,12 +1617,24 @@ namespace GpuScript
 			return t * (1 + t2 / 6.0 * (-1 + t2 / 20.0 * (1 + t2 / 42.0 * (-1 + t2 / 72.0 * (1 + t2 / 110.0 * (-1 + t2 / 156.0 * (1 - t2 / 210.0)))))));
 		}
 		public static double dcos(double x) { return dsin(x + dPIo2); }
+		//public static double dexp(double x)
+		//{
+		//	return 1 + x * (1 + x / 2 * (1 + x / 3 * (1 + x / 4 * (1 + x / 5 * (1 + x / 6 * (1 + x / 7 * (1 + x / 8 *
+		//		(1 + x / 9 * (1 + x / 10 * (1 + x / 11 * (1 + x / 12) * (1 + x / 13) * (1 + x / 14) * (1 + x / 15) *
+		//		(1 + x / 16) * (1 + x / 17) * (1 + x / 18) * (1 + x / 19)))))))))));
+		//}
+		public static double dpow_uint(double x, uint n) { double r = 1; for (double m = x; n > 0; m *= m, n /= 2) if ((n & 1) > 0) r *= m; return r; }
+		public static double dpow_int(double x, int n) { return n < 0 ? 1 / dpow_uint(x, (uint)-n) : dpow_uint(x, (uint)n); }
 		public static double dexp(double x)
 		{
-			return 1 + x * (1 + x / 2 * (1 + x / 3 * (1 + x / 4 * (1 + x / 5 * (1 + x / 6 * (1 + x / 7 * (1 + x / 8 *
+			uint m = dceilu(x * 8); //8 works for dexp(1) - dexp(10)
+			x /= m;
+			double e = 1 + x * (1 + x / 2 * (1 + x / 3 * (1 + x / 4 * (1 + x / 5 * (1 + x / 6 * (1 + x / 7 * (1 + x / 8 *
 				(1 + x / 9 * (1 + x / 10 * (1 + x / 11 * (1 + x / 12) * (1 + x / 13) * (1 + x / 14) * (1 + x / 15) *
 				(1 + x / 16) * (1 + x / 17) * (1 + x / 18) * (1 + x / 19)))))))))));
+			return dpow_uint(e, m);
 		}
+
 		//public static double dexp(double x)
 		//{
 		//	return 1 + x * (1 + x / 2 * (1 + x / 3 * (1 + x / 4 * (1 + x / 5 * (1 + x / 6 * (1 + x / 7 * (1 + x / 8 *
@@ -1657,6 +1813,16 @@ namespace GpuScript
 		public static float3 F_to_C(float3 temp_F) { return (temp_F - 32) / 1.8f; }
 		public static float4 C_to_F(float4 temp_C) { return temp_C * 1.8f + 32; }
 		public static float4 F_to_C(float4 temp_F) { return (temp_F - 32) / 1.8f; }
+
+		public static double dC_to_F(double temp_C) { return temp_C * 1.8 + 32; }
+		public static double dF_to_C(double temp_F) { return (temp_F - 32) / 1.8; }
+		public static double2 dC_to_F(double2 temp_C) { return temp_C * 1.8 + 32; }
+		public static double2 dF_to_C(double2 temp_F) { return (temp_F - 32) / 1.8; }
+		public static double3 dC_to_F(double3 temp_C) { return temp_C * 1.8 + 32; }
+		public static double3 dF_to_C(double3 temp_F) { return (temp_F - 32) / 1.8; }
+		public static double4 dC_to_F(double4 temp_C) { return temp_C * 1.8 + 32; }
+		public static double4 dF_to_C(double4 temp_F) { return (temp_F - 32) / 1.8; }
+
 		public static float Temp_F_to_SoundSpeed_fps(float temp_F) { return 1.132550336f * temp_F + 1051; }
 		public static float Temp_C_to_SoundSpeed_mps(float temp_C) { return Temp_F_to_SoundSpeed_fps(C_to_F(temp_C)) * 0.3048f; }
 		public static float SoundSpeed_fps_to_AirTemp_F(float speed_fps) { return (speed_fps - 1051) / 1.132550336f; }
@@ -3901,8 +4067,8 @@ namespace GpuScript
 		public float4 u_f4(uint v) => c32_f4(u_c32(v));
 		public uint f4_u(float4 c) => c32_u(f4_c32(c));
 
-		public static int roundi(double v) => (int)round(v);
-		public static uint roundu(double v) => (uint)round(v);
+		public static int roundi(double v) => (int)dround(v);
+		public static uint roundu(double v) => (uint)dround(v);
 
 		public static float distance2(Vector3 a, Vector3 b) { float3 v = a - b; return dot(v, v); }
 		public static double distance2(double a, double b) => sqr(a - b);
@@ -5084,7 +5250,7 @@ namespace GpuScript
 			bool camUpdated = false;
 			if (webCam && webCam.didUpdateThisFrame)// && plane != null)
 			{
-				foreach(var plane in planes)
+				foreach (var plane in planes)
 				{
 					var sharedMaterial = plane?.GetComponent<Renderer>()?.sharedMaterial;
 					if (sharedMaterial) sharedMaterial.mainTexture = webCam;
