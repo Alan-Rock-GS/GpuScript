@@ -1533,10 +1533,14 @@ namespace GpuScript
 		public static float3 lerp(float2 range, float3 w) { return lerp(range.x, range.y, w); }
 		public static float4 lerp(float2 range, float4 w) { return lerp(range.x, range.y, w); }
 
+		public static float2 xO(float x) { return float2(x, 0); }
+		public static float2 Oy(float y) { return float2(0, y); }
+
 		public static float3 xOO(float x) { return float3(x, 0, 0); }
-		public static float3 OxO(float x) { return float3(0, x, 0); }
-		public static float3 OOx(float x) { return float3(0, 0, x); }
+		public static float3 OyO(float y) { return float3(0, y, 0); }
+		public static float3 OOz(float z) { return float3(0, 0, z); }
 		public static float3 xyO(float x, float y) { return float3(x, y, 0); }
+		public static float3 Oyz(float y, float z) { return float3(0, y, z); }
 		public static float3 OOx(float2 p) { return float3(0, 0, p.x); }
 		public static float3 xyO(float2 p) { return float3(p, 0); }
 		public static float3 xOy(float2 p) { return float3(p.x, 0, p.y); }

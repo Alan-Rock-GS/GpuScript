@@ -36,11 +36,13 @@
   #define PaletteType_Heat	4
   #define PaletteType_GradientHeat	5
   #define PaletteType_WhiteRainbow	6
-  #define PaletteType_invRainbow	7
-  #define PaletteType_Green	8
-  #define PaletteType_Gray	9
-  #define PaletteType_DarkGray	10
-  #define PaletteType_CT	11
+  #define PaletteType_BlackRainbow	7
+  #define PaletteType_BlackRainbowLines	8
+  #define PaletteType_invRainbow	9
+  #define PaletteType_Green	10
+  #define PaletteType_Gray	11
+  #define PaletteType_DarkGray	12
+  #define PaletteType_CT	13
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48

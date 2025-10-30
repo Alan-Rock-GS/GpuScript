@@ -273,22 +273,25 @@ namespace GpuScript
       if (size > 0) computeBuffer = new ComputeBuffer((int)GS.max(1, N), size, computeBufferType);
       return this;
     }
-    public bool inGetData, inSetData, isThreadReading;
-    public static implicit operator ComputeBuffer(RWStructuredBuffer<T> a) => a.computeBuffer;
-    public void TransferData() { if (GS.useGpGpu && computeBuffer != null) { while (isThreadReading) { } inGetData = true; computeBuffer.GetData(_Data, 0, 0, 1); inGetData = false; } }
-    public void GetGpu() { if (gpuWrite) { GetData(); gpuWrite = false; } }
+		//public bool inGetData, inSetData, isThreadReading;
+		public static implicit operator ComputeBuffer(RWStructuredBuffer<T> a) => a.computeBuffer;
+		//public void TransferData() { if (GS.useGpGpu && computeBuffer != null) { while (isThreadReading) { } inGetData = true; computeBuffer.GetData(_Data, 0, 0, 1); inGetData = false; } }
+		public void TransferData() { if (GS.useGpGpu && computeBuffer != null) { computeBuffer.GetData(_Data, 0, 0, 1); } }
+		public void GetGpu() { if (gpuWrite) { GetData(); gpuWrite = false; } }
     public void SetCpu() { if (cpuWrite) { SetData(); cpuWrite = false; } }
     public void ResetWrite() { cpuWrite = false; gpuWrite = true; }
-    public void GetData() { if (computeBuffer != null) { AllocData(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(_Data); inGetData = false; } }
-    public void SetData()
+		//public void GetData() { if (computeBuffer != null) { AllocData(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(_Data); inGetData = false; } }
+		public void GetData() { if (computeBuffer != null) { AllocData(); computeBuffer.GetData(_Data); } }
+		//public void CpuGetData() { if (computeBuffer != null) { AllocData(); while (isThreadReading) { } inGetData = true; computeBuffer.GetData(_Data); inGetData = false; } }
+		public void SetData()
     {
       if (computeBuffer != null && GS.useGpGpu)
       {
         AllocData();
-        while (isThreadReading) { }
-        inSetData = true;
+        //while (isThreadReading) { }
+        //inSetData = true;
         try { computeBuffer.SetData(_Data); } catch (Exception e) { GS.print($"SetData() {e.ToString()}"); }
-        inSetData = false;
+        //inSetData = false;
       }
     }
     public void SetData(T[] a) { _Data = a; N = (uint)a.Length; reallocated = true; SetData(); }

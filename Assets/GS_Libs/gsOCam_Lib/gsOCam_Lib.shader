@@ -44,9 +44,10 @@ Shader "gs/gsOCam_Lib"
   #define ProjectionMode_Perspective	1
   #define ProjectionMode_Orthographic	2
   #define PlotBackground_White	0
-  #define PlotBackground_Default_Sky	1
-  #define PlotBackground_WebCam_Front	2
-  #define PlotBackground_WebCam_Back	3
+  #define PlotBackground_Black	1
+  #define PlotBackground_Default_Sky	2
+  #define PlotBackground_WebCam_Front	3
+  #define PlotBackground_WebCam_Back	4
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -54,11 +55,13 @@ Shader "gs/gsOCam_Lib"
   #define PaletteType_Heat	4
   #define PaletteType_GradientHeat	5
   #define PaletteType_WhiteRainbow	6
-  #define PaletteType_invRainbow	7
-  #define PaletteType_Green	8
-  #define PaletteType_Gray	9
-  #define PaletteType_DarkGray	10
-  #define PaletteType_CT	11
+  #define PaletteType_BlackRainbow	7
+  #define PaletteType_BlackRainbowLines	8
+  #define PaletteType_invRainbow	9
+  #define PaletteType_Green	10
+  #define PaletteType_Gray	11
+  #define PaletteType_DarkGray	12
+  #define PaletteType_CT	13
   #define BDraw_LF 10
   #define BDraw_TB 9
   #define BDraw_ZERO 48

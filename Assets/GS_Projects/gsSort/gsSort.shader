@@ -63,6 +63,7 @@ Shader "gs/gsSort"
   struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
   RWStructuredBuffer<GSort> gSort;
   RWStructuredBuffer<float> vs;
+  RWStructuredBuffer<int> ivs;
   RWStructuredBuffer<uint> counts, sorts, BDraw_tab_delimeted_text, BDraw_ABuff_Bits, BDraw_ABuff_Sums, BDraw_ABuff_Indexes, BDraw_ABuff_Fills1, BDraw_ABuff_Fills2;
   RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;

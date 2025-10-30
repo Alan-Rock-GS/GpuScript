@@ -73,14 +73,25 @@ namespace GpuScript
 		public static float3 P(this GameObject o) => o.transform.position;
 		//public static float3 P(this GameObject o, float3 p) => o.transform.position = p;
 		public static GameObject P(this GameObject o, float3 p) { o.transform.position = p; return o; }
-		public static float3 localP(this GameObject o) => o.transform.localPosition;
-		public static float3 localP(this GameObject o, float3 p) => o.transform.localPosition = p;
-		public static float3 Angles(this GameObject o) => o.transform.eulerAngles;
-		public static void Angles(this GameObject o, float3 a) => o.transform.eulerAngles = a;
-		public static void Angles(this GameObject o, float x, float y, float z) => o.Angles(float3(x, y, z));
-		public static float3 localAngles(this GameObject o) => o.transform.localEulerAngles;
-		public static void localAngles(this GameObject o, float3 a) => o.transform.localEulerAngles = a;
-		public static void localAngles(this GameObject o, float x, float y, float z) => o.localAngles(float3(x, y, z));
+		public static GameObject P(this GameObject o, float x, float y, float z) => o.P(float3(x, y, z));
+		public static float3 lP(this GameObject o) => o.transform.localPosition;
+		public static float3 lP(this GameObject o, float3 p) => o.transform.localPosition = p;
+		public static float3 R(this GameObject o) => o.transform.eulerAngles;
+		public static GameObject R(this GameObject o, float3 a) { o.transform.eulerAngles = a; return o; }
+		public static GameObject R(this GameObject o, float x, float y, float z) => o.R(float3(x, y, z));
+		public static float3 lR(this GameObject o) => o.transform.localEulerAngles;
+		public static GameObject lR(this GameObject o, float3 a) { o.transform.localEulerAngles = a; return o; }
+		public static GameObject lR(this GameObject o, float x, float y, float z) => o.lR(float3(x, y, z));
+
+
+		//public static float3 localP(this GameObject o) => o.transform.localPosition;
+		//public static float3 localP(this GameObject o, float3 p) => o.transform.localPosition = p;
+		//public static float3 Angles(this GameObject o) => o.transform.eulerAngles;
+		//public static void Angles(this GameObject o, float3 a) => o.transform.eulerAngles = a;
+		//public static void Angles(this GameObject o, float x, float y, float z) => o.Angles(float3(x, y, z));
+		//public static float3 localAngles(this GameObject o) => o.transform.localEulerAngles;
+		//public static void localAngles(this GameObject o, float3 a) => o.transform.localEulerAngles = a;
+		//public static void localAngles(this GameObject o, float x, float y, float z) => o.localAngles(float3(x, y, z));
 
 		public static Type ToType(this string typeStr)
 		{
