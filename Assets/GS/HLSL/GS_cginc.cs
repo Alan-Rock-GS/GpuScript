@@ -858,6 +858,7 @@ namespace GpuScript
 		public static int InterlockedExchange(int[] a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
 		public static uint InterlockedExchange(uint[] a, uint I, uint v) { uint aI = a[I]; a[I] = v; return aI; }
 		public static float InterlockedExchange(float[] a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
+		public static void InterlockedMax(long[] a, uint I, long v) { long aI = a[I]; if (aI < v) a[I] = v; }
 		public static void InterlockedMax(int[] a, uint I, int v) { int aI = a[I]; if (aI < v) a[I] = v; }
 		public static void InterlockedMax(uint[] a, uint I, uint v) { uint aI = a[I]; if (aI < v) a[I] = v; }
 		public static void InterlockedMax(uint[] a, uint I, bool v) { uint aI = a[I]; if (aI < Is(v)) a[I] = Is(v); }
@@ -965,6 +966,13 @@ namespace GpuScript
 
 		//#if !gs_shader && !gs_compute
 #if !gs_shader
+		public static long InterlockedCompareExchange(RWStructuredBuffer<long> a, uint I, long compare_v, long v)
+		{
+			long aI = a[I];
+			if (aI == compare_v)
+				a[I] = v;
+			return aI;
+		}
 		public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v) { if (v != 1) for (int x = a[I]; InterlockedCompareExchange(a, I, x, x * v) != x;) x = a[I]; }
 		public static void InterlockedMultiply(RWStructuredBuffer<uint> a, uint I, uint v) { if (v != 1) for (uint x = a[I]; InterlockedCompareExchange(a, I, x, x * v) != x;) x = a[I]; }
 		//public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v) { int x; if (v != 1) do x = a[I]; while (InterlockedCompareExchange(a, I, x, x * v) != x); }

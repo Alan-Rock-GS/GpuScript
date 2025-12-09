@@ -1,0 +1,275 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define DrawGroup_None	0
+  #define DrawGroup_Average	1
+  #define DrawGroup_PI_Area	2
+  #define DrawGroup_PI_Integral	3
+  #define DrawGroup_TSP	4
+  #define UInts_Count	0
+  #define UInts_MinPathLength	1
+  #define UInts_MinPathI	2
+  #define UInts_N	3
+  #define BDraw_Draw_Point	0
+  #define BDraw_Draw_Sphere	1
+  #define BDraw_Draw_Line	2
+  #define BDraw_Draw_Arrow	3
+  #define BDraw_Draw_Signal	4
+  #define BDraw_Draw_LineSegment	5
+  #define BDraw_Draw_Texture_2D	6
+  #define BDraw_Draw_Quad	7
+  #define BDraw_Draw_WebCam	8
+  #define BDraw_Draw_Mesh	9
+  #define BDraw_Draw_Number	10
+  #define BDraw_Draw_Text3D	11
+  #define BDraw_Draw_N	12
+  #define BDraw_TextAlignment_BottomLeft	0
+  #define BDraw_TextAlignment_CenterLeft	1
+  #define BDraw_TextAlignment_TopLeft	2
+  #define BDraw_TextAlignment_BottomCenter	3
+  #define BDraw_TextAlignment_CenterCenter	4
+  #define BDraw_TextAlignment_TopCenter	5
+  #define BDraw_TextAlignment_BottomRight	6
+  #define BDraw_TextAlignment_CenterRight	7
+  #define BDraw_TextAlignment_TopRight	8
+  #define BDraw_Text_QuadType_FrontOnly	0
+  #define BDraw_Text_QuadType_FrontBack	1
+  #define BDraw_Text_QuadType_Switch	2
+  #define BDraw_Text_QuadType_Arrow	3
+  #define BDraw_Text_QuadType_Billboard	4
+  #define BDraw_LF 10
+  #define BDraw_TB 9
+  #define BDraw_ZERO 48
+  #define BDraw_NINE 57
+  #define BDraw_PERIOD 46
+  #define BDraw_COMMA 44
+  #define BDraw_PLUS 43
+  #define BDraw_MINUS 45
+  #define BDraw_SPACE 32
+  #define g gRand_Doc[0]
+  #pragma use_dxc
+  struct GRand_Doc
+  {
+    uint pntN, starN, starPathN, drawGroup, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
+    float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, Area_PI_Val, Area_PI_Error, Area_PI_Runtime, Area_PI_TFlops, Integral_PI_Val, Integral_PI_Error, Integral_PI_Runtime, Integral_PI_TFlops, starBorderReward, BDraw_fontSize, BDraw_boxThickness;
+    float4 BDraw_boxColor;
+    uint4 Rand_seed4;
+  };
+  struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  groupshared uint4 Rand_grp[1024];
+  groupshared uint BDraw_ABuff_grp[1024];
+  groupshared uint BDraw_ABuff_grp0[1024];
+  RWStructuredBuffer<GRand_Doc> gRand_Doc;
+  RWStructuredBuffer<float3> stars;
+  RWStructuredBuffer<int3> segments;
+  RWStructuredBuffer<uint> starPaths, pathLengths, uints, BDraw_tab_delimeted_text, BDraw_ABuff_Bits, BDraw_ABuff_Sums, BDraw_ABuff_Indexes, BDraw_ABuff_Fills1, BDraw_ABuff_Fills2;
+  RWStructuredBuffer<int> ints;
+  RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
+  RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
+  RWStructuredBuffer<uint4> Rand_rs;
+  [numthreads(numthreads1, 1, 1)] void init_path_lengths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { pathLengths[id.x] = 0; } } }
+  [numthreads(numthreads1, 1, 1)] void find_min_path_lengthI(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { uint i = id.x, len = uints[UInts_MinPathLength]; if (pathLengths[i] == len && len < pathLengths[0]) { uints[UInts_MinPathI] = i; uints[UInts_Count] = 0; } } } }
+  [numthreads(numthreads1, 1, 1)] void find_min_path_length(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { InterlockedMin(uints, UInts_MinPathLength, pathLengths[id.x]); } } }
+  [numthreads(numthreads1, 1, 1)] void init_min_path_length(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 2) { uints[id.x + 1] = id.x == 0 ? uint_max : 0; } } }
+  [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Sums[i] += BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.BDraw_ABuff_BitN - 1) g.BDraw_ABuff_IndexN = BDraw_ABuff_Sums[i]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Fills1[i] += BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN2 - 1 ? BDraw_ABuff_Fills1[j] : i < g.BDraw_ABuff_BitN2 ? BDraw_ABuff_Fills1[g.BDraw_ABuff_BitN1 - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN2) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN2) BDraw_ABuff_Fills2[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN1 - 1 ? BDraw_ABuff_Sums[j] : i < g.BDraw_ABuff_BitN1 ? BDraw_ABuff_Sums[g.BDraw_ABuff_BitN - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN1) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN1) BDraw_ABuff_Fills1[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c = i < g.BDraw_ABuff_BitN ? countbits(BDraw_ABuff_Bits[i]) : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void calc_reverse_or_transport(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { } } }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  void starPath(uint pathI, uint starI, uint v) { starPaths[(pathI + 1) * g.starN + (starI % g.starN)] = v; }
+  uint bestPath(uint starI) { return starPaths[starI % g.starN]; }
+  void bestPath(uint starI, uint v) { starPaths[starI % g.starN] = v; }
+  [numthreads(numthreads2, numthreads2, 1)] void init_paths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.starPathN && id.x < g.starN) { uint pI = id.y, cI = id.x; if (pI == 0) bestPath(cI, cI); else starPath(pI, cI, uint_max); } } }
+  uint starPath(uint pathI, uint starI) { return starPaths[(pathI + 1) * g.starN + (starI % g.starN)]; }
+  [numthreads(numthreads1, 1, 1)] void save_best_path(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { uint starI = id.x; bestPath(starI, starPath(uints[UInts_MinPathI] - 1, starI)); } } }
+  BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
+  void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
+  [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
+  uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
+  uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
+  bool IsInPath(uint i, uint a, uint b) { a %= g.starN; b %= g.starN; if (i < a) i += g.starN; if (b < a) b += g.starN; return i >= a && i <= b; }
+  uint ReversePath(uint starI, uint a, uint b) { return IsInPath(starI, a, b) ? (b - (starI - a) + g.starN) % g.starN : starI; }
+  uint TransferPath(uint starJ, uint a, uint c) { return starJ + c - a; }
+  uint InsertPath(uint starJ, uint a, uint b, uint c) { uint d = c + b - a; return starJ + (starJ >= c % g.starN ? b - a + 1 : d % g.starN <= b - a ? (d + 1) % g.starN : 0); }
+  uint RemovePath(uint starJ, uint a, uint b) { return starJ - (starJ > b % g.starN ? b >= g.starN ? ((b + 1) % g.starN) : b - a + 1 : 0); }
+  uint MovePath(uint starI, uint a, uint b, uint c) { return IsInPath(starI, a, b) ? TransferPath(starI, a, c) : InsertPath(RemovePath(starI, a, b), a, b, c); }
+  [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.y < g.starPathN - 1 && id.x < g.starN)
+		  {
+		    uint pathI = id.y, starI = id.x;
+		    int3 seg = segments[pathI];
+		    uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z;
+		    uint starJ = seg.z == -1 ? ReversePath(starI, a, b) : MovePath(starI, a, b, c);
+		    starPath(pathI, starJ, bestPath(starI));
+		  }
+		}
+	}
+  float u2f(uint u) { return u * 1e-5f; }
+  uint f2u(float f) { return roundu(f / u2f(1)); }
+  [numthreads(numthreads2, numthreads2, 1)] void calc_path_lengths(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.y < g.starPathN && id.x < g.starN)
+		  {
+		    uint starI = id.x, pathI = id.y, starJ = (starI + 1) % g.starN;
+		    uint aI = starPath(pathI - 1, starI), bI = starPath(pathI - 1, starJ);
+		    float3 a = stars[aI], b = stars[bI];
+		    InterlockedAdd(pathLengths, pathI, f2u(max(0, distance(a, b) - g.starBorderReward * Is(a.x * b.x < 0))));
+		  }
+		}
+	}
+  float i2f(int i) { return i * 1e-6f; }
+  int f2i(float f) { return roundi(f / i2f(1)); }
+  bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
+  uint BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_ABuff_N && BDraw_ABuff_IsBitOn(i)) << (int)j); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c, s, j, k, bits = 0;
+    if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; } } } }
+  uint Rand_UV(uint4 r) { return cxor(r); }
+  float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
+  uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
+  uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
+  uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
+  uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
+  float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
+  [numthreads(numthreads1, 1, 1)] void Calc_Integral_PI(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { InterlockedAdd(ints, 0, f2i(sqrt(1 - sqr(Rand_Float(id.x))) - PIo4)); } } }
+  [numthreads(numthreads1, 1, 1)] void Count_Pnts_out_of_Circle(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { uint j = id.x << 1; if (distance(2 * float2(Rand_Float(j), Rand_Float(j + 1)), f11) > 1) InterlockedAdd(uints, 0, 1); } } }
+  [numthreads(numthreads1, 1, 1)] void Count_Pnts_in_Circle(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { uint i = id.x << 1; if (distance(2 * float2(Rand_Float(i), Rand_Float(i + 1)), f11) < 1) InterlockedAdd(uints, UInts_Count, 1); } } }
+  float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
+  [numthreads(numthreads1, 1, 1)] void Calc_Average(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { InterlockedAdd(ints, 0, f2i(Rand_Float(id.x, -1, 1))); } } }
+  uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
+  [numthreads(numthreads1, 1, 1)] void calc_segments(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.starPathN)
+		  {
+		    uint i = id.x, j = i * 4, a = Rand_UInt(j + 1, 0, g.starN), b = a + 1 + Rand_UInt(j + 2, 0, g.starN - 1);
+		    bool isReverse = Rand_Float(j) < 0.5f;
+		    int c = isReverse ? -1 : (int)(b + 1 + Rand_UInt(j + 3, 0, g.starN - (b - a)));
+		    segments[i] = int3(a, b, c);
+		  }
+		}
+	}
+  [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
+  [numthreads(numthreads1, 1, 1)] void init_stars(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starN) { uint i = id.x, j = i * 3; stars[i] = float3(Rand_Float(j, -1, 1), Rand_Float(j + 1, -1, 1), Rand_Float(j + 2, -1, 1)); } } }
+  #pragma kernel init_stars
+  #pragma kernel calc_paths
+  #pragma kernel init_paths
+  #pragma kernel calc_segments
+  #pragma kernel calc_path_lengths
+  #pragma kernel init_path_lengths
+  #pragma kernel find_min_path_lengthI
+  #pragma kernel find_min_path_length
+  #pragma kernel init_min_path_length
+  #pragma kernel save_best_path
+  #pragma kernel Calc_Integral_PI
+  #pragma kernel Count_Pnts_out_of_Circle
+  #pragma kernel Count_Pnts_in_Circle
+  #pragma kernel Calc_Average
+  #pragma kernel Rand_initState
+  #pragma kernel Rand_initSeed
+  #pragma kernel BDraw_ABuff_GetIndexes
+  #pragma kernel BDraw_ABuff_IncSums
+  #pragma kernel BDraw_ABuff_IncFills1
+  #pragma kernel BDraw_ABuff_GetFills2
+  #pragma kernel BDraw_ABuff_GetFills1
+  #pragma kernel BDraw_ABuff_Get_Bits_Sums
+  #pragma kernel BDraw_ABuff_GetSums
+  #pragma kernel BDraw_ABuff_Get_Bits
+  #pragma kernel BDraw_setDefaultTextInfo
+  #pragma kernel BDraw_getTextInfo
+  #pragma kernel calc_reverse_or_transport
+  #pragma kernel Rand_grp_init_1M
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_fill_1K

@@ -1,0 +1,399 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define VGrid_Lib_BDraw_Draw_Point	0
+  #define VGrid_Lib_BDraw_Draw_Sphere	1
+  #define VGrid_Lib_BDraw_Draw_Line	2
+  #define VGrid_Lib_BDraw_Draw_Arrow	3
+  #define VGrid_Lib_BDraw_Draw_Signal	4
+  #define VGrid_Lib_BDraw_Draw_LineSegment	5
+  #define VGrid_Lib_BDraw_Draw_Texture_2D	6
+  #define VGrid_Lib_BDraw_Draw_Quad	7
+  #define VGrid_Lib_BDraw_Draw_WebCam	8
+  #define VGrid_Lib_BDraw_Draw_Mesh	9
+  #define VGrid_Lib_BDraw_Draw_Number	10
+  #define VGrid_Lib_BDraw_Draw_Text3D	11
+  #define VGrid_Lib_BDraw_Draw_N	12
+  #define VGrid_Lib_BDraw_TextAlignment_BottomLeft	0
+  #define VGrid_Lib_BDraw_TextAlignment_CenterLeft	1
+  #define VGrid_Lib_BDraw_TextAlignment_TopLeft	2
+  #define VGrid_Lib_BDraw_TextAlignment_BottomCenter	3
+  #define VGrid_Lib_BDraw_TextAlignment_CenterCenter	4
+  #define VGrid_Lib_BDraw_TextAlignment_TopCenter	5
+  #define VGrid_Lib_BDraw_TextAlignment_BottomRight	6
+  #define VGrid_Lib_BDraw_TextAlignment_CenterRight	7
+  #define VGrid_Lib_BDraw_TextAlignment_TopRight	8
+  #define VGrid_Lib_BDraw_Text_QuadType_FrontOnly	0
+  #define VGrid_Lib_BDraw_Text_QuadType_FrontBack	1
+  #define VGrid_Lib_BDraw_Text_QuadType_Switch	2
+  #define VGrid_Lib_BDraw_Text_QuadType_Arrow	3
+  #define VGrid_Lib_BDraw_Text_QuadType_Billboard	4
+  #define VGrid_Lib_PaletteType_Rainbow	0
+  #define VGrid_Lib_PaletteType_GradientRainbow	1
+  #define VGrid_Lib_PaletteType_GradientRainbow10	2
+  #define VGrid_Lib_PaletteType_GradientRainbow20	3
+  #define VGrid_Lib_PaletteType_Heat	4
+  #define VGrid_Lib_PaletteType_GradientHeat	5
+  #define VGrid_Lib_PaletteType_WhiteRainbow	6
+  #define VGrid_Lib_PaletteType_invRainbow	7
+  #define VGrid_Lib_PaletteType_Green	8
+  #define VGrid_Lib_PaletteType_Gray	9
+  #define VGrid_Lib_PaletteType_DarkGray	10
+  #define VGrid_Lib_PaletteType_CT	11
+  #define Views_Lib_ProjectionMode_Automatic	0
+  #define Views_Lib_ProjectionMode_Perspective	1
+  #define Views_Lib_ProjectionMode_Orthographic	2
+  #define VGrid_Lib_BDraw_LF 10
+  #define VGrid_Lib_BDraw_TB 9
+  #define VGrid_Lib_BDraw_ZERO 48
+  #define VGrid_Lib_BDraw_NINE 57
+  #define VGrid_Lib_BDraw_PERIOD 46
+  #define VGrid_Lib_BDraw_COMMA 44
+  #define VGrid_Lib_BDraw_PLUS 43
+  #define VGrid_Lib_BDraw_MINUS 45
+  #define VGrid_Lib_BDraw_SPACE 32
+  #define g gVGrid_CT[0]
+  #pragma use_dxc
+  struct GVGrid_CT
+  {
+    uint3 CT_bufferSize, CT_N, VGrid_Lib_nodeN;
+    uint2 CT_textureSize, VGrid_Lib_viewSize;
+    uint CT_pixBytesSize, CT_textureI, VGrid_Lib_BDraw_ABuff_IndexN, VGrid_Lib_BDraw_ABuff_BitN, VGrid_Lib_BDraw_ABuff_N, VGrid_Lib_BDraw_ABuff_BitN1, VGrid_Lib_BDraw_ABuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
+    float VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
+    float4 VGrid_Lib_BDraw_boxColor;
+    float2 VGrid_Lib_GridX, VGrid_Lib_GridY, VGrid_Lib_GridZ, VGrid_Lib_textSize, VGrid_Lib_paletteRange, VGrid_Lib_meshRange;
+    float3 VGrid_Lib_axesRangeMin, VGrid_Lib_axesRangeMax, VGrid_Lib_axesRangeMin1, VGrid_Lib_axesRangeMax1, VGrid_Lib_axesRangeMin2, VGrid_Lib_axesRangeMax2, VGrid_Lib_axesColor, VGrid_Lib_slices, VGrid_Lib_sliceRotation;
+    uint4 VGrid_Lib_viewRect;
+    Matrix4x4 VGrid_Lib_camToWorld, VGrid_Lib_cameraInvProjection;
+  };
+  struct VGrid_Lib_BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct VGrid_Lib_BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  struct VGrid_Lib_TRay { float3 origin, direction; float4 color; float dist; };
+  struct Views_Lib_CamView { string viewName; float3 viewCenter; float viewDist; float2 viewTiltSpin; uint viewProjection; uint view_twoSided; float view_meshVal; float2 view_meshRange; };
+  groupshared uint VGrid_Lib_BDraw_ABuff_grp[1024];
+  groupshared uint VGrid_Lib_BDraw_ABuff_grp0[1024];
+  RWStructuredBuffer<GVGrid_CT> gVGrid_CT;
+  RWStructuredBuffer<uint> CT_pixBytes, CT_imageTexture, VGrid_Lib_BDraw_tab_delimeted_text, VGrid_Lib_BDraw_ABuff_Bits, VGrid_Lib_BDraw_ABuff_Sums, VGrid_Lib_BDraw_ABuff_Indexes, VGrid_Lib_BDraw_ABuff_Fills1, VGrid_Lib_BDraw_ABuff_Fills2;
+  RWStructuredBuffer<VGrid_Lib_BDraw_TextInfo> VGrid_Lib_BDraw_textInfos;
+  RWStructuredBuffer<VGrid_Lib_BDraw_FontInfo> VGrid_Lib_BDraw_fontInfos;
+  RWStructuredBuffer<uint2> VGrid_Lib_depthColors;
+  RWStructuredBuffer<Color32> VGrid_Lib_paletteBuffer;
+  RWStructuredBuffer<float> VGrid_Lib_Vals;
+  [numthreads(numthreads2, numthreads2, 1)] void CT_loadTexture(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (all(id.xy < g.CT_textureSize))
+		  {
+		    uint2 size = g.CT_textureSize;
+		    uint pixBytesI = product(size) * g.CT_textureI / 4 + (id.y * size.x + id.x) / 4;
+		    uint i = id_to_i(id, size), TextureI = i * 3 / 4, byteI = i * 3 % 4, v = (CT_imageTexture[TextureI] >> (8 * (int)byteI)) & 0xff;
+		    v = v << ((int)i % 4 * 8);
+		    InterlockedOr(CT_pixBytes, pixBytesI, v);
+		  }
+		}
+	}
+  [numthreads(numthreads1, 1, 1)] void CT_init_pixBytes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.CT_pixBytesSize) { CT_pixBytes[id.x] = 0; } } }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : VGrid_Lib_BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = VGrid_Lib_BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); VGrid_Lib_BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) VGrid_Lib_BDraw_ABuff_Sums[i] += VGrid_Lib_BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.VGrid_Lib_BDraw_ABuff_BitN - 1) g.VGrid_Lib_BDraw_ABuff_IndexN = VGrid_Lib_BDraw_ABuff_Sums[i]; } } }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) VGrid_Lib_BDraw_ABuff_Fills1[i] += VGrid_Lib_BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.VGrid_Lib_BDraw_ABuff_BitN2 - 1 ? VGrid_Lib_BDraw_ABuff_Fills1[j] : i < g.VGrid_Lib_BDraw_ABuff_BitN2 ? VGrid_Lib_BDraw_ABuff_Fills1[g.VGrid_Lib_BDraw_ABuff_BitN1 - 1] : 0, s;
+    VGrid_Lib_BDraw_ABuff_grp0[grpI] = c; VGrid_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.VGrid_Lib_BDraw_ABuff_BitN2) VGrid_Lib_BDraw_ABuff_grp[grpI] = VGrid_Lib_BDraw_ABuff_grp0[grpI] + VGrid_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      VGrid_Lib_BDraw_ABuff_grp0[grpI] = VGrid_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.VGrid_Lib_BDraw_ABuff_BitN2) VGrid_Lib_BDraw_ABuff_Fills2[i] = VGrid_Lib_BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.VGrid_Lib_BDraw_ABuff_BitN1 - 1 ? VGrid_Lib_BDraw_ABuff_Sums[j] : i < g.VGrid_Lib_BDraw_ABuff_BitN1 ? VGrid_Lib_BDraw_ABuff_Sums[g.VGrid_Lib_BDraw_ABuff_BitN - 1] : 0, s;
+    VGrid_Lib_BDraw_ABuff_grp0[grpI] = c; VGrid_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.VGrid_Lib_BDraw_ABuff_BitN1) VGrid_Lib_BDraw_ABuff_grp[grpI] = VGrid_Lib_BDraw_ABuff_grp0[grpI] + VGrid_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      VGrid_Lib_BDraw_ABuff_grp0[grpI] = VGrid_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.VGrid_Lib_BDraw_ABuff_BitN1) VGrid_Lib_BDraw_ABuff_Fills1[i] = VGrid_Lib_BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c = i < g.VGrid_Lib_BDraw_ABuff_BitN ? countbits(VGrid_Lib_BDraw_ABuff_Bits[i]) : 0, s;
+    VGrid_Lib_BDraw_ABuff_grp0[grpI] = c; VGrid_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.VGrid_Lib_BDraw_ABuff_BitN) VGrid_Lib_BDraw_ABuff_grp[grpI] = VGrid_Lib_BDraw_ABuff_grp0[grpI] + VGrid_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      VGrid_Lib_BDraw_ABuff_grp0[grpI] = VGrid_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.VGrid_Lib_BDraw_ABuff_BitN) VGrid_Lib_BDraw_ABuff_Sums[i] = VGrid_Lib_BDraw_ABuff_grp[grpI];
+  }
+  void VGrid_Lib_Val(uint i, float v) { VGrid_Lib_Vals[i] = v; }
+  uint VGrid_Lib_NodeI(uint3 id) { return id_to_i(id, g.VGrid_Lib_nodeN); }
+  VGrid_Lib_BDraw_TextInfo VGrid_Lib_BDraw_textInfo(uint i) { return VGrid_Lib_BDraw_textInfos[i]; }
+  void VGrid_Lib_BDraw_textInfo(uint i, VGrid_Lib_BDraw_TextInfo t) { VGrid_Lib_BDraw_textInfos[i] = t; }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.VGrid_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      VGrid_Lib_BDraw_TextInfo t = VGrid_Lib_BDraw_textInfo(0), ti = VGrid_Lib_BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      VGrid_Lib_BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
+  uint2 VGrid_Lib_BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : VGrid_Lib_BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.VGrid_Lib_BDraw_ABuff_IndexN ? VGrid_Lib_BDraw_ABuff_Indexes[textI] : g.VGrid_Lib_BDraw_textCharN); }
+  uint VGrid_Lib_BDraw_Byte(uint i) { return TextByte(VGrid_Lib_BDraw_tab_delimeted_text, i); }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.VGrid_Lib_BDraw_textN)
+		  {
+		    uint i = id.x;
+		    VGrid_Lib_BDraw_TextInfo ti = VGrid_Lib_BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = VGrid_Lib_BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = VGrid_Lib_BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += VGrid_Lib_BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.VGrid_Lib_BDraw_fontSize;
+		    ti.uvSize = t;
+		    VGrid_Lib_BDraw_textInfo(i, ti);
+		  }
+		}
+	}
+  float VGrid_Lib_Val(uint i) { return VGrid_Lib_Vals[i]; }
+  float3 VGrid_Lib_gridMin() { return float3(g.VGrid_Lib_GridX.x, g.VGrid_Lib_GridY.x, g.VGrid_Lib_GridZ.x); }
+  float3 VGrid_Lib_NodeLocation3(uint3 id) { return id * g.VGrid_Lib_resolution + VGrid_Lib_gridMin(); }
+  bool VGrid_Lib_BDraw_ABuff_IsBitOn(uint i) { uint c = VGrid_Lib_BDraw_Byte(i); return c == VGrid_Lib_BDraw_TB || c == VGrid_Lib_BDraw_LF; }
+  uint VGrid_Lib_BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.VGrid_Lib_BDraw_ABuff_N && VGrid_Lib_BDraw_ABuff_IsBitOn(i)) << (int)j); }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c, s, j, k, bits = 0;
+    if (i < g.VGrid_Lib_BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = VGrid_Lib_BDraw_ABuff_Assign_Bits(k + j, j, bits); VGrid_Lib_BDraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
+    VGrid_Lib_BDraw_ABuff_grp0[grpI] = c; VGrid_Lib_BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.VGrid_Lib_BDraw_ABuff_BitN) VGrid_Lib_BDraw_ABuff_grp[grpI] = VGrid_Lib_BDraw_ABuff_grp0[grpI] + VGrid_Lib_BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      VGrid_Lib_BDraw_ABuff_grp0[grpI] = VGrid_Lib_BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.VGrid_Lib_BDraw_ABuff_BitN) VGrid_Lib_BDraw_ABuff_Sums[i] = VGrid_Lib_BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void VGrid_Lib_BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.VGrid_Lib_BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.VGrid_Lib_BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = VGrid_Lib_BDraw_ABuff_Assign_Bits(k + j, j, bits); VGrid_Lib_BDraw_ABuff_Bits[i] = bits; } } } }
+  VGrid_Lib_TRay VGrid_Lib_CreateRayHit() { VGrid_Lib_TRay hit; hit.origin = f000; hit.dist = fPosInf; hit.direction = f000; hit.color = f0000; return hit; }
+  float3 VGrid_Lib_gridMax() { return float3(g.VGrid_Lib_GridX.y, g.VGrid_Lib_GridY.y, g.VGrid_Lib_GridZ.y); }
+  void VGrid_Lib_Assign(inout VGrid_Lib_TRay hit, float3 position, float3 normal, float4 color, float dist) { hit.origin = position; hit.direction = normal; hit.color = color; hit.dist = dist; }
+  void VGrid_Lib_pixDepthColor(uint i, float d, float4 c) { VGrid_Lib_depthColors[i] = uint2((uint)(d / g.VGrid_Lib_maxDist * uint_max), c32_u(f4_c32(c))); }
+  void VGrid_Lib_pixDepthColor(uint2 id, float d, float4 c) { VGrid_Lib_pixDepthColor(id_to_i(id, g.VGrid_Lib_viewSize), d, c); }
+  float3 VGrid_Lib_GetCorner_q(float3 p) { return clamp((p - VGrid_Lib_gridMin()) / g.VGrid_Lib_resolution, f000, (int3)g.VGrid_Lib_nodeN - f111); }
+  uint3 VGrid_Lib_GetCorner_I(float3 q) { return (uint3)q; }
+  float VGrid_Lib_Interpolate_Val(float3 fq, uint4 c0, uint4 c1) { return Interpolate(VGrid_Lib_Val(c0.x), VGrid_Lib_Val(c0.y), VGrid_Lib_Val(c0.z), VGrid_Lib_Val(c0.w), VGrid_Lib_Val(c1.x), VGrid_Lib_Val(c1.y), VGrid_Lib_Val(c1.z), VGrid_Lib_Val(c1.w), fq); }
+  uint PixByte(uint3 id) { uint i = id_to_i(id, g.CT_N); return (CT_pixBytes[i / 4] >> (int)((i % 4) * 8)) & 0xff; }
+  float PixColor(uint3 id) { return PixByte(id) / 255.0f; }
+  float CT_Val(float3 p)
+  {
+    p *= 1000; 
+    float v = 0;
+    if (IsNotOutside(p, f000, g.CT_N - u111))
+    {
+      uint3 u0 = clamp((uint3)p, u000, g.CT_N - 2 * u111);
+      v = Interpolate(PixColor(u0), PixColor(u0 + u001), PixColor(u0 + u010), PixColor(u0 + u011), PixColor(u0 + u100), PixColor(u0 + u101), PixColor(u0 + u110), PixColor(u0 + u111), frac(p));
+    }
+    return v;
+  }
+  VGrid_Lib_TRay VGrid_Lib_CreateShaderCameraRay(float2 _uv)
+  {
+    VGrid_Lib_TRay ray;
+    ray.origin = mul(g.VGrid_Lib_camToWorld, g.VGrid_Lib_isOrtho ? float4(g.VGrid_Lib_orthoSize * _uv / float2(aspect(g.VGrid_Lib_viewSize), 1), 0, 1) : f0001).xyz;
+    ray.direction = normalize(mul(g.VGrid_Lib_camToWorld, float4(mul(g.VGrid_Lib_cameraInvProjection, float4(_uv, 0, 1)).xyz, 0)).xyz);
+    ray.color = f0000;
+    ray.dist = 0;
+    return ray;
+  }
+  VGrid_Lib_TRay VGrid_Lib_CreateRay(float3 origin, float3 direction) { VGrid_Lib_TRay ray; ray.origin = origin; ray.direction = direction; ray.color = f0000; ray.dist = 0; return ray; }
+  VGrid_Lib_TRay VGrid_Lib_CreateCameraRay(float2 _uv) { VGrid_Lib_TRay ray = VGrid_Lib_CreateShaderCameraRay(_uv); return VGrid_Lib_CreateRay(ray.origin, ray.direction); }
+  float4 VGrid_Lib_DrawSliceColor(float4 color, float3 q) { return color; }
+  float4 VGrid_Lib_paletteBufferColor(float v) { return c32_f4(VGrid_Lib_paletteBuffer[roundu(clamp(v * 255, 0, 255))]); }
+  float4 VGrid_Lib_GetPointColor(float3 p, float val) { return VGrid_Lib_paletteBufferColor(lerp1(g.VGrid_Lib_paletteRange, val)); }
+  float4 VGrid_Lib_GetNormalColor(VGrid_Lib_TRay ray, float3 normal, float val, float3 p)
+  {
+    float3 lightDirection = _WorldSpaceLightPos0.xyz;
+    float3 h = (lightDirection - ray.direction) / 2;
+    float v = 1, gloss = 0.5f, s = sqr(abs(dot(normal, h))) * gloss, NdotL = abs(dot(normal, lightDirection));
+    if (g.VGrid_Lib_GridLineThickness > 0)
+    {
+      float w = 1 / max(0.00001f, g.VGrid_Lib_GridLineThickness);
+      p /= g.VGrid_Lib_resolution;
+      float3 blend = normalize(max((abs(normal) - 0.2f) * 7, 0.0f));
+      v = csum(blend * saturate(0.5f * float3(product((1 - abs(1 - 2 * frac(p.yz))) * w), product((1 - abs(1 - 2 * frac(p.xz))) * w), product((1 - abs(1 - 2 * frac(p.xy))) * w))));
+    }
+    return float4(saturate((VGrid_Lib_GetPointColor(p, val).xyz * (NdotL + 0.5f) + s) * v), g.VGrid_Lib_opacity);
+  }
+  uint3 VGrid_Lib_nodeN1() { return max(g.VGrid_Lib_nodeN, u111) - u111; }
+  uint VGrid_Lib_GridToIndex(int3 _I) { return id_to_i(clamp(_I, u000, VGrid_Lib_nodeN1()), g.VGrid_Lib_nodeN); }
+  uint4 VGrid_Lib_GetFaceI(uint3 _I, int3 x, int3 y, int3 z, int3 w) { return new uint4(VGrid_Lib_GridToIndex((int3)_I + x), VGrid_Lib_GridToIndex((int3)_I + y), VGrid_Lib_GridToIndex((int3)_I + z), VGrid_Lib_GridToIndex((int3)_I + w)); }
+  uint4 VGrid_Lib_GetFaceI(uint3 _I, int3 d) { return VGrid_Lib_GetFaceI(_I, i000 + d, i001 + d, i010 + d, i011 + d); }
+  float VGrid_Lib_Val(float3 p) { float3 q = VGrid_Lib_GetCorner_q(p); uint3 _I = VGrid_Lib_GetCorner_I(q); return VGrid_Lib_Interpolate_Val(frac(q), VGrid_Lib_GetFaceI(_I, i000), VGrid_Lib_GetFaceI(_I, i100)); }
+  float3 VGrid_Lib_Val(float3 p, float d) { return float3(VGrid_Lib_Val(p + f100 * d), VGrid_Lib_Val(p + f010 * d), VGrid_Lib_Val(p + f001 * d)); }
+  float VGrid_Lib_setDepth(float depth, VGrid_Lib_TRay ray, inout float3 p, inout float val) { p = depth * ray.direction + ray.origin; val = VGrid_Lib_Val(p); return depth; }
+  void VGrid_Lib_DrawSlice(float3 axis, VGrid_Lib_TRay ray, inout VGrid_Lib_TRay hit, inout float3 p, inout float val, inout float depth, inout bool found, inout float4 color, float3 normal)
+  {
+    float depth_slice;
+    float3 axis2 = rotateZYXDeg(axis, g.VGrid_Lib_sliceRotation), q = PlaneLineIntersectionPoint(axis2, g.VGrid_Lib_slices, ray.origin, ray.direction);
+    if (q.x != fNegInf && IsNotOutside(q, VGrid_Lib_gridMin(), VGrid_Lib_gridMax()))
+    {
+      depth_slice = VGrid_Lib_setDepth(max(distance(q, ray.origin), 0.018f), ray, p, val);
+      if (depth_slice < depth) { found = true; depth = depth_slice; color = VGrid_Lib_DrawSliceColor(VGrid_Lib_GetNormalColor(ray, axis2, val, p), q); VGrid_Lib_Assign(hit, p, normal, color, depth); }
+    }
+  }
+  float3 VGrid_Lib_Normal(float3 p)
+  {
+    float r = g.VGrid_Lib_resolution * 0.5f, margin = r * 0.02f;
+    float3 normal = p <= VGrid_Lib_gridMin() + margin;
+    if (all(normal == f000)) normal = p >= VGrid_Lib_gridMax() - margin;
+    if (all(normal == f000)) normal = normalize(VGrid_Lib_Val(p, r) - VGrid_Lib_Val(p, -r));
+    return normal;
+  }
+  float4 VGrid_Lib_GetColor(VGrid_Lib_TRay ray, inout float3 normal, float val, float3 p) { return VGrid_Lib_GetNormalColor(ray, normal = VGrid_Lib_Normal(p), val, p); }
+  void VGrid_Lib_TraceRay(uint3 id, bool isSimple)
+  {
+    VGrid_Lib_TRay ray = VGrid_Lib_CreateCameraRay(2.0f * id.xy / g.VGrid_Lib_viewSize - 1), hit = VGrid_Lib_CreateRayHit();
+    float3 mn = VGrid_Lib_gridMin(), mx = max(mn + 0.001f, VGrid_Lib_gridMax());
+    float2 dst = HitGridBox(mn, mx, ray.origin, ray.direction);
+    bool hitOutside = HitOutsideGrid(dst), hitInside = HitInsideGrid(dst);
+    if (hitOutside || hitInside)
+    {
+      float3 p = f000, normal = f100;
+      float val = 0, depth = VGrid_Lib_setDepth(max(dst.x, 0.018f), ray, p, val), depth2 = dst.y, step = g.VGrid_Lib_resolution, d0, d2;
+      bool found = false;
+      float4 color = f0000;
+      if (g.VGrid_Lib_GridDrawFront && hitOutside) { color = VGrid_Lib_GetColor(ray, normal, val, p); VGrid_Lib_Assign(hit, p, normal, color, depth); }
+      else
+      {
+        float val0 = val;
+        if (isSimple)
+        {
+          float v = g.VGrid_Lib_meshVal;
+          for (uint i = 0, n = csum(g.VGrid_Lib_nodeN); i < n && !found; i++)
+          {
+            if (val0 > v && val <= v)
+            {
+              val0 = val;
+              for (d0 = max(0, depth - step), d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val > v) d0 = depth; else d2 = depth; }
+              color = VGrid_Lib_GetColor(ray, normal, val, p);
+              VGrid_Lib_Assign(hit, p, normal, color, depth); found = true;
+            }
+            else if (val0 < v && val >= v)
+            {
+              val0 = val;
+              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val < v) d0 = depth; else d2 = depth; }
+              if (depth + step < depth2)
+              {
+                color = VGrid_Lib_GetColor(ray, normal, val, p);
+                VGrid_Lib_Assign(hit, p, normal, color, depth); found = true;
+              }
+            }
+            else val0 = val;
+            if (depth + step > depth2) { depth = VGrid_Lib_setDepth(depth2, ray, p, val); break; }
+            depth = VGrid_Lib_setDepth(depth + step, ray, p, val);
+          }
+        }
+        else
+        {
+          for (uint i = 0, n = csum(g.VGrid_Lib_nodeN); i < n && (g.VGrid_Lib_opacity < 0.999f || !found); i++)
+          {
+            if (i == 0 && hitOutside && val <= g.VGrid_Lib_meshRange.y && val >= g.VGrid_Lib_meshRange.x)
+            {
+              val0 = val;
+              color = VGrid_Lib_GetColor(ray, normal, val, p);
+              VGrid_Lib_Assign(hit, p, normal, color, depth);
+              found = true;
+            }
+            else if (val0 > g.VGrid_Lib_meshRange.y && val <= g.VGrid_Lib_meshRange.y)
+            {
+              val0 = val;
+              for (d0 = max(0, depth - step), d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val > g.VGrid_Lib_meshRange.y) d0 = depth; else d2 = depth; }
+              color = VGrid_Lib_GetColor(ray, normal, val, p);
+              if (!found) { VGrid_Lib_Assign(hit, p, normal, color, depth); found = true; }
+              else hit.color.xyz = g.VGrid_Lib_opacity * hit.color.xyz + (1 - g.VGrid_Lib_opacity) * color.xyz;
+            }
+            else if (val0 < g.VGrid_Lib_meshRange.x && val >= g.VGrid_Lib_meshRange.x)
+            {
+              val0 = val;
+              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val < g.VGrid_Lib_meshRange.x) d0 = depth; else d2 = depth; }
+              if (depth + step < depth2)
+              {
+                color = VGrid_Lib_GetColor(ray, normal, val, p);
+                if (!found) { VGrid_Lib_Assign(hit, p, normal, color, depth); found = true; }
+                else hit.color.xyz = g.VGrid_Lib_opacity * hit.color.xyz + (1 - g.VGrid_Lib_opacity) * color.xyz;
+              }
+            }
+            else if (val0 > g.VGrid_Lib_meshRange.x && val <= g.VGrid_Lib_meshRange.x)
+            {
+              val0 = val;
+              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val > g.VGrid_Lib_meshRange.x) d0 = depth; else d2 = depth; }
+              color = VGrid_Lib_GetColor(ray, normal, val, p);
+              if (!found) { VGrid_Lib_Assign(hit, p, normal, color, depth); found = true; }
+              else hit.color.xyz = g.VGrid_Lib_opacity * hit.color.xyz + (1 - g.VGrid_Lib_opacity) * color.xyz;
+            }
+            else if (val0 < g.VGrid_Lib_meshRange.y && val >= g.VGrid_Lib_meshRange.y)
+            {
+              val0 = val;
+              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val < g.VGrid_Lib_meshRange.y) d0 = depth; else d2 = depth; }
+              color = VGrid_Lib_GetColor(ray, normal, val, p);
+              if (!found) { VGrid_Lib_Assign(hit, p, normal, color, depth); found = true; }
+              else hit.color.xyz = g.VGrid_Lib_opacity * hit.color.xyz + (1 - g.VGrid_Lib_opacity) * color.xyz;
+            }
+            else if (hitInside && depth > step / 2 && val0 > g.VGrid_Lib_meshRange.x && val <= g.VGrid_Lib_meshRange.x)
+            {
+              val0 = val;
+              for (d0 = depth - step, d2 = depth; d2 - d0 > step / 100;) { depth = VGrid_Lib_setDepth((d0 + d2) / 2, ray, p, val); if (val > g.VGrid_Lib_meshRange.x) d0 = depth; else d2 = depth; }
+              color = VGrid_Lib_GetColor(ray, normal, val, p);
+              if (!found) { VGrid_Lib_Assign(hit, p, normal, color, depth); found = true; }
+              else hit.color.xyz = g.VGrid_Lib_opacity * hit.color.xyz + (1 - g.VGrid_Lib_opacity) * color.xyz;
+            }
+            else val0 = val;
+            if (depth + step > depth2) { depth = VGrid_Lib_setDepth(depth2, ray, p, val); break; }
+            depth = VGrid_Lib_setDepth(depth + step, ray, p, val);
+          }
+        }
+        if (g.VGrid_Lib_show_slices) for (uint i = 0; i < 3; i++) VGrid_Lib_DrawSlice(index(f000, i, 1.0f), ray, hit, p, val, depth, found, color, normal);
+        if (g.VGrid_Lib_GridDrawBack)
+        {
+          color = VGrid_Lib_GetColor(ray, normal, val, p);
+          if (!found) VGrid_Lib_Assign(hit, p, normal, color, depth);
+          else hit.color.xyz = g.VGrid_Lib_opacity * hit.color.xyz + (1 - g.VGrid_Lib_opacity) * color.xyz;
+        }
+      }
+    }
+    VGrid_Lib_pixDepthColor(id.xy, hit.dist, hit.color);
+  }
+  [numthreads(numthreads2, numthreads2, 1)] void VGrid_Lib_Grid_Simple_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.VGrid_Lib_viewSize)) { VGrid_Lib_TraceRay(id, true); } } }
+  [numthreads(numthreads2, numthreads2, 1)] void VGrid_Lib_Grid_TraceRay(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id.xy < g.VGrid_Lib_viewSize)) { VGrid_Lib_TraceRay(id, false); } } }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void VGrid_Lib_Grid_Calc_Vals(uint3 id : SV_DispatchThreadID) { unchecked { if (all(id < g.VGrid_Lib_nodeN)) { VGrid_Lib_Val(VGrid_Lib_NodeI(id), CT_Val(VGrid_Lib_NodeLocation3(id))); } } }
+  #pragma kernel VGrid_Lib_Grid_Calc_Vals
+  #pragma kernel CT_loadTexture
+  #pragma kernel CT_init_pixBytes
+  #pragma kernel VGrid_Lib_BDraw_ABuff_GetIndexes
+  #pragma kernel VGrid_Lib_BDraw_ABuff_IncSums
+  #pragma kernel VGrid_Lib_BDraw_ABuff_IncFills1
+  #pragma kernel VGrid_Lib_BDraw_ABuff_GetFills2
+  #pragma kernel VGrid_Lib_BDraw_ABuff_GetFills1
+  #pragma kernel VGrid_Lib_BDraw_ABuff_Get_Bits_Sums
+  #pragma kernel VGrid_Lib_BDraw_ABuff_GetSums
+  #pragma kernel VGrid_Lib_BDraw_ABuff_Get_Bits
+  #pragma kernel VGrid_Lib_BDraw_setDefaultTextInfo
+  #pragma kernel VGrid_Lib_BDraw_getTextInfo
+  #pragma kernel VGrid_Lib_Grid_Simple_TraceRay
+  #pragma kernel VGrid_Lib_Grid_TraceRay

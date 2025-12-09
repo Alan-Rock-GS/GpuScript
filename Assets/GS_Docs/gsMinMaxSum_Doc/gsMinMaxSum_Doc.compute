@@ -1,0 +1,75 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define Ints_Min	0
+  #define Ints_Max	1
+  #define Ints_Sum	2
+  #define Ints_N	3
+  #define g gMinMaxSum_Doc[0]
+  #pragma use_dxc
+  struct GMinMaxSum_Doc
+  {
+    uint NumN, ErrorN;
+  };
+  struct Runtime { uint runtime_Compute; string runtime_Name; int runtime_min, runtime_max, runtime_sum; uint runtime_error; float runtime_runtime_us, runtime_xFaster; string runtime_xTime; };
+  groupshared int g1_0[1024];
+  groupshared int g1_1[1024];
+  groupshared int g1_2[1024];
+  groupshared int g2_0[32];
+  groupshared int g2_1[32];
+  groupshared int g2_2[32];
+  RWStructuredBuffer<GMinMaxSum_Doc> gMinMaxSum_Doc;
+  RWStructuredBuffer<int> ints;
+  [numthreads(numthreads2, numthreads2, 1)] void Calc_Min_Max_Sum3(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < 3 && id.x < g.NumN) { int i = (int)id.x, j = (int)id.y; if (j == 0) InterlockedMin(ints, 0, i); else if (j == 1) InterlockedMax(ints, 1, i); else InterlockedAdd(ints, 2, 1); } } }
+  [numthreads(numthreads1, 1, 1)] void Init_ints(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 3) { ints[id.x] = id.x == 0 ? int_max : id.x == 1 ? int_min : 0; } } }
+  [numthreads(numthreads2, numthreads2, 1)] void Grp_MinMaxSum(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+	{
+		uint i = id.x, j = id.y, tI = grp_tid.x, tJ = grp_tid.y, gI = grp_id.x, gJ = grp_id.y;
+		if (i < g.NumN && j < 3)
+		{
+			if (tJ == 0) g2_0[tI] = (int)i; else if (tJ == 1) g2_1[tI] = (int)i; else g2_2[tI] = 1; GrpSync();
+			if (tI > 0) { if (tJ == 0) InterlockedMin(g2_0, 0, g2_0[tI]); else if (tJ == 1) InterlockedMax(g2_1, 0, g2_1[tI]); else InterlockedAdd(g2_2, 0, g2_2[tI]); }
+			GrpSync();
+			if (gI < ceili(g.NumN / (float)numthreads2) && tI == 0) { if (tJ == 0) InterlockedMin(ints, 0, g2_0[0]); else if (tJ == 1) InterlockedMax(ints, 1, g2_1[0]); else InterlockedAdd(ints, 2, g2_2[0]); }
+		}
+	}
+	
+  [numthreads(numthreads1, 1, 1)] void Grp_Min_Max_Sum(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+	{
+		uint i = id.x, tI = grp_tid.x, gI = grp_id.x;
+		if (i < g.NumN)
+		{
+			g1_0[tI] = g1_1[tI] = (int)i; g1_2[tI] = 1; GrpSync();
+			if (tI > 0) { InterlockedMin(g1_0, 0, g1_0[tI]); InterlockedMax(g1_1, 0, g1_1[tI]); InterlockedAdd(g1_2, 0, g1_2[tI]); }
+			GrpSync();
+			if (gI < ceili(g.NumN / (float)numthreads1) && tI == 0) { InterlockedMin(ints, 0, g1_0[0]); InterlockedMax(ints, 1, g1_1[0]); InterlockedAdd(ints, 2, g1_2[0]); }
+		}
+	}
+	
+  [numthreads(numthreads1, 1, 1)] void Grp_Global_Min_Max_Sum(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+	{
+		uint i = id.x, tI = grp_tid.x, gI = grp_id.x;
+		if (i < g.NumN)
+		{
+			g1_0[tI] = g1_1[tI] = (int)i; g1_2[tI] = 1; GrpSync();
+			if (tI == 0 && gI == 0) { ints[0] = 0; ints[1] = 0; ints[2] = 0; int k = ints[0]; }
+			DataSync();
+			if (tI > 0) { InterlockedMin(g1_0, 0, g1_0[tI]); InterlockedMax(g1_1, 0, g1_1[tI]); InterlockedAdd(g1_2, 0, g1_2[tI]); GrpSync(); }
+			if (gI < ceili(g.NumN / (float)numthreads1) && tI == 0) { InterlockedMin(ints, 0, g1_0[0]); InterlockedMax(ints, 1, g1_1[0]); InterlockedAdd(ints, 2, g1_2[0]); }
+		}
+	}
+	
+  [numthreads(numthreads1, 1, 1)] void Calc_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin(ints, 0, i); InterlockedMax(ints, 1, i); InterlockedAdd(ints, 2, 1); }
+		}
+	}
+  #pragma kernel Calc_Min_Max_Sum3
+  #pragma kernel Calc_Min_Max_Sum
+  #pragma kernel Init_ints
+  #pragma kernel Grp_MinMaxSum
+  #pragma kernel Grp_Min_Max_Sum
+  #pragma kernel Grp_Global_Min_Max_Sum

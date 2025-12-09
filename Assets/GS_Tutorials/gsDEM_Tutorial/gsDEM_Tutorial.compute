@@ -1,0 +1,299 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define UInts_maxForce	0
+  #define UInts_maxSmp	1
+  #define UInts_maxSimGridVal	2
+  #define UInts_nearestPnt	3
+  #define UInts_timeChanged	4
+  #define UInts_dm_minMass	5
+  #define UInts_dm_maxStiffness	6
+  #define UInts_dm_minDamping	7
+  #define UInts_dm_Energy	8
+  #define UInts_N	9
+  #define BDraw_Draw_Point	0
+  #define BDraw_Draw_Sphere	1
+  #define BDraw_Draw_Line	2
+  #define BDraw_Draw_Arrow	3
+  #define BDraw_Draw_Signal	4
+  #define BDraw_Draw_LineSegment	5
+  #define BDraw_Draw_Texture_2D	6
+  #define BDraw_Draw_Quad	7
+  #define BDraw_Draw_WebCam	8
+  #define BDraw_Draw_Mesh	9
+  #define BDraw_Draw_Number	10
+  #define BDraw_Draw_Text3D	11
+  #define BDraw_Draw_N	12
+  #define BDraw_TextAlignment_BottomLeft	0
+  #define BDraw_TextAlignment_CenterLeft	1
+  #define BDraw_TextAlignment_TopLeft	2
+  #define BDraw_TextAlignment_BottomCenter	3
+  #define BDraw_TextAlignment_CenterCenter	4
+  #define BDraw_TextAlignment_TopCenter	5
+  #define BDraw_TextAlignment_BottomRight	6
+  #define BDraw_TextAlignment_CenterRight	7
+  #define BDraw_TextAlignment_TopRight	8
+  #define BDraw_Text_QuadType_FrontOnly	0
+  #define BDraw_Text_QuadType_FrontBack	1
+  #define BDraw_Text_QuadType_Switch	2
+  #define BDraw_Text_QuadType_Arrow	3
+  #define BDraw_Text_QuadType_Billboard	4
+  #define BDraw_LF 10
+  #define BDraw_TB 9
+  #define BDraw_ZERO 48
+  #define BDraw_NINE 57
+  #define BDraw_PERIOD 46
+  #define BDraw_COMMA 44
+  #define BDraw_PLUS 43
+  #define BDraw_MINUS 45
+  #define BDraw_SPACE 32
+  #define g gDEM_Tutorial[0]
+  #pragma use_dxc
+  struct GDEM_Tutorial
+  {
+    uint3 nodeN3, gridN3, dimension3;
+    uint displayNodes, nodeN, runContinuously, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN;
+    float resolution, BDraw_fontSize, BDraw_boxThickness;
+    float4 BDraw_boxColor;
+  };
+  struct Node { float3 position, velocity, position0, velocity0; uint u; float mass, stiff, damp; };
+  struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
+  struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  groupshared uint BDraw_ABuff_grp[1024];
+  groupshared uint BDraw_ABuff_grp0[1024];
+  RWStructuredBuffer<GDEM_Tutorial> gDEM_Tutorial;
+  RWStructuredBuffer<uint> uints, BDraw_tab_delimeted_text, BDraw_ABuff_Bits, BDraw_ABuff_Sums, BDraw_ABuff_Indexes, BDraw_ABuff_Fills1, BDraw_ABuff_Fills2;
+  RWStructuredBuffer<BDraw_TextInfo> BDraw_textInfos;
+  RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
+  RWStructuredBuffer<Node> nodes;
+  RWStructuredBuffer<int> forces;
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetIndexes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, sum = i == 0 ? 0 : BDraw_ABuff_Sums[i - 1], b, i32 = i << 5, k; for (k = 0, b = BDraw_ABuff_Bits[i]; b > 0; k++) { j = (uint)findLSB(b); BDraw_ABuff_Indexes[sum + k] = i32 + j; b = SetBitu(b, j, 0); } } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncSums(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Sums[i] += BDraw_ABuff_Fills1[i / numthreads1 - 1]; if (i == g.BDraw_ABuff_BitN - 1) g.BDraw_ABuff_IndexN = BDraw_ABuff_Sums[i]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_IncFills1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN1) { uint i = id.x; if (i >= numthreads1) BDraw_ABuff_Fills1[i] += BDraw_ABuff_Fills2[i / numthreads1 - 1]; } } }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills2(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN2 - 1 ? BDraw_ABuff_Fills1[j] : i < g.BDraw_ABuff_BitN2 ? BDraw_ABuff_Fills1[g.BDraw_ABuff_BitN1 - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN2) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN2) BDraw_ABuff_Fills2[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetFills1(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, k = i + 1, j = k * numthreads1 - 1, c = i < g.BDraw_ABuff_BitN1 - 1 ? BDraw_ABuff_Sums[j] : i < g.BDraw_ABuff_BitN1 ? BDraw_ABuff_Sums[g.BDraw_ABuff_BitN - 1] : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN1) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN1) BDraw_ABuff_Fills1[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits_Sums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c = i < g.BDraw_ABuff_BitN ? countbits(BDraw_ABuff_Bits[i]) : 0, s;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
+  }
+  float3 force(uint nodeI) { uint i = nodeI * 3; return float3(forces[i], forces[i + 1], forces[i + 2]) / 1e3f; }
+  uint3 velocityConstraint_u_FCC(uint u) { return uint3(GetBit(u, 0), GetBit(u, 1u), GetBit(u, 2u)); }
+  void calc_link_force(Node node, Node linkNode, float springLength, inout float3 node_force)
+  {
+    float3 n = linkNode.position0 - node.position;
+    float dist = length(n); 
+    n /= dist; 
+    float damp = (node.damp + linkNode.damp) / 2, springStiffness;
+    springStiffness = (node.stiff + linkNode.stiff) / 2;
+    float3 v_ij = node.velocity - linkNode.velocity0;
+    node_force += n * (springStiffness * (dist - springLength) - dot(n, v_ij) * damp);
+  }
+  void AddForce(uint nodeI, float3 node_force) { int3 iForce = roundi(node_force * 1e3f); if (any(iForce != i000)) { uint forceI = nodeI * 3; InterlockedAdd(forces, forceI + 0, iForce.x); InterlockedAdd(forces, forceI + 1, iForce.y); InterlockedAdd(forces, forceI + 2, iForce.z); } }
+  [numthreads(numthreads1, 1, 1)] void check_collisions(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN * (g.nodeN - 1) / 2)
+		  {
+		    uint i = id.x;
+		    uint2 u = upperTriangularIndex(i, g.nodeN);
+		    if (extent(u) > 1 || u.x == g.nodeN - 2)
+		    {
+		      Node node0 = nodes[u.x], node1 = nodes[u.y];
+		      float dist = distance(node0.position, node1.position);
+		      if (dist < g.resolution)
+		      {
+		        float3 node_force = f000;
+		        calc_link_force(node0, node1, g.resolution, node_force);
+		        AddForce(u.x, node_force);
+		        AddForce(u.y, -node_force);
+		        InterlockedMax(uints, UInts_maxForce, roundu(length(node_force) * 1e3f));
+		      }
+		    }
+		  }
+		}
+	}
+  void force(uint nodeI, float3 f) { uint i = nodeI * 3; int3 v = roundi(f * 1e3f); forces[i] = v.x; forces[i + 1] = v.y; forces[i + 2] = v.z; }
+  [numthreads(numthreads1, 1, 1)] void zero_forces(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x; Node node = nodes[i]; node.velocity0 = node.velocity; node.position0 = node.position; nodes[i] = node;
+		    force(i, f000);
+		  }
+		}
+	}
+  uint velocityConstraint(uint u, uint3 vI) { return (u & ~8u) | (vI.x << 2) | (vI.y << 1) | vI.z; }
+  uint validLink(uint u, uint lnkI, bool v) { return SetBit(u, lnkI + 3u, Is(v)); }
+  uint3 getLink_FCC(uint3 id, uint3 _nodeN, uint lnkI) { return TetraLinkID_FCC(id, _nodeN, lnkI); }
+  uint getLink_FCC(uint i, uint3 _nodeN, uint lnkI) { return TetraLinkI_FCC(i, _nodeN, lnkI); }
+  [numthreads(numthreads1, 1, 1)] void BuildNodes(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x;
+		    Node node = nodes[i];
+		    node.position = i * g.resolution * f010;
+		    uint u = 0;
+		    if (i < g.nodeN - 1) u = velocityConstraint(u, u111);
+		    for (uint lnkI = 0; lnkI < 1; lnkI++) u = validLink(u, lnkI, all(getLink_FCC(id, g.nodeN3, lnkI) < g.nodeN));
+		    node.u = u;
+		    float r = g.resolution / 2, r2 = r * r, r3 = r * r2, unitWeight_N_per_m3 = 26500, restitution = 0.01f, volume_m3 = 4 * r3 * PI / 3 * 1.35f,
+		      mass_N = unitWeight_N_per_m3 * volume_m3 / gravity_m_per_s2, modulus = 1e6f, stiffness = modulus * PI * r / 4, en = -ln(restitution),
+		      damping = 2 * en * sqrt(stiffness * mass_N / (PI * PI + en * en));
+		    node.mass = mass_N; node.stiff = stiffness; node.damp = damping;
+		    node.velocity = f000; node.position0 = node.position; node.velocity0 = node.velocity;
+		    nodes[i] = node;
+		  }
+		}
+	}
+  BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
+  void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
+  [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    if (i > 0)
+		    {
+		      BDraw_TextInfo t = BDraw_textInfo(0), ti = BDraw_textInfo(i);
+		      ti.color = t.color; ti.backColor = t.backColor; ti.p = t.p; ti.p0 = t.p0; ti.p1 = t.p1; ti.height = t.height;
+		      ti.quadType = (uint)t.quadType; ti.axis = t.axis; ti.right = t.right; ti.up = t.up; ti.justification = t.justification;
+		      BDraw_textInfo(i, ti);
+		    }
+		  }
+		}
+	}
+  uint2 BDraw_Get_text_indexes(uint textI) { return uint2(textI == 0 ? 0 : BDraw_ABuff_Indexes[textI - 1] + 1, textI < g.BDraw_ABuff_IndexN ? BDraw_ABuff_Indexes[textI] : g.BDraw_textCharN); }
+  uint BDraw_Byte(uint i) { return TextByte(BDraw_tab_delimeted_text, i); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_getTextInfo(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.BDraw_textN)
+		  {
+		    uint i = id.x;
+		    BDraw_TextInfo ti = BDraw_textInfo(i);
+		    ti.textI = i;
+		    ti.uvSize = f01;
+		    uint2 textIs = BDraw_Get_text_indexes(i);
+		    float2 t = ti.uvSize;
+		    for (uint j = textIs.x; j < textIs.y; j++) { uint byteI = BDraw_Byte(j); if (byteI >= 32) { byteI -= 32; t.x += BDraw_fontInfos[byteI].advance; } }
+		    t.x /= g.BDraw_fontSize;
+		    ti.uvSize = t;
+		    BDraw_textInfo(i, ti);
+		  }
+		}
+	}
+  bool BDraw_ABuff_IsBitOn(uint i) { uint c = BDraw_Byte(i); return c == BDraw_TB || c == BDraw_LF; }
+  uint BDraw_ABuff_Assign_Bits(uint i, uint j, uint bits) { return bits | (Is(i < g.BDraw_ABuff_N && BDraw_ABuff_IsBitOn(i)) << (int)j); }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_GetSums(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+  {
+    uint i = id.x, c, s, j, k, bits = 0;
+    if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; c = countbits(bits); } else c = 0;
+    BDraw_ABuff_grp0[grpI] = c; BDraw_ABuff_grp[grpI] = c; GroupMemoryBarrierWithGroupSync();
+    for (s = 1; s < numthreads1; s *= 2)
+    {
+      if (grpI >= s && i < g.BDraw_ABuff_BitN) BDraw_ABuff_grp[grpI] = BDraw_ABuff_grp0[grpI] + BDraw_ABuff_grp0[grpI - s]; GroupMemoryBarrierWithGroupSync();
+      BDraw_ABuff_grp0[grpI] = BDraw_ABuff_grp[grpI]; GroupMemoryBarrierWithGroupSync();
+    }
+    if (i < g.BDraw_ABuff_BitN) BDraw_ABuff_Sums[i] = BDraw_ABuff_grp[grpI];
+  }
+  [numthreads(numthreads1, 1, 1)] void BDraw_ABuff_Get_Bits(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.BDraw_ABuff_BitN) { uint i = id.x, j, k, bits = 0; if (i < g.BDraw_ABuff_BitN) { for (j = 0, k = i * 32; j < 32; j++) bits = BDraw_ABuff_Assign_Bits(k + j, j, bits); BDraw_ABuff_Bits[i] = bits; } } } }
+  uint getLink_FCC(uint i, uint lnkI) { return TetraLinkI_FCC(i, g.nodeN3, lnkI); }
+  uint3 getLink_FCC(uint3 id, uint lnkI) { return TetraLinkID_FCC(id, g.nodeN3, lnkI); }
+  uint validLink_u_FCC(uint u, uint lnkI) { return GetBit(u, lnkI + 3); }
+  uint validLink_FCC(uint i, uint lnkI) { return validLink_u_FCC(nodes[i].u, lnkI); }
+  uint getLinkNodeI_FCC(uint dm_nodeI, uint lnkI) { return Is(validLink_FCC(dm_nodeI, lnkI)) ? getLink_FCC(dm_nodeI, lnkI) : uint_max; }
+  bool getLinkNode_FCC(uint dm_nodeI, uint lnkI, inout uint lnkNodeI, inout Node linkNode) { lnkNodeI = getLinkNodeI_FCC(dm_nodeI, lnkI); bool ok = lnkNodeI != uint_max; if (ok) linkNode = nodes[lnkNodeI]; return ok; }
+  bool getLinkNode_FCC(uint dm_nodeI, uint lnkI, inout Node linkNode) { uint lnkNodeI = uint_max; return getLinkNode_FCC(dm_nodeI, lnkI, lnkNodeI, linkNode); }
+  [numthreads(numthreads1, 1, 1)] void calc_forces(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x;
+		    Node node = nodes[i];
+		    float3 node_force = f000;
+		    bool isGridNode = i < g.nodeN;
+		    Node linkNode = node;
+		    if (isGridNode)
+		      for (uint lnkI = 0; lnkI < 12; lnkI++)
+		        if (getLinkNode_FCC(i, lnkI, linkNode))
+		          calc_link_force(node, linkNode, g.resolution, node_force);
+		    node_force.y -= node.mass * gravity_m_per_s2;
+		    InterlockedMax(uints, UInts_maxForce, roundu(length(node_force) * 1e3f));
+		    AddForce(i, node_force);
+		  }
+		}
+	}
+  [numthreads(numthreads1, 1, 1)] void move_nodes(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.nodeN)
+		  {
+		    uint i = id.x;
+		    Node node = nodes[i];
+		    float3 node_force = force(i);
+		    bool isGridNode = i < g.nodeN;
+		    float restitution = 0.01f, minMass = node.mass, minRestitution = restitution, maxVel = 10, maxStiffness = node.stiff, minDamping = minRestitution;
+		    float timeStep = sqrt(minMass) / maxStiffness / maxVel * minDamping * 30000;
+		    node.velocity = node.velocity0 + node_force * timeStep / node.mass;
+		    node.velocity *= 0.99f; 
+		    if (isGridNode) node.velocity *= velocityConstraint_u_FCC(node.u);
+		    node.position = node.position0 + node.velocity * timeStep;
+		    nodes[i] = node;
+		  }
+		}
+	}
+  #pragma kernel move_nodes
+  #pragma kernel check_collisions
+  #pragma kernel calc_forces
+  #pragma kernel zero_forces
+  #pragma kernel BuildNodes
+  #pragma kernel BDraw_ABuff_GetIndexes
+  #pragma kernel BDraw_ABuff_IncSums
+  #pragma kernel BDraw_ABuff_IncFills1
+  #pragma kernel BDraw_ABuff_GetFills2
+  #pragma kernel BDraw_ABuff_GetFills1
+  #pragma kernel BDraw_ABuff_Get_Bits_Sums
+  #pragma kernel BDraw_ABuff_GetSums
+  #pragma kernel BDraw_ABuff_Get_Bits
+  #pragma kernel BDraw_setDefaultTextInfo
+  #pragma kernel BDraw_getTextInfo

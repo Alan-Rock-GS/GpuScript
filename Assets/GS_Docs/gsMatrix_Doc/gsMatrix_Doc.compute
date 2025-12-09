@@ -1,0 +1,66 @@
+
+  #include "UnityCG.cginc"
+  #include "Lighting.cginc"
+  #include "../../GS/GS_Compute.cginc"
+  #define g gMatrix_Doc[0]
+  #pragma use_dxc
+  struct GMatrix_Doc
+  {
+    uint MatN, MatRowN, printMatrices, Rand_N, Rand_I, Rand_J;
+    uint4 Rand_seed4;
+  };
+  groupshared uint4 Rand_grp[1024];
+  RWStructuredBuffer<GMatrix_Doc> gMatrix_Doc;
+  RWStructuredBuffer<uint4> Rand_rs;
+  RWStructuredBuffer<int> Mat_A, Mat_x, Mat_b;
+  [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  uint Mat_Index(uint matI, uint i) { return id_to_i(matI, i, g.MatN, g.MatRowN); }
+  void Matx(uint matI, uint i, int V) { Mat_x[Mat_Index(matI, i)] = V; }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { Matx(id.x, id.y, 1); } } }
+  void Matb(uint matI, uint i, int V) { Mat_b[Mat_Index(matI, i)] = V; }
+  [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_b(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { Matb(id.x, id.y, 0); } } }
+  int Matx(uint matI, uint i) { return Mat_x[Mat_Index(matI, i)]; }
+  uint MatA_Index(uint matI, uint i, uint colI) { return id_to_i(matI, i, colI, g.MatN, g.MatRowN); }
+  void MatA(uint matI, uint i, uint j, int V) { Mat_A[MatA_Index(matI, i, j)] = V; }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Init_Mat_A(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { MatA(id.x, id.y, id.z, 1); } } }
+  int MatA(uint matI, uint i, uint j) { return Mat_A[MatA_Index(matI, i, j)]; }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Mat_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatRowN && id.y < g.MatRowN && id.x < g.MatN) { InterlockedAdd(Mat_b, Mat_Index(id.x, id.z), MatA(id.x, id.y, id.z) * Matx(id.x, id.z)); } } }
+  uint Rand_UV(uint4 r) { return cxor(r); }
+  float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
+  uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
+  uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
+  uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
+  uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
+  float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
+  float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
+  uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
+  [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void A_times_x(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+	{
+		if (all(id < uint3(g.MatN, g.MatRowN, g.MatRowN)))
+		{
+			MatA(id.x, id.y, id.z, 1);
+			DeviceMemoryBarrierWithGroupSync();
+			Matx(id.x, id.y, 1);
+			DeviceMemoryBarrierWithGroupSync();
+			Matb(id.x, id.y, 0);
+			DeviceMemoryBarrierWithGroupSync();
+			InterlockedAdd(Mat_b, Mat_Index(id.x, id.z), MatA(id.x, id.y, id.z) * Matx(id.x, id.z));
+		}
+	}
+	
+  #pragma kernel A_times_x
+  #pragma kernel Multiply_Mat_A_x
+  #pragma kernel Init_Mat_b
+  #pragma kernel Init_Mat_x
+  #pragma kernel Init_Mat_A
+  #pragma kernel Rand_initState
+  #pragma kernel Rand_initSeed
+  #pragma kernel Rand_grp_init_1M
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_fill_1K

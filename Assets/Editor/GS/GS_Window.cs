@@ -2230,7 +2230,11 @@ $"\n    {m_name}_To_UI();",
 			(compute_cginc, cginc, compute_RWStructuredBuffers) = StrBldr();
 
 			cginc.Add(Enums_cginc, consts_cginc, $"\n  #define g g{Name}[0]");
-			compute_cginc.Add(cginc, $"{(SM6 ? "\n  #pragma use_dxc" : "")}");
+			//compute_cginc.Add(cginc, $"{(SM6 ? "\n  #pragma use_dxc" : "")}");
+			compute_cginc.Add(cginc);
+			//if (SM6) compute_cginc.Add("\n  #pragma use_dxc", "\n  #pragma require Int64BufferAtomics", "\n  #pragma require Native16Bit");
+			if (SM6) compute_cginc.Add("\n  #pragma use_dxc");
+
 			StrBldr s = StrBldr();
 			compute_gStruct = gStruct.Replace("\n  public ", "\n  ", "\n    public ", "\n    ");
 			declare_structs = declare_structs.Replace("public ", "");
