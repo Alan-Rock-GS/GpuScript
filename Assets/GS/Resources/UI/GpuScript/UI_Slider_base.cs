@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
+using System;
 
 namespace GpuScript
 {
@@ -135,6 +137,7 @@ namespace GpuScript
 			textField.isDelayed = true; //RegisterValueChangedCallback only called when user presses enter or gives away focus, with no Escape notification
 #endif //UNITY_STANDALONE_WIN
 			textField.RegisterValueChangedCallback(OnValueChanged);
+			textField.RegisterCallback<FocusInEvent>(OnFocusIn);
 			textField.RegisterCallback<FocusOutEvent>(OnFocusOut);
 			textField.RegisterCallback<MouseCaptureEvent>(OnMouseCaptureEvent);
 			textField.RegisterCallback<MouseCaptureOutEvent>(OnMouseCaptureOutEvent);
@@ -153,6 +156,8 @@ namespace GpuScript
 			}
 			Init(gs);
 		}
+
+
 		public void Registration()
 		{
 			RegisterCallback<MouseEnterEvent>(OnMouseEnter);
@@ -207,9 +212,12 @@ namespace GpuScript
 		public override void OnMouseLeave(MouseLeaveEvent evt) { base.OnMouseLeave(evt); mouseInside = false; }
 		public virtual void OnMouseCaptureEvent(MouseCaptureEvent evt) { mouseDown = hasFocus = true; if (hasRange && !isReadOnly) ShowSliders = true; }
 		public virtual void OnMouseCaptureOutEvent(MouseCaptureOutEvent evt) { mouseDown = hasFocus = false; if (hasRange && !isReadOnly && !mouseInside) ShowSliders = false; }
-		public void OnFocusOut(FocusOutEvent evt) { OnMouseCaptureOutEvent(null); }
+
+		public void OnFocusIn(FocusInEvent evt) { }
+		public void OnFocusOut(FocusOutEvent evt) => OnMouseCaptureOutEvent(null);
+
 		public void OnSliderFocusIn(FocusInEvent evt) { sliderHasFocus = true; }
-		public void OnSliderFocusOut(FocusOutEvent evt) { if (hasRange && !isReadOnly && !mouseInside) ShowSliders = false; sliderHasFocus = mouseInUI = false; }
+		public void OnSliderFocusOut(FocusOutEvent evt) { if (hasRange && !isReadOnly && !mouseInside) mouseInUI = ShowSliders = false; sliderHasFocus = false; }
 
 		public float siConvert => siUnit != siUnit.Null ? convert(siUnit) : 1;
 		public override void OnUnitsChanged() { if (unitLabel != null) unitLabel.text = unit; ShowSliders = false; }

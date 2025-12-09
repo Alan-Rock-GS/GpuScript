@@ -428,9 +428,14 @@ MonoBehaviour:
       x: 0
       y: 0
       z: 0
+    starAngles:
+      x: 0
+      y: 0
+      z: 0
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendWidthRatio: 0
     tiltSpin:
       x: 0
@@ -485,6 +490,7 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendViewWidth: 0
     legendWidthRatio: 0
     BDraw_boxColor:
@@ -497,6 +503,10 @@ MonoBehaviour:
       y: 0
       z: 0
     Default_Center:
+      x: 0
+      y: 0
+      z: 0
+    starAngles:
       x: 0
       y: 0
       z: 0
@@ -547,6 +557,8 @@ MonoBehaviour:
   target: {fileID: 0}
   _target: {fileID: 0}
   webCamTexture: {fileID: 0}
+  stars: {fileID: 0}
+  constellations: {fileID: 0}
 --- !u!114 &10098270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -567,6 +579,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3165328996874557979, guid: dc28e87ca57068f4e998429029150378, type: 3}
+      propertyPath: far clip plane
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3722311417343219533, guid: dc28e87ca57068f4e998429029150378, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3722311417343219533, guid: dc28e87ca57068f4e998429029150378, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3722311417343219533, guid: dc28e87ca57068f4e998429029150378, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 10000
+      objectReference: {fileID: 0}
     - target: {fileID: 3923501096145961542, guid: dc28e87ca57068f4e998429029150378, type: 3}
       propertyPath: m_LocalPosition.x
       value: 10000.544

@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
@@ -25,7 +26,7 @@ namespace GpuScript
 		}
 		public float3 Slider_Pow_Val(float3 v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
 		public float3 Slider_Log_Val(float3 v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
-		public float3 SliderV { get => Slider_Pow_Val(new float3(sliders[0].value, sliders[1].value, sliders[2].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; } }
+		public float3 SliderV { get => Slider_Pow_Val(float3(sliders[0].value, sliders[1].value, sliders[2].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y"), this.Q<Slider>("slider_z") };
 		public UI_float3() : base() { }
 		public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_float3(); } }
@@ -77,27 +78,36 @@ namespace GpuScript
 		{
 			if (evt.currentTarget is Slider && textField != null)
 			{
-				float3 val = SliderV;
-				Text(val);
-				_si = val;
+				if (ShowSliders && Key(UnityEngine.KeyCode.F1))
+				{
+					float3 s = SliderV, dV = s - previousValue;
+					if (s.x != previousValue.x) { if (all(s.yz + dV.x <= rangeMax.yz) && all(s.yz + dV.x >= rangeMin.yz)) sld_yz(s.yz + dV.x); else sld_x(previousValue.x); }
+					else if (s.y != previousValue.y) { if (all(s.xz + dV.y <= rangeMax.xz) && all(s.xz + dV.y >= rangeMin.xz)) sld_xz(s.xz + dV.y); else sld_y(previousValue.y); }
+					else if (s.z != previousValue.z) { if (all(s.xy + dV.z <= rangeMax.xy) && all(s.xy + dV.z >= rangeMin.xy)) sld_xy(s.xy + dV.z); else sld_z(previousValue.z); }
+				}
+				var val = SliderV; previousValue = val; Text(val); _si = val;
 				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
 			}
 		}
+		public float Slider_Log_Val_x(float v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin.x, rangeMax.x)) * 0.999f + 1) : v;
+		public float Slider_Log_Val_y(float v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin.y, rangeMax.y)) * 0.999f + 1) : v;
+		public float Slider_Log_Val_z(float v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin.z, rangeMax.z)) * 0.999f + 1) : v;
+		public void sld_x(float v) => sliders[0].value = Slider_Log_Val_x(v);
+		public void sld_y(float v) => sliders[1].value = Slider_Log_Val_y(v);
+		public void sld_z(float v) => sliders[2].value = Slider_Log_Val_z(v);
+		public void sld_xy(float2 v) { sld_x(v.x); sld_y(v.y); }
+		public void sld_yz(float2 v) { sld_y(v.x); sld_z(v.y); }
+		public void sld_xz(float2 v) { sld_x(v.x); sld_z(v.y); }
+
 		public override void OnTextFieldChanged(TextField o)
 		{
 			float3 val = o.value.To_float3();
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
 			else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
 			_si = val;
-			if (!hasRange)
-			{
-				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
-			}
-			else SliderV = val;
+			if (!hasRange) { if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val); } else SliderV = val;
 		}
 
-
-		//public float3 siRange, usRange;
 		public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }
 
 		public static implicit operator float3(UI_float3 f) => f.si;

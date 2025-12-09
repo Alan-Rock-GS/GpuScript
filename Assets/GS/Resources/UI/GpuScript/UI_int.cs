@@ -1,29 +1,30 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
 {
-  [UxmlElement]
-  public partial class UI_int : UI_Slider_base
-  {
-    public override bool Init(GS gs, params GS[] gss)
-    {
+	[UxmlElement]
+	public partial class UI_int : UI_Slider_base
+	{
+		public override bool Init(GS gs, params GS[] gss)
+		{
 			if (!base.Init(gs, gss) && !isGrid) return false;
 			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
-      SliderV = v = _val.To_int(); rangeMin = RangeMin.To_int(); rangeMax = RangeMax.To_int();
-      if (siUnit != siUnit.Null) { rangeMin *= roundi(convert(siUnit)); rangeMax *= roundi(convert(siUnit)); }
-      if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
-      return true;
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
-    }
-    public int Slider_Pow_Val(float v) => clamp(roundi(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
+			SliderV = v = _val.To_int(); rangeMin = RangeMin.To_int(); rangeMax = RangeMax.To_int();
+			if (siUnit != siUnit.Null) { rangeMin *= roundi(convert(siUnit)); rangeMax *= roundi(convert(siUnit)); }
+			if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
+			return true;
+		}
+		public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, float width)
+		{
+			if (att == null) return;
+			UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+			e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
+		}
+		public int Slider_Pow_Val(float v) => clamp(roundi(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
 		public float Slider_Log_Val(int v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
 		public int SliderV { get => Slider_Pow_Val(sliders[0].value); set => sliders[0].value = Slider_Log_Val(value); }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x") };
@@ -48,7 +49,9 @@ namespace GpuScript
 			get => textField != null ? _val = textField.value.To_int() : _val;
 			set
 			{
-				_val = isPow10 ? roundi(pow10(round(log10(value)))) : isPow2 ? roundi(pow2(round(log2(value)))) : value;
+				//_val = isPow10 ? roundi(pow10(round(log10(value)))) : isPow2 ? roundi(pow2(round(log2(value)))) : value;
+				_val = get_pow_val(value);
+
 				if (Nearest > 0) _val = roundi(_val, Nearest);
 				Text(_val);
 				if (hasRange) SliderV = _val;
@@ -64,17 +67,26 @@ namespace GpuScript
 		public int rangeMax { get => _rangeMax; set { _rangeMax = value; if (sliders[0] != null) for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = Slider_Log_Val(value); } }
 
 		int previousValue;
-		public override void OnValueChanged(ChangeEvent<float> evt)
+		public int get_pow_val(int x) => isPow10 ? roundi(pow10(round(log10(x)))) : isPow2 ? roundi(pow2(round(log2(x)))) : x;
+		public int get_val(int x)
 		{
-			if (evt.currentTarget is Slider && textField != null)
+			x = get_pow_val(x);
+			if (Nearest > 0) x = roundi(x, Nearest); if (NearestDigit) x = GetNearestDigit(x);
+			return x;
+		}
+		public override void OnValueChanged(ChangeEvent<float> evt) { if (evt.currentTarget is Slider && textField != null) { var x = get_val(SliderV); if (isGrid || x != v) Text(x); } }
+		public override void OnTextFieldChanged(TextField o)
+		{
+			var x = get_val(o.value.To_int());
+			if (isGrid || x != v)
 			{
-				var val = SliderV;
-				Text(val);
-				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+				if (hasRange)
+					SliderV = x;
+				if (!GS.isGridVScroll && !GS.isGridBuilding)
+					SetPropertyValue(x);
 			}
 		}
 
-		public override void OnTextFieldChanged(TextField o) { if (hasRange) SliderV = o.value.To_int(); SetPropertyValue(o.value.To_int()); }
 
 		public override bool Changed { get => v != _v; set => _v = value ? v - 1 : v; }
 		public static implicit operator int(UI_int f) => f.v;

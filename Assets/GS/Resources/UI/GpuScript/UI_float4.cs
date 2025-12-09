@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript

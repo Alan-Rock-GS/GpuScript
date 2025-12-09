@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
@@ -132,8 +133,8 @@ namespace GpuScript
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator ==(float2 a, int b) => float2(a.x == b ? 1 : 0, a.y == b ? 1 : 0);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !=(float2 a, int b) => 1 - (a == b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !(float2 v) => Complement(v);
-		[MethodImpl(MethodImplOptions.AggressiveInlining)] public static float operator ^(float2 a, float2 b) {return (Antiwedge(a, b));}
+  //  [MethodImpl(MethodImplOptions.AggressiveInlining)] public static float2 operator !(float2 v) => Complement(v);
+		//[MethodImpl(MethodImplOptions.AggressiveInlining)] public static float operator ^(float2 a, float2 b) {return (Antiwedge(a, b));}
 
 
 	[JsonIgnore, EditorBrowsable(EditorBrowsableState.Never)] public float2 xx { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => float2(x, x); [MethodImpl(MethodImplOptions.AggressiveInlining)] set => x = y = value.x; }

@@ -15,13 +15,10 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 using UnityEditor.Compilation;
 
-/// <summary>
-/// Omit all unnecessary folders~ when selecting a project
-/// Double-click folder in project to load the scene
-/// </summary>
 //https://www.youtube.com/watch?v=Xy_jvBg1vS0
 [InitializeOnLoad]
 public class GS_Window : EditorWindow
@@ -74,12 +71,7 @@ public class GS_Window : EditorWindow
 
 	[SerializeField] VisualTreeAsset visualTreeAsset;
 
-	[MenuItem("Window/GpuScript")]
-	public static void ShowWindow()
-	{
-		var w = GetWindow<GS_Window>("GpuScript");
-		w.minSize = new Vector2(200, 50);
-	}
+	[MenuItem("Window/GpuScript")] public static void ShowWindow() => GetWindow<GS_Window>("GpuScript").minSize = new Vector2(200, 50);
 
 	[SerializeField] string gsClass_name_val, Lib_info_val, package_name_val, backup_description_val, backup_omitFolders_val, exe_Version_val, company_val, password_val;
 	[SerializeField] bool gsClass_Run_Val, exe_Parent_val, exe_Build_val, exe_Debug_val, exe_Run_val;
@@ -145,7 +137,7 @@ public class GS_Window : EditorWindow
 	}
 
 	bool ignoreTextFieldChange = false;
-	private void TextFieldChanged(TextField textField)
+	void TextFieldChanged(TextField textField)
 	{
 		if (ignoreTextFieldChange) { ignoreTextFieldChange = false; return; }
 		if (textField == gsClass_name && textField.value.IsNotEmpty() && textField.value.DoesNotStartWith("gs")) { ignoreTextFieldChange = true; textField.value = "gs" + textField.value; }
@@ -159,8 +151,7 @@ public class GS_Window : EditorWindow
 		This = this;
 		SaveScene();
 
-		string scenePath = SceneManager.GetActiveScene().path;
-		string assemblyName = scenePath.Between("Assets/", "/");
+		string scenePath = SceneManager.GetActiveScene().path, assemblyName = scenePath.Between("Assets/", "/");
 		string name0 = oldSceneName, name1 = newSceneName, gsName0 = $"gs{oldSceneName}", gsName1 = $"gs{newSceneName}";
 		string path = $"{AssetsPath}{assemblyName}/", path0 = $"{path}{gsName0}/", path1 = $"{path}{gsName1}/";
 		path1.CreatePath();
@@ -214,7 +205,7 @@ public class GS_Window : EditorWindow
 	public static string SceneName => EditorSceneManager.GetActiveScene().name;
 	bool OpenScene(string name) { var f = $"Assets/gs{name}/{name}.unity"; return (dataPath + f).Exists() && EditorSceneManager.OpenScene(f).IsValid(); }
 
-	private void ToggleChanged(Toggle toggle) { if (exe_Debug != null) exe_Debug.style.display = DisplayIf(exe_Build.value); }
+	void ToggleChanged(Toggle toggle) { if (exe_Debug != null) exe_Debug.style.display = DisplayIf(exe_Build.value); }
 
 	void OnEnable()
 	{
@@ -261,15 +252,12 @@ public class GS_Window : EditorWindow
 		}
 	}
 
-	public void android_projectPath_clicked(ClickEvent evt = null) { print(projectPath); projectPath.Run(); }
-	public void android_persistentPath_clicked(ClickEvent evt = null) { print(dataPath); }
+	public void android_projectPath_clicked(ClickEvent evt = null) => projectPath.print().Run();
+	public void android_persistentPath_clicked(ClickEvent evt = null) => dataPath.print();
 
-	public static void ClearConsole() { System.Reflection.Assembly.GetAssembly(typeof(SceneView)).GetType("UnityEditor.LogEntries").GetMethod("Clear").Invoke(new object(), null); }
+	public static void ClearConsole() => System.Reflection.Assembly.GetAssembly(typeof(SceneView)).GetType("UnityEditor.LogEntries").GetMethod("Clear").Invoke(new object(), null);
 
-	public void android_phonePath_clicked(ClickEvent evt = null)
-	{
-		print($@"This PC\Galaxy S20 Ultra 5G\Internal storage\Android\data\{Application.identifier}\files");
-	}
+	public void android_phonePath_clicked(ClickEvent evt = null) => $@"This PC\Galaxy S20 Ultra 5G\Internal storage\Android\data\{Application.identifier}\files".print();
 
 	public delegate void UpdateDelegate();
 
@@ -383,7 +371,7 @@ public class GS_Window : EditorWindow
 			return changed;
 		}
 
-		private IEnumerator attempt(Func<bool> f) { for (int i = 0; !f(); i++) if (i == 0) yield return null; else yield break; }
+		IEnumerator attempt(Func<bool> f) { for (int i = 0; !f(); i++) if (i == 0) yield return null; else yield break; }
 		public StrBldr StrBldr(params object[] items) => new StrBldr(items);
 
 		bool created_GS_Code = false;
@@ -431,8 +419,7 @@ public class GS_Window : EditorWindow
 		void StackFields(StrBldr sb, string type, string name, string indent = "    ")
 		{
 			string s = sb.ToString(), t = $"public {type} ";
-			if (s.Contains(t)) sb.Set(s.BeforeIncluding(t), s.Between(t, ";"), $", {name};", s.After(t).After(";"));
-			else sb.Add("\n", indent, t, name, ";");
+			if (s.Contains(t)) sb.Set(s.BeforeIncluding(t), s.Between(t, ";"), $", {name};", s.After(t).After(";")); else sb.Add("\n", indent, t, name, ";");
 		}
 
 		void Get_gStruct()
@@ -568,10 +555,8 @@ public class GS_Window : EditorWindow
 
 				if (!e.isExternalLib && e.attGS != null && member.Name != "class" && !isRenderMethod && !e.attGS.GroupShared)
 				{
-					//e.treeGroup = treeGrps.Peek()?.memberInfo;
 					e.tree = treeGrps.Count == 0 ? "" : treeGrps.Peek();
 					UI_VisualElement.UXML_UI_Element(e, _gs_members);
-					//if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(e); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
 					if (e._GS_memberType == typeof(TreeGroup)) treeGrps.Push(member.Name); else if (e._GS_memberType == typeof(TreeGroupEnd)) treeGrps.Pop();
 				}
 				else if (e.isExternalLib) //if is a library, insert UI
@@ -579,9 +564,7 @@ public class GS_Window : EditorWindow
 					string uxml_file = $"{AssemblyPath(e._GS_memberType.ToString())}{e._GS_memberType}_UXML.uxml", ui0 = "<GpuScript.UI_GS ", ui1 = "</GpuScript.UI_GS>";
 					if (uxml_file.Exists())
 					{
-						//string lib_t = uxml_file.ReadAllText(), lib_ui0 = "UI_TreeGroup_Level=\"", lib_ui1 = "\"";
 						string lib_t = uxml_file.ReadAllText(), lib_ui0 = "level=\"", lib_ui1 = "\"";
-
 						if (lib_t.ContainsAll(ui0))
 						{
 							lib_t = lib_t.After(ui0).AfterIncluding("\n").BeforeLast(ui1).BeforeLast("\n");
@@ -593,12 +576,10 @@ public class GS_Window : EditorWindow
 								else if (_gs_members[i].IsType(typeof(TreeGroupEnd))) { treeLevel_offset--; treeLevels.RemoveAt(treeLevels.Count - 1); }
 								else if (_gs_members[i].IsType(e._GS_memberType)) break;
 							}
-							//while (lib_t.Contains("UI_TreeGroup_Level=\""))
 							while (lib_t.Contains("level=\""))
 							{
 								int treeLevel = lib_t.Between(lib_ui0, lib_ui1).To_int();
 								e.uxml.Add(lib_t.BeforeIncluding(lib_ui0), treeLevel + treeLevel_offset, lib_ui1);
-								//if (treeLevel == 0) e.uxml.Add($" UI_TreeGroup_Parent=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
 								if (treeLevel == 0) e.uxml.Add($" tree=\"{(treeLevels.Count == 0 ? "" : _gs_members[treeLevels[^1]].Name)}\"");
 								lib_t = lib_t.After(lib_ui0).After(lib_ui1);
 							}
@@ -611,43 +592,6 @@ public class GS_Window : EditorWindow
 			in_Get_ui_items = false;
 			return e;
 		}
-
-		//	public IEnumerator Build_UXML_Coroutine()
-		//	{
-		//		print("Build_UXML_Coroutine a");
-		//		if (_GS_Code.DoesNotContain("[GS_UI, AttGS(\"")) yield break;
-		//		print("Build_UXML_Coroutine b");
-		//		if (!Get_uiDocument()) yield break;
-		//		print("Build_UXML_Coroutine c");
-		//		if (root == null || UI_GS == null)
-		//		{
-		//			var uxml = StrBldr().AddLines(
-		//"<ui:UXML xmlns:ui=\"UnityEngine.UIElements\" xmlns:uie=\"UnityEditor.UIElements\" editor-extension-mode=\"False\">",
-		//$"    <Style src=\"project://database/Assets/GS/Resources/UI/GpuScript/gs_USS.uss?fileID=7433441132597879392&amp;guid={new_uxml_guid()}&amp;type=3#{gsName}_USS\" />",
-		//"    <ui:VisualElement name=\"Root\" style=\"flex-grow: 1; -unity-font: resource(&apos;Arial Font/arial Unicode&apos;);\">",
-		//"        <GpuScript.UI_GS name=\"UI_GS\" style=\"width: auto; flex-wrap: wrap; flex-grow: 1;\">",
-		//"        </GpuScript.UI_GS>",
-		//"        <ui:ProgressBar picking-mode=\"Ignore\" name=\"Progress\" label=\"Progress\" value=\"0\" low-value=\"0\" high-value=\"100\" title=\"\" style=\"flex-grow: 0; min-height: 24px; width: 100%;\" />",
-		//"    </ui:VisualElement>",
-		//"</ui:UXML>");
-
-		//			if (uxml_filename.WriteAllText_IfChanged(uxml)) { }
-
-		//			root = uiDocument.rootVisualElement?.Q<VisualElement>("Root");
-		//		}
-		//		UI_GS = uiDocument.rootVisualElement?.Q("UI_GS") ?? new VisualElement();
-		//		Build_USS_File();
-
-		//		string t = uxml_filename.ReadAllText(), ui0 = "<GpuScript.UI_GS ", ui1 = "</GpuScript.UI_GS>";
-		//		if (t.ContainsAll(ui0))
-		//		{
-		//			StrBldr t0 = StrBldr(t.BeforeIncluding(ui0), t.Between(ui0, "\n")), t1 = StrBldr(t.Before(ui1).AfterLastIncluding("\n"), t.AfterIncluding(ui1));
-		//			UI_Element e = Get_ui_items();
-		//			e.uxml = StrBldr(t0, e.uxml, t1);
-		//			if (uxml_filename.WriteAllText_IfChanged(e.uxml)) { }
-		//		}
-		//		print("Build_UXML_Coroutine z");
-		//	}
 
 		public void Build_UXML()
 		{
@@ -856,7 +800,7 @@ public class GS_Window : EditorWindow
 				return b;
 			}
 			public void AddReadBuffer(buffer_data buff) { if (buff.isNotGroupShared) AddBuffer(buff).read = true; }
-			public void AddWriteBuffer(buffer_data buff) { AddBuffer(buff).write = true; }
+			public void AddWriteBuffer(buffer_data buff) => AddBuffer(buff).write = true;
 			public void AddReadWriteBuffer(buffer_data buff) { var b = AddBuffer(buff); b.read = b.write = true; }
 
 			public void SetReadWriteBuffers()
@@ -895,18 +839,13 @@ public class GS_Window : EditorWindow
 		public void Calc_Buffers()
 		{
 			texture_flds = _GS_fields.Where(a => a.FieldType == typeof(Texture2D)).Select(a => a).ToList();
-
 			(drawSphere, Texture2Ds, RWStructuredBuffers, AllocDatas, compute_groupshared, base_groupshared, addComputeBuffers, RenderSetValues, renderObject) = StrBldr();
-
-			foreach (var fld in texture_flds) Texture2Ds.Add($"\n  public Texture2D {fld.Name};");
+			if (texture_flds.Count > 0) Texture2Ds.Add($"\n  [HideInInspector] public Texture2D {texture_flds.Select(a => a.Name).Join(",")};");
 			var (s, gParams) = StrBldr();
-
 			AllocDatas.Add($"\n  public virtual void AllocData_g{Name}(uint n) => AddComputeBuffer(ref g{Name}, nameof(g{Name}), n);");
 			addComputeBuffers.Add(
 	 $"\n    AllocData_g{Name}(1);",
 	 "\n    InitKernels();");
-
-
 			for (int i = 0; i < kernel_methods.Count; i++)
 			{
 				var k = kernel_methods[i];
@@ -914,7 +853,6 @@ public class GS_Window : EditorWindow
 				addComputeBuffers.Add($", kernel_{k.methodName}");
 				if (i % 16 == 15 || i == kernel_methods.Count - 1) addComputeBuffers.Add(");");
 			}
-
 			foreach (var buff in buffers)
 			{
 				string bufferType = buff.GetTypeName, bufferName = buff.name, bufferComment = buff.comment.IsEmpty() ? "" : $"//{buff.comment}";
@@ -951,8 +889,7 @@ public class GS_Window : EditorWindow
 			foreach (var cFld in cFlds)
 			{
 				var att = cFld.AttGS();
-				string description = att?.Description ?? "";
-				string fName = cFld.Name;
+				string description = att?.Description ?? "", fName = cFld.Name;
 				if (fName.Contains("+")) fName = fName.After("+");
 				string fldType = cFld.FieldType.ToString();
 				if (fldType.Contains("+")) fldType = fldType.After("+");
@@ -1056,7 +993,7 @@ public class GS_Window : EditorWindow
 			compute_or_material_shader = StrBldr(
 				"\n  [Serializable]", gStruct,
 			 $"\n  public RWStructuredBuffer<G{Name}> g{Name};", declare_structs, RWStructuredBuffers, AllocDatas,
-				"\n  public Texture2D _PaletteTex;",
+				"\n  [HideInInspector] public Texture2D _PaletteTex;",
 				"\n  public float4 palette(float v) => paletteColor(_PaletteTex, v);",
 				"\n  public float4 palette(float v, float w) => float4(palette(v).xyz, w);",
 				"\n", Texture2Ds,
@@ -1204,7 +1141,6 @@ public class GS_Window : EditorWindow
 
 			var (vertDrawSegments, virtual_verts, vertCode, s_frag, fragCode) = StrBldr();
 			string regions = _cs_lib_regions;
-			//int libI = 0;
 			var libNames = lib_flds.Select(a => a.Name).ToList();
 			for (int i = 0; i < libNames.Count; i++)//detect if lib is or has BDraw, and make that libI == 0
 				if (_GS_Code.Contains($"{libNames[i]}_BDraw_")) { if (i > 0) { var item = libNames[i]; libNames.RemoveAt(i); libNames.Insert(0, item); } break; }
@@ -1215,8 +1151,6 @@ public class GS_Window : EditorWindow
 
 				if (m != null)
 				{
-					//libI = libNames.Select((a, i) => new { a, i }).Where(a => m.methodName.After("vert_").StartsWith(a.a + "_")).Select(a => a.i).FirstOrDefault();
-					//libI = libNames.IndexOf(a => m.methodName.After("vert_").StartsWith(a + "_"));
 					var elseStr = i == 0 ? "" : "else ";
 					if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;");
 					vertDrawSegments.Add($"\n    {elseStr}if (level == ++index) o = {m.methodName}(i, j, o);");
@@ -1237,7 +1171,6 @@ public class GS_Window : EditorWindow
 "\n  }");
 
 			s_frag.Set("color;");
-			//libI = 0;
 			foreach (var lib_fld in lib_flds)
 				if (lib_fld.isInternal_Lib() && lib_fld.Name.IsAny("VGrid_Lib", "Axes_Lib", "Mesh_Lib", "BDraw")) s_frag.Set($"frag_{lib_fld.Name}_GS(i, color);");
 
@@ -1350,7 +1283,7 @@ public class GS_Window : EditorWindow
 						{
 							string modifiers = attGS.Key.Contains("(") ? attGS.Key.Before("(") + ", " : "";
 							string key = attGS.Key.Contains("(") ? attGS.Key.Between("(", ")") : attGS.Key;
-							lateUpdate_keys.Add($"\n    if (GetKeyDown({modifiers}'{key}')) {gs_member.Name} = !{gs_member.Name};");
+							lateUpdate_keys.Add($"\n    if (!mouseInUI && GetKeyDown({modifiers}'{key}')) {gs_member.Name} = !{gs_member.Name};");
 						}
 					}
 
@@ -1361,7 +1294,7 @@ public class GS_Window : EditorWindow
 							string modifiers = attGS.Key.Contains("(") ? attGS.Key.Before("(") + ", " : "";
 							string key = attGS.Key.Contains("(") ? attGS.Key.Between("(", ")") : attGS.Key;
 							if (attGS.isSync) lateUpdate_keys.Add($"\n    if (GetKeyDown({modifiers}'{key}')) StartCoroutine({gs_member.Name}());");
-							else lateUpdate_keys.Add($"\n    if (GetKeyDown({modifiers}'{key}')) {gs_member.Name}();");
+							else lateUpdate_keys.Add($"\n    if (!mouseInUI && GetKeyDown({modifiers}'{key}')) {gs_member.Name}();");
 						}
 						UI_method._cs_Write(_GS_fieldType, gs, tData, lateUpdate, lateUpdate_ValuesChanged, showIfs, onValueChanged, attGS, m_typeStr, gs_member.Name);
 						if (attGS.ShowIf != null)
@@ -1522,7 +1455,6 @@ $"\n    {m_name} = label switch",
 													grid_ShowIf.Add($"\n    if (col == {m_name}_{fldName}_Col) return {att.ShowIf.ToString().ReplaceAll("False", "false", "True", "true")};");
 												if (fldTyp == typeof(bool)) ui_to_array.Add($"\n      row.{fldName}{v} = ui.{fldName}.To_uint();");
 												else ui_to_array.Add($"\n      row.{fldName}{v} = {enumCast}ui.{fldName};");
-												//grid_item_OnValueChanged.Add($"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue) {{ }}");
 												grid_item_OnValueChanged.Add(
 $"\n  public virtual void {m_name}_{fldName}_OnValueChanged(int row, {arrayFldType} previousValue)",
  "\n  {",
@@ -1531,11 +1463,7 @@ $"\n    var grid = UI_grid_{m_name};",
  "\n    {",
  "\n    	bool changed = false;",
  "\n    	for (int i = 0; i < min(grid.RowItems.Count, grid.isRowSelected.Length); i++)",
-//$"\n    		if (i != row && grid.isRowSelected[i]) {{ {m_name}[i].{fldName} = {m_name}[row].{fldName}; changed = true; }}",
-//$"\n    		if (i != row && grid.isRowSelected[i]) {{ {m_name}[i].Data.{fldName} = {m_name}[row].{fldName}; changed = true; }}",
 $"\n    		if (i != row && grid.isRowSelected[i]) {{ var t = {m_name}[i]; t.{fldName} = {m_name}[row].{fldName}; {m_name}[i] = t; changed = true; }}",
-//if (i != row && grid.isRowSelected[i]) { var t = segYFolders[i]; t.segy_include = segYFolders[row].segy_include; segYFolders[i] = t; changed = true; }
-
 $"\n    	if (changed) {m_name}_To_UI();",
  "\n    }",
  "\n  }");
@@ -1630,7 +1558,6 @@ $"\n    {m_name}_To_UI();",
 		"\n  {",
 		$"\n    if (!ui_loaded) return;",
 		$"\n    var UI_grid = UI_grid_{m_name};",
-		//"\n		if (UI_grid.isBuilding) return;\r\n",
 		$"\n    int startRow = UI_grid.StartRow;", grid_OnValueChanged,
 		"\n  }",
 
@@ -1649,7 +1576,6 @@ $"\n    {m_name}_To_UI();",
 
 		$"\n  public virtual int[] {m_name}_SelectedRows",
 		"\n  {",
-		//$"\n    get => UI_grid_{m_name}.isRowSelected.Select((a, i) => new {{ a, i }}).Where(a => a.a).Select(a => a.i).ToArray();",
 		$"\n    get => UI_grid_{m_name}.isRowSelected.IndexesOf(a => a).ToArray();",
 		"\n    set",
 		"\n    {",
@@ -1748,7 +1674,6 @@ $"\n    {m_name}_To_UI();",
 											$"\n    UI_grid_{m_name}.lastClickedRow = data.{m_name}_lastClickedRow;",
 											$"\n    {m_name} ??= new {m_typeStr} {{ }};",
 											$"\n    UI_grid_{m_name}.isRowSelected = data.{m_name}_selectedRows.RangeStr_to_bools({m_name}.Length);",
-											//$"\n    UI_grid_{m_name}.DrawGrid();",
 											"");
 										var arrayWrappers = StrBldr();
 										row = 0;
@@ -1876,13 +1801,9 @@ $"\n    {m_name}_To_UI();",
 			"\n  {",
 			"\n    if (data == null) return;", ui_to_data,
 			"\n  }",
-			//"\n  public bool in_data_to_ui;",
 			"\n  public override void data_to_ui()",
 			"\n  {", data_to_ui_Defaults,
 			"\n    if (data == null) return;", data_to_ui,
-			//"\n    if (data == null) return;",
-			//"\n    in_data_to_ui = true;", data_to_ui,
-			//"\n    in_data_to_ui = false;", 
 			"\n  }", OnGrid,
 			"\n  public virtual void Save(string path, string projectName)",
 			"\n  {",
@@ -1934,10 +1855,6 @@ $"\n    {m_name}_To_UI();",
 			"\n    Update0_GS();", update,
 			"\n    Update1_GS();",
 			"\n  }", s_Update0, s_Update1,
-
-			//"\n  public override void OnApplicationQuit() { Save_UI(); OnApplicationQuit0_GS(); base.OnApplicationQuit(); OnApplicationQuit1_GS(); already_quited = true; }", s_OnApplicationQuit0, s_OnApplicationQuit1,
-			//"\n  public override void OnUnitsChanged() { base.OnUnitsChanged(); OnUnitsChanged_GS(); }", s_OnUnitsChanged0, s_OnUnitsChanged1, gridWrapper,
-
 			"\n  public override void OnValueChanged()",
 			"\n  {",
 			"\n    if (!ui_loaded) return;",
@@ -1946,9 +1863,7 @@ $"\n    {m_name}_To_UI();",
 			"", showIfs, dataWrappers, uiWrappers, tData, initBuffers, base_groupshared, declare_classes, classArrays,
 			compute_or_material_shader, kernels_,
 			vertCode, virtual_verts, renderObject, fragCode,
-			//"\n  public uint2 d_asuint(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }",
 			"\n  public uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }",
-			//"\n  public double uint2_to_double(uint2 v) => asdouble(v.x, v.y);",
 			"\n}");
 
 			var matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override)?)\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|#region|#endregion|\r\n}|\n})"; // if lib overrides an OnGrid method, add "base_" prefix to OnGrid method. Same for dataWrappers
@@ -2016,13 +1931,13 @@ $"\n    {m_name}_To_UI();",
 		public class List_method_data : List<method_data>
 		{
 			public List_method_data() { }
-			private List_method_data New() => new List_method_data();
-			public void Deconstruct(out List_method_data s1) { s1 = New(); }
-			public void Deconstruct(out List_method_data s1, out List_method_data s2) { s1 = New(); s2 = New(); }
-			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3) { s1 = New(); s2 = New(); s3 = New(); }
-			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3, out List_method_data s4) { s1 = New(); s2 = New(); s3 = New(); s4 = New(); }
-			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3, out List_method_data s4, out List_method_data s5) { Deconstruct(out s1, out s2, out s3, out s4); s5 = New(); }
-			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3, out List_method_data s4, out List_method_data s5, out List_method_data s6) { Deconstruct(out s1, out s2, out s3, out s4); s5 = New(); s6 = New(); }
+			List_method_data New() => new List_method_data();
+			public void Deconstruct(out List_method_data s1) => s1 = New();
+			public void Deconstruct(out List_method_data s1, out List_method_data s2) => (s1, s2) = (New(), New());
+			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3) => (s1, s2, s3) = (New(), New(), New());
+			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3, out List_method_data s4) => (s1, s2, s3, s4) = (New(), New(), New(), New());
+			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3, out List_method_data s4, out List_method_data s5) => (s1, s2, s3, s4, s5) = (New(), New(), New(), New(), New());
+			public void Deconstruct(out List_method_data s1, out List_method_data s2, out List_method_data s3, out List_method_data s4, out List_method_data s5, out List_method_data s6) => (s1, s2, s3, s4, s5, s6) = (New(), New(), New(), New(), New(), New());
 		}
 
 		public void GetReadWriteBuffers()
@@ -2043,34 +1958,18 @@ $"\n    {m_name}_To_UI();",
 			foreach (Match match in _cs_method_matches)
 			{
 				var m = new method_data(Name, match);
-				if (m.name.DoesNotStartWithAny("Cpu_", "Gpu_"))
-					methods.Add(m);
+				if (m.name.DoesNotStartWithAny("Cpu_", "Gpu_")) methods.Add(m);
 			}
-			//var GS_kernel_matches = _GS_Code.RegexMatch(@"\bvoid (.*?)\(\) \{ Size\(");
-			//for (int i = methods.Count - 1; i >= 0; i--)//remove kernel methods in _cs that are not in _GS
-			//{
-			//  var m = methods[i];
-			//  if (m.isKernel && GS_kernel_matches.FirstOrDefault(a => a.Group(1) == m.methodName) == null)
-			//    methods.RemoveAt(i);
-			//}
-			//foreach (Match match in GS_kernel_matches)//add kernel_methods from _GS that are not in _cs_method_matches
-			//{
-			//  string methodName = match.Group(1);
-			//  if (methods.FirstOrDefault(a => a.methodName == methodName) == null)
-			//    methods.Add(new method_data(Name, methodName));
-			//}
 			var GS_kernel_matches = _GS_Code.RegexMatch(@"\bvoid (.*?)\(\).*?Size\(");
 			for (int i = methods.Count - 1; i >= 0; i--)//remove kernel methods in _cs that are not in _GS
 			{
 				var m = methods[i];
-				if (m.isKernel && GS_kernel_matches.FirstOrDefault(a => a.Group(1) == m.methodName) == null)
-					methods.RemoveAt(i);
+				if (m.isKernel && GS_kernel_matches.FirstOrDefault(a => a.Group(1) == m.methodName) == null) methods.RemoveAt(i);
 			}
 			foreach (Match match in GS_kernel_matches)//add kernel_methods from _GS that are not in _cs_method_matches
 			{
 				string methodName = match.Group(1);
-				if (methods.FirstOrDefault(a => a.methodName == methodName) == null)
-					methods.Add(new method_data(Name, methodName));
+				if (methods.FirstOrDefault(a => a.methodName == methodName) == null) methods.Add(new method_data(Name, methodName));
 			}
 			foreach (Match match in cs_method_matches)// replace virtual _cs methods with override code from cs, add methods in cs not in _cs
 			{
@@ -2084,8 +1983,7 @@ $"\n    {m_name}_To_UI();",
 						override_code.code = override_code.code.RegexReplace(@$"\bbase.{override_code.name}\(", @$"base_{override_code.name}(");
 						virtual_code.inheritance = "";
 					}
-					else
-						methods.Remove(virtual_code);
+					else methods.Remove(virtual_code);
 				}
 				override_code.inheritance = "";
 				methods.Add(override_code);
@@ -2095,19 +1993,10 @@ $"\n    {m_name}_To_UI();",
 				var method = methods[i];
 				if (method.isKernel)
 				{
-					if (_GS_methods.FirstOrDefault(a => a.Name == method.methodName) != null)
-					{
-						compute_include_methods.Add(method);
-						kernel_methods.Add(method);
-					}
+					if (_GS_methods.FirstOrDefault(a => a.Name == method.methodName) != null) { compute_include_methods.Add(method); kernel_methods.Add(method); }
 					methods.RemoveAt(i);
 				}
-				else if (method.name.IsAny("vert_GS", "frag"))
-				{
-					vert_frag_include_methods.Add(method);
-					vert_frag_methods.Add(method);
-					methods.RemoveAt(i);
-				}
+				else if (method.name.IsAny("vert_GS", "frag")) { vert_frag_include_methods.Add(method); vert_frag_methods.Add(method); methods.RemoveAt(i); }
 			}
 			Get_include_methods(compute_include_methods, methods);
 			foreach (var include_method in compute_include_methods)
@@ -2134,38 +2023,20 @@ $"\n    {m_name}_To_UI();",
 						break;
 					}
 			}
-			//foreach (var m in kernel_methods)
-			//{
-			//  string nm = m.name.Between("g" + Name + "_", "_GS"), items = _GS_Code.After($"void {nm}()").Between("{", "}"), size = items.Between("Size(", ");");
-			//  m.SetSizeInfo(GetSizeInfo(size));
-			//  m.sync = items.ContainsAny("Sync();", "SyncSize(");
-			//}
 			foreach (var m in kernel_methods)
 			{
-				//string nm = m.name.Between("g" + Name + "_", "_GS"), items = _GS_Code.After($"void {nm}()").Before("\n"), size = items.Between("Size(", ");");
-				string nm = m.name.Between("g" + Name + "_", "_GS");
-				string items = _GS_Code.Contains($"void {nm}()") ? _GS_Code.After($"void {nm}()").Before("\n") : "Size(1);";
-				//string items;
-				//string srch_str = $"void {nm}()";
-				//if (_GS_Code.Contains(srch_str))
-				//	items = _GS_Code.After(srch_str).Before("\n");
-				//else
-				//{
-				//	srch_str
-				//}
+				string nm = m.name.Between("g" + Name + "_", "_GS"), items = _GS_Code.Contains($"void {nm}()") ? _GS_Code.After($"void {nm}()").Before("\n") : "Size(1);";
 				string size = items.Between("Size(", ");");
-
 				m.SetSizeInfo(GetSizeInfo(size));
 				m.sync = items.ContainsAny("Sync();", "SyncSize(");
 			}
-			foreach (var method in kernel_methods)
-				method.SetReadWriteBuffers();
+			foreach (var method in kernel_methods) method.SetReadWriteBuffers();
 			Topological_Sort(compute_include_methods);
 			Get_include_methods(vert_frag_include_methods, methods);
 			Topological_Sort(vert_frag_include_methods);
 		}
 
-		private void Topological_Sort(List_method_data include_methods)
+		void Topological_Sort(List_method_data include_methods)
 		{
 			var ms = new List_method_data();
 			foreach (var m in include_methods) ms.Add(m);
@@ -2178,7 +2049,7 @@ $"\n    {m_name}_To_UI();",
 				}
 		}
 
-		private void MatchCode(string code, method_data include_method, List_method_data include_methods, List_method_data methods)
+		void MatchCode(string code, method_data include_method, List_method_data include_methods, List_method_data methods)
 		{
 			var matches = code.RegexMatch(@$"\b(\w+)\b(\(.*(?=\;|\n|\r|.*))");
 			foreach (Match match in matches)
@@ -2211,13 +2082,9 @@ $"\n    {m_name}_To_UI();",
 			}
 		}
 
-		private void Get_include_methods(List_method_data include_methods, List_method_data methods)//adds additional include_methods in order
+		void Get_include_methods(List_method_data include_methods, List_method_data methods)//adds additional include_methods in order
 		{
-			for (int i = 0; i < include_methods.Count; i++)
-			{
-				var m = include_methods[i];
-				MatchCode(m.code, m, include_methods, methods);
-			}
+			for (int i = 0; i < include_methods.Count; i++) { var m = include_methods[i]; MatchCode(m.code, m, include_methods, methods); }
 			StrBldr s = StrBldr();
 			foreach (var include_method in include_methods)
 			{
@@ -2298,60 +2165,56 @@ $"\n    {m_name}_To_UI();",
 				ForceRecompile();
 				yield return null;
 			}
-			//print($"D, changed = {changed}");
 
-			//if (!changed) //removed this so that shaders recompile when .cs file changes
+			bool added_scripts = false;
+			foreach (var lib_fld in lib_flds)
 			{
-				bool added_scripts = false;
-				foreach (var lib_fld in lib_flds)
+				if (lib_fld.isExternal_Lib())
 				{
-					if (lib_fld.isExternal_Lib())
+					string scriptName = "gs" + lib_fld.Name;
+					GS gs_script = gameObject.GetComponent(scriptName) as GS;
+					if (gs_script == null)
 					{
-						string scriptName = "gs" + lib_fld.Name;
-						GS gs_script = gameObject.GetComponent(scriptName) as GS;
+						try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
 						if (gs_script == null)
 						{
-							try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
-							if (gs_script == null)
+							try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GSA_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
+							if (gs_script != null)
 							{
-								try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GSA_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
-								if (gs_script != null)
-								{
-									string f = $"{AssemblyPath(scriptName)}{scriptName}";
-									gs_script.material = $"{f}.mat".LoadAssetAtPath<Material>();
-									gs_script.computeShader = $"{f}.compute".LoadAssetAtPath<ComputeShader>();
-								}
-								added_scripts = true;
+								string f = $"{AssemblyPath(scriptName)}{scriptName}";
+								gs_script.material = $"{f}.mat".LoadAssetAtPath<Material>();
+								gs_script.computeShader = $"{f}.compute".LoadAssetAtPath<ComputeShader>();
 							}
-							else if (!gs_script.enabled) gs_script.enabled = true;
+							added_scripts = true;
 						}
 						else if (!gs_script.enabled) gs_script.enabled = true;
 					}
+					else if (!gs_script.enabled) gs_script.enabled = true;
 				}
-				if (added_scripts) { SaveActiveScene(); AutoRefresh = true; }
-
-				compileTimeStr.Add($", _GS_Build_Libs: {ClockSec_Segment():0.##} sec");
-
-				if (gs != null) //assign library fields to library prefab gameobjects
-					foreach (var f in gs.GetType().GetFields(bindings).Where(a => a.FieldType.IsType(typeof(GS)) && a.GetValue(gs) == null))
-						f.SetValue(gs, FindGameObject(f.Name)?.GetComponent<GS>() ?? null);
-
-				//yield return This.StartCoroutine(Build_UXML_Coroutine());
-				Build_UXML();
-				GetReadWriteBuffers();
-				compileTimeStr.Add($", GetReadWriteBuffers: {ClockSec_Segment():0.##} sec");
-				_cs_Write();
-
-				compileTimeStr.Add($", _cs_Write: {ClockSec_Segment():0.##} sec");
-				compute_Write();
-
-				compileTimeStr.Add($", compute: {ClockSec_Segment():0.##} sec");
-				shader_Write();
-				compileTimeStr.Add($", shader: {ClockSec_Segment():0.##} sec");
-				if (GS_Window.This.gsClass_Run.value) EditorApplication.EnterPlaymode(); //else Beep(0.5f, 1000);
-				compileTimeStr.Add($"\nBuilt {Name}: {ClockSec_SoFar():0.##} sec");
-				print(compileTimeStr);
 			}
+			if (added_scripts) { SaveActiveScene(); AutoRefresh = true; }
+
+			compileTimeStr.Add($", _GS_Build_Libs: {ClockSec_Segment():0.##} sec");
+
+			if (gs != null) //assign library fields to library prefab gameobjects
+				foreach (var f in gs.GetType().GetFields(bindings).Where(a => a.FieldType.IsType(typeof(GS)) && a.GetValue(gs) == null))
+					f.SetValue(gs, FindGameObject(f.Name)?.GetComponent<GS>() ?? null);
+
+			Build_UXML();
+			GetReadWriteBuffers();
+			compileTimeStr.Add($", GetReadWriteBuffers: {ClockSec_Segment():0.##} sec");
+			_cs_Write();
+
+			compileTimeStr.Add($", _cs_Write: {ClockSec_Segment():0.##} sec");
+			compute_Write();
+
+			compileTimeStr.Add($", compute: {ClockSec_Segment():0.##} sec");
+			shader_Write();
+			compileTimeStr.Add($", shader: {ClockSec_Segment():0.##} sec");
+			if (GS_Window.This.gsClass_Run.value) EditorApplication.EnterPlaymode(); //else Beep(0.5f, 1000);
+			compileTimeStr.Add($"\nBuilt {Name}: {ClockSec_SoFar():0.##} sec");
+			print(compileTimeStr);
+
 			AssetDatabase.Refresh();
 			SaveScene();
 		}
@@ -2379,6 +2242,7 @@ $"\n    {m_name}_To_UI();",
 			 "\n  #include \"../../GS/GS_Compute.cginc\"",
 				compute_cginc, compute_gStruct, declare_structs, compute_groupshared, compute_RWStructuredBuffers);
 			foreach (var m in compute_include_methods)
+			//if (m.return_type != "WaitForEndOfFrame")
 			{
 				m.args = m.args.RegexReplace(@$"\bref ", "inout ");
 				m.code = m.code.RegexReplace(@$"\bref ", "", @$"\bout ", "", "\r\n", "\n");
@@ -2386,6 +2250,7 @@ $"\n    {m_name}_To_UI();",
 				if (m.code.Trim().IsEmpty()) m.code = " { }";
 				if (m.isKernel)
 				{
+					m.code = m.code.RegexReplace(@"(\w+)\[\]\s+(\w+)\s*=\s*\{", @$"$1 $2[] = {{"); //fix array declarations
 					m.code = m.code.RegexReplace(@"(\w+)\[\]\s+(\w+)\s*=\s*new\s+(\w+)\[(\d+)\];?", @$"$3 $2[$4];"); //fix array declarations
 					if (m.sync) { }
 					else if (m.code.DoesNotContain("\n")) m.code = $" {{ unchecked {{ if ({m.id_less}){m.code} }} }}";
@@ -2394,7 +2259,6 @@ $"\n    {m_name}_To_UI();",
 						if (m.code.EndsWith("\n\t")) m.code = m.code.BeforeLast("\n\t");
 						m.code = $"\n\t{{\n\t\tunchecked\n\t\t{{\n\t\t\tif ({m.id_less}){m.code.ReplaceAll("\n", "\n\t\t")}\n\t\t}}\n\t}}";
 					}
-					//else { m.code = m.code.ReplaceAll("\n  ", "\n    "); m.code = $"\n  {{\n    unchecked\n    {{\n      if ({m.id_less}){m.code}\n    }}\n  }}"; }
 
 					m.code = AddG(m.code);
 					if (m.sync) s.Add("\n  [numthreads(", m.numThreads, ")] void ", m.methodName, "(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)", m.code.RegexReplace(@"\byield return ", ""));
@@ -2405,13 +2269,10 @@ $"\n    {m_name}_To_UI();",
 
 			foreach (var k in kernel_methods) s.Add($"\n  #pragma kernel {k.methodName}");
 			foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
-			//s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
 			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "", "Int64", "int64_t");
-			//if (compute_filename.WriteAllTextAscii_IfChanged(s)) print($"{compute_filename} changed"); else print($"{compute_filename} did not change");
 			compute_filename.WriteAllTextAscii_IfChanged(s);
 
-			if (gs.computeShader == null)
-				gs.computeShader = compute_filename.LoadAssetAtPath<ComputeShader>();
+			if (gs.computeShader == null) gs.computeShader = compute_filename.LoadAssetAtPath<ComputeShader>();
 		}
 
 		public void shader_Write()
@@ -2454,7 +2315,6 @@ $"\n    {m_name}_To_UI();",
 		"\n    o.pos = o.color = o.tj = o.tk = f0000; o.normal = o.p0 = o.p1 = o.wPos = f000; o.uv = f00; o.ti = float4(i, j, 0, 0);",
 		"\n    return vert_GS(i, j, o);",
 		"\n  }");
-			//shaderCode.Add(cginc, Enums_cginc, consts_cginc, Shader_Enums, compute_gStruct, declare_structs, compute_RWStructuredBuffers, compute_or_material_shader, "\n  Texture2D _PaletteTex;");
 			shaderCode.Add(cginc, Shader_Enums, compute_gStruct, declare_structs, compute_RWStructuredBuffers, compute_or_material_shader, "\n  Texture2D _PaletteTex;");
 			var s = StrBldr().Add(
 		$"Shader \"gs/{gsName}\"",
@@ -2481,7 +2341,6 @@ $"\n    {m_name}_To_UI();",
 
 			foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
 
-			//s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "");
 			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "", "Int64", "int64_t");
 
 			if (shader_filename.WriteAllTextAscii_IfChanged(s)) { }
@@ -2630,8 +2489,6 @@ $"\n    {m_name}_To_UI();",
 
 			StrBldr _s = StrBldr();
 			foreach (var m in _methods)// add base_VGrid_InitBuffers0_GS(); from _cs_Code
-																 //if (m.name.IsAny("InitBuffers0_GS", "InitBuffers1_GS", "LateUpdate0_GS", "LateUpdate1_GS", "Update0_GS", "Update1_GS",
-																 //	"Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit", "OnUnitsChanged", "Load_UI", "Save_UI"))
 				if (m.name.IsAny("InitBuffers0_GS", "InitBuffers1_GS", "LateUpdate0_GS", "LateUpdate1_GS", "Update0_GS", "Update1_GS",
 					"Start0_GS", "Start1_GS", "OnValueChanged_GS", "onRenderObject_GS", "OnApplicationQuit0_GS", "OnApplicationQuit1_GS",
 					"OnUnitsChanged0_GS", "OnUnitsChanged1_GS", "Load_UI", "Save_UI"))
@@ -2686,7 +2543,7 @@ $"\n    {m_name}_To_UI();",
 
 			Insert_GS_methods(ref cs_Code, "void InitBuffers0_GS()", "void InitBuffers1_GS()", "void LateUpdate0_GS()", "void LateUpdate1_GS()",
 				"void Update0_GS()", "void Update1_GS()", "void Start0_GS()", "void Start1_GS()", "void OnValueChanged_GS()",
-				"void OnApplicationQuit0_GS()", "void OnApplicationQuit1_GS()", "void OnUnitsChanged0_GS()", "void OnUnitsChanged1_GS()", 
+				"void OnApplicationQuit0_GS()", "void OnApplicationQuit1_GS()", "void OnUnitsChanged0_GS()", "void OnUnitsChanged1_GS()",
 				"void onRenderObject_GS(ref bool render, ref bool cpu)", "float4 frag_GS(v2f i, float4 color) { return color; }");
 
 			foreach (var c in classList) cs_Code = cs_Code.RegexReplace($@"\b{c}_", $"{Name}_{c}_");
@@ -2761,7 +2618,7 @@ $"\n    {m_name}_To_UI();",
 			Build_Precompiled_Lib(cs_Code, _cs_Code, _GS_Code, $"{classPath}Lib/");
 		}
 
-		private void Insert_GS_methods(ref string cs_Code, params string[] methods)
+		void Insert_GS_methods(ref string cs_Code, params string[] methods)
 		{
 			var s = StrBldr();
 			foreach (var method in methods)
@@ -2789,7 +2646,7 @@ $"\n    {m_name}_To_UI();",
 			cs_Code += s;
 		}
 
-		private bool Generate_pre_and_post_methods(method_data m, string baseStr, string m_name)
+		bool Generate_pre_and_post_methods(method_data m, string baseStr, string m_name)
 		{
 			if (m.name == m_name) //generate pre and post methods
 			{
@@ -2815,7 +2672,7 @@ $"\n    {m_name}_To_UI();",
 		}
 	}
 
-	public void gsClass_Build_clicked(ClickEvent evt = null) { This = this; var project = new ProjectData(Name); project.Build(); }
+	public void gsClass_Build_clicked(ClickEvent evt = null) { This = this; new ProjectData(Name).Build(); }
 
 	public void CommentOutFile(string f)
 	{
@@ -2839,7 +2696,7 @@ $"\n    {m_name}_To_UI();",
 		}
 	}
 
-	public void gsClass_Lib_clicked(ClickEvent evt = null) { var project = new ProjectData(Name); project.Build_Precompiled_Lib(); AssetDatabase.Refresh(); }
+	public void gsClass_Lib_clicked(ClickEvent evt = null) { new ProjectData(Name).Build_Precompiled_Lib(); AssetDatabase.Refresh(); }
 
 	public void gsClass_Create_clicked(ClickEvent evt = null) => gsClass_Build_clicked();
 
@@ -2851,31 +2708,26 @@ $"\n    {m_name}_To_UI();",
 
 	protected static void SaveSceneAs(Scene scene, string path) { if (!EditorApplication.isPlaying) { EditorSceneManager.MarkSceneDirty(scene); EditorSceneManager.SaveScene(scene, path); } }
 	protected static void SaveScene(Scene scene) { if (!EditorApplication.isPlaying) { EditorSceneManager.MarkSceneDirty(scene); EditorSceneManager.SaveScene(scene); } }
-	protected static void SaveActiveScene() { SaveScene(SceneManager.GetActiveScene()); }
+	protected static void SaveActiveScene() => SaveScene(SceneManager.GetActiveScene());
 
-	protected static void SaveScene() { SaveScene(SceneManager.GetActiveScene()); }
-	protected static void SaveSceneAs(string path) { SaveSceneAs(SceneManager.GetActiveScene(), path); }
+	protected static void SaveScene() => SaveScene(SceneManager.GetActiveScene());
+	protected static void SaveSceneAs(string path) => SaveSceneAs(SceneManager.GetActiveScene(), path);
 	protected string UnityVersion => Application.unityVersion;
 
 	public int rebuild = 0;
 	void Update_cginc_Version(params string[] cginc_Files)
 	{
-		foreach (var c in cginc_Files)
+		cginc_Files.For(c =>
 		{
-			string f = $"{AssetsPath}GS/{c}.cginc";
-			string s = f.ReadAllTextAscii();
-			string versionStr = s.Between("// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC", "\n");
+			string f = $"{AssetsPath}GS/{c}.cginc", s = f.ReadAllTextAscii(), versionStr = s.Between("// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC", "\n");
 			int version = versionStr.IsEmpty() ? 1 : versionStr.After("Update: ").To_int() + 1;
-			//f.WriteAllTextAscii($"// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: {version}\n" + s.After("\n"));
-			f.WriteAllTextAscii($"// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: {version}\r\n" + s.After("\n"));
-		}
+			f.WriteAllTextAscii($"// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: {version}\r\n{s.After("\n")}");
+		});
 	}
-	void Update_cginc_Files() { Update_cginc_Version("GS", "GS_Compute", "GS_Shader"); }
 
-	public void OnScriptsCompiled(string[] compiled_gsFiles)
-	{
-		foreach (var f in compiled_gsFiles) if (f.EndsWithAny($"{gsName}_GS.cs", $"{gsName}.cs")) { print($"OnScriptsCompiled: {f}"); rebuild = 2; }
-	}
+	void Update_cginc_Files() => Update_cginc_Version("GS", "GS_Compute", "GS_Shader");
+
+	public void OnScriptsCompiled(string[] compiled_gsFiles) => compiled_gsFiles.For(f => { if (f.EndsWithAny($"{gsName}_GS.cs", $"{gsName}.cs")) { $"OnScriptsCompiled: {f}".print(); rebuild = 2; } });
 
 	public static string AssemblyPath(string name)
 	{
@@ -2904,9 +2756,7 @@ $"\n    {m_name}_To_UI();",
 	void omit(string path)
 	{
 		string p = omitPath(path), n = p.After("/gs").Before("/"), q = $"{path}{n}.unity";
-		if (q.Exists()) path.CopyDirAll(p);
-		path.DeleteDirectory();
-		path.CreatePath();
+		if (q.Exists()) path.CopyDirAll(p)?.DeleteDirectory().CreatePath();
 	}
 	void OpenProjectFolder()
 	{
@@ -2949,7 +2799,7 @@ $"\n    {m_name}_To_UI();",
 				foreach (var f in importedAssets) if (f.StartsWith(str)) gsFiles.Add(f.After(str));
 				var compiled_gsFiles = gsFiles.ToArray();
 				if (compiled_gsFiles.Length > 0) OnScriptsCompiled(compiled_gsFiles);
-				foreach (var f in importedAssets) if (f.EndsWith("/GS.cs")) { Update_cginc_Files(); AssetDatabase.Refresh(); break; }
+				foreach (var f in importedAssets) if (f.EndsWith("/GS_cginc.cs")) { Update_cginc_Files(); AssetDatabase.Refresh(); break; }
 			}
 			else print("importedAssets = null");
 		}
@@ -2959,9 +2809,9 @@ $"\n    {m_name}_To_UI();",
 	}
 
 	public static EditorWindow GetWindow(string pName) => Resources.FindObjectsOfTypeAll<EditorWindow>().FirstOrDefault(o => o.GetType().ToString().After("UnityEditor.") == pName);
-	private static EditorWindow _projectWindow = null;
+	static EditorWindow _projectWindow = null;
 	public static EditorWindow ProjectWindow => _projectWindow = _projectWindow ?? GetWindow("ProjectWindow") ?? GetWindow("ObjectBrowser") ?? GetWindow("ProjectBrowser");
-	private static EditorWindow _hierarchyWindow = null;
+	static EditorWindow _hierarchyWindow = null;
 	public static EditorWindow HierarchyWindow => _hierarchyWindow = _hierarchyWindow ?? GetWindow("HierarchyWindow");
 
 	static string selectedPath = "";
@@ -3295,14 +3145,12 @@ $"\n    {m_name}_To_UI();",
 		}
 	}
 
-	public void Run_GS_Exe() { string exeFile = $"{appPath.BeforeLast("/")} {exe_Version.text}.exe"; exeFile.Run(); }
+	public void Run_GS_Exe() => $"{appPath.BeforeLast("/")} {exe_Version.text}.exe".Run();
 
 	public void Run_Parent()
 	{
-		string appName = appPath.BeforeLast("/").AfterLast("/");
-		string appPath2 = $"{appPath.BeforeLast("/").BeforeLast("/").BeforeLast("/")}/{appName}/{appName}/";
-		string exeFile2 = $"{appPath2.BeforeLast("/")}_{exe_Version.text}.exe";
-		exeFile2.Run();
+		string appName = appPath.BeforeLast("/").AfterLast("/"), appPath2 = $"{appPath.BeforeLast("/").BeforeLast("/").BeforeLast("/")}/{appName}/{appName}/";
+		$"{appPath2.BeforeLast("/")}_{exe_Version.text}.exe".Run();
 	}
 
 	public void Generate_GS_Setup(bool build)
@@ -3335,7 +3183,7 @@ $"\n    {m_name}_To_UI();",
 			if (exe_Parent.value) Run_Parent(); else Run_GS_Exe();
 		}
 	}
-	public void exe_Setup_clicked(ClickEvent evt = null) { Generate_GS_Setup(exe_Build.value); }
+	public void exe_Setup_clicked(ClickEvent evt = null) => Generate_GS_Setup(exe_Build.value);
 	public BuildPlayerOptions BuildSettings()
 	{
 		PlayerSettings.companyName = company.text;
@@ -3382,7 +3230,7 @@ $"\n    {m_name}_To_UI();",
 		Build_Report(buildPlayerOptions);
 	}
 
-	public void exe_Apk_clicked(ClickEvent evt = null) { StartCoroutine(Apk_Coroutine()); }
+	public void exe_Apk_clicked(ClickEvent evt = null) => StartCoroutine(Apk_Coroutine());
 	IEnumerator Apk_Coroutine()
 	{
 		if (isAndroid)
@@ -3462,9 +3310,9 @@ $"\n    {m_name}_To_UI();",
 		return files.ToArray();
 	}
 
-	[MenuItem("Assets/Edit GpuScript Report")] public static void Edit_gsReport() { foreach (var report in Get_Report_Files()) Open_File_in_Visual_Studio(report); }
+	[MenuItem("Assets/Edit GpuScript Report")] public static void Edit_gsReport() => Get_Report_Files().For(r => Open_File_in_Visual_Studio(r));
 	[MenuItem("Assets/Edit GpuScript Report", validate = true, priority = 111, secondaryPriority = 1)] public static bool Validate_Edit_gsReport() => Get_Report_Files().Length > 0;
-	[MenuItem("Assets/Edit GpuScript HTML")] public static void Edit_gsReport_HTML() { foreach (var report in Get_Report_HTML_Files()) Open_File_in_Visual_Studio(report); }
+	[MenuItem("Assets/Edit GpuScript HTML")] public static void Edit_gsReport_HTML() => Get_Report_HTML_Files().For(r => Open_File_in_Visual_Studio(r));
 	[MenuItem("Assets/Edit GpuScript HTML", validate = true, priority = 122, secondaryPriority = 2)] public static bool Validate_Edit_gsReport_HTML() => Get_Report_HTML_Files().Length > 0;
 	#endregion Unity Project Menu
 }

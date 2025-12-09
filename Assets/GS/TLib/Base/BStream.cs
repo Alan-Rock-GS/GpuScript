@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Reflection;
 using System.Linq;
 using System.Diagnostics;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript

@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript

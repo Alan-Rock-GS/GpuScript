@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
@@ -54,40 +55,79 @@ namespace GpuScript
     uint2 _rangeMax; public uint2 rangeMax { get => _rangeMax; set { _rangeMax = value; if (sliders[0] != null) { var v = Slider_Log_Val(value); for (int i = 0; i < sliders.Length; i++) sliders[i].highValue = v[i]; } } }
 
     public uint2 previousValue;
-    uint dV = 0;
-    bool F1_Pressed = false;
-    public override void OnValueChanged(ChangeEvent<float> evt)
-    {
-      if (evt.currentTarget is Slider && textField != null)
-      {
-        if (Key(UnityEngine.KeyCode.F1))
-        {
-          var sliderV = SliderV;
-          if (!F1_Pressed) { F1_Pressed = true; dV = sliderV.y - sliderV.x; }
+    //uint dV = 0;
+    //bool F1_Pressed = false;
+    //public override void OnValueChanged(ChangeEvent<float> evt)
+    //{
+    //  if (evt.currentTarget is Slider && textField != null)
+    //  {
+    //    if (Key(UnityEngine.KeyCode.F1))
+    //    {
+    //      var sliderV = SliderV;
+    //      if (!F1_Pressed) { F1_Pressed = true; dV = sliderV.y - sliderV.x; }
 
-          if (sliderV.x != previousValue.x)
-          {
-            if (sliders[0].value + dV < rangeMax.y) sliders[1].value = sliders[0].value + dV;
-            else { sliders[1].value = rangeMax.y; sliders[0].value = sliders[1].value - dV; }
-          }
-          else if (sliderV.y != previousValue.y)
-          {
-            if (sliders[1].value - dV > rangeMin.x) sliders[0].value = sliders[1].value - dV;
-            else { sliders[0].value = rangeMin.x; sliders[1].value = sliders[0].value + dV; }
-          }
-        }
-        else F1_Pressed = false;
-        var val = SliderV;
-        previousValue = val;
-        textField.value = val.ToString(format);
-        property?.SetValue(gs, val);
-        gs?.OnValueChanged();
-      }
-    }
-    public override void OnTextFieldChanged(TextField o)
+    //      if (sliderV.x != previousValue.x)
+    //      {
+    //        if (sliders[0].value + dV < rangeMax.y) sliders[1].value = sliders[0].value + dV;
+    //        else { sliders[1].value = rangeMax.y; sliders[0].value = sliders[1].value - dV; }
+    //      }
+    //      else if (sliderV.y != previousValue.y)
+    //      {
+    //        if (sliders[1].value - dV > rangeMin.x) sliders[0].value = sliders[1].value - dV;
+    //        else { sliders[0].value = rangeMin.x; sliders[1].value = sliders[0].value + dV; }
+    //      }
+    //    }
+    //    else F1_Pressed = false;
+    //    var val = SliderV;
+    //    previousValue = val;
+    //    textField.value = val.ToString(format);
+    //    property?.SetValue(gs, val);
+    //    gs?.OnValueChanged();
+    //  }
+    //}
+		public void Text(uint2 val)
+		{
+			if (siUnit != siUnit.Null && usUnit != usUnit.Null)
+				textField.value = (siUnits ? convert(val / siConvert) : val * convert(GetUnitConversion(siUnit), usUnit)).ToString(format);
+			else textField.value = val.ToString(format);
+			textField.value = val.ToString(format);
+		}
+		public float Slider_Log_Val_x(uint v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin.x, rangeMax.x)) * 0.999f + 1) : v;
+		public float Slider_Log_Val_y(uint v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin.y, rangeMax.y)) * 0.999f + 1) : v;
+		public void sld_x(uint v) => sliders[0].value = Slider_Log_Val_x(v);
+		public void sld_y(uint v) => sliders[1].value = Slider_Log_Val_y(v);
+
+		public override void OnValueChanged(ChangeEvent<float> evt)
+		{
+			if (evt.currentTarget is Slider && textField != null)
+			{
+				if (ShowSliders && Key(UnityEngine.KeyCode.F1))
+				{
+					uint2 s = SliderV, dV = s - previousValue;
+					if (s.x != previousValue.x) { if (s.y + dV.x <= rangeMax.y && s.y + dV.x >= rangeMin.y) sld_y(s.y + dV.x); else sld_x(previousValue.x); }
+					else if (s.y != previousValue.y) { if (s.x + dV.y <= rangeMax.x && s.x + dV.y >= rangeMin.x) sld_x(s.x + dV.y); else sld_y(previousValue.y); }
+				}
+				uint2 val = SliderV; previousValue = val; Text(val);
+				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+			}
+		}
+		public override void OnTextFieldChanged(TextField o)
     {
 			if (hasRange) SliderV = o.value.To_uint2(); SetPropertyValue(textField.value.To_uint2());
 		}
+
+		//public uint2 get_val(uint2 x)
+		//{
+		//	//set { _val = isPow10 ? roundu(pow10(round(log10((float2)value)))) : isPow2 ? roundu(pow2(round(log2((float2)value)))) : value; if (textField != null) textField.value = _val.ToString(format); if (hasRange) SliderV = _val; }
+		//	x = isPow10 ? roundu(pow10(round(log10((float2)x)))) : isPow2 ? roundu(pow2(round(log2((float2)x)))) : x;
+		//	if (Nearest > 0) x = roundu(x, Nearest);
+		//	if (NearestDigit) x = GetNearestDigit(x);
+		//	return x;
+		//}
+		//public override void OnValueChanged(ChangeEvent<float> evt) { if (evt.currentTarget is Slider && textField != null) { var x = get_val(SliderV); if (x != v) Text(x); } }
+		//public override void OnTextFieldChanged(TextField o) { var x = get_val(o.value.To_uint2()); if (x != v) { if (hasRange) SliderV = x; SetPropertyValue(x); } }
+
+
 		public override bool Changed { get => any(v != _v); set => _v = value ? v - 1 : v; }
     public static implicit operator uint2(UI_uint2 f) => f.v; 
   }

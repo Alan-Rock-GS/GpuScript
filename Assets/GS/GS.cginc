@@ -1,4 +1,4 @@
-// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 574
+// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 618
 
 
 //#pragma use_dxc
@@ -592,5 +592,5 @@ struct PGA2 { float s; float3 e, E; float p; };
 #define pga2_e12 Wedge(pga2_e1, pga2_e2) 
 #define pga2_e012 Wedge(pga2_e0, pga2_e1, pga2_e2)
 
-#include "../../GS/HLSL/GS.cs"
+#include "../../GS/HLSL/GS_cginc.cs"
 

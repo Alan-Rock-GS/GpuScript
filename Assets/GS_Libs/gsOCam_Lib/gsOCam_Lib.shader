@@ -46,8 +46,9 @@ Shader "gs/gsOCam_Lib"
   #define PlotBackground_White	0
   #define PlotBackground_Black	1
   #define PlotBackground_Default_Sky	2
-  #define PlotBackground_WebCam_Front	3
-  #define PlotBackground_WebCam_Back	4
+  #define PlotBackground_Stars	3
+  #define PlotBackground_WebCam_Front	4
+  #define PlotBackground_WebCam_Back	5
   #define PaletteType_Rainbow	0
   #define PaletteType_GradientRainbow	1
   #define PaletteType_GradientRainbow10	2
@@ -76,9 +77,9 @@ Shader "gs/gsOCam_Lib"
   struct GOCam_Lib
   {
     uint BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, projection, checkCollisions, plotBackground, multiCams, displayLegend, displayLegendPalette, paletteType, displayLegendBackground, legendSphereN, legendPaletteN, buildText;
-    float BDraw_fontSize, BDraw_boxThickness, dist, distSpeed, orthoSize, legendViewWidth, legendWidthRatio;
+    float BDraw_fontSize, BDraw_boxThickness, dist, distSpeed, orthoSize, starLineWidth, legendViewWidth, legendWidthRatio;
     float4 BDraw_boxColor;
-    float3 center, Default_Center;
+    float3 center, Default_Center, starAngles;
     float2 tiltSpin, tiltRange, rotationSpeed, distanceRange, orthoTiltSpin, legendRange;
   };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
@@ -90,7 +91,7 @@ Shader "gs/gsOCam_Lib"
   RWStructuredBuffer<Color32> paletteBuffer;
   RWStructuredBuffer<float4> legendSphereColors;
 
-  public Texture2D BDraw_fontTexture;
+   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return o; }
@@ -209,9 +210,9 @@ Shader "gs/gsOCam_Lib"
 		{
 			float3 c = f110 * 10000;
 			float y = 4 - 0.4f * (g.legendSphereN - i) - g.legendPaletteN * (8 - g.legendSphereN * 0.4f);
-			return vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, legendSphereColors[i], i, j, o);
+			o = vert_BDraw_Sphere(c + float3(-0.5f, y, 0), 0.15f, legendSphereColors[i], i, j, o);
 		}
-		else if (Is(g.legendPaletteN)) return vert_Draw_Legend(i, j, o);
+		else if (Is(g.legendPaletteN)) o = vert_Draw_Legend(i, j, o);
 		return o;
 	}
 	

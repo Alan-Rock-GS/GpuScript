@@ -1,29 +1,30 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
 {
-  [UxmlElement]
-  public partial class UI_double2 : UI_Slider_base
-  {
-    public override bool Init(GS gs, params GS[] gss)
-    {
+	[UxmlElement]
+	public partial class UI_double2 : UI_Slider_base
+	{
+		public override bool Init(GS gs, params GS[] gss)
+		{
 			if (!base.Init(gs, gss) && !isGrid) return false;
 			Build(label, description, siUnit, usUnit, Unit, siFormat, usFormat, isReadOnly, isGrid, isPow2Slider, isPow10, isPow2, Nearest, NearestDigit, treeGroup_parent?.name);
-      SliderV = v = val.To_double2(); rangeMin = RangeMin.To_double2(); rangeMax = RangeMax.To_double2();
-      if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
-      if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
-      return true;
-    }
-    public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, double width)
-    {
-      if (att == null) return;
-      UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
-      e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
-    }
-    public double2 Slider_Pow_Val(double2 v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
+			SliderV = v = val.To_double2(); rangeMin = RangeMin.To_double2(); rangeMax = RangeMax.To_double2();
+			if (siUnit != siUnit.Null) { rangeMin *= convert(siUnit); rangeMax *= convert(siUnit); }
+			if (headerLabel != null) headerLabel.HideIf(label.IsEmpty() || isGrid);
+			return true;
+		}
+		public static void UXML_UI_grid_member(UI_Element e, MemberInfo m, AttGS att, uint rowI, double width)
+		{
+			if (att == null) return;
+			UXML(e, att, $"{className}_{m.Name}_{rowI + 1}", "", "");
+			e.uxml.Add($" is-grid=\"true\" style=\"width: {width}px;\" />");
+		}
+		public double2 Slider_Pow_Val(double2 v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
 		public double2 Slider_Log_Val(double2 v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
 		public double2 SliderV { get => Slider_Pow_Val(new double2(sliders[0].value, sliders[1].value)); set { var v = Slider_Log_Val(value); sliders[0].value = (float)v.x; sliders[1].value = (float)v.y; } }
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y") };
@@ -105,13 +106,12 @@ namespace GpuScript
 				previousValue = val;
 				Text(val);
 				_si = val;
-				if (!GS.isGridVScroll && !GS.isGridBuilding)
-					SetPropertyValue(val);
+				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
 			}
 		}
 		public override void OnTextFieldChanged(TextField o)
 		{
-			double2 val = o.value.To_double2(); 
+			double2 val = o.value.To_double2();
 			if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
 			else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
 			_si = val;

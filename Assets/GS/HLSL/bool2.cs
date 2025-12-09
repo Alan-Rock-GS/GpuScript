@@ -1,6 +1,7 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
 using System;
 using UnityEngine;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 namespace GpuScript
 {

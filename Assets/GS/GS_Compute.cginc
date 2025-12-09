@@ -1,4 +1,4 @@
-// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 574
+// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 618
 // Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
 #pragma exclude_renderers d3d11 gles
 
@@ -18,6 +18,7 @@
 //#define fixed4 float4
 
 #define GrpSync() GroupMemoryBarrierWithGroupSync()
+//#define GlobalSync(a) GroupMemoryBarrierWithGroupSync()
 #define DataSync() DeviceMemoryBarrier(); GroupMemoryBarrierWithGroupSync()
 //#define DataSync() AllMemoryBarrierWithGroupSync(); GroupMemoryBarrierWithGroupSync()
 

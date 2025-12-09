@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
@@ -111,6 +112,7 @@ namespace GpuScript
 		public bool isNotReadOnly => !isReadOnly;
 		public virtual void OnMouseEnter(MouseEnterEvent evt) { if (gs != null) { gs.status = description; GS.mouseInUI = true; } }
 		public virtual void OnMouseLeave(MouseLeaveEvent evt) { if (gs != null) { gs.status = ""; if (!GS.sliderHasFocus) GS.mouseInUI = false; } }
+
 		public virtual bool display { get => style.display == DisplayStyle.Flex; set => style.display = value ? DisplayStyle.Flex : DisplayStyle.None; }
 		protected virtual object GetValue(AttGS attGS, PropertyInfo property, GS gs, bool isNull, bool ui_txt_Exists, object v) => attGS?.Val ?? property?.GetValue(gs) ?? v;
 

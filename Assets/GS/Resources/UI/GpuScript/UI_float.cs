@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using UnityEngine.UIElements;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 
 namespace GpuScript
@@ -137,31 +138,91 @@ namespace GpuScript
 		//		if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
 		//	}
 		//}
+		//public override void OnValueChanged(ChangeEvent<float> evt)
+		//{
+		//	if (isBuilding) { isBuilding = false; return; }
+		//	if (evt.currentTarget is Slider && textField != null && hasRange)
+		//	{
+		//		float val = SliderV;
+		//		Text(val);
+		//		_si = val;
+		//		if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+		//	}
+		//}
+		//public override void OnTextFieldChanged(TextField o)
+		//{
+		//	float val = o.value.To_float();
+		//	if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
+		//	else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
+		//	_si = val;
+		//	//SliderV = val;
+
+		//	if (!hasRange)
+		//	{
+		//		if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+		//	}
+		//	else SliderV = val;
+		//}
+
+		//var val = isPow10 ? round(pow10(round(log10(value)))) : isPow2 ? round(pow2(round(log2(value)))) : value;
+		//		if (Nearest > 0) val = round(val, Nearest);
+
+		public float get_val(float x)
+		{
+			x = isPow10 ? round(pow10(round(log10(x)))) : isPow2 ? round(pow2(round(log2(x)))) : x;
+			if (Nearest > 0) x = roundu(x, Nearest);
+			if (NearestDigit) x = GetNearestDigit(x);
+			return x;
+		}
 		public override void OnValueChanged(ChangeEvent<float> evt)
 		{
 			if (isBuilding) { isBuilding = false; return; }
 			if (evt.currentTarget is Slider && textField != null && hasRange)
 			{
-				float val = SliderV;
-				Text(val);
-				_si = val;
-				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+				var x = get_val(SliderV); 
+				if (isGrid || x != v)
+				{
+					Text(x);
+					_si = x;
+				}
 			}
 		}
+		//public override void OnTextFieldChanged(TextField o)
+		//{
+		//	var x = get_val(o.value.To_float());
+		//	if (x != v)
+		//	{
+		//		if (siUnit != siUnit.Null && usUnit != usUnit.Null) x = siUnits ? x * convert(siUnit) : x / convert(GetUnitConversion(siUnit), usUnit);
+		//		else if (Unit != Unit.Null) x /= convert(GetUnitConversion(Unit), Unit);
+		//		_si = x;
+		//		if (!hasRange) { if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(x); } else SliderV = x;
+		//	}
+		//}
 		public override void OnTextFieldChanged(TextField o)
 		{
-			float val = o.value.To_float();
-			if (siUnit != siUnit.Null && usUnit != usUnit.Null) val = siUnits ? val * convert(siUnit) : val / convert(GetUnitConversion(siUnit), usUnit);
-			else if (Unit != Unit.Null) val = val / convert(GetUnitConversion(Unit), Unit);
-			_si = val;
-			//SliderV = val;
-
-			if (!hasRange)
+			var x = get_val(o.value.To_float());
+			if (isGrid || x != v)
 			{
-				if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(val);
+				if (siUnit != siUnit.Null && usUnit != usUnit.Null) x = siUnits ? x * convert(siUnit) : x / convert(GetUnitConversion(siUnit), usUnit);
+				else if (Unit != Unit.Null) x /= convert(GetUnitConversion(Unit), Unit);
+				_si = x;
+				//if (!hasRange) { if (!GS.isGridVScroll && !GS.isGridBuilding) SetPropertyValue(x); } else SliderV = x;
+				if (hasRange) SliderV = x;
+				if (!GS.isGridVScroll && !GS.isGridBuilding)
+				{
+					//if (property == null)
+					//{
+					//	property = gs.GetType().GetProperty(name, GS.bindings);
+					//	property = grid.GetProperties[]
+					//}
+					SetPropertyValue(x);
+				}
 			}
-			else SliderV = val;
+
+			//var x = get_val(o.value.To_float()); 
+			//if (isGrid || x != v) { if (hasRange) SliderV = x; SetPropertyValue(x); }
 		}
+
 
 		public float2 range { get => float2(rangeMin, rangeMax); set { rangeMin = value.x; rangeMax = value.y; } }
 		public override bool Changed { get => any(v != _v0); set => _v0 = value ? v - 1 : v; }

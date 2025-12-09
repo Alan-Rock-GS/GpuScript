@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 namespace GpuScript
 {

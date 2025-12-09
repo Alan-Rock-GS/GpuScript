@@ -1,20 +1,22 @@
 ﻿// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
+using Newtonsoft.Json;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using UnityEngine;
 using System.Diagnostics;
-using UnityEngine.EventSystems;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
-using Newtonsoft.Json;
-using System.Linq.Expressions;
-using System.Globalization;
 
 namespace GpuScript
 {
@@ -68,10 +70,9 @@ namespace GpuScript
 		public static bool IsActive(this GameObject gameObject) => gameObject?.activeSelf ?? false;
 		public static bool IsNotActive(this GameObject gameObject) => !gameObject.IsActive();
 		public static bool IsActive(this Transform transform) => transform?.gameObject?.IsActive() ?? false;
-		public static GameObject Active(this GameObject o, bool active) { if (o?.activeSelf != active) o?.SetActive(active); return o; }
+		public static GameObject Active(this GameObject o, bool active) { if (o != null && o.activeSelf != active) o.SetActive(active); return o; }
 
 		public static float3 P(this GameObject o) => o.transform.position;
-		//public static float3 P(this GameObject o, float3 p) => o.transform.position = p;
 		public static GameObject P(this GameObject o, float3 p) { o.transform.position = p; return o; }
 		public static GameObject P(this GameObject o, float x, float y, float z) => o.P(float3(x, y, z));
 		public static float3 lP(this GameObject o) => o.transform.localPosition;
@@ -83,6 +84,21 @@ namespace GpuScript
 		public static GameObject lR(this GameObject o, float3 a) { o.transform.localEulerAngles = a; return o; }
 		public static GameObject lR(this GameObject o, float x, float y, float z) => o.lR(float3(x, y, z));
 
+		//public static TAccumulate AggregateUntilNull<TSource, TAccumulate>(this IEnumerable<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> func)
+		//{
+		//	TAccumulate accumulator = seed;
+		//	foreach (TSource item in source) { if (item == null) break; accumulator = func(accumulator, item); }
+		//	return accumulator;
+		//}
+
+		//public static GameObject FindObj(this Transform transform, string name) => 
+		//	name.Split("/").Aggregate(transform, (t, n) => { if (t == null) return t; t = t?.Find(n);  return t; })?.gameObject;
+		//public static GameObject FindObj(this Transform transform, string name) => name.Split("/").Aggregate(transform, (t, n) => t = t?.Find(n))?.gameObject;
+		public static GameObject FindObj(this Transform transform, string name) => transform.Find(name)?.gameObject;
+		public static GameObject FindObj(this GameObject o, string name) => o?.transform.FindObj(name);
+		public static GameObject GetParentGameObject(this Transform t, Type type) => t == null ? null : t.GetComponent(type)?.gameObject ?? GetParentGameObject(t.parent, type);
+		//public static GameObject GetParentGameObject<T>(this Transform t) => t == null ? null : t.GetComponent<T>()?.gameObject ?? GetParentGameObject(t.parent, type);
+		public static T GetParentComponent<T>(this Transform t) => t == null ? default(T) : t.GetComponent<T>() ?? GetParentComponent<T>(t.parent);
 
 		//public static float3 localP(this GameObject o) => o.transform.localPosition;
 		//public static float3 localP(this GameObject o, float3 p) => o.transform.localPosition = p;
@@ -394,7 +410,7 @@ namespace GpuScript
 			foreach (var file in dir.GetFiles()) file.Attributes = FileAttributes.Normal;
 		}
 		public static void setAttributesNormal(this string dir) { setAttributesNormal(new DirectoryInfo(dir)); }
-		public static void DeleteDirectory(this string dir) { dir.setAttributesNormal(); Directory.Delete(dir, true); }
+		public static string DeleteDirectory(this string dir) { dir.setAttributesNormal(); Directory.Delete(dir, true); return dir; }
 		public static void DeleteFiles_Locked(this string path, string searchPattern) { var files = path.GetFiles(searchPattern); foreach (var file in files) file.DeleteFile_Locked(); }
 		public static void DeleteFiles(this string path, string searchPattern) { var files = path.GetFiles(searchPattern); foreach (var file in files) file.DeleteFile(); }
 		public static void Rename(this string f0, string f1)
@@ -523,9 +539,6 @@ namespace GpuScript
 		public static bool isNotNan(this float v) => !v.isNan();
 		public static float2 isNan(this float2 v) => float2(float.IsNaN(v.x), float.IsNaN(v.y));
 		public static float3 isNan(this float3 v) => float3(float.IsNaN(v.x), float.IsNaN(v.y), float.IsNaN(v.z));
-
-		//public static float Convert_180_180(this float v) => ((v + 180) % 360) - 180;
-
 
 		public static int childCount(this GameObject gameObject) => gameObject?.transform.childCount ?? 0;
 		public static void SetParent(this GameObject gameObject, GameObject parent) { if (parent != null) gameObject?.transform.SetParent(parent.transform); }
@@ -682,6 +695,7 @@ namespace GpuScript
 		{
 			var sb = new StringBuilder(s); for (int i = 0; i < items.Length; i++) AppendEntry(sb, items, i); return sb.ToString();
 		}
+		public static string print(this string s) { UnityEngine.Debug.Log(s); return s; }
 
 		static StringBuilder ST(this StringBuilder b, bool tab, params object[] vs)
 		{
@@ -736,7 +750,6 @@ namespace GpuScript
 
 				else if (item is Color c) sb.Append(c.r, ",", c.g, ",", c.b, ",", c.a);
 				else if (item is TimeSpan t) sb.ToTimeString(t.Ticks * 1e-7f);
-				//else if (item is Stopwatch sw) { sw.Stop(); sb.ToTimeString(sw.ElapsedTicks / (float)Stopwatch.Frequency); }
 				else if (item is Stopwatch sw) { sw.Stop(); sb.ToTimeString((float)sw.Elapsed.TotalSeconds); }
 				else if (item is DateTime dt) sb.Append(dt.ToShortDateString(), " ", dt.ToShortTimeString());
 				else if (item.GetType().IsValueType && !item.GetType().IsPrimitive)
@@ -1323,31 +1336,27 @@ namespace GpuScript
 
 		public static T Clock<T>(this Func<T> a, string s) { var w = new Stopwatch(); w.Start(); T r = a(); w.Stop(); GS.print($"{s}, {w.ToTimeString()}"); return r; }
 		public static float Clock(this Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
-		public static void Clock(this Action a, string s) => GS.print($"{s}, {a.Clock().ToTimeString()}");
-		//public static float Secs(this Stopwatch w) => w.ElapsedTicks / (float)Stopwatch.Frequency;
+		public static void Clock(this Action a, string s) => GS.print($"{s}, {a.Clock().ToLongTimeString()}");
 		public static float Secs(this Stopwatch w) => (float)w.Elapsed.TotalSeconds;
-		//public static string ToTimeString(this float secs) => ToTimeString(new TimeSpan((long)(secs * 1e7f)));
-		//public static string ToTimeString(this float secs)
-		//{
-		//	//float days = secsToDays(secs), hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
-		//	//int Days = floori(days), Hours = floori(hrs), Minutes = floori(mins), Seconds = floori(s), Milliseconds = floori(ms);
-		//	//bool showDays = Days > 0, showHours = showDays || Hours > 0, showMinutes = showHours || Minutes > 0,
-		//	//	showSeconds = showMinutes || Seconds > 0, showMilliseconds = !showMinutes && Seconds < 10;
-		//	//return $"{(showDays ? $"{Days} days " : "")}{(showHours ? $"{Hours:00}:" : "")}{(showMinutes ? $"{Minutes:00}:" : "")}{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
-		//	float years = secsToYears(secs), months = frac(years) * 12, days = frac(years) * 365.25f, hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
-		//	int Years = floori(years), Months = floori(months), Days = floori(days), Hours = floori(hrs), Minutes = floori(mins), Seconds = floori(s), Milliseconds = floori(ms);
-		//	bool showYears = Years > 0, showMonths = showYears || Months > 0, showDays = showMonths || Days > 0, showHours = showDays || Hours > 0, showMinutes = showHours || Minutes > 0, showSeconds = showMinutes || Seconds > 0, showMilliseconds = !showMinutes && Seconds < 10;
-		//	return $"{(showYears ? $"{Years} Years " : "")}{(showMonths ? $"{Months} Months " : "")}{(showDays ? $"{Days} Days " : "")}{(showHours ? $"{Hours:00}:" : "")}{(showMinutes ? $"{Minutes:00}:" : "")}{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
-		//}
-		public static string ToTimeString(this float secs)
+		static (float yrs, float months, float days, float hrs, float mins, float sec, float msec) ymdhms(float sec)
 		{
-			float years = secsToYears(secs), months = frac(years) * 12, days = frac(years) * 365.25f, hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
+			float yrs = secsToYears(sec), months = frac(yrs) * 12, days = frac(yrs) * 365.25f, hrs = frac(days) * 24, mins = frac(hrs) * 60, s = frac(mins) * 60, ms = frac(s) * 1000;
+			return (yrs, months, days, hrs, mins, s, ms);
+		}
+		public static string ToLongTimeString(this float secs)
+		{
+			var (years, months, days, hrs, mins, s, ms) = ymdhms(secs);
 			int Years = floori(years), Months = floori(months), Days = floori(days) - floori(Months / 12f * 365.25f), Hours = floori(hrs), Minutes = floori(mins), Seconds = floori(s), Milliseconds = floori(ms);
 			bool showYears = Years > 0, showMonths = showYears || Months > 0, showDays = showMonths || Days > 0, showHours = showDays || Hours > 0, showMinutes = showHours || Minutes > 0, showSeconds = showMinutes || Seconds > 0, showMilliseconds = !showMinutes && Seconds < 10;
 			return $"{(showYears ? $"{Years} Year{(Years == 1 ? "" : "s")} " : "")}{(showMonths ? $"{Months} Month{(Months == 1 ? "" : "s")} " : "")}{(showDays ? $"{Days} Day{(Days == 1 ? "" : "s")} " : "")}{(showHours ? $"{Hours:00}" : "00")}:{(showMinutes ? $"{Minutes:00}" : "00")}:{(showSeconds ? $"{Seconds:00}" : "")}{(showMilliseconds ? $".{Milliseconds:000}" : "")}";
 		}
-		public static string ToTimeString(this Stopwatch w) => ToTimeString(w.Secs());
-		public static string ToTimeString(this long ticks) => ToTimeString(ticks / (float)Stopwatch.Frequency);
+		public static string ToTimeString(this float secs)
+		{
+			var (years, months, days, hrs, mins, s, ms) = ymdhms(secs);
+			return years >= 1 ? $"{years:0.00} yrs" : months >= 1 ? $"{months:0.00} months" : days >= 1 ? $"{days:0.00} days" : hrs >= 1 ? $"{hrs:0.00} hrs" : mins >= 1 ? $"{mins:0.00} mins" : s >= 1 ? $"{s:0.00} sec" : $"{ms:0.0000} ms";
+		}
+		public static string ToTimeString(this Stopwatch w) => ToLongTimeString(w.Secs());
+		public static string ToTimeString(this long ticks) => ToLongTimeString(ticks / (float)Stopwatch.Frequency);
 
 		public static string S(params object[] vs) => S(vs);
 
@@ -1554,7 +1563,6 @@ namespace GpuScript
 
 		public static FieldInfo GetField(this List<FieldInfo> flds, string fldName) => flds.FirstOrDefault(a => a.Name == fldName);
 		public static FieldInfo GetField(this FieldInfo[] flds, string fldName) => flds.FirstOrDefault(a => a.Name == fldName);
-		//public static string GetTypeName(this Type t) => t.Name.Replace("UInt32", "uint").Replace("Int32", "int").Replace("Boolean", "bool").Replace("String", "string").Replace("Single", "float");
 		public static string GetTypeName(this Type t) => t.Name.ReplaceAll("UInt32", "uint", "Int32", "int", "Boolean", "bool", "String", "string", "Single", "float", "Double", "double");
 		public static string GetTypeName(this FieldInfo f) => f.FieldType.GetTypeName();
 		public static string GetTypeName(this PropertyInfo p) => p.PropertyType.GetTypeName();
@@ -1909,21 +1917,23 @@ namespace GpuScript
 			string path1 = f1.BeforeLastIncluding("/");
 			foreach (var f in f0.GetFiles()) f.CopyFile($"{path1}{f.AfterLast("/")}");
 		}
-		public static void CopyDirAll(this string f0, string f1, params string[] omitDirs)
+		public static string CopyDirAll(this string f0, string f1, params string[] omitDirs)
 		{
-			if (f0.DoesNotExist()) return;
+			if (f0.DoesNotExist()) return null;
 			f0 = f0.Replace("\\", "/"); f1 = f1.Replace("\\", "/"); if (!f0.EndsWith("/")) f0 = $"{f0}/"; if (!f1.EndsWith("/")) f1 = $"{f1}/";
 			f1.CreatePath();
 			var fs = f0.GetAllFiles("*.*");
 			if (omitDirs != null)
-				foreach (var f in fs)
+				fs.For(f =>
 				{
 					bool ok = true;
 					foreach (var omit in omitDirs) if (f.Contains($"/{omit}/")) { ok = false; break; }
 					if (ok) f.CopyFile(f.Replace(f0, f1));
-				}
-			else foreach (var f in fs) f.CopyFile(f.Replace(f0, f1));
+				});
+			else fs.For(f => f.CopyFile(f.Replace(f0, f1)));
+			return f0;
 		}
+
 		public static IEnumerator CopyDirAll_Coroutine(this string f0, string f1, GS gs, params string[] omitDirs)
 		{
 			if (f0.DoesNotExist()) yield break;
@@ -1933,13 +1943,10 @@ namespace GpuScript
 			int fI = 0, fN = fs.Length;
 			foreach (var f in fs)
 			{
-				if (!(omitDirs?.Any(d => f.Contains($"/{d}/")) ?? false))
-					f.CopyFile(f.Replace(f0, f1));
-				if (fI++ % 10 == 0)
-					yield return gs.Status(fI, fN, f1);
+				if (!(omitDirs?.Any(d => f.Contains($"/{d}/")) ?? false)) f.CopyFile(f.Replace(f0, f1));
+				if (fI++ % 10 == 0) yield return gs.Status(fI, fN, f1);
 			}
 		}
-
 
 		public static void CopyFolder_Diff(string path0, string path1, out FileData[] newer0, out FileData[] newer1, out FileData[] extra0, out FileData[] extra1)
 		{
@@ -2080,11 +2087,10 @@ namespace GpuScript
 		}
 		public static string Utf8ToChinese(this string utf8String) => Encoding.Default.GetBytes(utf8String).Utf8ToChinese();
 
-		//#if UNITY_EDITOR
 		public static void WriteAllText_Chinese(this string filename, string s)
 		{
 			filename.CreatePath();
-			Encoding enc0 = Encoding.GetEncoding("gb2312");//, enc1 = Encoding.Unicode;
+			Encoding enc0 = Encoding.GetEncoding("gb2312");
 			s = Utf8ToChinese(s);
 			File.WriteAllText(filename, s, enc0);
 		}

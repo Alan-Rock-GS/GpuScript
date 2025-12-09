@@ -1,5 +1,6 @@
 // GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
 using System;
+using static GpuScript.GS_cginc;
 using static GpuScript.GS;
 namespace GpuScript
 {
