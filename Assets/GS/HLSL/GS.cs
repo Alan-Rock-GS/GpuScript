@@ -1600,25 +1600,6 @@ namespace GpuScript
 		public static float distance(float4 a, float4 b) { float4 v = a - b; return sqrt(dot(v, v)); }
 		public static double distance(double a, double b) => abs(a - b);
 
-		//public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }
-		//public static void InterlockedAdd_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
-		//{
-		//	if (v != 0)
-		//	{
-		//		bool2 Ok = b00;
-		//		uint I2 = I * 2;
-		//		do
-		//		{
-		//			double f = uint2_to_double(uint2(double_uints[I2], double_uints[I2 + 1]));
-		//			uint2 F = double_to_uint2(f), F2 = double_to_uint2(v + f);
-		//			Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I2 + 1, F.y, F2.y) == F.y);
-		//		} while (!all(Ok));
-		//	}
-		//}
-		//public static long uint2_to_long(uint2 v) => ((long)v.x << 32) | (long)v.y;
-		//public static uint2 long_to_uint2(long v) => uint2(v >> 32, v & 0xFFFFFFFF);
-
-
 		public static AttGS AttGS(params object[] vals) => new AttGS(vals);
 
 		//allow structs to be declared without new keyword, prevents Non-invocable member ... cannot be used like a method
