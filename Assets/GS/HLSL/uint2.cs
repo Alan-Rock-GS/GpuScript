@@ -50,6 +50,7 @@ namespace GpuScript
 			}
 		}
 
+		public static explicit operator bool2(uint2 p) => bool2(p.x, p.y);
 		public static implicit operator int[](uint2 p) => new int[] { (int)p.x, (int)p.y };
 		public static explicit operator int2(uint2 p) => int2(p.x, p.y);
 		public static explicit operator uint2(float2 p) => uint2(p.x, p.y);

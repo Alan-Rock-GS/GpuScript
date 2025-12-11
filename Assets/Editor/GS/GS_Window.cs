@@ -1863,9 +1863,73 @@ $"\n    {m_name}_To_UI();",
 			"", showIfs, dataWrappers, uiWrappers, tData, initBuffers, base_groupshared, declare_classes, classArrays,
 			compute_or_material_shader, kernels_,
 			vertCode, virtual_verts, renderObject, fragCode,
-			"\n  public uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }",
-			"\n}");
+			"\n  public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }",
+			"\n	public static void InterlockedAdd_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)",
+			"\n	{",
+			"\n		if (v != 0)",
+			"\n		{",
+			"\n			bool2 Ok = b00;",
+			"\n			uint I2 = I * 2;",
+			"\n			do",
+			"\n			{",
+			"\n				double f = uint2_to_double(uint2(double_uints[I2], double_uints[I2 + 1]));",
+			"\n				uint2 F = double_to_uint2(f), F2 = double_to_uint2(v + f);",
+			"\n				Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I2 + 1, F.y, F2.y) == F.y);",
+			"\n			} while (!all(Ok));",
+			"\n		}",
+			"\n	}",
+			"\n	public void InterlockedMultiply_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)",
+			"\n	{",
+			"\n		if (v != 1)",
+			"\n		{",
+			"\n			bool2 Ok = b00;",
+			"\n			uint I2 = I * 2;",
+			"\n			do",
+			"\n			{",
+			"\n				double f = uint2_to_double(uint2(double_uints[I2], double_uints[I2 + 1]));",
+			"\n				uint2 F = double_to_uint2(f), F2 = double_to_uint2(v * f);",
+			"\n				Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I2 + 1, F.y, F2.y) == F.y);",
+			"\n			} while (!all(Ok));",
+			"\n		}",
+			"\n	}",
+			//"\n	public static void InterlockedAdd_Float(RWStructuredBuffer<int> fs, uint I, float v)",
+			//"\n	{",
+			//"\n		if (v != 0) { float f = asfloat(fs[I]); for (int F = asint(f); InterlockedCompareExchange(fs, I, F, asint(v + f)) != F;) F = asint(f = asfloat(fs[I])); }",
+			//"\n	}",
+			//"\n	  public void InterlockedAdd_Long(RWStructuredBuffer<uint> long_uints, uint I, long v)",
+			//"\n		{",
+			//"\n			if (v != 0)",
+			//"\n			{",
+			//"\n				bool2 Ok = b00;",
+			//"\n				uint I2 = I * 2;",
+			//"\n				do",
+			//"\n				{",
+			//"\n					long f = uint2_to_long(uint2(long_uints[I2], long_uints[I2 + 1]));",
+			//"\n					uint2 F = long_to_uint2(f), F2 = long_to_uint2(v + f);",
+			//"\n					Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(long_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(long_uints, I2 + 1, F.y, F2.y) == F.y);",
+			//"\n				} while (!all(Ok));",
+			//"\n			}",
+			//"\n		}",
+			//"\n		public static void InterlockedMultiply_Float(RWStructuredBuffer<int> fs, uint I, float v)",
+			//"\n		{",
+			//"\n			if (v != 1) { float f = asfloat(fs[I]); for (int F = asint(f); InterlockedCompareExchange(fs, I, F, asint(v * f)) != F;) F = asint(f = asfloat(fs[I])); }",
+			//"\n		}",
+			//"\n		public void InterlockedMultiply_Long(RWStructuredBuffer<uint> long_uints, uint I, long v)",
+			//"\n		{",
+			//"\n			if (v != 1)",
+			//"\n			{",
+			//"\n				bool2 Ok = b00;",
+			//"\n				uint I2 = I * 2;",
+			//"\n				do",
+			//"\n				{",
+			//"\n					long f = uint2_to_long(uint2(long_uints[I2], long_uints[I2 + 1]));",
+			//"\n					uint2 F = long_to_uint2(f), F2 = long_to_uint2(v * f);",
+			//"\n					Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(long_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(long_uints, I2 + 1, F.y, F2.y) == F.y);",
+			//"\n				} while (!all(Ok));",
+			//"\n			}",
+			//"\n		}",
 
+			"\n}");
 			var matchStr = @"\s*((?:public|protected|private)?)\s*((?:virtual|override)?)\s*(\w+) (\w+)\((.*?)\)(?s)(.*?)(?=public|protected|private|#region|#endregion|\r\n}|\n})"; // if lib overrides an OnGrid method, add "base_" prefix to OnGrid method. Same for dataWrappers
 			MatchCollection _cs_matches = _cs.ToString().RegexMatch(matchStr), lib_matches = _cs_lib_regions.ToString().RegexMatch(matchStr);
 			var _cs_methods = new List_method_data();
@@ -2012,6 +2076,34 @@ $"\n    {m_name}_To_UI();",
 							else if (match.Group(5).Contains("=") || match.Group(4).ContainsAny("++", "--") || match.Group(1).Contains("Interlocked")) include_method.AddReadWriteBuffer(b);
 							else include_method.AddReadBuffer(b);
 						}
+					//in future, include method names "ReadData_*" and "WriteData_*" and "ReadWriteData_*
+					//if (include_method.code.Contains("ReadData_"))
+					//{
+					//	//matchStr = @$"?:ReadData_*\b({b.name})";
+					//	//matchStr = @$"\bReadData_.*\b({b.name})";
+					//	//matchStr = @$"\bReadData_.*"; //ok
+					//	//matchStr = @$"\bReadData_.*\(\b({b.name})\b";
+					//	matchStr = @$"\bReadData_.*\(\b()\b";
+					//	matches = include_method.code.RegexMatch(matchStr);
+					//	foreach (Match match in matches)
+					//		if (match.Groups.Count == 1)
+					//			include_method.AddReadBuffer(b);
+					//}
+					//if (include_method.code.Contains("ReadData_"))
+					//{
+					//	string argName = include_method.code.After("ReadData_").After("(").BeforeAny(",", ")").Trim();
+					//	if(argName == b.name)
+					//		include_method.AddReadBuffer(b);
+					//}
+					if (include_method.code.Contains(b.name))
+					{
+						//if (include_method.code.Contains("ReadData_") && include_method.code.After("ReadData_").After("(").BeforeAny(",", ")").Trim() == b.name) include_method.AddReadBuffer(b);
+						//if (include_method.code.Contains("WriteData_") && include_method.code.After("WriteData_").After("(").BeforeAny(",", ")").Trim() == b.name) include_method.AddWriteBuffer(b);
+						//if (include_method.code.Contains("ReadWriteData_") && include_method.code.After("ReadWriteData_").After("(").BeforeAny(",", ")").Trim() == b.name) include_method.AddReadWriteBuffer(b);
+						if (include_method.code.After("ReadData_").After("(").BeforeAny(",", ")").Trim() == b.name) include_method.AddReadBuffer(b);
+						if (include_method.code.After("WriteData_").After("(").BeforeAny(",", ")").Trim() == b.name) include_method.AddWriteBuffer(b);
+						if (include_method.code.After("ReadWriteData_").After("(").BeforeAny(",", ")").Trim() == b.name) include_method.AddReadWriteBuffer(b);
+					}
 				}
 				include_method.gcode = AddG(include_method.code);
 				matchStr = @$"((?:\+\+|\-\-))?\bg\.(\w+)((?:\+\+|\-\-| (?:\+|\-|\*|\/|\^|\%|\<\<|\>\>)?\= ))?";
@@ -2274,6 +2366,8 @@ $"\n    {m_name}_To_UI();",
 			foreach (var k in kernel_methods) s.Add($"\n  #pragma kernel {k.methodName}");
 			foreach (var e in enumTypes) s.RegexReplace($@"\b{e.Name}.", $"{e.Name}_");
 			s = s.Replace("[HideInInspector]", "", "[AttGS_Lib]", "", "Int64", "int64_t");
+			s = s.Replace("public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }", "uint2 double_to_uint2(double v) { uint a, b; asuint(v, a, b); return uint2(a, b); }");
+
 			compute_filename.WriteAllTextAscii_IfChanged(s);
 
 			if (gs.computeShader == null) gs.computeShader = compute_filename.LoadAssetAtPath<ComputeShader>();

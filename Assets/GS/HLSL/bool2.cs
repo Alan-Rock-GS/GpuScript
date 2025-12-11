@@ -51,9 +51,15 @@ namespace GpuScript
     public static bool2 operator <=(bool2 a, bool2 b) => 1 - (a > b);
     public static bool2 operator <=(bool2 a, int b) => 1 - (a > b);
     public static bool2 operator >=(bool2 a, bool2 b) => 1 - (a < b);
-    public static bool2 operator >=(bool2 a, int b) => 1 - (a < b);
+		public static bool2 operator >=(bool2 a, int b) => 1 - (a < b);
 
-    public override bool Equals(object obj) => base.Equals(obj);
+		public static bool2 operator &(bool2 a, bool2 b) => bool2(a.X & b.X, a.Y & b.Y);
+		public static bool2 operator |(bool2 a, bool2 b) => bool2(a.X | b.X, a.Y | b.Y);
+		public static bool operator true(bool2 a) => Is(a.X & a.Y);
+    public static bool operator false(bool2 a) => Is(a.X | a.Y);
+    //public static implicit operator bool(bool2 a) => Is(a.X & a.Y);
+
+		public override bool Equals(object obj) => base.Equals(obj);
     public override int GetHashCode() => base.GetHashCode();
 
     public int CompareTo(object o) => (o is bool2 f) ? x == f.x ? y == f.y ? 0 : y ? -1 : 1 : x ? -1 : 1 : CompareTo(o.To_bool2());

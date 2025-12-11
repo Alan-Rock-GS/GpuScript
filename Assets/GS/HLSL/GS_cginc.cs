@@ -885,8 +885,21 @@ namespace GpuScript
 		public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, uint v) => a[I] &= v;
 		public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, bool v) => a[I] &= Is(v);
 		public static void InterlockedAnd(RWStructuredBuffer<Color32> a, uint I, uint v) => a[I] = u_c32(c32_u(a[I]) & v);
-		public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
-		public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { uint aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+		//public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+		public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v)
+		{
+			int aI = a[I];
+			if (aI == compare_v)
+				a[I] = v;
+			return aI;
+		}
+		public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v)
+		{
+			uint aI = a[I];
+			if (aI == compare_v)
+				a[I] = v;
+			return aI;
+		}
 		public static void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { if (a[I] == compare_v) a[I] = v; }
 		public static void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { if (a[I] == compare_v) a[I] = v; }
 		public static int InterlockedExchange(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
@@ -964,20 +977,6 @@ namespace GpuScript
 
 #endif //!gs_compute && !gs_shader  //following code inported in both compute shaders and material shaders, "=>" return statements not allowed *************************************
 
-		//#if !gs_shader && !gs_compute
-#if !gs_shader
-		public static long InterlockedCompareExchange(RWStructuredBuffer<long> a, uint I, long compare_v, long v)
-		{
-			long aI = a[I];
-			if (aI == compare_v)
-				a[I] = v;
-			return aI;
-		}
-		public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v) { if (v != 1) for (int x = a[I]; InterlockedCompareExchange(a, I, x, x * v) != x;) x = a[I]; }
-		public static void InterlockedMultiply(RWStructuredBuffer<uint> a, uint I, uint v) { if (v != 1) for (uint x = a[I]; InterlockedCompareExchange(a, I, x, x * v) != x;) x = a[I]; }
-		//public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v) { int x; if (v != 1) do x = a[I]; while (InterlockedCompareExchange(a, I, x, x * v) != x); }
-		//public static void InterlockedMultiply(RWStructuredBuffer<uint> a, uint I, uint v) { uint x; if (v != 1) do x = a[I]; while (InterlockedCompareExchange(a, I, x, x * v) != x); }
-#endif
 
 		public static void swap(ref int a, ref int b) { a ^= b ^ (b = a); }
 		public static void swap(ref int2 a, ref int2 b) { a ^= b ^ (b = a); }
@@ -1483,6 +1482,9 @@ namespace GpuScript
 		public static bool Is(float a) { return a >= 0.5f; }
 		public static bool IsNot(float a) { return !Is(a); }
 
+		public static bool2 Is(uint2 a) { return (bool2)(a == 1); }
+
+
 		public static bool IsPosInf(float a) { return a == fPosInf; }
 		public static bool IsPosInf(float2 a) { return a.x == fPosInf; }
 		public static bool IsPosInf(float3 a) { return a.x == fPosInf; }
@@ -1681,6 +1683,7 @@ namespace GpuScript
 		//}
 
 		public static double uint2_to_double(uint2 v) { return asdouble(v.x, v.y); }
+		//public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }
 
 		public static float tanDeg(float v) { return tan(degrees(v)); }
 
@@ -2568,6 +2571,99 @@ namespace GpuScript
 		public float gain_b(float _gain, float a) { return a * (_gain + 1); }
 		public float ln2gain(float a, float b) { return ln2(gain(a, b) + 1); }
 		public float ln2gain_to_gain(float ln_gain) { return pow2(ln_gain) - 1; }
+
+
+		//#if !gs_shader && !gs_compute
+#if !gs_shader
+		public static long InterlockedCompareExchange(RWStructuredBuffer<long> a, uint I, long compare_v, long v)
+		{
+			long aI = a[I];
+			if (aI == compare_v)
+				a[I] = v;
+			return aI;
+		}
+		public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v) { if (v != 1) for (int x = a[I]; InterlockedCompareExchange(a, I, x, x * v) != x;) x = a[I]; }
+		public static void InterlockedMultiply(RWStructuredBuffer<uint> a, uint I, uint v) { if (v != 1) for (uint x = a[I]; InterlockedCompareExchange(a, I, x, x * v) != x;) x = a[I]; }
+		//public static void InterlockedMultiply(RWStructuredBuffer<int> a, uint I, int v) { int x; if (v != 1) do x = a[I]; while (InterlockedCompareExchange(a, I, x, x * v) != x); }
+		//public static void InterlockedMultiply(RWStructuredBuffer<uint> a, uint I, uint v) { uint x; if (v != 1) do x = a[I]; while (InterlockedCompareExchange(a, I, x, x * v) != x); }
+		//public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }
+
+		public static long uint2_to_long(uint2 v) { return ((long)v.x << 32) | (long)v.y; }
+		public static uint2 long_to_uint2(long v) { return uint2(v >> 32, v & 0xFFFFFFFF); }
+
+		public static void InterlockedAdd_Float(RWStructuredBuffer<int> fs, uint I, float v)
+		{
+			if (v != 0) { float f = asfloat(fs[I]); for (int F = asint(f); InterlockedCompareExchange(fs, I, F, asint(v + f)) != F;) F = asint(f = asfloat(fs[I])); }
+		}
+		public void InterlockedAdd_Long(RWStructuredBuffer<uint> long_uints, uint I, long v)
+		{
+			if (v != 0)
+			{
+				bool2 Ok = b00;
+				uint I2 = I * 2;
+				do
+				{
+					long f = uint2_to_long(uint2(long_uints[I2], long_uints[I2 + 1]));
+					uint2 F = long_to_uint2(f), F2 = long_to_uint2(v + f);
+					Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(long_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(long_uints, I2 + 1, F.y, F2.y) == F.y);
+				} while (!all(Ok));
+			}
+		}
+		//public void InterlockedMultiply_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
+		//{
+		//	if (v != 1)
+		//	{
+		//		bool2 Ok = b00;
+		//		uint I2 = I * 2;
+		//		do
+		//		{
+		//			double f = uint2_to_double(uint2(double_uints[I2], double_uints[I2 + 1]));
+		//			uint2 F = double_to_uint2(f), F2 = double_to_uint2(v * f);
+		//			Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I2 + 1, F.y, F2.y) == F.y);
+		//		} while (!all(Ok));
+		//	}
+		//}
+		public static void InterlockedMultiply_Float(RWStructuredBuffer<int> fs, uint I, float v)
+		{
+			if (v != 1) { float f = asfloat(fs[I]); for (int F = asint(f); InterlockedCompareExchange(fs, I, F, asint(v * f)) != F;) F = asint(f = asfloat(fs[I])); }
+		}
+		public void InterlockedMultiply_Long(RWStructuredBuffer<uint> long_uints, uint I, long v)
+		{
+			if (v != 1)
+			{
+				bool2 Ok = b00;
+				uint I2 = I * 2;
+				do
+				{
+					long f = uint2_to_long(uint2(long_uints[I2], long_uints[I2 + 1]));
+					uint2 F = long_to_uint2(f), F2 = long_to_uint2(v * f);
+					Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(long_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(long_uints, I2 + 1, F.y, F2.y) == F.y);
+				} while (!all(Ok));
+			}
+		}
+
+
+		////public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, out a, out b); return uint2(a, b); }
+		//public static uint2 double_to_uint2(double v) { uint a, b; asuint(v, a, b); return uint2(a, b); }
+		//public static uint2 double_to_uint2(double v) { return u00; }
+		//public static void InterlockedAdd_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
+		//{
+		//	if (v != 0)
+		//	{
+		//		bool2 Ok = b00;
+		//		uint I2 = I * 2;
+		//		do
+		//		{
+		//			double f = uint2_to_double(uint2(double_uints[I2], double_uints[I2 + 1]));
+		//			uint2 F = double_to_uint2(f), F2 = double_to_uint2(v + f);
+		//			Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I2, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I2 + 1, F.y, F2.y) == F.y);
+		//		} while (!all(Ok));
+		//	}
+		//}
+
+#endif
+
+
 #if !gs_compute && !gs_shader //C# code
 		//<<<<< GpuScript Code Extensions. This section contains code that runs on both compute shaders and material shaders, but is not in HLSL
 	}
