@@ -184,6 +184,8 @@ namespace GpuScript
 				{
 					Text(x);
 					_si = x;
+					if (!GS.isGridVScroll && !GS.isGridBuilding) 
+						SetPropertyValue(x);
 				}
 			}
 		}

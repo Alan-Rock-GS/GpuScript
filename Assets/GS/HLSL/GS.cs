@@ -1224,9 +1224,11 @@ namespace GpuScript
 		public static bool Key(params char[] c) => c.Any(a => Key(a));
 		public static bool KeyList(string keyList) { for (int i = 0; i < keyList.Length; i++) if (Key(keyList[i])) return true; return false; }
 		public static bool GetKeyDown(char c) => char.IsUpper(c) ? Shift && Input.GetKeyDown((KeyCode)char.ToLower(c)) : Input.GetKeyDown((KeyCode)char.ToLower(c));
+		public static bool GetKeyDown(uint c) => GetKeyDown((char)c);
 		public static bool GetKeyDown(bool modifier, char c) => modifier && GetKeyDown(c);
 		public static bool KeyDown(KeyCode c) => Input.GetKeyDown(c);
 		public static bool GetKeyUp(char c) => char.IsUpper(c) ? Shift && Input.GetKeyUp((KeyCode)char.ToLower(c)) : Input.GetKeyUp((KeyCode)char.ToLower(c));
+		public static bool GetKeyUp(uint c) => GetKeyUp((char)c);
 
 		public static char GetKeyInRange(char c0, char c1) { if (Input.anyKey) for (char c = c0; c <= c1; c++) if (Input.GetKey((KeyCode)c)) return c; return (char)0; }
 		public static char GetKeyDownInRange(char c0, char c1) { if (Input.anyKey) for (char c = c0; c <= c1; c++) if (Input.GetKeyDown((KeyCode)c)) return c; return (char)0; }

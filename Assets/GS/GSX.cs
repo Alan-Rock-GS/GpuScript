@@ -1,6 +1,5 @@
 ﻿// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC
 using Newtonsoft.Json;
-using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,8 +14,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using static GpuScript.GS_cginc;
 using static GpuScript.GS;
+using static GpuScript.GS_cginc;
 
 namespace GpuScript
 {
@@ -50,23 +49,9 @@ namespace GpuScript
 			if (ints.Length == 1 && ints[0] == -1 && n > 0) isSelected[0] = true;
 			return isSelected;
 		}
-		public static string bools_to_RangeStr(this bool[] ranges)
-		{
-			var s = new StrBldr();
-			for (int i = 0; i < (ranges?.Length ?? 0); i++)
-			{
-				if (ranges[i])
-				{
-					s.Add(s.IsEmpty() ? i : ", " + i);
-					if (i < ranges.Length - 1 && ranges[i + 1])
-					{
-						for (++i; i < ranges.Length && ranges[i]; i++) { }
-						if (i < ranges.Length && ranges[i]) s.Add("-", i);
-					}
-				}
-			}
-			return s;
-		}
+		public static string bools_to_RangeStr(this bool[] ranges) => ranges?.Length == 0 ? "" : GS.For(ranges.Length).Where(i => ranges[i]).Select(i => i).Select((n, i) =>
+			new { V = n, K = n - i }).GroupBy(x => x.K).Select(g => { int mn = g.Min(x => x.V), mx = g.Max(x => x.V); return mn != mx ? $"{mn}-{mx}" : mn.ToString(); }).Join(", ");
+
 		public static bool IsActive(this GameObject gameObject) => gameObject?.activeSelf ?? false;
 		public static bool IsNotActive(this GameObject gameObject) => !gameObject.IsActive();
 		public static bool IsActive(this Transform transform) => transform?.gameObject?.IsActive() ?? false;

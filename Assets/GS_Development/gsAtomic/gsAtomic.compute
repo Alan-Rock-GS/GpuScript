@@ -10,7 +10,7 @@
     uint MatRowN, MatN, printMatrices, numberOfArrays, arrayLength, sortVN, NumN, IterN, factN, uintN, sumN, Rand_N, Rand_I, Rand_J;
     uint4 Rand_seed4;
   };
-  struct MatrixRuntime { uint runtime_Compute; string runtime_Name; uint runtime_error; float runtime_runtime_us, runtime_xFaster; string runtime_xTime; };
+  struct MatrixRuntime { uint runtime_Compute; string runtime_Name; uint runtime_MatRowN, runtime_MatN, runtime_error; float runtime_runtime_us, runtime_xFaster; string runtime_xTime; };
   struct SortRuntime { uint runtime_Compute; string runtime_Name; uint runtime_error; float runtime_runtime_us, runtime_xFaster; string runtime_xTime; };
   groupshared uint4 Rand_grp[1024];
   groupshared int gA[1024];
@@ -22,8 +22,9 @@
   RWStructuredBuffer<GAtomic> gAtomic;
   RWStructuredBuffer<int> Mat_A, Mat_x, Mat_b;
   RWStructuredBuffer<uint> syncCount, counts, sorts, uints;
-  RWStructuredBuffer<float> sortVs;
+  RWStructuredBuffer<float> sortVs, Mat_A_Float, Mat_x_Float, Mat_b_Float;
   RWStructuredBuffer<uint4> Rand_rs;
+  RWStructuredBuffer<double> Mat_A_Double, Mat_x_Double, Mat_b_Double;
   [numthreads(numthreads1, 1, 1)] void Calc_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
 	{
 		unchecked
@@ -67,6 +68,7 @@
 			if (id.x < triN(g.factN)) { uint N = g.factN; uint2 v = N - triI(id.x, N) + i_1; InterlockedMultiply_Long(uints, v.x, (long)v.y); }
 		}
 	}
+  [numthreads(numthreads1, 1, 1)] void init_float_uints_0(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { uints[id.x] = asuint(0.0f); } } }
   [numthreads(numthreads1, 1, 1)] void init_float_uints_1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { uints[id.x] = asuint(1.0f); } } }
   [numthreads(numthreads1, 1, 1)] void init_uints_1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { uints[id.x] = 1; } } }
   [numthreads(numthreads2, numthreads2, 1)] void set_sorts(uint3 id : SV_DispatchThreadID)
@@ -97,18 +99,19 @@
 	}
   [numthreads(numthreads1, 1, 1)] void init_counts(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.sortVN) { counts[id.x] = 0; } } }
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
-  [numthreads(numthreads3, numthreads3, numthreads3)] void A_times_x(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
-   
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
   [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
-  [numthreads(numthreads1, 1, 1)] void Rand_grp_fill_1K(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+  [numthreads(numthreads1, 1, 1)] void Rand_grp_init_1M(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
+   
+  [numthreads(numthreads3, numthreads3, numthreads3)] void A_times_x(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { null; }
    
   void set_uints(uint i, uint2 u) { uints[i * 2] = u.x; uints[i * 2 + 1] = u.y; }
 	
   [numthreads(numthreads1, 1, 1)] void init_long_uints_1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { set_uints(id.x, long_to_uint2(1)); } } }
   uint2 double_to_uint2(double v) { uint a, b; asuint(v, a, b); return uint2(a, b); }
   [numthreads(numthreads1, 1, 1)] void Init_Double_Min_Max_Sum(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 3) { set_uints(id.x, id.x == 0 ? double_to_uint2(fPosInf) : id.x == 1 ? double_to_uint2(fNegInf) : double_to_uint2(0)); } } }
+  [numthreads(numthreads1, 1, 1)] void init_double_uints_0(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { set_uints(id.x, double_to_uint2(0.0f)); } } }
   [numthreads(numthreads1, 1, 1)] void init_double_uints_1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { set_uints(id.x, double_to_uint2(1.0f)); } } }
   void InterlockedMin_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
   {
@@ -236,6 +239,8 @@
 	
   int MatA(uint2 ij) { return MatA(ij.x, ij.y); }
   [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Mat_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd(Mat_b, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Double_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd_Double(uints, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Float_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd_Float(uints, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
   uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
@@ -264,6 +269,8 @@
   #pragma kernel calc_ifacts
   #pragma kernel calc_lfacts
   #pragma kernel calc_ufacts
+  #pragma kernel init_double_uints_0
+  #pragma kernel init_float_uints_0
   #pragma kernel init_double_uints_1
   #pragma kernel init_float_uints_1
   #pragma kernel init_long_uints_1
@@ -278,11 +285,13 @@
   #pragma kernel Init_Mat_b
   #pragma kernel Init_Mat_x
   #pragma kernel Init_Mat_A
+  #pragma kernel Multiply_Double_A_x
+  #pragma kernel Multiply_Float_A_x
   #pragma kernel Grp_Multiply_Ax
   #pragma kernel Init_Axb
   #pragma kernel Rand_initState
   #pragma kernel Rand_initSeed
-  #pragma kernel A_times_x
-  #pragma kernel Rand_grp_init_1M
-  #pragma kernel Rand_grp_init_1K
   #pragma kernel Rand_grp_fill_1K
+  #pragma kernel Rand_grp_init_1K
+  #pragma kernel Rand_grp_init_1M
+  #pragma kernel A_times_x

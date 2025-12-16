@@ -1570,6 +1570,8 @@ namespace GpuScript
 		public static float2 xO(float v) { return float2(v, 0); }
 		public static float2 Oy(float v) { return float2(0, v); }
 
+		public static float3 xvz(float3 p, float v) { p.y = v; return p; }
+
 		public static float3 xyz(float v) { return float3(v, v, v); }
 		public static float3 xOO(float v) { return float3(v, 0, 0); }
 		public static float3 xOO(float3 v) { return float3(v.x, 0, 0); }
@@ -1825,10 +1827,10 @@ namespace GpuScript
 					 + q.x * (p.y * (v1 * q.z + v3 * p.z) + q.y * (v0 * q.z + v2 * p.z));
 		}
 
-		public float Interpolate(float w0, float w1, float w2, float w3, float2 p) { return lerp(lerp(w0, w1, p.y), lerp(w2, w3, p.y), p.x); }
-		public float2 Interpolate(float2 w0, float2 w1, float2 w2, float2 w3, float2 p) { return lerp(lerp(w0, w1, p.y), lerp(w2, w3, p.y), p.x); }
-		public float3 Interpolate(float3 w0, float3 w1, float3 w2, float3 w3, float2 p) { return lerp(lerp(w0, w1, p.y), lerp(w2, w3, p.y), p.x); }
-		public float4 Interpolate(float4 w0, float4 w1, float4 w2, float4 w3, float2 p) { return lerp(lerp(w0, w1, p.y), lerp(w2, w3, p.y), p.x); }
+		public float Interpolate(float w0, float w1, float w2, float w3, float2 p) { return lerp(lerp(w0, w1, p.x), lerp(w2, w3, p.x), p.y); }
+		public float2 Interpolate(float2 w0, float2 w1, float2 w2, float2 w3, float2 p) { return lerp(lerp(w0, w1, p.x), lerp(w2, w3, p.x), p.y); }
+		public float3 Interpolate(float3 w0, float3 w1, float3 w2, float3 w3, float2 p) { return lerp(lerp(w0, w1, p.x), lerp(w2, w3, p.x), p.y); }
+		public float4 Interpolate(float4 w0, float4 w1, float4 w2, float4 w3, float2 p) { return lerp(lerp(w0, w1, p.x), lerp(w2, w3, p.x), p.y); }
 
 		public float Interpolate(float w0, float w1, float w2, float w3, float w4, float w5, float w6, float w7, float3 p) { return lerp(lerp(lerp(w0, w1, p.z), lerp(w2, w3, p.z), p.y), lerp(lerp(w4, w5, p.z), lerp(w6, w7, p.z), p.y), p.x); }
 		public float Interpolate(float4 w0123, float4 w4567, float3 p) { return lerp(lerp(lerp(w0123.xy, p.z), lerp(w0123.zw, p.z), p.y), lerp(lerp(w4567.xy, p.z), lerp(w4567.zw, p.z), p.y), p.x); }

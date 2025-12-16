@@ -5776,6 +5776,8 @@ MonoBehaviour:
   kernel_calc_ifacts: 0
   kernel_calc_lfacts: 0
   kernel_calc_ufacts: 0
+  kernel_init_double_uints_0: 0
+  kernel_init_float_uints_0: 0
   kernel_init_double_uints_1: 0
   kernel_init_float_uints_1: 0
   kernel_init_long_uints_1: 0
@@ -5790,14 +5792,16 @@ MonoBehaviour:
   kernel_Init_Mat_b: 0
   kernel_Init_Mat_x: 0
   kernel_Init_Mat_A: 0
+  kernel_Multiply_Double_A_x: 0
+  kernel_Multiply_Float_A_x: 0
   kernel_Grp_Multiply_Ax: 0
   kernel_Init_Axb: 0
   kernel_Rand_initState: 0
   kernel_Rand_initSeed: 0
-  kernel_Rand_grp_fill_1K: 0
-  kernel_Rand_grp_init_1K: 0
-  kernel_Rand_grp_init_1M: 0
   kernel_A_times_x: 0
+  kernel_Rand_grp_init_1M: 0
+  kernel_Rand_grp_init_1K: 0
+  kernel_Rand_grp_fill_1K: 0
 --- !u!114 &1219638746
 MonoBehaviour:
   m_ObjectHideFlags: 0
