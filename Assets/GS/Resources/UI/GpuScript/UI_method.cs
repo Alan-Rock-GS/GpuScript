@@ -42,10 +42,10 @@ namespace GpuScript
 			else if (gs != null && method != null)
 			{
 				if (method.ReturnType == typeof(IEnumerator)) gs.StartCoroutine(method.Name);
-				else try { method.Invoke(gs, null); } catch (Exception e) { print($"OnButtonClicked {method?.Name}: {e}"); }
+				else try { method.Invoke(gs, null); } catch (Exception e) { $"OnButtonClicked {method?.Name}: {e}".print(); }
 				gs.OnButtonClicked(method.Name);
 			}
-			else print($"Button {label} clicked");
+			else $"Button {label} clicked".print();
 		}
 		public MethodInfo method;
 		public static Type Get_Base_Type() => typeof(void);

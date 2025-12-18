@@ -49,17 +49,21 @@ namespace GpuScript
 			if (ints.Length == 1 && ints[0] == -1 && n > 0) isSelected[0] = true;
 			return isSelected;
 		}
-		public static string bools_to_RangeStr(this bool[] ranges) => ranges?.Length == 0 ? "" : GS.For(ranges.Length).Where(i => ranges[i]).Select(i => i).Select((n, i) =>
-			new { V = n, K = n - i }).GroupBy(x => x.K).Select(g => { int mn = g.Min(x => x.V), mx = g.Max(x => x.V); return mn != mx ? $"{mn}-{mx}" : mn.ToString(); }).Join(", ");
+		public static string bools_to_RangeStr(this bool[] bs) => bs?.Length == 0 ? "" : GS.For(bs.Length).Where(i => bs[i]).Select(i => i).Select((n, i) =>
+			new { V = n, K = n - i }).GroupBy(x => x.K).Select(g => { int mn = g.Min(x => x.V), mx = g.Max(x => x.V); return mn != mx ? $"{mn}-{mx}" : $"{mn}"; }).Join(",");
 
 		public static bool IsActive(this GameObject gameObject) => gameObject?.activeSelf ?? false;
 		public static bool IsNotActive(this GameObject gameObject) => !gameObject.IsActive();
 		public static bool IsActive(this Transform transform) => transform?.gameObject?.IsActive() ?? false;
 		public static GameObject Active(this GameObject o, bool active) { if (o != null && o.activeSelf != active) o.SetActive(active); return o; }
 
-		public static float3 P(this GameObject o) => o.transform.position;
-		public static GameObject P(this GameObject o, float3 p) { o.transform.position = p; return o; }
+		public static float3 P(this GameObject o) => o != null ? o.transform.position : f000;
+		public static GameObject P(this GameObject o, float3 p) { if (o != null) o.transform.position = p; return o; }
 		public static GameObject P(this GameObject o, float x, float y, float z) => o.P(float3(x, y, z));
+		public static float3 lS(this GameObject o) => (float3)o?.transform.localScale;
+		public static GameObject lS(this GameObject o, float3 p) { if (o != null) o.transform.localScale = p; return o; }
+		public static GameObject lS(this GameObject o, float x, float y, float z) => o.lS(float3(x, y, z));
+		public static GameObject lS(this GameObject o, float s) => o.lS(xyz(s));
 		public static float3 lP(this GameObject o) => o.transform.localPosition;
 		public static float3 lP(this GameObject o, float3 p) => o.transform.localPosition = p;
 		public static float3 R(this GameObject o) => o.transform.eulerAngles;
@@ -658,7 +662,8 @@ namespace GpuScript
 			else if (c == new Color(1, 0.5f, 0.5f)) return "LIGHT_RED";
 			return c.ToString();
 		}
-		public static object print(this object o, string prefix = "") { GS.print($"{prefix}{o}"); return o; }
+		//public static object print(this object o, string prefix = "") { GS.print($"{prefix}{o}"); return o; }
+		public static object print(this object o, string prefix = "") { $"{prefix}{o}".print(); return o; }
 		public static bool DoesNotContain<TSource>(this IEnumerable<TSource> source, TSource value) => !source.Contains(value);
 		public static uint uCount<T>(this IEnumerable<T> e, Func<T, bool> f) { uint num = 0; foreach (T item in e) if (f(item)) num++; return num; }
 
@@ -1319,9 +1324,10 @@ namespace GpuScript
 			return i000;
 		}
 
-		public static T Clock<T>(this Func<T> a, string s) { var w = new Stopwatch(); w.Start(); T r = a(); w.Stop(); GS.print($"{s}, {w.ToTimeString()}"); return r; }
+		public static T Clock<T>(this Func<T> a, string s) { var w = new Stopwatch(); w.Start(); T r = a(); w.Stop(); $"{s}, {w.ToTimeString()}".print(); return r; }
 		public static float Clock(this Action a) { var w = new Stopwatch(); w.Start(); a(); w.Stop(); return w.Secs(); }
-		public static void Clock(this Action a, string s) => GS.print($"{s}, {a.Clock().ToLongTimeString()}");
+		//public static void Clock(this Action a, string s) => GS.print($"{s}, {a.Clock().ToLongTimeString()}");
+		public static void Clock(this Action a, string s) => $"{s}, {a.Clock().ToLongTimeString()}".print();
 		public static float Secs(this Stopwatch w) => (float)w.Elapsed.TotalSeconds;
 		static (float yrs, float months, float days, float hrs, float mins, float sec, float msec) ymdhms(float sec)
 		{
@@ -2457,7 +2463,8 @@ namespace GpuScript
 		public static List<string> Add(this List<string> lst, params object[] objs) { foreach (var o in objs) lst.Add(o?.ToString() ?? ""); return lst; }
 		public static List<string> AddBetween(this List<string> lst, object o, string after, string before) { lst.Add(o?.ToString().AfterOrEmpty(after).BeforeOrEmpty(before) ?? ""); return lst; }
 		public static string ToStr(this List<string> lst, string separator = "\t") => string.Join(separator, lst);
-		public static void print(this List<string> lst, string prefix, string separator = "\t") { GS.print($"{(prefix.IsNotEmpty() ? prefix + separator : "")}{string.Join(separator, lst)}"); }
+		//public static void print(this List<string> lst, string prefix, string separator = "\t") { GS.print($"{(prefix.IsNotEmpty() ? prefix + separator : "")}{string.Join(separator, lst)}"); }
+		public static void print(this List<string> lst, string prefix, string separator = "\t") => $"{(prefix.IsNotEmpty() ? prefix + separator : "")}{string.Join(separator, lst)}".print();
 
 		public static void Deconstruct(this List<string> s1, out List<string> s2) { s2 = new List<string>(); s1 = new List<string>(); }
 		public static void Deconstruct(this List<string> s1, out List<string> s2, out List<string> s3) { Deconstruct(s1, out s2); s3 = new List<string>(); }

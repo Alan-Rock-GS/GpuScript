@@ -283,7 +283,7 @@ namespace GpuScript
 		}
 		static Type[] _UI_Element_Types = null;
 		public static Type[] UI_Element_Types => _UI_Element_Types ?? (_UI_Element_Types = Get_Subclass_Types(typeof(UI_VisualElement)));
-		public static void print(object message) { GS.print(message); }
+		//public static void print(object message) => message.print();
 		public static bool Get_USS_Text(StrBldr text, string name, int height = 0, float margin = GS.fNegInf, float padding = GS.fNegInf,
 		float border = GS.fNegInf, int fontSize = 0, string alignText = "", string background_color = "", string unity_font = "", string justify_content = "")
 		{

@@ -546,7 +546,7 @@ namespace GpuScript
 				if (val != null)
 				{
 					if (val is IComputeBuffer cb) { if (cb != null) computeBuffers.Add(cb.NewComputeBuffer()); }
-					else print($"Error, parameter {val.GetType().Name} does not have a type that is supported");
+					else $"Error, parameter {val.GetType().Name} does not have a type that is supported".print();
 				}
 			}
 		}
@@ -705,7 +705,7 @@ namespace GpuScript
 							var cb = ((IComputeBuffer)v).GetComputeBuffer();
 							if (cb != null)
 							{
-								try { computeShader.SetBuffer(kernel, name, cb); } catch (Exception e) { print($"{new { name }} {e.ToString()}"); }
+								try { computeShader.SetBuffer(kernel, name, cb); } catch (Exception e) { $"{new { name }} {e.ToString()}".print(); }
 							}
 						}
 						else if (typeof(ITexture).IsAssignableFrom(vType)) computeShader.SetTexture(kernel, name, ((ITexture)v).GetTexture());
@@ -732,7 +732,7 @@ namespace GpuScript
 									if (computeShader != null && cb != null) computeShader.SetBuffer(kernel, $"{name}[{j}]", cb);
 								}
 							}
-						else print($"Error, parameter {name} is unsupported");
+						else $"Error, parameter {name} is unsupported".print();
 					}
 				}
 			}
@@ -809,7 +809,7 @@ namespace GpuScript
 					else if (v is float4) computeShader.SetFloats(name, (float4)v);
 					else if (v is float3) computeShader.SetFloats(name, (float3)v);
 					else if (v is float2) computeShader.SetFloats(name, (float2)v);
-					else print($"Error, parameter {name} does not have a type that is supported");
+					else $"Error, parameter {name} does not have a type that is supported".print();
 				}
 			}
 		}
@@ -888,7 +888,7 @@ namespace GpuScript
 		public numthreads GetNumthreads(string methodName)
 		{
 			var method = GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			if (method == null) { print($"Error: GetNumthreads(\"{methodName}\") not found"); return new numthreads(numthreads1, 1, 1); }
+			if (method == null) { $"Error: GetNumthreads(\"{methodName}\") not found".print(); return new numthreads(numthreads1, 1, 1); }
 			return Attribute.GetCustomAttribute(method, typeof(numthreads)) as numthreads;
 		}
 		public numthreads GetNumthreads(object kernel) => GetNumthreads(kernel.GetType().GetProperties()[0].Name.After("kernel_"));
@@ -2045,22 +2045,13 @@ namespace GpuScript
 				foreach (var fieldInfo in fieldInfos)
 				{
 					bool is_GS = fieldInfo.FieldType.IsType(typeof(GS));
-					if (is_GS)
-					{
-						var g = (GS)fieldInfo.GetValue(this);
-						if (g != null && g.canSave == reverse_canSave)
-							continue;
-					}
-					if (fieldInfo.Att() != null || (is_GS && fieldInfo.Name.StartsWith("_gs")))
-						t.lwt(fieldInfo, this);
+					if (is_GS) { var g = (GS)fieldInfo.GetValue(this); if (g != null && g.canSave == reverse_canSave) continue; }
+					if (fieldInfo.Att() != null || (is_GS && fieldInfo.Name.StartsWith("_gs"))) t.lwt(fieldInfo, this);
 				}
 				t.Truncate();
 				filename.Rename(filename.BeforeLast(".temp"));
 			}
-			catch (Exception e)
-			{
-				print(e.ToString());
-			}
+			catch (Exception e) { e.ToString().print(); }
 			separator = ", ";
 		}
 
@@ -2173,8 +2164,8 @@ namespace GpuScript
 		public static T LoadPrefab<T>(string Name = null)
 		{
 			var gs = LoadPrefab(typeof(T), Name);
-			if (gs == null) { print($"{Name} prefab is null. Did you select \"Generate Code\" in the GpuScript window?"); return default; }
-			else if (gs.gameObject == null) { print($"{Name} prefab.gameObject is null. Did you select \"Generate Code\" in the GpuScript window?"); return default; }
+			if (gs == null) { $"{Name} prefab is null. Did you select \"Generate Code\" in the GpuScript window?".print(); return default; }
+			else if (gs.gameObject == null) { $"{Name} prefab.gameObject is null. Did you select \"Generate Code\" in the GpuScript window?".print(); return default; }
 			return gs.gameObject.GetComponent<T>();
 		}
 		public static GS LoadPrefab(Type type, string Name = null)
@@ -2182,17 +2173,8 @@ namespace GpuScript
 			if (Name.IsEmpty()) Name = type.ToString();
 			string prefabPath = "rGS/{Name}".Replace(new { Name });
 			var prefab = Resources.Load(prefabPath) as GameObject;
-			if (prefab == null) { print($"prefab does not exist at {prefabPath}"); return null; }
-			try
-			{
-				GameObject gameObject = Instantiate(prefab) as GameObject;
-				gameObject.name = Name;
-				return gameObject.GetComponent<GS>();
-			}
-			catch (Exception e)
-			{
-				print($"{e}");
-			}
+			if (prefab == null) { $"prefab does not exist at {prefabPath}".print(); return null; }
+			try { GameObject gameObject = Instantiate(prefab) as GameObject; gameObject.name = Name; return gameObject.GetComponent<GS>(); } catch (Exception e) { $"{e}".print(); }
 			return null;
 		}
 
@@ -2237,7 +2219,7 @@ namespace GpuScript
 							if (typeof(Texture2D).IsAssignableFrom(o.GetType())) { var tx = (Texture2D)o; if (tx != null) material.SetTexture($"{name}[{j}]", tx); }
 						}
 					}
-					else print($"Error, parameter {name} is unsupported");
+					else $"Error, parameter {name} is unsupported".print();
 				}
 			}
 		}
@@ -2677,7 +2659,7 @@ namespace GpuScript
 			if (VisualStudio.DoesNotExist()) VisualStudio = @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe";
 			string command = $"/Edit \"{file}\"";
 			try { Process.Start(VisualStudio, command); }
-			catch (Exception e) { print($"{e.ToString()}: devenv.exe not found in path or file <{file}> not found. This PC >> Right-click Properties >> Change Settings >> Advanced >> Environmental variables >> Path >> Edit >> New >> C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\"); }
+			catch (Exception e) { $"{e.ToString()}: devenv.exe not found in path or file <{file}> not found. This PC >> Right-click Properties >> Change Settings >> Advanced >> Environmental variables >> Path >> Edit >> New >> C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\".print(); }
 		}
 		public static void RunPowerShell(string arg) => Process.Start(new ProcessStartInfo() { FileName = "powershell.exe", UseShellExecute = false, RedirectStandardOutput = true, Arguments = arg, CreateNoWindow = true });
 
@@ -2810,7 +2792,7 @@ namespace GpuScript
 				lock (debugStrs) debugStrs.Enqueue(s);
 				if (!debugging) { debugging = true; while (debugStrs.Count > 0) debugFile.AppendText($"{DateTime.Now}: {debugStrs.Dequeue()}\n"); debugging = false; }
 			}
-			else print(s);
+			else s.print();
 		}
 		public static void DebugRestart() { if (!debugActive) return; debugFile.DeleteFile(); Print($"{DateTime.Now}"); }
 		public static void DebugOpenTxtFile() { if (debugFile.Exists()) debugFile.Run(); }
@@ -2944,7 +2926,7 @@ namespace GpuScript
 					{
 						if (c is float || c is int || c is uint) WaitForSeconds = c.To_float();
 						else if (c is WaitForSeconds) WaitForSeconds = "m_Seconds".GetFieldFloat(typeof(WaitForSeconds), c);
-						else if (c is IEnumerator) print($"Need to run {c}");
+						else if (c is IEnumerator) $"Need to run {c}".print();
 						startWaitTime = DateTime.Now;
 					}
 				}
@@ -2975,7 +2957,7 @@ namespace GpuScript
 					{
 						if (c is float || c is int || c is uint) WaitForSeconds = c.To_float();
 						else if (c is WaitForSeconds) WaitForSeconds = "m_Seconds".GetFieldFloat(typeof(WaitForSeconds), c);
-						else if (c is IEnumerator) print($"Need to run {c}");
+						else if (c is IEnumerator) $"Need to run {c}".print();
 						startWaitTime = DateTime.Now;
 					}
 				}

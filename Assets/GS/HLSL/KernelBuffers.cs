@@ -290,7 +290,7 @@ namespace GpuScript
         AllocData();
         //while (isThreadReading) { }
         //inSetData = true;
-        try { computeBuffer.SetData(_Data); } catch (Exception e) { GS.print($"SetData() {e.ToString()}"); }
+        try { computeBuffer.SetData(_Data); } catch (Exception e) { $"SetData() {e.ToString()}".print(); }
         //inSetData = false;
       }
     }

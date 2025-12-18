@@ -185,7 +185,8 @@ public class GS_Window : EditorWindow
 		dirs = path0.GetThisAndAllDirectories();
 		foreach (var dir0 in dirs)
 		{
-			print(dir0);
+			//print(dir0);
+			dir0.print();
 			string dir1 = dir0.Replace(name0, name1);
 			files = dir0.GetFiles();
 			foreach (var file in files)
@@ -241,13 +242,13 @@ public class GS_Window : EditorWindow
 			if (gsClass_name_val == "gsDocs")
 			{
 				//https://docs.unity3d.com/ScriptReference/EditorBuildSettings-scenes.html
-				print($"Add all scenes to build, {appPath}");
+				$"Add all scenes to build, {appPath}".print();
 				var fs = AssetsPath.GetAllFiles("*.unity");
 				var s = StrBldr("Editor Scenes:");
 				foreach (var f in fs) s.Add($" {f.After("/Assets/")}");
 				s.Add(", Scenes:");
 				foreach (var scene in EditorBuildSettings.scenes) s.Add($" {scene.path.After("/Assets/")}");
-				print(s);
+				s.print();
 			}
 		}
 	}
@@ -468,7 +469,7 @@ public class GS_Window : EditorWindow
 					libProjects.Add(libProject);
 					if (libProject.BuildLib(Name, libFld, ref _GS_Text0, _cs_includes, _cs_lib_regions, libInterfaces, libCheckKeys, libOnLoaded, libKernels)) changed = true;
 				}
-				if (_GS_filename.WriteAllText_IfChanged(_GS_Text0.ReplaceTabsWithSpaces())) { print($"Libraries reloaded: {_GS_filename.AfterLast("/")}, Recompiling"); changed = true; }
+				if (_GS_filename.WriteAllText_IfChanged(_GS_Text0.ReplaceTabsWithSpaces())) { $"Libraries reloaded: {_GS_filename.AfterLast("/")}, Recompiling".print(); changed = true; }
 				else changed = false;
 			}
 			return changed;
@@ -712,7 +713,7 @@ public class GS_Window : EditorWindow
 
 		SizeInfo GetSizeInfo(string o)
 		{
-			if (o == null) print("Size must be specified for all kernels");
+			if (o == null) "Size must be specified for all kernels".print();
 			string[] size = o.Split(","), threadN = new string[] { "1", "1", "1" };
 			for (int i = 0; i < size.Length; i++) size[i] = size[i].Trim();
 			string sizeN = "", uintN = "";
@@ -1046,7 +1047,7 @@ public class GS_Window : EditorWindow
 
 						if (thread1.ToString().Contains("using GpuScript;"))
 						{
-							print($"Error:, thread1 = {thread1}");
+							$"Error:, thread1 = {thread1}".print();
 							thread1 = threadN[0];
 						}
 
@@ -1075,9 +1076,7 @@ public class GS_Window : EditorWindow
 
 
 						if (id_less.ToString().Contains("using GpuScript;"))
-						{
-							print($"Error:, id_less = {id_less}");
-						}
+							$"Error:, id_less = {id_less}".print();
 
 						kernels_.Add($"\n  [HideInInspector] public int kernel_{k.methodName}; [numthreads({numThreads})] protected {kernel_return} {k.methodName}({args}) {{ unchecked {{ {id_less}{kernel_coroutine}{k.methodName}_GS({pass_args}){(sync ? ")" : "")}; }} }}");
 						if (libKernels.DoesNotContain(k.methodName + "_GS"))
@@ -1652,7 +1651,7 @@ $"\n    {m_name}_To_UI();",
 		"\n  }",
 		$"\n  public virtual void {m_name}_OnKeyDown(KeyDownEvent evt)",
 		"\n  {",
-		$"\n    //print($\"{m_name}_OnKeyDown, {{(evt.shiftKey ? \"Shift-\" : \"\")}}{{(evt.ctrlKey ? \"Ctrl-\" : \"\")}}{{(evt.altKey ? \"Alt-\" : \"\")}}{{evt.keyCode.ToString()}}\");",
+		$"\n    //$\"{m_name}_OnKeyDown, {{(evt.shiftKey ? \"Shift-\" : \"\")}}{{(evt.ctrlKey ? \"Ctrl-\" : \"\")}}{{(evt.altKey ? \"Alt-\" : \"\")}}{{evt.keyCode.ToString()}}\".print();",
 		"\n  }",
 		"");
 										data_to_ui.Add(
@@ -2185,7 +2184,7 @@ $"\n    {m_name}_To_UI();",
 				}
 				if (keep) s.Add(s2);
 			}
-			if (s.IsNotEmpty()) print("Get_include_methods" + s);
+			if (s.IsNotEmpty()) ("Get_include_methods" + s).print();
 		}
 
 		public void Build() => This.StartCoroutine(Build_Coroutine());
@@ -2202,16 +2201,16 @@ $"\n    {m_name}_To_UI();",
 			Create_GS_Code();
 			yield return This.StartCoroutine(attempt(() => gameObject = FindOrCreate_GameObject(gsName)));
 			Component GS_script = FindOrCreate_Script(gameObject, gsName);
-			if (GS_script == null) { print($"Abort Build, GS_script == null, gsName = {gsName}"); yield break; }
+			if (GS_script == null) { $"Abort Build, GS_script == null, gsName = {gsName}".print(); yield break; }
 			if ((gs = gameObject.GetComponent<GS>()) == null) //Write a simple .cs file
 			{
 				if (_cs_filename.DoesNotExist()) _cs_filename.WriteAllText_IfChanged(StrBldr().AddLines("using GpuScript;", $"public class {gsName}_ : GS", "{", "}"));
 				if (cs_filename.DoesNotExist()) cs_filename.WriteAllText_IfChanged(StrBldr().AddLines("using GpuScript;", $"public class {gsName} : {gsName}_", "{", "}"));
 				yield return null;
 			}
-			if ((gs = gameObject.GetComponent<GS>()) == null) { print("Abort Build, gs == null"); yield break; }
+			if ((gs = gameObject.GetComponent<GS>()) == null) { "Abort Build, gs == null".print(); yield break; }
 			_gs = gameObject.GetComponent<_GS>();
-			if (_gs == null) { print("Abort Build, _gs == null"); yield break; }
+			if (_gs == null) { "Abort Build, _gs == null".print(); yield break; }
 			_cs_Code = _cs_FileTextCode;
 			cs_Code = cs_FileTextCode;
 			_GS_Code = _GS_FileTextCode;
@@ -2253,10 +2252,10 @@ $"\n    {m_name}_To_UI();",
 					GS gs_script = gameObject.GetComponent(scriptName) as GS;
 					if (gs_script == null)
 					{
-						try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
+						try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GS_Libs_Assembly")) as GS; } catch (Exception e) { $"Error {e}".print(); }
 						if (gs_script == null)
 						{
-							try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GSA_Libs_Assembly")) as GS; } catch (Exception e) { print($"Error {e}"); }
+							try { gs_script = gameObject.AddComponent(Type.GetType($"{scriptName}, GSA_Libs_Assembly")) as GS; } catch (Exception e) { $"Error {e}".print(); }
 							if (gs_script != null)
 							{
 								string f = $"{AssemblyPath(scriptName)}{scriptName}";
@@ -2291,7 +2290,7 @@ $"\n    {m_name}_To_UI();",
 			compileTimeStr.Add($", shader: {ClockSec_Segment():0.##} sec");
 			if (GS_Window.This.gsClass_Run.value) EditorApplication.EnterPlaymode(); //else Beep(0.5f, 1000);
 			compileTimeStr.Add($"\nBuilt {Name}: {ClockSec_SoFar():0.##} sec");
-			print(compileTimeStr);
+			compileTimeStr.print();
 
 			AssetDatabase.Refresh();
 			SaveScene();
@@ -2554,7 +2553,7 @@ $"\n    {m_name}_To_UI();",
 					methods.Add(m);
 				}
 			}
-			print(s);
+			s.print();
 
 			foreach (var m in methods)// fix _base
 			{
@@ -2885,7 +2884,7 @@ $"\n    {m_name}_To_UI();",
 				if (compiled_gsFiles.Length > 0) OnScriptsCompiled(compiled_gsFiles);
 				foreach (var f in importedAssets) if (f.EndsWith("/GS_cginc.cs")) { Update_cginc_Files(); AssetDatabase.Refresh(); break; }
 			}
-			else print("importedAssets = null");
+			else "importedAssets = null".print();
 		}
 		if (rebuild > 0) { rebuild--; if (rebuild == 0) gsClass_Build_clicked(); }
 
@@ -2975,7 +2974,7 @@ $"\n    {m_name}_To_UI();",
 		if (backupPath.Exists() && !EditorUtility.DisplayDialog("Overwrite?", $"Are you sure you want to overwrite {folder}?", "Overwrite", "Abort Backup")) return;
 		gs_srcPath.CopyDirAll(gs_backupPath);
 		data_srcPath.CopyDirAll(data_backupPath, omitPaths);
-		print($"Backed up {folder}");
+		$"Backed up {folder}".print();
 	}
 
 	public void backup_Restore_clicked(ClickEvent evt)
@@ -2991,7 +2990,7 @@ $"\n    {m_name}_To_UI();",
 		gs_srcPath.DeleteFiles("*.*");
 		gs_backupPath.CopyDirAll(gs_srcPath);
 		if (data_backupPath.Exists()) { data_srcPath.DeleteFiles("*.*"); data_backupPath.CopyDirAll(data_srcPath, omitPaths); }
-		print($"Restored {folder}");
+		$"Restored {folder}".print();
 	}
 
 	public void package_Create_clicked(ClickEvent evt)
@@ -3197,7 +3196,7 @@ $"\n    {m_name}_To_UI();",
 	protected bool CheckForInno()
 	{
 		if (@"C:\Program Files (x86)\Inno Setup 6\ISCC.exe".Exists()) return true;
-		print(@"C:\Program Files (x86)\Inno Setup 6\ISCC.exe  does not exist, install Inno Setup from http://www.jrsoftware.org/download.php/is.exe");
+		@"C:\Program Files (x86)\Inno Setup 6\ISCC.exe  does not exist, install Inno Setup from http://www.jrsoftware.org/download.php/is.exe".print();
 		Application.OpenURL("http://www.jrsoftware.org/download.php/is.exe");
 		return false;
 	}
@@ -3220,7 +3219,7 @@ $"\n    {m_name}_To_UI();",
 
 			appPath.MergeFolder(appPath2);
 
-			try { appDataPath.MergeFolder(appDataPath2); } catch (Exception) { print($"Error, the application is running. Close it and try again."); }
+			try { appDataPath.MergeFolder(appDataPath2); } catch (Exception) { $"Error, the application is running. Close it and try again.".print(); }
 
 			monoPath.MergeFolder(monoPath2);
 			unityDll.CopyFile(unityDll2);
@@ -3252,7 +3251,8 @@ $"\n    {m_name}_To_UI();",
 		Process process = new Process() { StartInfo = new ProcessStartInfo(filename, args) { UseShellExecute = false, CreateNoWindow = false, RedirectStandardError = true, RedirectStandardOutput = true, RedirectStandardInput = true } };
 		process.OutputDataReceived += (sender, e) => b.Append(e.Data);
 		process.Start(); process.BeginOutputReadLine(); process.WaitForExit(); process.CancelOutputRead(); process.Dispose();
-		if (setupFile.Exists()) print($"Setup file generated: {setupFile}"); else print($"Error in .iss file: {b.ToString()}");
+		//if (setupFile.Exists()) $"Setup file generated: {setupFile}".print(); else $"Error in .iss file: {b.ToString()}".print();
+		(setupFile.Exists() ? $"Setup file generated: {setupFile}" : $"Error in .iss file: {b.ToString()}").print();
 	}
 
 	public void exe_Exe_clicked(ClickEvent evt = null)
@@ -3294,7 +3294,8 @@ $"\n    {m_name}_To_UI();",
 		BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
 		BuildSummary summary = report.summary;
 		ok = summary.result == BuildResult.Succeeded;
-		if (ok) print($"Build succeeded: {summary.totalSize} bytes"); else print("Build failed");
+		//if (ok) print($"Build succeeded: {summary.totalSize} bytes"); else print("Build failed");
+		(ok ? $"Build succeeded: {summary.totalSize} bytes" : "Build failed").print();
 	}
 
 	public void Build_GS_Exe()

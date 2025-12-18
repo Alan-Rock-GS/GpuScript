@@ -26,7 +26,21 @@ namespace GpuScript
 		}
 		public float3 Slider_Pow_Val(float3 v) => clamp(round(isPow2Slider ? (pow10(abs(v)) - 1) / 0.999f : v, GetNearest(v)), rangeMin, rangeMax);
 		public float3 Slider_Log_Val(float3 v) => isPow2Slider ? log10(abs(clamp(round(v, GetNearest(v)), rangeMin, rangeMax)) * 0.999f + 1) : v;
-		public float3 SliderV { get => Slider_Pow_Val(float3(sliders[0].value, sliders[1].value, sliders[2].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; } }
+		//public float3 SliderV { get => Slider_Pow_Val(float3(sliders[0].value, sliders[1].value, sliders[2].value)); set { var v = Slider_Log_Val(value); sliders[0].value = v.x; sliders[1].value = v.y; sliders[2].value = v.z; } }
+		public float3 SliderV
+		{
+			get => Slider_Pow_Val(float3(sliders[0].value, sliders[1].value, sliders[2].value));
+			set
+			{
+				var v = Slider_Log_Val(value);
+				if (sliders[0].value != v.x)
+					sliders[0].value = v.x;
+				if (sliders[1].value != v.y)
+					sliders[1].value = v.y;
+				if (sliders[2].value != v.z)
+					sliders[2].value = v.z;
+			}
+		}
 		public override Slider[] GetSliders() => new Slider[] { this.Q<Slider>("slider_x"), this.Q<Slider>("slider_y"), this.Q<Slider>("slider_z") };
 		public UI_float3() : base() { }
 		public override void OnMouseCaptureEvent(MouseCaptureEvent evt) { base.OnMouseCaptureEvent(evt); if (evt.currentTarget is TextField) { var o = evt.currentTarget as TextField; previousValue = o.value.To_float3(); } }
