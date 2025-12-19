@@ -47,11 +47,13 @@ Shader "gs/gsVGrid_CT"
   #define VGrid_Lib_PaletteType_Heat	4
   #define VGrid_Lib_PaletteType_GradientHeat	5
   #define VGrid_Lib_PaletteType_WhiteRainbow	6
-  #define VGrid_Lib_PaletteType_invRainbow	7
-  #define VGrid_Lib_PaletteType_Green	8
-  #define VGrid_Lib_PaletteType_Gray	9
-  #define VGrid_Lib_PaletteType_DarkGray	10
-  #define VGrid_Lib_PaletteType_CT	11
+  #define VGrid_Lib_PaletteType_BlackRainbow	7
+  #define VGrid_Lib_PaletteType_BlackRainbowLines	8
+  #define VGrid_Lib_PaletteType_invRainbow	9
+  #define VGrid_Lib_PaletteType_Green	10
+  #define VGrid_Lib_PaletteType_Gray	11
+  #define VGrid_Lib_PaletteType_DarkGray	12
+  #define VGrid_Lib_PaletteType_CT	13
   #define Views_Lib_ProjectionMode_Automatic	0
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
@@ -67,9 +69,9 @@ Shader "gs/gsVGrid_CT"
   #define g gVGrid_CT[0]
   struct GVGrid_CT
   {
+    uint omitN, CT_pixBytesSize, CT_textureI, VGrid_Lib_BDraw_ABuff_IndexN, VGrid_Lib_BDraw_ABuff_BitN, VGrid_Lib_BDraw_ABuff_N, VGrid_Lib_BDraw_ABuff_BitN1, VGrid_Lib_BDraw_ABuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
     uint3 CT_bufferSize, CT_N, VGrid_Lib_nodeN;
     uint2 CT_textureSize, VGrid_Lib_viewSize;
-    uint CT_pixBytesSize, CT_textureI, VGrid_Lib_BDraw_ABuff_IndexN, VGrid_Lib_BDraw_ABuff_BitN, VGrid_Lib_BDraw_ABuff_N, VGrid_Lib_BDraw_ABuff_BitN1, VGrid_Lib_BDraw_ABuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
     float VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
     float4 VGrid_Lib_BDraw_boxColor;
     float2 VGrid_Lib_GridX, VGrid_Lib_GridY, VGrid_Lib_GridZ, VGrid_Lib_textSize, VGrid_Lib_paletteRange, VGrid_Lib_meshRange;
@@ -89,7 +91,7 @@ Shader "gs/gsVGrid_CT"
   RWStructuredBuffer<Color32> VGrid_Lib_paletteBuffer;
   RWStructuredBuffer<float> VGrid_Lib_Vals;
 
-  public Texture2D VGrid_Lib_BDraw_fontTexture;
+   public Texture2D VGrid_Lib_BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }

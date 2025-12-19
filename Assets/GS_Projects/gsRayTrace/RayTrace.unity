@@ -1352,7 +1352,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 321849452}
   m_Enabled: 1
-  serializedVersion: 12
+  serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
@@ -1404,7 +1404,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShapeRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -3115,9 +3115,14 @@ MonoBehaviour:
       x: 0
       y: 0
       z: 0
+    starAngles:
+      x: 0
+      y: 0
+      z: 0
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendWidthRatio: 0
     tiltSpin:
       x: 0
@@ -3172,6 +3177,7 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendViewWidth: 0
     legendWidthRatio: 0
     BDraw_boxColor:
@@ -3184,6 +3190,10 @@ MonoBehaviour:
       y: 0
       z: 0
     Default_Center:
+      x: 0
+      y: 0
+      z: 0
+    starAngles:
       x: 0
       y: 0
       z: 0
@@ -3234,6 +3244,8 @@ MonoBehaviour:
   target: {fileID: 0}
   _target: {fileID: 0}
   webCamTexture: {fileID: 0}
+  stars: {fileID: 0}
+  constellations: {fileID: 0}
 --- !u!114 &861896560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3573,16 +3585,16 @@ MonoBehaviour:
   _PaletteTex: {fileID: 2800000, guid: 8e313a24ad32bc741b73f78f62c04e79, type: 3}
   BDraw_fontTexture: {fileID: 0}
   kernel_traceRay: 0
+  kernel_BDraw_setDefaultTextInfo: 0
+  kernel_BDraw_getTextInfo: 0
   kernel_BDraw_ABuff_GetIndexes: 0
   kernel_BDraw_ABuff_IncSums: 0
   kernel_BDraw_ABuff_IncFills1: 0
   kernel_BDraw_ABuff_GetFills2: 0
   kernel_BDraw_ABuff_GetFills1: 0
-  kernel_BDraw_ABuff_Get_Bits_Sums: 0
   kernel_BDraw_ABuff_GetSums: 0
+  kernel_BDraw_ABuff_Get_Bits_Sums: 0
   kernel_BDraw_ABuff_Get_Bits: 0
-  kernel_BDraw_setDefaultTextInfo: 0
-  kernel_BDraw_getTextInfo: 0
   BDraw_ExtraTextN: 0
   Skybox: {fileID: 2800000, guid: 2d61d0806af4ca342a526db384b69feb, type: 3}
 --- !u!114 &861896561

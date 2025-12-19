@@ -2312,7 +2312,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 788148926}
   m_Enabled: 1
-  serializedVersion: 12
+  serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
@@ -2364,7 +2364,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShapeRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -3606,6 +3606,7 @@ MonoBehaviour:
   data:
     siUnits: 0
     group_UI: 0
+    group_CT: 0
     VGrid_Lib_group_VGrid_Lib: 0
     VGrid_Lib_group_Geometry: 0
     VGrid_Lib_drawGrid: 0
@@ -3620,6 +3621,8 @@ MonoBehaviour:
     VGrid_Lib_show_slices: 0
     VGrid_Lib_twoSided: 0
     Views_Lib_group_CamViews_Lib: 0
+    omitN: 0
+    VGrid_Lib_customAxesRangeN: 0
     VGrid_Lib_GridX:
       x: 0
       y: 0
@@ -3644,7 +3647,6 @@ MonoBehaviour:
     VGrid_Lib_GridLineThickness: 0
     VGrid_Lib_opacity: 0
     VGrid_Lib_meshVal: 0
-    VGrid_Lib_customAxesRangeN: 0
     VGrid_Lib_axesRangeMin:
       x: 0
       y: 0
@@ -3691,24 +3693,7 @@ MonoBehaviour:
     Views_Lib_CamViews_Lib_selectedRows: 
     Views_Lib_CamViews_Lib_lastClickedRow: 0
   g:
-    CT_bufferSize:
-      x: 0
-      y: 0
-      z: 0
-    CT_N:
-      x: 0
-      y: 0
-      z: 0
-    VGrid_Lib_nodeN:
-      x: 0
-      y: 0
-      z: 0
-    CT_textureSize:
-      x: 0
-      y: 0
-    VGrid_Lib_viewSize:
-      x: 0
-      y: 0
+    omitN: 0
     CT_pixBytesSize: 0
     CT_textureI: 0
     VGrid_Lib_BDraw_ABuff_IndexN: 0
@@ -3743,6 +3728,24 @@ MonoBehaviour:
     VGrid_Lib_showAxes: 0
     VGrid_Lib_showNormalizedAxes: 0
     VGrid_Lib_retrace: 0
+    CT_bufferSize:
+      x: 0
+      y: 0
+      z: 0
+    CT_N:
+      x: 0
+      y: 0
+      z: 0
+    VGrid_Lib_nodeN:
+      x: 0
+      y: 0
+      z: 0
+    CT_textureSize:
+      x: 0
+      y: 0
+    VGrid_Lib_viewSize:
+      x: 0
+      y: 0
     VGrid_Lib_BDraw_fontSize: 0
     VGrid_Lib_BDraw_boxThickness: 0
     VGrid_Lib_resolution: 0
@@ -4476,9 +4479,14 @@ MonoBehaviour:
       x: 0
       y: 0
       z: 0
+    starAngles:
+      x: 0
+      y: 0
+      z: 0
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendWidthRatio: 0
     tiltSpin:
       x: 0
@@ -4533,6 +4541,7 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendViewWidth: 0
     legendWidthRatio: 0
     BDraw_boxColor:
@@ -4545,6 +4554,10 @@ MonoBehaviour:
       y: 0
       z: 0
     Default_Center:
+      x: 0
+      y: 0
+      z: 0
+    starAngles:
       x: 0
       y: 0
       z: 0
@@ -4595,6 +4608,8 @@ MonoBehaviour:
   target: {fileID: 0}
   _target: {fileID: 0}
   webCamTexture: {fileID: 0}
+  stars: {fileID: 0}
+  constellations: {fileID: 0}
 --- !u!1 &1162420697
 GameObject:
   m_ObjectHideFlags: 0

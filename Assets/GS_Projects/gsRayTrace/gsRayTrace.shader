@@ -76,7 +76,7 @@ Shader "gs/gsRayTrace"
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<Color32> skyboxBuffer;
 
-  public Texture2D BDraw_fontTexture;
+   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return o; }
