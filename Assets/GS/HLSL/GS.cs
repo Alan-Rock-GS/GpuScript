@@ -26,21 +26,27 @@ namespace GpuScript
 {
 	public class GS : GS_cginc
 	{
+		public static IEnumerator InterlockedAdd_F(RWStructuredBuffer<uint> fs, uint I, float v) { uint F, F2, fsI; float f; while ((F2 = asuint(v + (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) yield return GrpSync(); yield return GrpSync(); }
+		public static IEnumerator InterlockedMul_F(RWStructuredBuffer<uint> fs, uint I, float v) { uint F, F2, fsI; float f; while ((F2 = asuint(v * (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) yield return GrpSync(); yield return GrpSync(); }
+		public static IEnumerator InterlockedMin_F(RWStructuredBuffer<uint> fs, uint I, float v) { uint F, F2, fsI; float f; while ((F2 = asuint(min(v, f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) yield return GrpSync(); yield return GrpSync(); }
+		public static IEnumerator InterlockedMax_F(RWStructuredBuffer<uint> fs, uint I, float v) { uint F, F2, fsI; float f; while ((F2 = asuint(max(v, f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) yield return GrpSync(); yield return GrpSync(); }
+
 		//public static double dfloor(double v) => v >= 0 || (double)(long)v == v ? (int)v : (int)v - 1; 
 		////public static double dfloor(double v) => v >= 0 || (double)(int)v == v ? (int)v : (int)v - 1; 
 
 		public static WaitForEndOfFrame AllMemoryBarrier() => new();
-		public WaitForEndOfFrame AllMemoryBarrierWithGroupSync() { sync++; return new(); }
+		public static WaitForEndOfFrame AllMemoryBarrierWithGroupSync() { sync++; return new(); }
 
 		public static WaitForEndOfFrame GroupMemoryBarrier() => new();//Blocks execution of all threads in a group until all group shared accesses have been completed.
 
 
-		public WaitForEndOfFrame GroupMemoryBarrierWithGroupSync() { sync++; return null; }//Blocks execution of all threads in a group until all group shared accesses have been completed and all threads in the group have reached this call.
+		public static WaitForEndOfFrame GroupMemoryBarrierWithGroupSync() { sync++; return null; }//Blocks execution of all threads in a group until all group shared accesses have been completed and all threads in the group have reached this call.
 
 		/// <summary>
 		/// Same as GroupMemoryBarrierWithGroupSync()
 		/// </summary>
-		public WaitForEndOfFrame GrpSync() { sync++; return null; }
+		//public WaitForEndOfFrame GrpSync() { sync++; return null; }
+		public static WaitForEndOfFrame GrpSync() { sync++; return null; }
 		/// <summary>
 		/// Same as AllMemoryBarrierWithGroupSync() followed by yield return GroupMemoryBarrierWithGroupSync()
 		/// </summary>
@@ -77,6 +83,15 @@ namespace GpuScript
 		public float TimeAction(uint n, Action a, Unit unit) => For(n).Select(i => Secs(a)).Min() * UI_VisualElement.convert(Unit.s, unit);
 		public string Time_Str(float time, Unit unit = Unit.ms, string format = "#,##0") => $"{time.ToString(format)} {unit.ToLabel()}";
 		public string TimeAction_Str(uint n, Action a, Unit unit = Unit.ms, string format = "#,##0") => Time_Str(TimeAction(n, a, unit), unit, format);
+		public float2 TimeActionMinMax(uint n, Action a, Unit unit) { var times = For(n).Select(i => Secs(a)).ToArray(); return float2(times.Min(), times.Max()) * UI_VisualElement.convert(Unit.s, unit); }
+		public string TimeMinMax_Str(float2 time, Unit unit = Unit.ms, string format = "#,##0") => $"{time.x.ToString(format)}-{time.y.ToString(format)} {unit.ToLabel()}";
+		public string TimeActionMinMax_Str(uint n, Action a, Unit unit = Unit.ms, string format = "#,##0") => TimeMinMax_Str(TimeActionMinMax(n, a, unit), unit, format);
+		public float3 TimeActionMinAvgMax(uint n, Action a, Unit unit) { var times = For(n).Select(i => Secs(a)).ToArray(); return float3(times.Min(), times.Average(), times.Max()) * UI_VisualElement.convert(Unit.s, unit); }
+		public string TimeMinAvgMax_Str(float3 time, Unit unit = Unit.ms, string format = "#,##0") => $"{time.x.ToString(format)}-{time.y.ToString(format)}-{time.z.ToString(format)} {unit.ToLabel()}";
+		public string TimeActionMinAvgMax_Str(uint n, Action a, Unit unit = Unit.ms, string format = "#,##0") => TimeMinAvgMax_Str(TimeActionMinAvgMax(n, a, unit), unit, format);
+		public float3 TimeActionMinMedMax(uint n, Action a, Unit unit) { var times = For(n).Select(i => Secs(a)).ToArray(); return float3(times.Min(), times.Median(), times.Max()) * UI_VisualElement.convert(Unit.s, unit); }
+		public string TimeMinMedMax_Str(float3 time, Unit unit = Unit.ms, string format = "#,##0") => $"{time.x.ToString(format)}-{time.y.ToString(format)}-{time.z.ToString(format)} {unit.ToLabel()}";
+		public string TimeActionMinMedMax_Str(uint n, Action a, Unit unit = Unit.ms, string format = "#,##0") => TimeMinMedMax_Str(TimeActionMinMedMax(n, a, unit), unit, format);
 		public Stopwatch stopwatch;
 		public void TimeCode() => (stopwatch = new Stopwatch()).Start();
 		public float TimeCode(Unit unit) { stopwatch.Stop(); return stopwatch.Secs() * UI_VisualElement.convert(Unit.s, unit); }
@@ -819,7 +834,8 @@ namespace GpuScript
 			for (uint k = 0; k < z; k++) for (uint j = 0; j < y; j++) for (uint i = 0; i < x; i++) kernelFunction(uint3(i, j, k));
 		}
 
-		[HideInInspector] public int sync;
+		//[HideInInspector] public int sync;
+		[HideInInspector] public static int sync;
 		/// <summary>
 		/// SV_GroupIndex: grpI: 0 to numthreadsX*numthreadsY*numthreadsZ-1 
 		/// SV_GroupID: grp_id: 0 to x*y*z-1 

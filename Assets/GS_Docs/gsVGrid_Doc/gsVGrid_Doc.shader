@@ -47,11 +47,13 @@ Shader "gs/gsVGrid_Doc"
   #define VGrid_Lib_PaletteType_Heat	4
   #define VGrid_Lib_PaletteType_GradientHeat	5
   #define VGrid_Lib_PaletteType_WhiteRainbow	6
-  #define VGrid_Lib_PaletteType_invRainbow	7
-  #define VGrid_Lib_PaletteType_Green	8
-  #define VGrid_Lib_PaletteType_Gray	9
-  #define VGrid_Lib_PaletteType_DarkGray	10
-  #define VGrid_Lib_PaletteType_CT	11
+  #define VGrid_Lib_PaletteType_BlackRainbow	7
+  #define VGrid_Lib_PaletteType_BlackRainbowLines	8
+  #define VGrid_Lib_PaletteType_invRainbow	9
+  #define VGrid_Lib_PaletteType_Green	10
+  #define VGrid_Lib_PaletteType_Gray	11
+  #define VGrid_Lib_PaletteType_DarkGray	12
+  #define VGrid_Lib_PaletteType_CT	13
   #define Views_Lib_ProjectionMode_Automatic	0
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2
@@ -89,7 +91,7 @@ Shader "gs/gsVGrid_Doc"
   RWStructuredBuffer<Color32> VGrid_Lib_paletteBuffer;
   RWStructuredBuffer<float> VGrid_Lib_Vals;
 
-  public Texture2D VGrid_Lib_BDraw_fontTexture;
+   public Texture2D VGrid_Lib_BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }

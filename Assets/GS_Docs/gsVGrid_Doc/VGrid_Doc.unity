@@ -4994,9 +4994,14 @@ MonoBehaviour:
       x: 0
       y: 0
       z: 0
+    starAngles:
+      x: 0
+      y: 0
+      z: 0
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendWidthRatio: 0
     tiltSpin:
       x: 0
@@ -5051,6 +5056,7 @@ MonoBehaviour:
     dist: 0
     distSpeed: 0
     orthoSize: 0
+    starLineWidth: 0
     legendViewWidth: 0
     legendWidthRatio: 0
     BDraw_boxColor:
@@ -5063,6 +5069,10 @@ MonoBehaviour:
       y: 0
       z: 0
     Default_Center:
+      x: 0
+      y: 0
+      z: 0
+    starAngles:
       x: 0
       y: 0
       z: 0
@@ -5113,6 +5123,8 @@ MonoBehaviour:
   target: {fileID: 0}
   _target: {fileID: 0}
   webCamTexture: {fileID: 0}
+  stars: {fileID: 0}
+  constellations: {fileID: 0}
 --- !u!114 &1850653793
 MonoBehaviour:
   m_ObjectHideFlags: 0

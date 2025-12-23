@@ -36,11 +36,13 @@
   #define VGrid_Lib_PaletteType_Heat	4
   #define VGrid_Lib_PaletteType_GradientHeat	5
   #define VGrid_Lib_PaletteType_WhiteRainbow	6
-  #define VGrid_Lib_PaletteType_invRainbow	7
-  #define VGrid_Lib_PaletteType_Green	8
-  #define VGrid_Lib_PaletteType_Gray	9
-  #define VGrid_Lib_PaletteType_DarkGray	10
-  #define VGrid_Lib_PaletteType_CT	11
+  #define VGrid_Lib_PaletteType_BlackRainbow	7
+  #define VGrid_Lib_PaletteType_BlackRainbowLines	8
+  #define VGrid_Lib_PaletteType_invRainbow	9
+  #define VGrid_Lib_PaletteType_Green	10
+  #define VGrid_Lib_PaletteType_Gray	11
+  #define VGrid_Lib_PaletteType_DarkGray	12
+  #define VGrid_Lib_PaletteType_CT	13
   #define Views_Lib_ProjectionMode_Automatic	0
   #define Views_Lib_ProjectionMode_Perspective	1
   #define Views_Lib_ProjectionMode_Orthographic	2

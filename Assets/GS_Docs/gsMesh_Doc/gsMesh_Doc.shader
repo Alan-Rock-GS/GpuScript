@@ -89,7 +89,7 @@ Shader "gs/gsMesh_Doc"
   RWStructuredBuffer<Color32> Mesh_Lib_paletteBuffer;
   RWStructuredBuffer<float> Mesh_Lib_Vals;
 
-  public Texture2D Mesh_Lib_BDraw_fontTexture;
+   public Texture2D Mesh_Lib_BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   void onRenderObject_LIN(bool show, uint _itemN, inout uint i, inout uint index, inout uint3 LIN) { uint n = 0; if (show) { if (i < (n = _itemN)) LIN = uint3(index, i, 0); LIN.z += n; i -= n; } index++; }

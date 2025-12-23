@@ -371,7 +371,6 @@ MonoBehaviour:
   computeShader: {fileID: 7200000, guid: e238c2fcdd298954dad198189b9ac938, type: 3}
   material: {fileID: 0}
   renderTextures: []
-  sync: 0
   render: 1
   isInitBuffers: 0
   in_data_to_ui: 0
@@ -596,7 +595,6 @@ MonoBehaviour:
     arrayLength: 0
     NumN: 0
     IterN: 0
-    factN: 0
     sumN: 0
     matrixRuntimes_DisplayCols: 
     matrixRuntimes_VScroll: 0
@@ -610,6 +608,9 @@ MonoBehaviour:
     sortRuntimes_isExpanded: 0
     sortRuntimes_selectedRows: 
     sortRuntimes_lastClickedRow: 0
+    factN_range:
+      x: 0
+      y: 0
   g:
     MatRowN: 0
     MatN: 0
@@ -619,12 +620,14 @@ MonoBehaviour:
     sortVN: 0
     NumN: 0
     IterN: 0
-    factN: 0
     uintN: 0
     sumN: 0
     Rand_N: 0
     Rand_I: 0
     Rand_J: 0
+    factN_range:
+      x: 0
+      y: 0
     Rand_seed4:
       x: 0
       y: 0
@@ -636,6 +639,7 @@ MonoBehaviour:
   lateUpdateI: 0
   in_MatMultiply: 0
   in_RunGrpSort: 0
+  in_CalcFloatFactorials_Test: 0
   Rand_grp:
   - x: 0
     y: 0
@@ -5773,6 +5777,7 @@ MonoBehaviour:
   kernel_calc_lsums: 0
   kernel_calc_usums: 0
   kernel_calc_dfacts: 0
+  kernel_calc_ifacts_Test: 0
   kernel_calc_ifacts: 0
   kernel_calc_lfacts: 0
   kernel_calc_ufacts: 0
@@ -5788,6 +5793,7 @@ MonoBehaviour:
   kernel_init_counts: 0
   kernel_init_vs: 0
   kernel_GrpSort: 0
+  kernel_Global_A_x: 0
   kernel_Multiply_Mat_A_x: 0
   kernel_Init_Mat_b: 0
   kernel_Init_Mat_x: 0

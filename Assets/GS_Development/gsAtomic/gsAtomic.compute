@@ -7,7 +7,8 @@
   #pragma use_dxc
   struct GAtomic
   {
-    uint MatRowN, MatN, printMatrices, numberOfArrays, arrayLength, sortVN, NumN, IterN, factN, uintN, sumN, Rand_N, Rand_I, Rand_J;
+    uint MatRowN, MatN, printMatrices, numberOfArrays, arrayLength, sortVN, NumN, IterN, uintN, sumN, Rand_N, Rand_I, Rand_J;
+    uint2 factN_range;
     uint4 Rand_seed4;
   };
   struct MatrixRuntime { uint runtime_Compute; string runtime_Name; uint runtime_MatRowN, runtime_MatN, runtime_error; float runtime_runtime_us, runtime_xFaster; string runtime_xTime; };
@@ -25,19 +26,33 @@
   RWStructuredBuffer<float> sortVs, Mat_A_Float, Mat_x_Float, Mat_b_Float;
   RWStructuredBuffer<uint4> Rand_rs;
   RWStructuredBuffer<double> Mat_A_Double, Mat_x_Double, Mat_b_Double;
+  [numthreads(numthreads1, 1, 1)] void Calc_Double_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin_D(uints, 0, i); InterlockedMax_D(uints, 1, i); InterlockedAdd_D(uints, 2, 1); }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void Calc_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
 	{
 		unchecked
 		{
-			if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin_Float(uints, 0, i); InterlockedMax_Float(uints, 1, i); InterlockedAdd_Float(uints, 2, 1); }
+			if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin_F(uints, 0, i); InterlockedMax_F(uints, 1, i); InterlockedAdd_F(uints, 2, 1); }
 		}
 	}
   [numthreads(numthreads1, 1, 1)] void Init_Min_Max_Sum(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 3) { uints[id.x] = id.x == 0 ? asuint(fPosInf) : id.x == 1 ? asuint(fNegInf) : asuint(0); } } }
+  [numthreads(numthreads1, 1, 1)] void calc_dsums(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < triN(g.sumN)) { uint N = g.sumN; uint2 v = N - triI(id.x, N) + i_1; double vy = v.y; InterlockedAdd_D(uints, v.x, vy); }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void calc_isums(uint3 id : SV_DispatchThreadID)
 	{
 		unchecked
 		{
-			if (id.x < triN(g.sumN)) { uint N = g.sumN; uint2 v = N - triI(id.x, N) + i_1; InterlockedAdd_Float(uints, v.x, (float)v.y); }
+			if (id.x < triN(g.sumN)) { uint N = g.sumN; uint2 v = N - triI(id.x, N) + i_1; float vy = v.y; InterlockedAdd_F(uints, v.x, vy); }
 		}
 	}
   [numthreads(numthreads1, 1, 1)] void calc_lsums(uint3 id : SV_DispatchThreadID)
@@ -54,18 +69,27 @@
 			if (id.x < triN(g.sumN)) { uint N = g.sumN; uint2 v = N - triI(id.x, N) + i_1; InterlockedAdd(uints, v.x, v.y); }
 		}
 	}
+  [numthreads(numthreads1, 1, 1)] void calc_dfacts(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < triN(g.factN_range.y)) { uint N = g.factN_range.y; uint2 v = N - triI(id.x, N) + i_1; float vy = v.y; InterlockedMul_D(uints, v.x, vy); }
+		}
+	}
+  [numthreads(numthreads1, 1, 1)] void calc_ifacts_Test(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex) { uint N = g.factN_range.y; uint2 v = N - triI(id.x, N) + i_1; float vy = v.y; InterlockedMul_F(uints, v.x, vy); }
+	
   [numthreads(numthreads1, 1, 1)] void calc_ifacts(uint3 id : SV_DispatchThreadID)
 	{
 		unchecked
 		{
-			if (id.x < triN(g.factN)) { uint N = g.factN; uint2 v = N - triI(id.x, N) + i_1; InterlockedMul_Float(uints, v.x, (float)v.y); }
+			if (id.x < triN(g.factN_range.y)) { uint N = g.factN_range.y; uint2 v = N - triI(id.x, N) + i_1; float vy = v.y; InterlockedMul_F(uints, v.x, vy); }
 		}
 	}
   [numthreads(numthreads1, 1, 1)] void calc_lfacts(uint3 id : SV_DispatchThreadID)
 	{
 		unchecked
 		{
-			if (id.x < triN(g.factN)) { uint N = g.factN; uint2 v = N - triI(id.x, N) + i_1; InterlockedMultiply_Long(uints, v.x, (long)v.y); }
+			if (id.x < triN(g.factN_range.y)) { uint N = g.factN_range.y; uint2 v = N - triI(id.x, N) + i_1; InterlockedMul_Long(uints, v.x, (long)v.y); }
 		}
 	}
   [numthreads(numthreads1, 1, 1)] void init_float_uints_0(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { uints[id.x] = asuint(0.0f); } } }
@@ -110,84 +134,25 @@
 	
   [numthreads(numthreads1, 1, 1)] void init_long_uints_1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { set_uints(id.x, long_to_uint2(1)); } } }
   uint2 double_to_uint2(double v) { uint a, b; asuint(v, a, b); return uint2(a, b); }
-  [numthreads(numthreads1, 1, 1)] void Init_Double_Min_Max_Sum(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 3) { set_uints(id.x, id.x == 0 ? double_to_uint2(fPosInf) : id.x == 1 ? double_to_uint2(fNegInf) : double_to_uint2(0)); } } }
   [numthreads(numthreads1, 1, 1)] void init_double_uints_0(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { set_uints(id.x, double_to_uint2(0.0f)); } } }
   [numthreads(numthreads1, 1, 1)] void init_double_uints_1(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.uintN) { set_uints(id.x, double_to_uint2(1.0f)); } } }
-  void InterlockedMin_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
-  {
-    bool2 Ok = b00;
-    I *= 2;
-    do
-    {
-      double f = uint2_to_double(uint2(double_uints[I], double_uints[I + 1]));
-      uint2 F = double_to_uint2(f), F2 = double_to_uint2(min(v, f));
-      Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I + 1, F.y, F2.y) == F.y);
-    } while (!all(Ok));
-  }
-  void InterlockedMax_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
-  {
-    bool2 Ok = b00;
-    I *= 2;
-    do
-    {
-      double f = uint2_to_double(uint2(double_uints[I], double_uints[I + 1]));
-      uint2 F = double_to_uint2(f), F2 = double_to_uint2(max(v, f));
-      Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I + 1, F.y, F2.y) == F.y);
-    } while (!all(Ok));
-  }
-  void InterlockedAdd_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
-  {
-    if (v != 0)
-    {
-      bool2 Ok = b00;
-      I *= 2;
-      do
-      {
-        double f = uint2_to_double(uint2(double_uints[I], double_uints[I + 1]));
-        uint2 F = double_to_uint2(f), F2 = double_to_uint2(v + f);
-        Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I + 1, F.y, F2.y) == F.y);
-      } while (!all(Ok));
-     }
-   }
-   
-  [numthreads(numthreads1, 1, 1)] void calc_dsums(uint3 id : SV_DispatchThreadID)
-	{
-		unchecked
-		{
-			if (id.x < triN(g.sumN)) { uint N = g.sumN; uint2 v = N - triI(id.x, N) + i_1; InterlockedAdd_Double(uints, v.x, v.y); }
-		}
-	}
-  void InterlockedMul_Double(RWStructuredBuffer<uint> double_uints, uint I, double v)
-   {
-    if (v != 1)
-    {
-      bool2 Ok = b00;
-      I *= 2;
-      do
-      {
-        double f = uint2_to_double(uint2(double_uints[I], double_uints[I + 1]));
-        uint2 F = double_to_uint2(f), F2 = double_to_uint2(v * f);
-        Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(double_uints, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(double_uints, I + 1, F.y, F2.y) == F.y);
-      } while (!all(Ok));
-     }
-  }
-  [numthreads(numthreads1, 1, 1)] void calc_dfacts(uint3 id : SV_DispatchThreadID)
-	{
-		unchecked
-		{
-			if (id.x < triN(g.factN)) { uint N = g.factN; uint2 v = N - triI(id.x, N) + i_1; InterlockedMul_Double(uints, v.x, v.y); }
-		}
-	}
   bool CalcFact(uint I, uint v, uint x, uint y) { bool ok = I >= x && v > x && I < y && v <= y; if (ok) InterlockedMul(uints, I, v); return ok; }
 	
   [numthreads(numthreads1, 1, 1)] void calc_ufacts(uint3 id : SV_DispatchThreadID)
 	{
 		unchecked
 		{
-			if (id.x < triN(g.factN)) { uint N = g.factN; uint2 v = N - triI(id.x, N) + i_1; uint f[] = { 0, 12, 19, 26, 32, 38, 43, 48, 53, 58 }; for (uint i = 0; i < 9 && !CalcFact(v.x, v.y, f[i], f[i + 1]);) i++; }
+			if (id.x < triN(g.factN_range.y)) { uint N = g.factN_range.y; uint2 v = N - triI(id.x, N) + i_1; uint f[] = { 0, 12, 19, 26, 32, 38, 43, 48, 53, 58 }; for (uint i = 0; i < 9 && !CalcFact(v.x, v.y, f[i], f[i + 1]);) i++; }
 		}
 	}
   float GetSortV(uint arrayI, uint itemI) { return itemI == 0 ? g.arrayLength - 2 : itemI == 1 ? g.arrayLength - 1 : g.arrayLength - 1 - itemI; }
+  IEnumerator GlobalSync(uint n)
+	{
+		InterlockedAdd(syncCount, 0, 1);
+		while (syncCount[0] != n)
+			yield return GrpSync();
+	}
+	
   uint SortI(uint arrayI, uint itemI) { return arrayI * g.arrayLength + itemI; }
   void SortV(uint arrayI, uint itemI, float v) { sortVs[SortI(arrayI, itemI)] = v; }
   [numthreads(numthreads1, 1, 1)] void GrpSort(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
@@ -203,18 +168,21 @@
 	}
 	
   uint Mat_Index(uint colI, uint rowJ) { return id_to_i(colI, rowJ, g.MatN, g.MatRowN); }
+  int Matx(uint colI, uint rowJ) { return Mat_x[Mat_Index(colI, rowJ)]; }
+  int Matb(uint colI, uint rowJ) { return Mat_b[Mat_Index(colI, rowJ)]; }
   uint Mat_Index(uint2 ij) { return Mat_Index(ij.x, ij.y); }
   void Matb(uint colI, uint rowJ, int V) { Mat_b[Mat_Index(colI, rowJ)] = V; }
   [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_b(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { Matb(id.x, id.y, 0); } } }
+  void Matb(uint2 ij, int V) { Matb(ij.x, ij.y, V); }
   void Matx(uint colI, uint rowJ, int V) { Mat_x[Mat_Index(colI, rowJ)] = V; }
   [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatN) { Matx(id.x, id.y, 1); } } }
-  int Matx(uint colI, uint rowJ) { return Mat_x[Mat_Index(colI, rowJ)]; }
   void Matx(uint2 ij, int V) { Matx(ij.x, ij.y, V); }
   int Matx(uint2 ij) { return Matx(ij.x, ij.y); }
   uint Rand_UV(uint4 r) { return cxor(r); }
   float Rand_FV(uint4 r) { return 2.3283064365387e-10f * Rand_UV(r); }
   uint MatA_Index(uint2 ij) { return id_to_i(ij, g.MatRowN, g.MatRowN); }
   uint MatA_Index(uint colI, uint rowJ) { return MatA_Index(uint2(colI, rowJ)); }
+  int MatA(uint i, uint j) { return Mat_A[MatA_Index(i, j)]; }
   void MatA(uint i, uint j, int V) { Mat_A[MatA_Index(i, j)] = V; }
   [numthreads(numthreads2, numthreads2, 1)] void Init_Mat_A(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.MatRowN && id.x < g.MatRowN) { MatA(id.x, id.y, 1); } } }
   [numthreads(numthreads2, numthreads2, 1)] void Init_Axb(uint3 id : SV_DispatchThreadID)
@@ -224,7 +192,6 @@
 			if (id.y < g.MatRowN && id.x < g.MatRowN) { MatA(id.x, id.y, 1); Matx(id.x, id.y, 1); Matb(id.x, id.y, 0); }
 		}
 	}
-  int MatA(uint i, uint j) { return Mat_A[MatA_Index(i, j)]; }
   void MatA(uint2 ij, int V) { MatA(ij.x, ij.y, V); }
   [numthreads(numthreads1, 1, 1)] void Grp_Multiply_Ax(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
 	{
@@ -238,9 +205,19 @@
 	}
 	
   int MatA(uint2 ij) { return MatA(ij.x, ij.y); }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Global_A_x(uint3 grp_tid : SV_GroupThreadID, uint3 grp_id : SV_GroupID, uint3 id : SV_DispatchThreadID, uint grpI : SV_GroupIndex)
+	{
+		if (all(id == u000)) syncCount[0] = 0;
+		if (id.z == 0) MatA(id.xy, 1);
+		if (id.x == 0) { Matx(id.yz, 1); Matb(id.yz, 0); }
+		GlobalSync(g.MatRowN * g.MatRowN * g.MatN);
+		GrpSync();
+		InterlockedAdd(Mat_b, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx));
+	}
+	
   [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Mat_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd(Mat_b, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
-  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Double_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd_Double(uints, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
-  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Float_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd_Float(uints, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Double_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd_D(uints, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
+  [numthreads(numthreads3, numthreads3, numthreads3)] void Multiply_Float_A_x(uint3 id : SV_DispatchThreadID) { unchecked { if (id.z < g.MatN && id.y < g.MatRowN && id.x < g.MatRowN) { InterlockedAdd_F(uints, Mat_Index(id.zx), MatA(id.xy) * Matx(id.zx)); } } }
   uint Rand_u(uint a, int b, int c, int d, uint e) { return ((a & e) << d) ^ (((a << b) ^ a) >> c); }
   uint4 Rand_U4(uint4 r) { return uint4(Rand_u(r.x, 13, 19, 12, 4294967294u), Rand_u(r.y, 2, 25, 4, 4294967288u), Rand_u(r.z, 3, 11, 17, 4294967280u), r.w * 1664525 + 1013904223u); }
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
@@ -250,13 +227,7 @@
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void Calc_Double_Min_Max_Sum(uint3 id : SV_DispatchThreadID)
-	{
-		unchecked
-		{
-			if (id.x < g.NumN) { int i = (int)id.x; InterlockedMin_Double(uints, 0, i); InterlockedMax_Double(uints, 1, i); InterlockedAdd_Double(uints, 2, 1); }
-		}
-	}
+  [numthreads(numthreads1, 1, 1)] void Init_Double_Min_Max_Sum(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 3) { set_uints(id.x, id.x == 0 ? double_to_uint2(fPosInf) : id.x == 1 ? double_to_uint2(fNegInf) : double_to_uint2(0)); } } }
   #pragma kernel Calc_Double_Min_Max_Sum
   #pragma kernel Init_Double_Min_Max_Sum
   #pragma kernel Calc_Min_Max_Sum
@@ -266,6 +237,7 @@
   #pragma kernel calc_lsums
   #pragma kernel calc_usums
   #pragma kernel calc_dfacts
+  #pragma kernel calc_ifacts_Test
   #pragma kernel calc_ifacts
   #pragma kernel calc_lfacts
   #pragma kernel calc_ufacts
@@ -281,6 +253,7 @@
   #pragma kernel init_counts
   #pragma kernel init_vs
   #pragma kernel GrpSort
+  #pragma kernel Global_A_x
   #pragma kernel Multiply_Mat_A_x
   #pragma kernel Init_Mat_b
   #pragma kernel Init_Mat_x

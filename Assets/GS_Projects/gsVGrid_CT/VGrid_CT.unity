@@ -3621,7 +3621,7 @@ MonoBehaviour:
     VGrid_Lib_show_slices: 0
     VGrid_Lib_twoSided: 0
     Views_Lib_group_CamViews_Lib: 0
-    omitN: 0
+    slideN: 0
     VGrid_Lib_customAxesRangeN: 0
     VGrid_Lib_GridX:
       x: 0
@@ -3693,7 +3693,7 @@ MonoBehaviour:
     Views_Lib_CamViews_Lib_selectedRows: 
     Views_Lib_CamViews_Lib_lastClickedRow: 0
   g:
-    omitN: 0
+    slideN: 0
     CT_pixBytesSize: 0
     CT_textureI: 0
     VGrid_Lib_BDraw_ABuff_IndexN: 0

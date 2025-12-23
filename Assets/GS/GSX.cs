@@ -21,6 +21,10 @@ namespace GpuScript
 {
 	public static class GSX
 	{
+
+		//public static float Median(this IEnumerable<float> source) { var a = source.OrderBy(v => v).ToArray(); int n = a.Length, i = n / 2; return n == 0 ? fNegInf : n % 2 == 0 ? (a[i] + a[i - 1]) / 2.0f : a[i]; }
+		public static T Median<T>(this IEnumerable<T> source) { var a = source.OrderBy(v => v).ToArray(); int n = a.Length; return n == 0 ? default(T) : a[n / 2]; }
+
 		public static uint2 ImageSize(this string s)
 		{
 			Texture2D t = new Texture2D(1, 1) { hideFlags = HideFlags.HideAndDontSave };

@@ -1,4 +1,4 @@
-// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 655
+// GpuScript Copyright (C) 2024 Summit Peak Technologies, LLC, Update: 673
 // Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
 #pragma exclude_renderers d3d11 gles
 
@@ -28,6 +28,61 @@
 #define InterlockedMin(a, I, v) InterlockedMin(a[I], v)
 #define InterlockedOr(a, I, v) InterlockedOr(a[I], v)
 #define InterlockedXor(a, I, v) InterlockedXor(a[I], v)
+
+//bad
+//#define InterlockedMul_F(fs, I, v, F, F2, fsI, f) while ((F2 = asuint(v * (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) yield return GrpSync(); yield return GrpSync();
+//#define InterlockedMul_F(fs, I, v, F, F2, fsI, f) while ((F2 = asuint(v * (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) yield return GrpSync()
+
+//ok
+//#define InterlockedMul_F(fs, I, v, F, F2, fsI, f) while ((F2 = asuint(v * (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) GrpSync()
+//#define InterlockedMul_F(fs, I, v, F, F2, fsI, f) { while ((F2 = asuint(v * (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) GrpSync(); GrpSync(); }
+//#define InterlockedMul_F(fs, I, v) { uint F, F2, fsI; float f; while ((F2 = asuint(v * (f = asfloat(fsI = fs[I])))) != (F = asuint(f)) && InterlockedCompareExchange(fs, I, F, F2) != F) GrpSync(); GrpSync(); }
+
+#define assign_double_to_uint2(d, v) { uint a, b; asuint(v, a, b); d = uint2(a, b); }
+//#define double_to_uint2(d, v) { uint a, b; asuint(v, a, b); d = uint2(a, b); }
+
+//#define InterlockedAdd_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, v + f);     Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedMul_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, v * f);     Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedMin_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, min(v, f)); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedMax_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, max(v, f)); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+#define InterlockedAdd_D(us, _I, _v) { bool2 Ok = b00; uint I = _I * 2; double v = _v; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, v + f);     Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+#define InterlockedMul_D(us, _I, _v) { bool2 Ok = b00; uint I = _I * 2; double v = _v; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, v * f);     Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+#define InterlockedMin_D(us, _I, _v) { bool2 Ok = b00; uint I = _I * 2; double v = _v; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, min(v, f)); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+#define InterlockedMax_D(us, _I, _v) { bool2 Ok = b00; uint I = _I * 2; double v = _v; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, max(v, f)); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+
+////#define Interlocked_D(us, _I, _v, op) { bool2 Ok = b00; uint I = _I * 2; double v = _v; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, op); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+////#define InterlockedAdd_D(us, _I, _v) Interlocked_D(us, _I, _v, v + f)
+////#define InterlockedMul_D(us, _I, _v) Interlocked_D(us, _I, _v, v * f)
+////#define InterlockedMin_D(us, _I, _v) Interlocked_D(us, _I, _v, min(v, f))
+////#define InterlockedMax_D(us, _I, _v) Interlocked_D(us, _I, _v, max(v, f))
+//#define Interlocked_D(us, _I, v, op) { bool2 Ok = b00; uint I = _I * 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F, F2; assign_double_to_uint2(F, f); assign_double_to_uint2(F2, op); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedAdd_D(us, _I, _v) { float v = _v; Interlocked_D(us, _I, v, v + f) }
+//#define InterlockedMul_D(us, _I, _v) { float v = _v; Interlocked_D(us, _I, v, v * f) }
+//#define InterlockedMin_D(us, _I, _v) { float v = _v; Interlocked_D(us, _I, v, min(v, f)) }
+//#define InterlockedMax_D(us, _I, _v) { float v = _v; Interlocked_D(us, _I, v, max(v, f)) }
+
+//#define Interlocked_F(us, _I, _v, op) { uint F, F2, fsI, I = _I; float f, v = _v; while ((F2 = asuint(op)) != (F = asuint(f)) && InterlockedCompareExchange(us, I, F, F2) != F) GrpSync(); GrpSync(); }
+//#define InterlockedAdd_F(us, _I, _v) Interlocked_F(us, _I, _v, v + (f = asfloat(fsI = us[I])))
+//#define InterlockedMul_F(us, _I, _v) Interlocked_F(us, _I, _v, v * (f = asfloat(fsI = us[I])))
+//#define InterlockedMin_F(us, _I, _v) Interlocked_F(us, _I, _v, min(v, f = asfloat(fsI = us[I]))))
+//#define InterlockedMax_F(us, _I, _v) Interlocked_F(us, _I, _v, max(v, f = asfloat(fsI = us[I]))))
+//#define Interlocked_F(us, _I, v, op) uint F, F2, fsI, I = _I; float f; while ((F2 = asuint(op)) != (F = asuint(f)) && InterlockedCompareExchange(us, I, F, F2) != F) GrpSync(); GrpSync();
+//#define InterlockedAdd_F(us, _I, _v) { float v = _v; Interlocked_F(us, _I, v, v + (f = asfloat(fsI = us[I]))) }
+//#define InterlockedMul_F(us, _I, _v) { float v = _v; Interlocked_F(us, _I, v, v * (f = asfloat(fsI = us[I]))) }
+//#define InterlockedMin_F(us, _I, _v) { float v = _v; Interlocked_F(us, _I, v, min(v, f = asfloat(fsI = us[I])))) }
+//#define InterlockedMax_F(us, _I, _v) { float v = _v; Interlocked_F(us, _I, v, max(v, f = asfloat(fsI = us[I])))) }
+
+#define InterlockedAdd_F(us, _I, V) { uint F, F2, fsI, I = _I; float f, v = V; while ((F2 = asuint(  v + (f = asfloat(fsI = us[I])))) != (F = asuint(f)) && InterlockedCompareExchange(us, I, F, F2) != F) GrpSync(); GrpSync(); }
+#define InterlockedMul_F(us, _I, V) { uint F, F2, fsI, I = _I; float f, v = V; while ((F2 = asuint(  v * (f = asfloat(fsI = us[I])))) != (F = asuint(f)) && InterlockedCompareExchange(us, I, F, F2) != F) GrpSync(); GrpSync(); }
+#define InterlockedMin_F(us, _I, V) { uint F, F2, fsI, I = _I; float f, v = V; while ((F2 = asuint(min(v, f = asfloat(fsI = us[I])))) != (F = asuint(f)) && InterlockedCompareExchange(us, I, F, F2) != F) GrpSync(); GrpSync(); }
+#define InterlockedMax_F(us, _I, V) { uint F, F2, fsI, I = _I; float f, v = V; while ((F2 = asuint(max(v, f = asfloat(fsI = us[I])))) != (F = asuint(f)) && InterlockedCompareExchange(us, I, F, F2) != F) GrpSync(); GrpSync(); }
+
+
+//#define InterlockedAdd_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F = double_to_uint2(f), F2 = double_to_uint2(v + f);     Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedMul_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F = double_to_uint2(f), F2 = double_to_uint2(v * f);     Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedMin_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F = double_to_uint2(f), F2 = double_to_uint2(min(v, f)); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+//#define InterlockedMax_D(us, I, v) { bool2 Ok = b00; I *= 2; do { double f = uint2_to_double(uint2(us[I], us[I + 1])); uint2 F = double_to_uint2(f), F2 = double_to_uint2(max(v, f)); Ok = Ok || Is(F == F2) || bool2(Ok.x || InterlockedCompareExchange(us, I, F.x, F2.x) == F.x, Ok.y || InterlockedCompareExchange(us, I + 1, F.y, F2.y) == F.y); } while (!all(Ok)); }
+
 
 //void InterlockedAdd(inout int a, int v) { InterlockedAdd(a, v); }
 //void InterlockedAdd(inout uint a, uint v) { InterlockedAdd(a, v); }
@@ -104,21 +159,67 @@
 //void InterlockedXor(RWStructuredBuffer<uint> a, uint I, uint v) { InterlockedXor(a[I], v); }
 
 
-int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int original_v; InterlockedCompareExchange(a[I], compare_v, v, original_v); return original_v; }
-uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { uint original_v; InterlockedCompareExchange(a[I], compare_v, v, original_v); return original_v; }
-void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { InterlockedCompareStore(a[I], compare_v, v); }
-void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { InterlockedCompareStore(a[I], compare_v, v); }
-int InterlockedExchange(RWStructuredBuffer<int> a, uint I, int v) { int original_v; InterlockedExchange(a[I], v, original_v); return original_v; }
-uint InterlockedExchange(RWStructuredBuffer<uint> a, uint I, uint v) { uint original_v; InterlockedExchange(a[I], v, original_v); return original_v; }
-float InterlockedExchange(RWStructuredBuffer<float> a, uint I, float v) { float original_v; InterlockedExchange(a[I], v, original_v); return original_v; }
+int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v)
+{
+  int original_v;
+  InterlockedCompareExchange(a[I], compare_v, v, original_v);
+  return original_v;
+}
+uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v)
+{
+  uint original_v;
+  InterlockedCompareExchange(a[I], compare_v, v, original_v);
+  return original_v;
+}
+void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int compare_v, int v)
+{
+  InterlockedCompareStore(a[I], compare_v, v);
+}
+void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v)
+{
+  InterlockedCompareStore(a[I], compare_v, v);
+}
+int InterlockedExchange(RWStructuredBuffer<int> a, uint I, int v)
+{
+  int original_v;
+  InterlockedExchange(a[I], v, original_v);
+  return original_v;
+}
+uint InterlockedExchange(RWStructuredBuffer<uint> a, uint I, uint v)
+{
+  uint original_v;
+  InterlockedExchange(a[I], v, original_v);
+  return original_v;
+}
+float InterlockedExchange(RWStructuredBuffer<float> a, uint I, float v)
+{
+  float original_v;
+  InterlockedExchange(a[I], v, original_v);
+  return original_v;
+}
+
 
 
 #include "../../GS/GS.cginc"
 
-uint merge(uint i, uint2 iRange, float v, float2 vRange) { uint iBits = (uint)log2(iRange.y) + 1; return (roundu(saturate(lerp1(vRange, v)) * ((1 << (int)(31 - iBits)) - 1)) << (int)iBits) | i; }
-int merge(int i, int2 iRange, float v, float2 vRange) { int iBits = (int)log2(iRange.y) + 1; return (roundi(saturate(lerp1(vRange, v)) * ((1 << (31 - iBits)) - 1)) << iBits) | i; }
-uint merge(uint i, uint iMax, float v, float vMax) { return merge(i, iMax * u01, v, vMax * f01); }
-int merge(int i, int iMax, float v, float vMax) { return merge(i, iMax * i01, v, vMax * f01); }
+uint merge(uint i, uint2 iRange, float v, float2 vRange)
+{
+  uint iBits = (uint) log2(iRange.y) + 1;
+  return (roundu(saturate(lerp1(vRange, v)) * ((1 << (int) (31 - iBits)) - 1)) << (int) iBits) | i;
+}
+int merge(int i, int2 iRange, float v, float2 vRange)
+{
+  int iBits = (int) log2(iRange.y) + 1;
+  return (roundi(saturate(lerp1(vRange, v)) * ((1 << (31 - iBits)) - 1)) << iBits) | i;
+}
+uint merge(uint i, uint iMax, float v, float vMax)
+{
+  return merge(i, iMax * u01, v, vMax * f01);
+}
+int merge(int i, int iMax, float v, float vMax)
+{
+  return merge(i, iMax * i01, v, vMax * f01);
+}
 
 //void InterlockedMin(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMin(a, I, merge(i, iRange, v, vRange)); }
 //void InterlockedMax(RWStructuredBuffer<uint> a, uint I, uint i, uint2 iRange, float v, float2 vRange) { InterlockedMax(a, I, merge(i, iRange, v, vRange)); }

@@ -59,7 +59,7 @@
   #pragma use_dxc
   struct GVGrid_CT
   {
-    uint omitN, CT_pixBytesSize, CT_textureI, VGrid_Lib_BDraw_ABuff_IndexN, VGrid_Lib_BDraw_ABuff_BitN, VGrid_Lib_BDraw_ABuff_N, VGrid_Lib_BDraw_ABuff_BitN1, VGrid_Lib_BDraw_ABuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
+    uint slideN, CT_pixBytesSize, CT_textureI, VGrid_Lib_BDraw_ABuff_IndexN, VGrid_Lib_BDraw_ABuff_BitN, VGrid_Lib_BDraw_ABuff_N, VGrid_Lib_BDraw_ABuff_BitN1, VGrid_Lib_BDraw_ABuff_BitN2, VGrid_Lib_BDraw_omitText, VGrid_Lib_BDraw_includeUnicode, VGrid_Lib_BDraw_fontInfoN, VGrid_Lib_BDraw_textN, VGrid_Lib_BDraw_textCharN, VGrid_Lib_BDraw_boxEdgeN, VGrid_Lib_drawGrid, VGrid_Lib_drawBox, VGrid_Lib_drawAxes, VGrid_Lib_customAxesRangeN, VGrid_Lib_zeroOrigin, VGrid_Lib_drawSurface, VGrid_Lib_GridDrawFront, VGrid_Lib_GridDrawBack, VGrid_Lib_show_slices, VGrid_Lib_paletteType, VGrid_Lib_twoSided, VGrid_Lib_reCalc, VGrid_Lib_buildText, VGrid_Lib_isOrtho, VGrid_Lib_showMeshVal, VGrid_Lib_showMeshRange, VGrid_Lib_showOutline, VGrid_Lib_showSurface, VGrid_Lib_showAxes, VGrid_Lib_showNormalizedAxes, VGrid_Lib_retrace;
     uint3 CT_bufferSize, CT_N, VGrid_Lib_nodeN;
     uint2 CT_textureSize, VGrid_Lib_viewSize;
     float VGrid_Lib_BDraw_fontSize, VGrid_Lib_BDraw_boxThickness, VGrid_Lib_resolution, VGrid_Lib_boxLineThickness, VGrid_Lib_axesOpacity, VGrid_Lib_GridLineThickness, VGrid_Lib_opacity, VGrid_Lib_meshVal, VGrid_Lib_orthoSize, VGrid_Lib_maxDist, VGrid_Lib_minResolution;
@@ -87,13 +87,13 @@
 		unchecked
 		{
 			if (all(id.xy < g.CT_textureSize))
-		  {
-		    uint2 size = g.CT_textureSize;
-		    uint pixBytesI = product(size) * g.CT_textureI / 4 + (id.y * size.x + id.x) / 4;
-		    uint i = id_to_i(id, size), TextureI = i * 3 / 4, byteI = i * 3 % 4, v = (CT_imageTexture[TextureI] >> (8 * (int)byteI)) & 0xff;
-		    v = v << ((int)i % 4 * 8);
-		    InterlockedOr(CT_pixBytes, pixBytesI, v);
-		  }
+			{
+				uint2 size = g.CT_textureSize;
+				uint pixBytesI = product(size) * g.CT_textureI / 4 + (id.y * size.x + id.x) / 4;
+				uint i = id_to_i(id, size), TextureI = i * 3 / 4, byteI = i * 3 % 4, v = (CT_imageTexture[TextureI] >> (8 * (int)byteI)) & 0xff;
+				v = v << ((int)i % 4 * 8);
+				InterlockedOr(CT_pixBytes, pixBytesI, v);
+			}
 		}
 	}
   [numthreads(numthreads1, 1, 1)] void CT_init_pixBytes(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.CT_pixBytesSize) { CT_pixBytes[id.x] = 0; } } }
@@ -202,18 +202,20 @@
   uint3 VGrid_Lib_GetCorner_I(float3 q) { return (uint3)q; }
   float VGrid_Lib_Interpolate_Val(float3 fq, uint4 c0, uint4 c1) { return Interpolate(VGrid_Lib_Val(c0.x), VGrid_Lib_Val(c0.y), VGrid_Lib_Val(c0.z), VGrid_Lib_Val(c0.w), VGrid_Lib_Val(c1.x), VGrid_Lib_Val(c1.y), VGrid_Lib_Val(c1.z), VGrid_Lib_Val(c1.w), fq); }
   uint PixByte(uint3 id) { uint i = id_to_i(id, g.CT_N); return (CT_pixBytes[i / 4] >> (int)((i % 4) * 8)) & 0xff; }
+	
   float PixColor(uint3 id) { return PixByte(id) / 255.0f; }
   float CT_Val(float3 p)
-  {
-    p *= 1000; 
-    float v = 0;
-    if (IsNotOutside(p, f000, g.CT_N - u111))
-    {
-      uint3 u0 = clamp((uint3)p, u000, g.CT_N - 2 * u111);
-      v = Interpolate(PixColor(u0), PixColor(u0 + u001), PixColor(u0 + u010), PixColor(u0 + u011), PixColor(u0 + u100), PixColor(u0 + u101), PixColor(u0 + u110), PixColor(u0 + u111), frac(p));
-    }
-    return v;
-  }
+	{
+		p *= 1000; 
+		float v = 0;
+		if (IsNotOutside(p, f000, g.CT_N - u111))
+		{
+			uint3 u0 = clamp((uint3)p, u000, g.CT_N - 2 * u111);
+			v = Interpolate(PixColor(u0), PixColor(u0 + u001), PixColor(u0 + u010), PixColor(u0 + u011), PixColor(u0 + u100), PixColor(u0 + u101), PixColor(u0 + u110), PixColor(u0 + u111), frac(p));
+		}
+		return v;
+	}
+	
   VGrid_Lib_TRay VGrid_Lib_CreateShaderCameraRay(float2 _uv)
   {
     VGrid_Lib_TRay ray;
