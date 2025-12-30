@@ -29,9 +29,11 @@ namespace GpuScript
 			headerButtons.For(h => h.RegisterCallback<ClickEvent>((evt) => OnHeaderButtonClicked(evt)));
 			footer_Container = grid_Container?.Q<VisualElement>("Footer_Container");
 			addRowButton = footer_Container?.Q<Button>("AddRow_Button");
-
 			addRowButton.UnregisterCallback<ClickEvent>(addRowButton_Clicked);
 			addRowButton.RegisterCallback<ClickEvent>(addRowButton_Clicked);
+			copyButton = footer_Container.Q<Button>("Copy_Button");
+			copyButton?.UnregisterCallback<ClickEvent>(copyButton_Clicked);
+			copyButton?.RegisterCallback<ClickEvent>(copyButton_Clicked);
 
 			displayRows = grid_Container?.Query<VisualElement>().Where(a => a.name.StartsWith("Row_")).ToList();
 			RowItems = new List<List<UI_VisualElement>>();
@@ -70,6 +72,7 @@ namespace GpuScript
 			dispRowN.textField.RegisterCallback<MouseCaptureOutEvent>(dispRowN.OnMouseCaptureOutEvent);
 			dispRowN.v = dispRows;
 			dispRowN.textField.display(true);
+
 			VScroll = uiGrid?.Q<Scroller>(); VScroll.lowValue = 0; VScroll.highValue = 1000000;
 			VScroll.RegisterCallback<ChangeEvent<float>>(OnVScrollChanged);
 			VScroll.RegisterCallback<FocusInEvent>(OnSliderFocusIn);
@@ -383,6 +386,7 @@ namespace GpuScript
 				UXML(e, 0, $"<ui:VisualElement name=\"Footer_Container\" style=\"flex-grow: 0; height: 20px; flex-direction: row; flex-wrap: wrap; display: none;\">");
 				{
 					UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"+\" name=\"AddRow_Button\" style=\"width: 20px; -unity-text-align: middle-center;\" />");
+					UXML(e, 1, $"<ui:Button tabindex=\"-1\" text=\"C\" name=\"Copy_Button\" style=\"width: 20px; -unity-text-align: middle-center;\" />");
 					for (int i = 0; i < classMembers.Length; i++) UXML(e, 0, $"<GpuScript.UI_bool value=\"true\" is-grid=\"true\" />");
 					UXML(e, 0, $"<GpuScript.UI_uint value=\"{displayRowN}\" is-grid=\"true\" />");
 				}
@@ -407,7 +411,7 @@ namespace GpuScript
 		}
 		public object[][] grid_Data;
 		public VisualElement grid_Container, header_Row, footer_Container, header_Buttons_Container;
-		public Button expandButton, addRowButton;
+		public Button expandButton, addRowButton, copyButton;
 		public List<UI_bool> displayColumns;
 		public List<UI_grid_header> headerButtons;
 		public List<Button> rowNumberButtons;
@@ -464,6 +468,7 @@ namespace GpuScript
 			isRowSelected = (new int[] { arrayLength - 1 }).ints_to_selected_bools(arrayLength);
 			DrawGrid();
 		}
+		void copyButton_Clicked(ClickEvent evt) => $"{name}_OnGridCopy".InvokeMethod(gs);
 		uint DisplayColN { get { uint displayN = 0; for (int i = 0; i < displayColumns.Count; i++) displayN += GS.Is(displayColumns[i].v); return displayN; } }
 		public static float GetGridWidth(uint colN, bool displayVGrid) => 20 + colN * 100 + (displayVGrid ? 24 : 0);
 		private void OnDisplayColumnValueChanged(ChangeEvent<bool> evt) { DrawGrid(); }

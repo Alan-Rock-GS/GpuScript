@@ -1552,6 +1552,12 @@ $"\n    {m_name}_To_UI();",
 		"\n  }",
 
 		$"\n  public virtual void {m_name}_OnAddRow() {{ var list = {m_name}.ToList(); list.Add(default); {m_name} = list.ToArray(); }}",
+		$"\n  public virtual void {m_name}_OnGridCopy()",
+		 "\n  {",
+		$"\n  	UI_grid grid = UI_grid_{m_name};",
+		$"\n		Clipboard = new StrBldr().Add(grid.headerButtons.Select(a => a.label).Join(\"\\t\"), \"\\n\", {m_name}.Select(a => a.GetFields().Select(b => b.GetValue(a)).Join(\"\\t\")).Join(\"\\n\"));",
+		 "\n  }",
+
 		grid_item_OnValueChanged,
 		$"\n  public virtual void {m_name}_OnValueChanged(int row, int col)",
 		"\n  {",
@@ -2370,7 +2376,8 @@ $"\n    {m_name}_To_UI();",
 				var m = render_methods[i];
 				if (m != null)
 				{
-					if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;",
+					//if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = ((int)LIN.x); i = LIN.y;",
+					if (i == 0) vertDrawSegments.Add("\n    uint3 LIN = onRenderObject_LIN(i); int index = -1, level = (int)LIN.x; i = LIN.y;",
 							$"\n    if (level == ++index) o = {m.methodName}(i, j, o);");
 					else vertDrawSegments.Add($"\n    else if (level == ++index) o = {m.methodName}(i, j, o);");
 					virtual_verts.Add($"\n  public virtual v2f {m.methodName}(uint i, uint j, v2f o) => o;");

@@ -608,6 +608,12 @@ MonoBehaviour:
     sortRuntimes_isExpanded: 0
     sortRuntimes_selectedRows: 
     sortRuntimes_lastClickedRow: 0
+    sortTimeComplexity_DisplayCols: 
+    sortTimeComplexity_VScroll: 0
+    sortTimeComplexity_DisplayRowN: 0
+    sortTimeComplexity_isExpanded: 0
+    sortTimeComplexity_selectedRows: 
+    sortTimeComplexity_lastClickedRow: 0
     factN_range:
       x: 0
       y: 0

@@ -823,10 +823,10 @@ namespace GpuScript
 		//public static void InterlockedAnd(ref uint a, uint v) => a &= v; 
 		//public static void InterlockedAnd(ref uint a, bool v) => a &= Is(v); 
 		//public static void InterlockedAnd(ref Color32 a, uint v) => a = u_c32(c32_u(a) & v); 
-		//public static int InterlockedCompareExchange(ref int a, int compare_v, int v) { int aI = a; if (aI == compare_v) a = v; return aI; }
-		//public static uint InterlockedCompareExchange(ref uint a, uint compare_v, uint v) { uint aI = a; if (aI == compare_v) a = v; return aI; }
-		//public static void InterlockedCompareStore(ref int a, int compare_v, int v) { if (a == compare_v) a = v; }
-		//public static void InterlockedCompareStore(ref uint a, uint compare_v, uint v) { if (a == compare_v) a = v; }
+		//public static int InterlockedCompareExchange(ref int a, int cv, int v) { int aI = a; if (aI == cv) a = v; return aI; }
+		//public static uint InterlockedCompareExchange(ref uint a, uint cv, uint v) { uint aI = a; if (aI == cv) a = v; return aI; }
+		//public static void InterlockedCompareStore(ref int a, int cv, int v) { if (a == cv) a = v; }
+		//public static void InterlockedCompareStore(ref uint a, uint cv, uint v) { if (a == cv) a = v; }
 		//public static int InterlockedExchange(ref int a, int v) { int aI = a; a = v; return aI; }
 		//public static uint InterlockedExchange(ref uint a, uint v) { uint aI = a; a = v; return aI; }
 		//public static float InterlockedExchange(ref float a, float v) { float aI = a; a = v; return aI; }
@@ -852,10 +852,10 @@ namespace GpuScript
 		public static void InterlockedAnd(uint[] a, uint I, uint v) => a[I] &= v;
 		public static void InterlockedAnd(uint[] a, uint I, bool v) => a[I] &= Is(v);
 		public static void InterlockedAnd(Color32[] a, uint I, uint v) => a[I] = u_c32(c32_u(a[I]) & v);
-		public static int InterlockedCompareExchange(int[] a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
-		public static uint InterlockedCompareExchange(uint[] a, uint I, uint compare_v, uint v) { uint aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
-		public static void InterlockedCompareStore(int[] a, uint I, int compare_v, int v) { if (a[I] == compare_v) a[I] = v; }
-		public static void InterlockedCompareStore(uint[] a, uint I, uint compare_v, uint v) { if (a[I] == compare_v) a[I] = v; }
+		public static int InterlockedCompareExchange(int[] a, uint I, int cv, int v) { int aI = a[I]; if (aI == cv) a[I] = v; return aI; }
+		public static uint InterlockedCompareExchange(uint[] a, uint I, uint cv, uint v) { uint aI = a[I]; if (aI == cv) a[I] = v; return aI; }
+		public static void InterlockedCompareStore(int[] a, uint I, int cv, int v) { if (a[I] == cv) a[I] = v; }
+		public static void InterlockedCompareStore(uint[] a, uint I, uint cv, uint v) { if (a[I] == cv) a[I] = v; }
 		public static int InterlockedExchange(int[] a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
 		public static uint InterlockedExchange(uint[] a, uint I, uint v) { uint aI = a[I]; a[I] = v; return aI; }
 		public static float InterlockedExchange(float[] a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
@@ -886,23 +886,11 @@ namespace GpuScript
 		public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, uint v) => a[I] &= v;
 		public static void InterlockedAnd(RWStructuredBuffer<uint> a, uint I, bool v) => a[I] &= Is(v);
 		public static void InterlockedAnd(RWStructuredBuffer<Color32> a, uint I, uint v) => a[I] = u_c32(c32_u(a[I]) & v);
-		//public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { int aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
-		public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int compare_v, int v)
-		{
-			int aI = a[I];
-			if (aI == compare_v)
-				a[I] = v;
-			return aI;
-		}
-		public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v)
-		{
-			uint aI = a[I];
-			if (aI == compare_v)
-				a[I] = v;
-			return aI;
-		}
-		public static void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int compare_v, int v) { if (a[I] == compare_v) a[I] = v; }
-		public static void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint compare_v, uint v) { if (a[I] == compare_v) a[I] = v; }
+		//public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int cv, int v) { int aI = a[I]; if (aI == cv) a[I] = v; return aI; }
+		public static int InterlockedCompareExchange(RWStructuredBuffer<int> a, uint I, int cv, int v) { int aI = a[I]; if (aI == cv) a[I] = v; return aI; }
+		public static uint InterlockedCompareExchange(RWStructuredBuffer<uint> a, uint I, uint cv, uint v) { uint aI = a[I]; if (aI == cv) a[I] = v; return aI; }
+		public static void InterlockedCompareStore(RWStructuredBuffer<int> a, uint I, int cv, int v) { if (a[I] == cv) a[I] = v; }
+		public static void InterlockedCompareStore(RWStructuredBuffer<uint> a, uint I, uint cv, uint v) { if (a[I] == cv) a[I] = v; }
 		public static int InterlockedExchange(RWStructuredBuffer<int> a, uint I, int v) { int aI = a[I]; a[I] = v; return aI; }
 		public static uint InterlockedExchange(RWStructuredBuffer<uint> a, uint I, uint v) { uint aI = a[I]; a[I] = v; return aI; }
 		public static float InterlockedExchange(RWStructuredBuffer<float> a, uint I, float v) { float aI = a[I]; a[I] = v; return aI; }
@@ -2578,7 +2566,7 @@ namespace GpuScript
 
 		//#if !gs_shader && !gs_compute
 #if !gs_shader
-		public static long InterlockedCompareExchange(RWStructuredBuffer<long> a, uint I, long compare_v, long v) { long aI = a[I]; if (aI == compare_v) a[I] = v; return aI; }
+		public static long InterlockedCompareExchange(RWStructuredBuffer<long> a, uint I, long cv, long v) { long aI = a[I]; if (aI == cv) a[I] = v; return aI; }
 		public static long uint2_to_long(uint2 v) { return ((long)v.x << 32) | (long)v.y; }
 		public static uint2 long_to_uint2(long v) { return uint2(v >> 32, v & 0xFFFFFFFF); }
 		public void InterlockedAdd_Long(RWStructuredBuffer<uint> long_uints, uint I, long v)

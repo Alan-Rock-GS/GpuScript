@@ -206,7 +206,7 @@ namespace GpuScript
 		public static IEnumerable IterateFromToBy(double3 pFrom, double3 pTo, double d)
 		{
 			d = Math.Abs(d);
-			double3 dP = normalize(pTo - pFrom) * d;
+			double3 dP = GS_cginc.normalize(pTo - pFrom) * d;
 			int n = roundi(distance(pTo, pFrom) / d);
 			double3 p = pFrom;
 			for (int i = 0; i <= n; i++)

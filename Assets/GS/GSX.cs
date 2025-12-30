@@ -64,18 +64,28 @@ namespace GpuScript
 		public static float3 P(this GameObject o) => o != null ? o.transform.position : f000;
 		public static GameObject P(this GameObject o, float3 p) { if (o != null) o.transform.position = p; return o; }
 		public static GameObject P(this GameObject o, float x, float y, float z) => o.P(float3(x, y, z));
-		public static float3 lS(this GameObject o) => (float3)o?.transform.localScale;
-		public static GameObject lS(this GameObject o, float3 p) { if (o != null) o.transform.localScale = p; return o; }
-		public static GameObject lS(this GameObject o, float x, float y, float z) => o.lS(float3(x, y, z));
-		public static GameObject lS(this GameObject o, float s) => o.lS(xyz(s));
-		public static float3 lP(this GameObject o) => o.transform.localPosition;
-		public static float3 lP(this GameObject o, float3 p) => o.transform.localPosition = p;
-		public static float3 R(this GameObject o) => o.transform.eulerAngles;
-		public static GameObject R(this GameObject o, float3 a) { o.transform.eulerAngles = a; return o; }
-		public static GameObject R(this GameObject o, float x, float y, float z) => o.R(float3(x, y, z));
-		public static float3 lR(this GameObject o) => o.transform.localEulerAngles;
-		public static GameObject lR(this GameObject o, float3 a) { o.transform.localEulerAngles = a; return o; }
-		public static GameObject lR(this GameObject o, float x, float y, float z) => o.lR(float3(x, y, z));
+		public static float3 locScale(this GameObject o) => (float3)o?.transform.localScale;
+		public static GameObject locScale(this GameObject o, float3 p) { if (o != null) o.transform.localScale = p; return o; }
+		public static GameObject locScale(this GameObject o, float x, float y, float z) => o.locScale(float3(x, y, z));
+		public static GameObject locScale(this GameObject o, float s) => o.locScale(xyz(s));
+		public static float3 locP(this GameObject o) => o.transform.localPosition;
+		public static float3 locP(this GameObject o, float3 p) => o.transform.localPosition = p;
+		public static float3 Angs(this GameObject o) => o.transform.eulerAngles;
+		public static GameObject Angs(this GameObject o, float3 a) { o.transform.eulerAngles = a; return o; }
+		public static GameObject Angs(this GameObject o, float x, float y, float z) => o.Angs(float3(x, y, z));
+		public static float3 locAngs(this GameObject o) => o.transform.localEulerAngles;
+		public static GameObject locAngs(this GameObject o, float3 a) { o.transform.localEulerAngles = a; return o; }
+		public static GameObject locAngs(this GameObject o, float x, float y, float z) => o.locAngs(float3(x, y, z));
+
+		public static GameObject LookAt(this GameObject o, GameObject target, float3 up) { o.transform.LookAt(target.transform, up); return o; }
+		public static GameObject LookAt(this GameObject o, GameObject target) => o.LookAt(target, f010);
+		public static GameObject Rotate(this GameObject o, float3 axis, float angle) { o.transform.Rotate(axis, angle, UnityEngine.Space.World); return o; }
+		public static GameObject LookAt_Rotate(this GameObject o, GameObject target, float3 up, float angle) => o.LookAt(target, up).Rotate(up, angle);
+		//cube.P(turret.P()).LookAt_Rotate(gs_shock.droneObjs[0].drone, turret.transform.up, -90);
+		//cube.LookFromToRotate(turret, gs_shock.droneObjs[0].drone, -90);
+		public static GameObject LookFromToRotate(this GameObject o, GameObject source, GameObject target, float angle) => o.P(source.P()).LookAt_Rotate(target, source.transform.up, angle);
+		public static GameObject LookFromToRotate(this GameObject o, GameObject target, float angle) => o.LookFromToRotate(o, target, angle);
+
 
 		//public static TAccumulate AggregateUntilNull<TSource, TAccumulate>(this IEnumerable<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> func)
 		//{
@@ -673,6 +683,9 @@ namespace GpuScript
 
 		public static void For<T>(this IEnumerable<T> e, Action<T> a) { foreach (T v in e) a(v); }
 		public static IEnumerable<T> For<T>(this IEnumerable<T> e, Func<T, T> f) { foreach (T v in e) yield return f(v); }
+
+		//public static void Decay<T>(this IEnumerable<T> e, Action<T> a) { foreach (T v in e) a(v); }
+
 
 		public static int IndexOf<T>(this IEnumerable<T> e, Func<T, bool> p) { int i = 0; foreach (var a in e) { if (p.Invoke(a)) return i; i++; } return -1; }
 		public static IEnumerable<int> IndexesOf<T>(this IEnumerable<T> e, Func<T, bool> p) { int i = 0; foreach (var a in e) { if (p.Invoke(a)) yield return i; i++; } }

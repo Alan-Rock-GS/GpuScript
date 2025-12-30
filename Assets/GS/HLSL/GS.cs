@@ -76,6 +76,7 @@ namespace GpuScript
 		public static IEnumerable<int> Seq(uint b) => Seq(0, (int)b, 1);
 		public static IEnumerable<float> Decay(float a, float b, float d) { (a, b) = (min(a, b), max(a, b)); if (d < 1) for (; b >= a; b *= d) yield return b; else if (d > 1) for (; a <= b; a *= d) yield return a; }
 		public static IEnumerable<uint> Decay(uint a, uint b, uint d) { (a, b) = (min(a, b), max(a, b)); if (d < 1) for (; b >= a; b *= d) yield return b; else if (d > 1) for (; a <= b; a *= d) yield return a; }
+		public static void Decay(uint a, uint b, uint d, Action<uint> f) => Decay(a, b, d).For(f);
 		public static IEnumerable<int> ForProduct(int a, int b, int d) { for (; a <= b; a *= d) yield return a; }
 		public static void ForProduct(int a, int b, int d, Action<int> f) => ForProduct(a, b, d).For(f);
 
@@ -92,6 +93,9 @@ namespace GpuScript
 		public float3 TimeActionMinMedMax(uint n, Action a, Unit unit) { var times = For(n).Select(i => Secs(a)).ToArray(); return float3(times.Min(), times.Median(), times.Max()) * UI_VisualElement.convert(Unit.s, unit); }
 		public string TimeMinMedMax_Str(float3 time, Unit unit = Unit.ms, string format = "#,##0") => $"{time.x.ToString(format)}-{time.y.ToString(format)}-{time.z.ToString(format)} {unit.ToLabel()}";
 		public string TimeActionMinMedMax_Str(uint n, Action a, Unit unit = Unit.ms, string format = "#,##0") => TimeMinMedMax_Str(TimeActionMinMedMax(n, a, unit), unit, format);
+		public float4 TimeActionMinMedAvgMax(uint n, Action a, Unit unit) { var times = For(n).Select(i => Secs(a)).ToArray(); return float4(times.Min(), times.Median(), times.Average(), times.Max()) * UI_VisualElement.convert(Unit.s, unit); }
+		public string TimeMinMedAvgMax_Str(float4 time, Unit unit = Unit.ms, string format = "#,##0") => $"{time.x.ToString(format)}-{time.y.ToString(format)}-{time.z.ToString(format)}-{time.w.ToString(format)} {unit.ToLabel()}";
+		public string TimeActionMinMedAvgMax_Str(uint n, Action a, Unit unit = Unit.ms, string format = "#,##0") => TimeMinMedAvgMax_Str(TimeActionMinMedAvgMax(n, a, unit), unit, format);
 		public Stopwatch stopwatch;
 		public void TimeCode() => (stopwatch = new Stopwatch()).Start();
 		public float TimeCode(Unit unit) { stopwatch.Stop(); return stopwatch.Secs() * UI_VisualElement.convert(Unit.s, unit); }
@@ -1978,6 +1982,8 @@ namespace GpuScript
 		[HideInInspector] public float ScrollWheel; float _ScrollWheel { get { float v = 0; if (isTouch) { if (touchN == 2) { float touch2Dist = TouchDist(0, 1); if (touch2Dist > maxTouch2Dist) { if (touch2Dist0 != 0) v = (touch2Dist - touch2Dist0) / maxTouch2Dist; touch2Dist0 = touch2Dist; } } else touch2Dist0 = 0; } else v = Input.mouseScrollDelta.y * 0.1f; return ScrollWheel = v; } }
 
 		public static float3 MouseIntersectsPlane(float3 p, float3 normal) => PlaneIntersectsLine(normal, p, mainCam.transform.position, mainCam.ScreenToWorldPoint(Input.mousePosition + f001));
+
+		//public static float3 normalize(Vector3 v) => normalize((float3)v);
 
 		static AudioSource _audioSource;
 		public static AudioSource audioSource
