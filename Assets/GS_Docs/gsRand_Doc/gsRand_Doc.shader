@@ -62,12 +62,14 @@ Shader "gs/gsRand_Doc"
   struct GRand_Doc
   {
     uint pntN, starN, starPathN, drawGroup, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
-    float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, Area_PI_Val, Area_PI_Error, Area_PI_Runtime, Area_PI_TFlops, Integral_PI_Val, Integral_PI_Error, Integral_PI_Runtime, Integral_PI_TFlops, starBorderReward, BDraw_fontSize, BDraw_boxThickness;
+    float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, Area_PI_Val, Area_PI_Error, Area_PI_Runtime, Area_PI_TFlops, Integral_PI_Val, Integral_PI_Error, Integral_PI_Runtime, Integral_PI_TFlops, starBorderReward, temperature, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
   };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  struct TSP_Runtime { string runtime_Name, runtime_timeStr; float runtime_pathLength, runtime_iterationN, runtime_xFaster; string runtime_xTime; };
+  struct TSP_TimeComplexity { uint order_size; float order_gpu_us, order_cpu_us; string order_gpu_timeStr, order_cpu_timeStr; float order_xFaster; string order_xTime, order_gpu_time_complexity, order_cpu_time_complexity; };
   RWStructuredBuffer<GRand_Doc> gRand_Doc;
   RWStructuredBuffer<float3> stars;
   RWStructuredBuffer<int3> segments;
@@ -77,7 +79,7 @@ Shader "gs/gsRand_Doc"
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<uint4> Rand_rs;
 
-  public Texture2D BDraw_fontTexture;
+   public Texture2D BDraw_fontTexture;
   Texture2D _PaletteTex;
   struct v2f { float4 pos : POSITION, color : COLOR1, ti : TEXCOORD0, tj : TEXCOORD1, tk : TEXCOORD2; float3 normal : NORMAL, p0 : TEXCOORD3, p1 : TEXCOORD4, wPos : TEXCOORD5; float2 uv : TEXCOORD6; };
   v2f vert_BDraw_Box(uint i, uint j, v2f o) { return o; }
@@ -156,20 +158,22 @@ Shader "gs/gsRand_Doc"
   float4 BDraw_LineArrow_p4(float dpf, float3 p0, float3 p1, float r, uint j) { return BDraw_LineArrow_p4(dpf, p0, p1, _WorldSpaceCameraPos, r, j); }
   v2f vert_BDraw_Line(float3 p0, float3 p1, float r, float4 color, uint i, uint j, v2f o) { return BDraw_o_i(i, BDraw_o_p0(p0, BDraw_o_p1(p1, BDraw_o_r(r, BDraw_o_drawType(BDraw_Draw_Line, BDraw_o_color(color, BDraw_o_uv(BDraw_Line_uv(p0, p1, r, j), BDraw_o_pos_c(BDraw_LineArrow_p4(1, p0, p1, r, j), o)))))))); }
   v2f vert_Draw_Calc_Avg(uint i, uint j, v2f o) { float3 p = signal_panel_width() * float3(0, g.Avg_Val, -2); return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 2, RED, i, j, o); }
+	
   v2f vert_Draw_Avg(uint i, uint j, v2f o) { float3 p = -signal_panel_width() * f001; return vert_BDraw_Line(p - f100, p + f100, g.lineThickness * 4, BLUE, i, j, o); }
+	
   v2f vert_Draw_Star_Path(uint i, uint j, v2f o)
-  {
-    float3 p0 = stars[bestPath(i)], p1 = stars[bestPath((i + 1) % g.starN)];
-    float t = (i - ((_Time.y * 100) % g.starN) + g.starN) % g.starN, n = 100, r = g.lineThickness * (t < n ? 4 * t / n + 1 : 1);
-    return vert_BDraw_Line(p0, p1, r, t < n ? palette(t / n / 2 + 0.5f) : palette(lerp1(-1, 1, p0.x * p1.x < 0 ? g.starBorderReward : 0)), i, j, o);
-  }
+	{
+		float3 p0 = stars[bestPath(i)], p1 = stars[bestPath((i + 1) % g.starN)];
+		float t = (i - ((_Time.y * 100) % g.starN) + g.starN) % g.starN, n = 100, r = g.lineThickness * (t < n ? 4 * t / n + 1 : 1);
+		return vert_BDraw_Line(p0, p1, r, t < n ? palette(t / n / 2 + 0.5f) : palette(lerp1(-1, 1, p0.x * p1.x < 0 ? g.starBorderReward : 0)), i, j, o);
+	}
   v2f vert_BDraw_BoxFrame(float3 c0, float3 c1, float lineRadius, float4 color, uint i, uint j, v2f o) { float3 p0, p1; switch (i) { case 0: p0 = c0; p1 = c0 * f110 + c1 * f001; break; case 1: p0 = c0 * f110 + c1 * f001; p1 = c0 * f100 + c1 * f011; break; case 2: p0 = c0 * f100 + c1 * f011; p1 = c0 * f101 + c1 * f010; break; case 3: p0 = c0 * f101 + c1 * f010; p1 = c0; break; case 4: p0 = c0 * f011 + c1 * f100; p1 = c0 * f010 + c1 * f101; break; case 5: p0 = c0 * f010 + c1 * f101; p1 = c1; break; case 6: p0 = c1; p1 = c0 * f001 + c1 * f110; break; case 7: p0 = c0 * f001 + c1 * f110; p1 = c0 * f011 + c1 * f100; break; case 8: p0 = c0; p1 = c0 * f011 + c1 * f100; break; case 9: p0 = c0 * f101 + c1 * f010; p1 = c0 * f001 + c1 * f110; break; case 10: p0 = c0 * f100 + c1 * f011; p1 = c1; break; default: p0 = c0 * f110 + c1 * f001; p1 = c0 * f010 + c1 * f101; break; } return vert_BDraw_Line(p0, p1, lineRadius, color, i, j, o); }
   v2f vert_Draw_Stars_Border(uint i, uint j, v2f o)
-  {
-    float r = 0.01f;
-    if (i < 12) return vert_BDraw_BoxFrame(f___, f111, r, BLACK, i, j, o);
-    else return vert_BDraw_Quad(f0__, f0_1, f011, f01_, float4(0, 0, 1, 0.25f), i, j, o);
-  }
+	{
+		float r = 0.01f;
+		if (i < 12) return vert_BDraw_BoxFrame(f___, f111, r, GRAY, i, j, o); else return vert_BDraw_Quad(f0__, f0_1, f011, f01_, float4(0, 0, 1, 0.25f), i, j, o);
+	}
+	
   float3 BDraw_SignalQuad_Min(uint chI) { return f000; }
   float3 BDraw_SignalQuad_p0(uint chI) { return BDraw_SignalQuad_Min(chI); }
   float3 BDraw_SignalQuad_Size(uint chI) { return f111; }
@@ -190,11 +194,12 @@ Shader "gs/gsRand_Doc"
   uint4 Rand_rUInt4(uint i) { return Rand_U4(Rand_rs[i]); }
   float Rand_rFloat(uint i) { return Rand_FV(Rand_rUInt4(i)); }
   v2f vert_Draw_Pnts(uint i, uint j, v2f o)
-  {
-    if (g.drawGroup == DrawGroup_Average) return vert_BDraw_Sphere(float3(i / (g.pntN - 1.0f) * 2 - 1, Rand_rFloat(i) * 2 - 1, 0), 0.01f, Rand_rFloat(i) > 0.5f ? BLUE : RED, i, j, o);
-    if (g.drawGroup == DrawGroup_PI_Area) return vert_BDraw_Sphere(float3(Rand_rFloat(i * 2) * 2 - 1, Rand_rFloat(i * 2 + 1) * 2 - 1, 0), 0.01f, length(float2(Rand_rFloat(i * 2), Rand_rFloat(i * 2 + 1))) < 1 ? BLUE : RED, i, j, o);
-    return vert_BDraw_Sphere(float3(Rand_rFloat(i), sqrt(1 - sqr(Rand_rFloat(i))), 0) * 2 - 1, 0.01f, Rand_rFloat(i) > PIo4 ? BLUE : RED, i, j, o);
-  }
+	{
+		if (g.drawGroup == DrawGroup_Average) return vert_BDraw_Sphere(float3(i / (g.pntN - 1.0f) * 2 - 1, Rand_rFloat(i) * 2 - 1, 0), 0.01f, Rand_rFloat(i) > 0.5f ? BLUE : RED, i, j, o);
+		if (g.drawGroup == DrawGroup_PI_Area) return vert_BDraw_Sphere(float3(Rand_rFloat(i * 2) * 2 - 1, Rand_rFloat(i * 2 + 1) * 2 - 1, 0), 0.01f, length(float2(Rand_rFloat(i * 2), Rand_rFloat(i * 2 + 1))) < 1 ? BLUE : RED, i, j, o);
+		return vert_BDraw_Sphere(float3(Rand_rFloat(i), sqrt(1 - sqr(Rand_rFloat(i))), 0) * 2 - 1, 0.01f, Rand_rFloat(i) > PIo4 ? BLUE : RED, i, j, o);
+	}
+	
   float Rand_rFloat(uint i, float a, float b) { return lerp(a, b, Rand_rFloat(i)); }
   float BDraw_SignalSmpV(uint chI, uint smpI) { return Rand_rFloat(smpI, -1, 1); }
   float4 frag_BDraw_Signal(v2f i)

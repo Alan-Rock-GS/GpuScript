@@ -52,12 +52,14 @@
   struct GRand_Doc
   {
     uint pntN, starN, starPathN, drawGroup, BDraw_ABuff_IndexN, BDraw_ABuff_BitN, BDraw_ABuff_N, BDraw_ABuff_BitN1, BDraw_ABuff_BitN2, BDraw_omitText, BDraw_includeUnicode, BDraw_fontInfoN, BDraw_textN, BDraw_textCharN, BDraw_boxEdgeN, Rand_N, Rand_I, Rand_J;
-    float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, Area_PI_Val, Area_PI_Error, Area_PI_Runtime, Area_PI_TFlops, Integral_PI_Val, Integral_PI_Error, Integral_PI_Runtime, Integral_PI_TFlops, starBorderReward, BDraw_fontSize, BDraw_boxThickness;
+    float lineThickness, Avg_Val, Avg_Val_Runtime, Avg_Val_TFlops, Area_PI_Val, Area_PI_Error, Area_PI_Runtime, Area_PI_TFlops, Integral_PI_Val, Integral_PI_Error, Integral_PI_Runtime, Integral_PI_TFlops, starBorderReward, temperature, BDraw_fontSize, BDraw_boxThickness;
     float4 BDraw_boxColor;
     uint4 Rand_seed4;
   };
   struct BDraw_FontInfo { float2 uvBottomLeft, uvBottomRight, uvTopLeft, uvTopRight; int advance, bearing, minX, minY, maxX, maxY; };
   struct BDraw_TextInfo { float3 p, right, up, p0, p1; float2 size, uvSize; float4 color, backColor; uint justification, textI, quadType, axis; float height; };
+  struct TSP_Runtime { string runtime_Name, runtime_timeStr; float runtime_pathLength, runtime_iterationN, runtime_xFaster; string runtime_xTime; };
+  struct TSP_TimeComplexity { uint order_size; float order_gpu_us, order_cpu_us; string order_gpu_timeStr, order_cpu_timeStr; float order_xFaster; string order_xTime, order_gpu_time_complexity, order_cpu_time_complexity; };
   groupshared uint4 Rand_grp[1024];
   groupshared uint BDraw_ABuff_grp[1024];
   groupshared uint BDraw_ABuff_grp0[1024];
@@ -70,7 +72,13 @@
   RWStructuredBuffer<BDraw_FontInfo> BDraw_fontInfos;
   RWStructuredBuffer<uint4> Rand_rs;
   [numthreads(numthreads1, 1, 1)] void init_path_lengths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { pathLengths[id.x] = 0; } } }
-  [numthreads(numthreads1, 1, 1)] void find_min_path_lengthI(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { uint i = id.x, len = uints[UInts_MinPathLength]; if (pathLengths[i] == len && len < pathLengths[0]) { uints[UInts_MinPathI] = i; uints[UInts_Count] = 0; } } } }
+  [numthreads(numthreads1, 1, 1)] void find_min_path_lengthI(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.starPathN) { uint i = id.x, len = uints[UInts_MinPathLength]; if (pathLengths[i] == len && len < pathLengths[0]) { uints[UInts_MinPathI] = i; uints[UInts_Count] = 0; } }
+		}
+	}
   [numthreads(numthreads1, 1, 1)] void find_min_path_length(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { InterlockedMin(uints, UInts_MinPathLength, pathLengths[id.x]); } } }
   [numthreads(numthreads1, 1, 1)] void init_min_path_length(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < 2) { uints[id.x + 1] = id.x == 0 ? uint_max : 0; } } }
   [numthreads(numthreads1, 1, 1)] void Rand_initSeed(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_N) { uint i = id.x; Rand_rs[i] = i == 0 ? g.Rand_seed4 : u0000; } } }
@@ -120,9 +128,21 @@
   void starPath(uint pathI, uint starI, uint v) { starPaths[(pathI + 1) * g.starN + (starI % g.starN)] = v; }
   uint bestPath(uint starI) { return starPaths[starI % g.starN]; }
   void bestPath(uint starI, uint v) { starPaths[starI % g.starN] = v; }
-  [numthreads(numthreads2, numthreads2, 1)] void init_paths(uint3 id : SV_DispatchThreadID) { unchecked { if (id.y < g.starPathN && id.x < g.starN) { uint pI = id.y, cI = id.x; if (pI == 0) bestPath(cI, cI); else starPath(pI, cI, uint_max); } } }
+  [numthreads(numthreads2, numthreads2, 1)] void init_paths(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.y < g.starPathN && id.x < g.starN) { uint pI = id.y, cI = id.x; if (pI == 0) bestPath(cI, cI); else starPath(pI, cI, uint_max); }
+		}
+	}
   uint starPath(uint pathI, uint starI) { return starPaths[(pathI + 1) * g.starN + (starI % g.starN)]; }
-  [numthreads(numthreads1, 1, 1)] void save_best_path(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starPathN) { uint starI = id.x; bestPath(starI, starPath(uints[UInts_MinPathI] - 1, starI)); } } }
+  [numthreads(numthreads1, 1, 1)] void save_best_path(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.starPathN) { uint starI = id.x; bestPath(starI, starPath(uints[UInts_MinPathI] - 1, starI)); }
+		}
+	}
   BDraw_TextInfo BDraw_textInfo(uint i) { return BDraw_textInfos[i]; }
   void BDraw_textInfo(uint i, BDraw_TextInfo t) { BDraw_textInfos[i] = t; }
   [numthreads(numthreads1, 1, 1)] void BDraw_setDefaultTextInfo(uint3 id : SV_DispatchThreadID)
@@ -164,9 +184,11 @@
 		}
 	}
   bool IsInPath(uint i, uint a, uint b) { a %= g.starN; b %= g.starN; if (i < a) i += g.starN; if (b < a) b += g.starN; return i >= a && i <= b; }
+	
   uint ReversePath(uint starI, uint a, uint b) { return IsInPath(starI, a, b) ? (b - (starI - a) + g.starN) % g.starN : starI; }
   uint TransferPath(uint starJ, uint a, uint c) { return starJ + c - a; }
   uint InsertPath(uint starJ, uint a, uint b, uint c) { uint d = c + b - a; return starJ + (starJ >= c % g.starN ? b - a + 1 : d % g.starN <= b - a ? (d + 1) % g.starN : 0); }
+	
   uint RemovePath(uint starJ, uint a, uint b) { return starJ - (starJ > b % g.starN ? b >= g.starN ? ((b + 1) % g.starN) : b - a + 1 : 0); }
   uint MovePath(uint starI, uint a, uint b, uint c) { return IsInPath(starI, a, b) ? TransferPath(starI, a, c) : InsertPath(RemovePath(starI, a, b), a, b, c); }
   [numthreads(numthreads2, numthreads2, 1)] void calc_paths(uint3 id : SV_DispatchThreadID)
@@ -174,13 +196,11 @@
 		unchecked
 		{
 			if (id.y < g.starPathN - 1 && id.x < g.starN)
-		  {
-		    uint pathI = id.y, starI = id.x;
-		    int3 seg = segments[pathI];
-		    uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z;
-		    uint starJ = seg.z == -1 ? ReversePath(starI, a, b) : MovePath(starI, a, b, c);
-		    starPath(pathI, starJ, bestPath(starI));
-		  }
+			{
+				uint pathI = id.y, starI = id.x; int3 seg = segments[pathI];
+				uint a = (uint)seg.x, b = (uint)seg.y, c = (uint)seg.z, starJ = seg.z == -1 ? ReversePath(starI, a, b) : MovePath(starI, a, b, c);
+				starPath(pathI, starJ, bestPath(starI));
+			}
 		}
 	}
   float u2f(uint u) { return u * 1e-5f; }
@@ -190,12 +210,12 @@
 		unchecked
 		{
 			if (id.y < g.starPathN && id.x < g.starN)
-		  {
-		    uint starI = id.x, pathI = id.y, starJ = (starI + 1) % g.starN;
-		    uint aI = starPath(pathI - 1, starI), bI = starPath(pathI - 1, starJ);
-		    float3 a = stars[aI], b = stars[bI];
-		    InterlockedAdd(pathLengths, pathI, f2u(max(0, distance(a, b) - g.starBorderReward * Is(a.x * b.x < 0))));
-		  }
+			{
+				uint starI = id.x, pathI = id.y, starJ = (starI + 1) % g.starN;
+				uint aI = starPath(pathI - 1, starI), bI = starPath(pathI - 1, starJ);
+				float3 a = stars[aI], b = stars[bI];
+				InterlockedAdd(pathLengths, pathI, f2u(max(0, distance(a, b) - g.starBorderReward * Is(a.x * b.x < 0))));
+			}
 		}
 	}
   float i2f(int i) { return i * 1e-6f; }
@@ -223,8 +243,20 @@
   uint4 Rand_UInt4(uint i) { return Rand_rs[i] = Rand_rUInt4(i); }
   float Rand_Float(uint i) { return Rand_FV(Rand_UInt4(i)); }
   [numthreads(numthreads1, 1, 1)] void Calc_Integral_PI(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { InterlockedAdd(ints, 0, f2i(sqrt(1 - sqr(Rand_Float(id.x))) - PIo4)); } } }
-  [numthreads(numthreads1, 1, 1)] void Count_Pnts_out_of_Circle(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { uint j = id.x << 1; if (distance(2 * float2(Rand_Float(j), Rand_Float(j + 1)), f11) > 1) InterlockedAdd(uints, 0, 1); } } }
-  [numthreads(numthreads1, 1, 1)] void Count_Pnts_in_Circle(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { uint i = id.x << 1; if (distance(2 * float2(Rand_Float(i), Rand_Float(i + 1)), f11) < 1) InterlockedAdd(uints, UInts_Count, 1); } } }
+  [numthreads(numthreads1, 1, 1)] void Count_Pnts_out_of_Circle(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.pntN) { uint j = id.x << 1; if (distance(2 * float2(Rand_Float(j), Rand_Float(j + 1)), f11) > 1) InterlockedAdd(uints, 0, 1); }
+		}
+	}
+  [numthreads(numthreads1, 1, 1)] void Count_Pnts_in_Circle(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.pntN) { uint i = id.x << 1; if (distance(2 * float2(Rand_Float(i), Rand_Float(i + 1)), f11) < 1) InterlockedAdd(uints, UInts_Count, 1); }
+		}
+	}
   float Rand_Float(uint i, float A, float B) { return lerp(A, B, Rand_Float(i)); }
   [numthreads(numthreads1, 1, 1)] void Calc_Average(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.pntN) { InterlockedAdd(ints, 0, f2i(Rand_Float(id.x, -1, 1))); } } }
   uint Rand_UInt(uint i, uint A, uint B) { return flooru(Rand_Float(i, A, B)); }
@@ -233,16 +265,22 @@
 		unchecked
 		{
 			if (id.x < g.starPathN)
-		  {
-		    uint i = id.x, j = i * 4, a = Rand_UInt(j + 1, 0, g.starN), b = a + 1 + Rand_UInt(j + 2, 0, g.starN - 1);
-		    bool isReverse = Rand_Float(j) < 0.5f;
-		    int c = isReverse ? -1 : (int)(b + 1 + Rand_UInt(j + 3, 0, g.starN - (b - a)));
-		    segments[i] = int3(a, b, c);
-		  }
+			{
+				uint i = id.x, j = i * 4, a = Rand_UInt(j + 1, 0, g.starN), b = a + Rand_UInt(j + 2, 1, roundu(g.temperature * g.starN));
+				bool isReverse = Rand_Float(j) < 0.5f;
+				int c = isReverse ? -1 : (int)(b + 1 + Rand_UInt(j + 3, 0, g.starN - (b - a)));
+				segments[i] = int3(a, b, c);
+			}
 		}
 	}
   [numthreads(numthreads1, 1, 1)] void Rand_initState(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.Rand_I) { uint i = id.x + g.Rand_I; if (i < g.Rand_N) Rand_rs[i] = index(Rand_rs[i], g.Rand_J, Rand_UInt(id.x, 0, uint_max)); } } }
-  [numthreads(numthreads1, 1, 1)] void init_stars(uint3 id : SV_DispatchThreadID) { unchecked { if (id.x < g.starN) { uint i = id.x, j = i * 3; stars[i] = float3(Rand_Float(j, -1, 1), Rand_Float(j + 1, -1, 1), Rand_Float(j + 2, -1, 1)); } } }
+  [numthreads(numthreads1, 1, 1)] void init_stars(uint3 id : SV_DispatchThreadID)
+	{
+		unchecked
+		{
+			if (id.x < g.starN) { uint i = id.x, j = i * 3; stars[i] = float3(Rand_Float(j, -1, 1), Rand_Float(j + 1, -1, 1), Rand_Float(j + 2, -1, 1)); }
+		}
+	}
   #pragma kernel init_stars
   #pragma kernel calc_paths
   #pragma kernel init_paths

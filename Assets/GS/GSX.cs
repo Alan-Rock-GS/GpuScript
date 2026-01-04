@@ -77,8 +77,14 @@ namespace GpuScript
 		public static GameObject locAngs(this GameObject o, float3 a) { o.transform.localEulerAngles = a; return o; }
 		public static GameObject locAngs(this GameObject o, float x, float y, float z) => o.locAngs(float3(x, y, z));
 
-		public static GameObject LookAt(this GameObject o, GameObject target, float3 up) { o.transform.LookAt(target.transform, up); return o; }
-		public static GameObject LookAt(this GameObject o, GameObject target) => o.LookAt(target, f010);
+		//public static GameObject LookAt(this GameObject o, GameObject target, float3 up) { o.transform.LookAt(target.transform, up); return o; }
+		//public static GameObject LookAt(this GameObject o, GameObject target) => o.LookAt(target, f010);
+		public static GameObject LookAt(this GameObject o, float3 p, float3 up) { o.transform.LookAt(p, up); return o; }
+		public static GameObject LookAt(this GameObject o, float3 p) => o.LookAt(p, f010);
+		public static GameObject LookAt(this GameObject o, GameObject target, float3 up) => o.LookAt(target.P(), up);
+		public static GameObject LookAt(this GameObject o, GameObject target) => o.LookAt(target.P(), f010);
+
+
 		public static GameObject Rotate(this GameObject o, float3 axis, float angle) { o.transform.Rotate(axis, angle, UnityEngine.Space.World); return o; }
 		public static GameObject LookAt_Rotate(this GameObject o, GameObject target, float3 up, float angle) => o.LookAt(target, up).Rotate(up, angle);
 		//cube.P(turret.P()).LookAt_Rotate(gs_shock.droneObjs[0].drone, turret.transform.up, -90);
